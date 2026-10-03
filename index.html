@@ -58,6 +58,24 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 .alerte{border-left:4px solid var(--rouge)}
 .ordre{white-space:pre-line;font-size:13px;margin-top:8px;padding:8px 10px;background:var(--fond);border-radius:8px}
 .fab{position:fixed;right:18px;bottom:calc(132px + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;border:0;background:var(--vert2);color:#fff;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+/* --- Version ordinateur (même adresse, mêmes données) --- */
+@media (min-width:1024px){
+body{padding:0 0 30px 230px}
+header{padding:14px 28px}header h1{font-size:20px}
+nav{top:0;bottom:0;right:auto;width:230px;display:flex;flex-direction:column;border-top:0;border-right:1px solid var(--ligne);padding:70px 10px 10px;gap:2px}
+nav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;min-height:44px;padding:8px 14px;border-radius:10px}
+nav button span{font-size:20px;width:26px;text-align:center}
+nav button.on{background:var(--fond)}
+nav::before{content:"Pilotage pharmacie";position:absolute;top:22px;left:24px;font-weight:800;color:var(--vert2);font-size:16px}
+main{max-width:1500px;padding:20px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:0 16px;align-items:start}
+main>*{grid-column:1/-1}
+main>.item,main>.reco,main>.op{grid-column:auto}
+.kpis{grid-template-columns:repeat(4,1fr)}
+.tuiles{grid-template-columns:repeat(3,1fr)}
+.item .sub{white-space:normal}
+.fab{bottom:28px;right:28px}
+#toast{bottom:40px}
+}
 </style>
 </head>
 <body>
@@ -67,9 +85,9 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.7';
+const APP_V='1.9';
 const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Agenda'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
-let D=null,vue='acc',filtre='Ouvertes',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
+let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -220,9 +238,26 @@ function accueil(){
   brancherStatuts();
 }
 
+function classement(){
+  const m={};const get=n=>m[n]=m[n]||{n,stock:0,marche:0,prix:0,rupt:0,tg:null,te:null};
+  (D.commandes||[]).forEach(c=>{const x=get(c['Laboratoire']);x.stock=(num(c['Marge en rupture €/mois'])||0)*12;x.rupt=num(c['Ruptures (réf.)'])||0});
+  (D.labos||[]).forEach(l=>{const T=tend(l['Laboratoire']);const x=get(l['Laboratoire']);x.marge=num(l['Marge € 12 mois'])||0;
+    if(T.g!==null&&T.eca!==null&&T.ca1){x.tg=T.g;x.te=T.eca;const tx=T.ca?(T.m||0)/T.ca:0;if(T.eca<T.g&&!/^(BIOGARAN|MYLAN|TEVA|ARROW|ZENTIVA|EG LABO|SANDOZ)/i.test(l['Laboratoire']))x.marche=(T.g-T.eca)*T.ca1*tx}
+    const pol=l['Politique prix']||'';if(pol==='Libre'&&l['Statut prix']!=='Fait')x.prix=num(l['Impact prix cibles €/an'])||0});
+  return Object.values(m).map(x=>({...x,tot:x.stock+x.marche+x.prix})).filter(x=>x.tot>0&&(x.marge||0)>0).sort((a,b)=>b.tot-a.tot);
+}
 function actions(){
-  $('#ht').textContent='Actions';
-  const doms=['Ouvertes','P1','Prix','Laboratoire','Visibilité','Surface de vente','Écrans','Promotions','Équipe','Suivi','Performance','Faites'];
+  $('#ht').textContent='Actions'; fab(null);
+  if(filtre==='Classement'){const c=classement().slice(0,25);
+    $('#m').innerHTML=`<div class="filtres">${['Classement','Ouvertes','P1','Stock','Marché','Prix','Laboratoire','Écrans','Faites'].map(d=>`<button class="${d===filtre?'on':''}" data-f="${d}">${d}</button>`).join('')}</div>
+    <div class="carte"><b>Laboratoires à traiter en priorité</b><div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">Enjeu en marge €/an = ruptures (stock relevé le ${dfr(((D.commandes||[]).map(c=>c['Date relevé']).filter(Boolean).sort().slice(-1)[0])||'')}, ventes 29/09/2025 → 28/09/2026) + retard sur les grandes officines GERS (CA 09/2025 → 08/2026 vs 09/2024 → 08/2025, date pour date) + prix pas encore revus. Génériques exclus du retard marché (substitution Zentiva en priorité). Classement à refaire tous les 15 jours, après chaque export.</div></div>
+    ${c.map((x,i)=>`<div class="carte item" data-k="${esc(x.n)}"><span class="badge p${i<5?1:i<12?2:3}">n°${i+1}</span>
+      <div class="grow"><b>${esc(x.n)}</b><div class="sub">Enjeu ≈ <b>${eur(x.tot)}</b>/an${x.stock?' · ruptures '+eur(x.stock)+' ('+x.rupt+' réf.)':''}${x.marche?' · retard marché '+eur(x.marche):''}${x.prix?' · prix '+eur(x.prix):''}</div>
+      ${x.tg!==null?`<div class="sub" style="font-size:12px;color:var(--doux)">12 mois : nous ${pct(x.te,1)} · grandes officines ${pct(x.tg,1)}</div>`:''}</div></div>`).join('')||'<p class="vide">Rien à classer.</p>'}`;
+    document.querySelectorAll('.filtres button').forEach(b=>b.onclick=()=>{filtre=b.dataset.f;actions()});
+    document.querySelectorAll('.item').forEach(e=>e.onclick=()=>{if((D.labos||[]).some(l=>l['Laboratoire']===e.dataset.k))fiche(e.dataset.k,'syn')});
+    return;}
+  const doms=['Classement','Ouvertes','P1','Stock','Marché','Prix','Laboratoire','Visibilité','Surface de vente','Écrans','Promotions','Équipe','Suivi','Performance','Faites'];
   let l=D.recos.slice();
   if(filtre==='Faites')l=l.filter(r=>!ouverte(r)); else{l=l.filter(ouverte); if(filtre==='P1')l=l.filter(r=>+r['Priorité']===1); else if(filtre!=='Ouvertes')l=l.filter(r=>r['Domaine']===filtre)}
   $('#m').innerHTML=`<div class="filtres">${doms.map(d=>`<button class="${d===filtre?'on':''}" data-f="${d}">${d}</button>`).join('')}</div>
@@ -246,9 +281,9 @@ function labos(){
    <div class="sub" style="font-size:12px;color:var(--doux)">${mT?Math.round(mF/mT*100):0} % de la marge du périmètre prix est à jour (${eur(mF)} sur ${eur(mT)}) · ✅ ${nb('Fait')} fait · 🟠 ${nb('À valider')} à valider · 🟡 ${nb('À revoir')} à revoir · ⭕ ${nb('À faire')} à faire</div></div>
   <input id="q" placeholder="Rechercher parmi les ${tous.length} laboratoires" value="${esc(recherche)}">
   <div class="filtres" style="margin-top:8px">${grp.map(g=>`<button class="${g===filtreLab?'on':''}" data-g="${g}">${g} (${nb(g)})</button>`).join('')}</div>
-  <p class="titre">${l.length} laboratoire(s) — tri par marge</p>
+  <p class="titre">${l.length} laboratoire(s) — tri par marge sur 12 mois (sept. 2025 → août 2026)</p>
   ${l.map(x=>{const e=etatPrix(x);return `<div class="carte item" data-k="${esc(x['Laboratoire'])}"><span class="ico" title="${esc(e[1])}">${e[0]}</span>
-   <div class="grow"><b>${esc(x['Laboratoire'])}</b><div class="sub">${eur(x['Marge € 12 mois'])} de marge · ${esc(e[1])}${x['Date repricing']?' le '+dfr(x['Date repricing']):''}${x['Suivi repricing']?' · '+esc(String(x['Suivi repricing']).split(' — ')[0]):''}</div></div>
+   <div class="grow"><b>${esc(x['Laboratoire'])}</b><div class="sub">${eur(x['Marge € 12 mois'])} de marge sur 12 mois · ${esc(e[1])}${x['Date repricing']?' le '+dfr(x['Date repricing']):''}${x['Suivi repricing']?' · '+esc(String(x['Suivi repricing']).split(' — ')[0]):''}</div></div>
    ${EM[x['Laboratoire']]!==null?`<span style="font-size:12px">${fleche(EM[x['Laboratoire']])}</span>`:''}
    ${x['Classe']?`<span class="badge ${esc(x['Classe'])}">${esc(x['Classe'])}</span>`:''}</div>`}).join('')||'<p class="vide">Aucun laboratoire.</p>'}`;
   const qi=$('#q'); qi.oninput=()=>{recherche=qi.value;labos();const n=$('#q');n.focus();n.setSelectionRange(n.value.length,n.value.length)};
@@ -267,7 +302,11 @@ function gersDet(t){const c=String(t['Commentaire']||''),n=re=>{const m=c.match(
 function carteGers(T){if(T.g===null)return '<div class="carte"><div class="sub" style="white-space:normal">Face au marché (GERS) : pas encore de donnée pour ce laboratoire.</div></div>';
   const G=gersDet(T.t),L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`,d=T.eca!==null?T.eca-T.g:null;
   return `<div class="carte"><div style="font-weight:600;margin-bottom:4px">Face au marché (GERS, CA 12 mois vs N-1)</div>${L('Nous (CA HT)',T.eca===null?'—':fleche(T.eca))}${L('Grandes officines (CA ≥ 5 M€)',fleche(T.g))}${L('Toutes officines',G.all===null?'—':fleche(G.all))}${G.vol===null?'':L('Volumes grandes officines',fleche(G.vol))}${d===null?'':L('Écart avec les grandes officines',(d>=0?'+':'−')+Math.abs(d*100).toFixed(1).replace('.',',')+' pts')}
-   <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal;margin-top:4px">Panel GERS constant (5 214 officines, dont 374 à plus de 5 M€ TTC), relevé du 03/10/2026${G.ref?' ; référence : '+esc(G.ref):''}.${G.faible?' Volume GERS faible : tendance peu fiable.':''}</div></div>`}
+   <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal;margin-top:4px">Période identique, date pour date : 12 mois du 01/09/2025 au 31/08/2026 comparés au 01/09/2024 → 31/08/2025 (Vindilis pour nous, GERS pour le marché). Panel GERS constant (5 214 officines, dont 374 à plus de 5 M€ TTC), relevé du 03/10/2026${G.ref?' ; référence : '+esc(G.ref):''}.${G.faible?' Volume GERS faible : tendance peu fiable.':''}</div></div>`}
+function carteStock(nom){const c=(D.commandes||[]).find(x=>x['Laboratoire']===nom);if(!c)return '';
+  const L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`;
+  return `<div class="carte"><div style="font-weight:600;margin-bottom:4px">Stock (relevé du ${dfr(c['Date relevé'])})</div>${L('Références en rupture',ent(c['Ruptures (réf.)']))}${L('Marge en jeu',eur(c['Marge en rupture €/mois'])+'/mois')}${L('Stock faible (moins de 2 semaines)',ent(c['Stock faible (réf.)']))}
+   ${c['Produits en rupture']?`<div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">${esc(c['Produits en rupture'])}</div>`:''}</div>`}
 const opsLabo=nom=>(D.operations||[]).filter(o=>o['Laboratoire']===nom).sort((a,b)=>String(a['Début']).localeCompare(String(b['Début'])));
 const fleche=v=>v===null?'':`<b class="${v<0?'neg':'pos'}">${v<0?'▼':'▲'} ${pct(Math.abs(v))}</b>`;
 function verdict(T){
@@ -295,7 +334,7 @@ function fiche(nom,ong){
     <div class="carte">${L('Prix',e[0]+' '+esc(e[1])+(x['Date repricing']?' le '+dfr(x['Date repricing']):''))}${L('Part de la marge (prix libre)',pct(x['Part de la marge %']))}${L('Classe Pareto','<span class="badge '+esc(x['Classe'])+'">'+esc(x['Classe']||'–')+'</span>')}
      ${L('Univers',esc(x['Univers']||'—'))}${L('Politique prix',esc(x['Politique prix']||'—'))}${L('Score 360°','<span class="score">'+esc(x['Score 360° /5'])+'/5</span>')}
      ${L('Opérations en cours / à venir',ops.length)}${L('Emplacements · écrans',empl.length+' · '+ecr.length)}</div>
-    ${carteGers(T)}
+    ${carteGers(T)}${carteStock(nom)}
     <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">N = sept. 2025 → août 2026 ; N-1 = sept. 2024 → août 2025 (Vindilis, statistiques fournisseurs).</div>`;
   } else if(ongletFiche==='prix'){
     corps=`<div class="carte"><div style="font-size:18px">${e[0]} <b>${esc(e[1])}</b></div>
@@ -335,17 +374,18 @@ function carteOp(o){return `<div class="carte op" data-id="${esc(o['ID'])}" styl
 
 /* ---------- Commandes ---------- */
 function commandes(){
-  $('#ht').textContent='Commandes';
-  const l=(D.commandes||[]).slice().sort((a,b)=>(num(a['Commander sous (jours)'])??999)-(num(b['Commander sous (jours)'])??999)||(num(b['Marge € 12 mois'])||0)-(num(a['Marge € 12 mois'])||0));
-  const dates=l.map(c=>c['Date export']).filter(Boolean).sort(), dx=dates[dates.length-1], age=jours(dx);
-  const vieux=age!==null&&age>2;
-  $('#m').innerHTML=`<div class="carte ${vieux?'alerte':''}"><b>${dx?'Données du '+dfr(dx)+(age!==null?' (il y a '+age+' j)':''):'Aucune donnée'}</b>
-   <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">${vieux?'⚠ Données anciennes : vérifier le stock réel dans Vindilis avant de commander. ':''}Couverture = mois de stock restants au rythme des ventes ; « commander sous » = délai avant rupture, délai de livraison déduit.</div></div>
-  <p class="titre">${l.length} laboratoire(s) — du plus urgent au moins urgent</p>
-  ${l.map((c,i)=>`<div class="carte item" data-i="${(D.commandes||[]).indexOf(c)}">${bdg(c['Priorité']||'—')}
-   <div class="grow"><b>${esc(c['Laboratoire'])}</b><div class="sub">commander sous ${ent(c['Commander sous (jours)'])} j · couverture ${num(c['Couverture stock (mois)'])===null?'—':(+c['Couverture stock (mois)']).toLocaleString('fr-FR',{maximumFractionDigits:1})} mois · marge ${eur(c['Marge € 12 mois'])}/an</div></div></div>`).join('')||'<p class="vide">Aucune alerte de commande.</p>'}`;
+  $('#ht').textContent='Commandes — état du stock';
+  const l=(D.commandes||[]).slice().sort((a,b)=>(num(b['Marge en rupture €/mois'])||0)-(num(a['Marge en rupture €/mois'])||0));
+  const dates=l.map(c=>c['Date relevé']).filter(Boolean).sort(), dx=dates[dates.length-1], age=jours(dx);
+  const vieux=age!==null&&age>7, tot=l.reduce((s,c)=>s+(num(c['Marge en rupture €/mois'])||0),0), nR=l.reduce((s,c)=>s+(num(c['Ruptures (réf.)'])||0),0);
+  $('#m').innerHTML=`<div class="carte ${vieux?'alerte':''}"><b>${dx?'Stock relevé le '+dfr(dx)+(age!==null?' (il y a '+age+' j)':''):'Aucun relevé'}</b>
+   <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">${vieux?'⚠ Relevé ancien : vérifier le stock réel dans Vindilis avant de commander. ':''}${nR} référence(s) en rupture, environ <b>${eur(tot)}</b> de marge par mois en jeu. Rupture = référence active vendue au moins 6 fois du 29/09/2025 au 28/09/2026 et à 0 en stock au relevé ; commandes en cours non déduites.</div></div>
+  <p class="titre">${l.length} laboratoire(s) — classés par marge en jeu</p>
+  ${l.map(c=>`<div class="carte item" data-i="${(D.commandes||[]).indexOf(c)}">${bdg(c['Priorité']||'—')}
+   <div class="grow"><b>${esc(c['Laboratoire'])}</b><div class="sub">${ent(c['Ruptures (réf.)'])} réf. en rupture · ≈ ${eur(c['Marge en rupture €/mois'])}/mois · ${ent(c['Stock faible (réf.)'])} en stock faible</div>
+   ${c['Produits en rupture']?`<div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">${esc(c['Produits en rupture'])}</div>`:''}</div></div>`).join('')||'<p class="vide">Aucune rupture relevée.</p>'}`;
   document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire('COMMANDES',D.commandes[+e.dataset.i]));
-  fab(()=>formulaire('COMMANDES',null));
+  fab(null);
 }
 
 /* ---------- Agenda commercial ---------- */
@@ -387,12 +427,15 @@ function liste(sheet,cle,titre,sous){
 }
 const rayon=()=>liste('SURFACE_VENTE','Code emplacement','Surface de vente',x=>[x['Type'],x['Laboratoire'],x['Produit / thème'],x['Fin']?'fin '+dfr(x['Fin']):'',num(x['Marge €/semaine'])!==null?eur(x['Marge €/semaine'])+'/sem.':'',x['Relais écran']==='Non'?'⚠ sans écran':''].filter(Boolean).map(esc).join(' · '));
 const REGLES=[['Un écran, un objectif','Faire entrer, monter le panier ou prendre rendez-vous. Jamais les trois.'],['Un seul message dehors','Une boucle de cinq messages ne se lit pas.'],['Quatre semaines de stock','Ne jamais diffuser un produit en rupture.'],['Même visuel dedans et dehors','Pendant toute la campagne.'],['Rotation tous les 15 jours','Sept jours en période d\'événement.'],['Une mesure par campagne','Ventes du produit sur 4 semaines contre les 4 précédentes.']];
+function blocPhares(){const p=(D.produitsEcrans||[]).slice().sort((a,b)=>(num(a['Rang'])||99)-(num(b['Rang'])||99));if(!p.length)return '';
+  return `<div class="titre">Produits phares à afficher (liste pour Dynamiz Pharma)</div><div class="carte"><div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">Produits déjà forts chez nous ET parmi les plus vendus des grandes officines (GERS, 12 mois 09/2025 → 08/2026) : ils font venir les clients. Médicaments exclus (publicité encadrée). ⚠ = à réassortir avant diffusion.</div></div>
+  ${p.map(x=>`<div class="carte"><span class="badge">n°${esc(x['Rang'])}</span> <b>${esc(x['Produit'])}</b>${num(x['Stock au relevé'])!==null&&num(x['Stock au relevé'])<=0?' <b class="neg">⚠ rupture</b>':''}<div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">${esc(x['Laboratoire'])} · ${ent(x['Ventes 12 mois (u)'])} ventes/12 mois · ${eur(x['Marge 12 mois €'])} de marge · n°${esc(x['Rang GERS grandes officines'])} des grandes officines${x['Pourquoi']?' · '+esc(x['Pourquoi']):''}</div></div>`).join('')}`}
 function ecrans(){
   liste('ECRANS','Code écran','Écrans',x=>[x['Position'],x['Laboratoire'],x['Contenu diffusé'],x['Début']?'du '+dfr(x['Début']):'',x['Fin']?'au '+dfr(x['Fin']):'',x['Relais rayon']==='Non'?'⚠ sans relais rayon':'',!x['Contenu diffusé']&&x['Commentaire']?x['Commentaire']:''].filter(Boolean).map(esc).join(' · '));
   const camp=(D.calendrier||[]).filter(e=>e['Statut']==='En cours'||e['Statut']==='À préparer');
   const haut=`<div class="titre">À diffuser maintenant (${camp.length})</div>${camp.map(e=>`<div class="carte">${bdg(e['Statut'])} <b>${esc(e['Événement'])}</b><div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">📺 ${esc(e['Écrans']||'—')} · du ${dfr(e['Début'])} au ${dfr(e['Fin'])}</div></div>`).join('')||'<p class="vide">Aucune campagne en cours.</p>'}
    <div class="carte"><b>Mesurer l'impact</b><div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">Renseignez Début, Fin, Contenu et Laboratoire de chaque diffusion : l'effet se lit sur les ventes du produit 4 semaines pendant vs 4 semaines avant.</div></div>
-   <div class="titre">Les écrans</div>`;
+   ${blocPhares()}<div class="titre">Les écrans</div>`;
   $('#m').insertAdjacentHTML('afterbegin',haut);
   $('#m').insertAdjacentHTML('beforeend',`<div class="titre">Les règles</div><div class="carte">${REGLES.map(r=>`<div class="ligne"><span><b>${r[0]}</b></span><span style="text-align:right;font-size:13px">${r[1]}</span></div>`).join('')}</div>`);
 }
@@ -428,7 +471,7 @@ function mois(){
     ${blocRef()}
     <button class="btn sec" id="bRh">🔒 Détail par collaborateur</button></div>`
     :`<div class="carte"><b>Équipe</b><div class="sub" style="font-size:13px;color:var(--doux)">Les indicateurs de masse salariale apparaîtront dès que l'onglet PAIE sera rempli.</div><button class="btn sec" id="bRh">🔒 Détail par collaborateur</button></div>`;
-  $('#m').innerHTML=carteRh+`<p class="titre">Fréquentation réelle = Ventes − 2 × recyclage</p>`+D.perf.map((p,i)=>`<div class="carte item" data-i="${i}">
+  $('#m').innerHTML=carteRh+blocOrga()+`<p class="titre">Fréquentation réelle = Ventes − 2 × recyclage</p>`+D.perf.map((p,i)=>`<div class="carte item" data-i="${i}">
    <div class="grow"><b style="text-transform:capitalize">${moisFr(p['Mois'])}</b><div class="sub">Marge ${eur(p['Marge € N'])} vs ${eur(p['Marge € N-1'])} · clients ${ent(p['Fréquentation réelle N'])} vs ${ent(p['Fréquentation réelle N-1'])}${num(p['Masse salariale / marge N'])!==null?' · salaires '+pct(p['Masse salariale / marge N'])+' de la marge':''}</div></div>
    <b class="${cls(p['Écart marge €'])}">${pct(p['Écart marge %'],1)}</b></div>`).join('');
   document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire('PERFORMANCE',D.perf[+e.dataset.i]));
@@ -439,6 +482,10 @@ function mois(){
 /* ---------- Détail RH : second code, jamais stocké durablement ---------- */
 const ss={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}},del(k){try{sessionStorage.removeItem(k)}catch(e){}}};
 let PAIE=null, moisRh='';
+const sansAcc=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+const resp=n=>(D.equipe||[]).find(e=>sansAcc(e['Collaborateur'])===sansAcc(n));
+function blocOrga(){const e=D.equipe||[];if(!e.length)return '';
+  return `<div class="titre">L'équipe — qui fait quoi</div>${e.map(x=>`<div class="carte"><b>${esc(x['Collaborateur'])}</b> — ${esc(x['Titre']||'')}${x['Responsabilités']?`<div class="sub" style="font-size:12px;white-space:normal;margin-top:4px">🎯 ${esc(x['Responsabilités'])}</div>`:''}${x['Laboratoires référents']?`<div class="sub" style="font-size:12px;color:var(--doux)">Labos référents : ${esc(x['Laboratoires référents'])}</div>`:''}</div>`).join('')}`}
 async function equipe(){
   $('#ht').textContent='Équipe 🔒'; fab(null);
   const code2=ss.get('pil_code2');
@@ -458,8 +505,8 @@ async function equipe(){
   $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Performance</button>
    <select id="selM">${lm.map(m=>`<option value="${esc(m)}" ${m===moisRh?'selected':''}>${moisFr(m)}</option>`).join('')}</select>
    <div class="carte" style="margin-top:10px">${L('Collaborateurs',l.length)}${L('Heures payées',ent(t('Heures payées')))}${L('Salaires bruts',eur(t('Salaire brut')))}${L('Coût employeur total',eur(t('Coût employeur')))}${L('Coût horaire moyen',t('Heures payées')?eur2(t('Coût employeur')/t('Heures payées')):'—')}</div>
-   ${l.map(r=>`<div class="carte"><b>${esc(r['Collaborateur'])}</b><div class="sub" style="font-size:12px;color:var(--doux)">${esc([r['Fonction'],r['Contrat']].filter(Boolean).join(' · '))}</div>
-     ${L('Heures payées',ent(r['Heures payées']))}${L('Salaire brut',eur2(r['Salaire brut']))}${L('Coût employeur',eur2(r['Coût employeur']))}${L('Coût horaire',eur2(r['Coût horaire']))}</div>`).join('')||'<p class="vide">Aucun bulletin pour ce mois.</p>'}
+   ${l.map(r=>{const q=resp(r['Collaborateur']);return `<div class="carte"><b>${esc(r['Collaborateur'])}</b>${q&&q['Titre']?' — '+esc(q['Titre']):''}<div class="sub" style="font-size:12px;color:var(--doux)">${esc([r['Fonction'],r['Contrat']].filter(Boolean).join(' · '))}</div>${q&&q['Responsabilités']?`<div class="sub" style="font-size:12px;white-space:normal;margin-top:4px">🎯 ${esc(q['Responsabilités'])}</div>`:''}
+     ${L('Heures payées',ent(r['Heures payées']))}${L('Salaire brut',eur2(r['Salaire brut']))}${L('Coût employeur',eur2(r['Coût employeur']))}${L('Coût horaire',eur2(r['Coût horaire']))}</div>`}).join('')||'<p class="vide">Aucun bulletin pour ce mois.</p>'}
    <button class="btn sec" id="lock">🔒 Verrouiller</button>`;
   $('#ret').onclick=mois; $('#selM').onchange=e=>{moisRh=e.target.value;equipe()};
   $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;mois();toast('Détail RH verrouillé')};
@@ -478,7 +525,7 @@ const LISTES={'Mise en place':'Oui / Non','Politique prix':'Politique prix','Sta
 const DATES=['Date repricing','Début','Fin','Préparer dès','Date export'];
 const PCTS=['Remise avant %','Remises arrière % (info)'];
 const NUMS=['Couverture stock (mois)','Commander sous (jours)','CA HT 12 mois','Marge € 12 mois','Marge € générée (période)','CA HT N','CA HT N-1','Marge € N','Marge € N-1','Ventes Vindilis N','Recyclage N','Ventes Vindilis N-1','Recyclage N-1','Objectif marge €'];
-const CLES={OPERATIONS:'ID',LABORATOIRES:'Laboratoire',SURFACE_VENTE:'Code emplacement',ECRANS:'Code écran',PERFORMANCE:'Mois',CALENDRIER:'Événement',COMMANDES:'Laboratoire'};
+const CLES={OPERATIONS:'ID',LABORATOIRES:'Laboratoire',SURFACE_VENTE:'Code emplacement',ECRANS:'Code écran',PERFORMANCE:'Mois',CALENDRIER:'Événement',COMMANDES:'Laboratoire',EQUIPE:'Collaborateur',PRODUITS_ECRANS:'EAN'};
 function formulaire(sheet,x){
   const champs=D.schema[sheet], cle=CLES[sheet], neuf=!x; x=x||{};
   $('#ht').textContent=neuf?'Nouveau':String(sheet==='PERFORMANCE'?moisFr(x[cle]):x[cle]);
