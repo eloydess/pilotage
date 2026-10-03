@@ -87,7 +87,7 @@ main>.item,main>.reco,main>.op{grid-column:auto}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.10';
+const APP_V='1.11';
 const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Agenda'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -121,10 +121,11 @@ const P=k=>D&&D.params?num(D.params[k]):null;
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2600)}
 
 /* ---------- API ---------- */
-const cfg=()=>({url:ls.get('pil_url')||'',code:ls.get('pil_code')||''});
+const URL_DEF='https://script.google.com/macros/s/AKfycbyQvb6qxIQ9Z1Ah97F7UouUwmqRiXNDCr1YLzgZ7afWpVDUKwWy8KVb32nVSwM-Z0oiyg/exec';
+const cfg=()=>({url:ls.get('pil_url')||URL_DEF,code:ls.get('pil_code')||''});
 let enCours=false,derniereErreur='';
 async function charger(silencieux){
-  const c=cfg(); if(!c.url||!c.code){derniereErreur='Renseignez l\'adresse et le code.';reglages();return}
+  const c=cfg(); if(!c.url||!c.code){derniereErreur='Saisissez votre code d\'accès.';reglages();return}
   if(!silencieux)toast('Actualisation…');
   enCours=true; if(!D)$('#m').innerHTML='<p class="vide">Chargement…</p>';
   try{
@@ -146,11 +147,11 @@ async function poster(body){
 /* ---------- Réglages ---------- */
 function reglages(){
   const c=cfg(); $('#ht').textContent='Réglages';
-  $('#m').innerHTML=`${derniereErreur?`<div class="carte" style="border-left:4px solid #c62828"><b>⚠ ${esc(derniereErreur)}</b></div>`:''}<div class="carte"><p>Collez l'adresse de l'application Web (Apps Script › Déployer) et votre code d'accès.</p>
+  $('#m').innerHTML=`${derniereErreur?`<div class="carte" style="border-left:4px solid #c62828"><b>⚠ ${esc(derniereErreur)}</b></div>`:''}<div class="carte"><p>Saisissez votre code d'accès puis touchez « Enregistrer ». L'adresse est déjà remplie : n'y touchez pas.</p>
   <label>Adresse de l'application Web</label><input id="u" value="${esc(c.url)}" placeholder="https://script.google.com/macros/s/…/exec">
   <label>Code d'accès</label><input id="c" type="password" inputmode="numeric" value="${esc(c.code)}">
   <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>`;
-  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim());ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='acc';charger()};
+  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim()||URL_DEF);$('#ok').textContent='Connexion…';ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='acc';charger()};
 }
 
 /* ---------- Rendu ---------- */
