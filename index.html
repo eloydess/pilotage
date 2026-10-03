@@ -56,7 +56,7 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 </style>
 </head>
 <body>
-<header><h1 id="ht">Pilotage</h1><a href="3d.html" style="background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:6px 10px;font-size:14px;text-decoration:none">🧊 3D</a><button id="bRef" aria-label="Actualiser">↻</button></header>
+<header><h1 id="ht">Pilotage</h1><a href="3d.html" style="background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:6px 10px;font-size:14px;text-decoration:none">🧊 3D</a><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
 <main id="m"></main>
 <nav id="nav"></nav>
 <div id="toast"></div>
@@ -79,15 +79,18 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setT
 
 /* ---------- API ---------- */
 const cfg=()=>({url:ls.get('pil_url')||'',code:ls.get('pil_code')||''});
+let enCours=false,derniereErreur='';
 async function charger(silencieux){
-  const c=cfg(); if(!c.url||!c.code){reglages();return}
+  const c=cfg(); if(!c.url||!c.code){derniereErreur='Renseignez l\'adresse et le code.';reglages();return}
   if(!silencieux)toast('Actualisation…');
+  enCours=true; if(!D)$('#m').innerHTML='<p class="vide">Chargement…</p>';
   try{
     const r=await fetch(c.url+'?code='+encodeURIComponent(c.code)+'&t='+Date.now());
     const j=await r.json();
-    if(!j.ok){toast(j.err||'Erreur');if(/Code/.test(j.err||''))reglages();return}
-    D=j; ls.set('pil_cache',JSON.stringify(j)); rendre(); if(!silencieux)toast('À jour');
-  }catch(e){toast('Hors ligne : dernières données affichées');}
+    enCours=false;
+    if(!j.ok){derniereErreur=j.err||'Erreur';toast(derniereErreur);if(/Code/.test(j.err||'')||!D)reglages();return}
+    derniereErreur=''; D=j; ls.set('pil_cache',JSON.stringify(j)); rendre(); if(!silencieux)toast('À jour');
+  }catch(e){enCours=false;derniereErreur='Connexion impossible au serveur ('+(e&&e.message||e)+').';if(D)toast('Hors ligne : dernières données affichées');else{toast('Connexion impossible');reglages();}}
 }
 async function poster(body){
   const c=cfg();
@@ -100,7 +103,7 @@ async function poster(body){
 /* ---------- Réglages ---------- */
 function reglages(){
   const c=cfg(); $('#ht').textContent='Réglages';
-  $('#m').innerHTML=`<div class="carte"><p>Collez l'adresse de l'application Web (Apps Script › Déployer) et votre code d'accès.</p>
+  $('#m').innerHTML=`${derniereErreur?`<div class="carte" style="border-left:4px solid #c62828"><b>⚠ ${esc(derniereErreur)}</b></div>`:''}<div class="carte"><p>Collez l'adresse de l'application Web (Apps Script › Déployer) et votre code d'accès.</p>
   <label>Adresse de l'application Web</label><input id="u" value="${esc(c.url)}" placeholder="https://script.google.com/macros/s/…/exec">
   <label>Code d'accès</label><input id="c" type="password" inputmode="numeric" value="${esc(c.code)}">
   <button class="btn" id="ok">Enregistrer</button></div>`;
@@ -112,7 +115,7 @@ function navig(){
   $('#nav').innerHTML=ONGLETS.map(o=>`<button data-v="${o[0]}" class="${o[0]===vue?'on':''}"><span>${o[1]}</span>${o[2]}</button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{vue=b.dataset.v;recherche='';rendre();scrollTo(0,0)});
 }
-function rendre(){navig(); if(!D){$('#m').innerHTML='<p class="vide">Chargement…</p>';return}
+function rendre(){navig(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
   ({acc:accueil,act:actions,lab:labos,ray:rayon,ecr:ecrans,mois:mois})[vue]();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
