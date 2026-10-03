@@ -87,7 +87,7 @@ main>.item,main>.reco,main>.op{grid-column:auto}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.12';
+const APP_V='1.13';
 const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Agenda'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -198,6 +198,51 @@ function grapheCA(ms,sel){const P=(D.perf||[]).map(p=>({m:isoMois(p['Mois']),n:n
 const majHH=()=>{const h=document.querySelector('header');if(h)document.documentElement.style.setProperty('--hh',h.offsetHeight+'px')};
 addEventListener('resize',majHH);addEventListener('load',majHH);setTimeout(majHH,0);
 const ST_LIB={Actif:'En place',Vide:'Libre',Échu:'À changer'};const stLib=v=>ST_LIB[v]||v;
+let modeEx='cumul';
+function carteExercice(){
+  // Exercice comptable du 1er avril au 31 mars. Chaque mois : valeur N de sa propre ligne, sinon N-1 de la ligne un an plus tard.
+  const V={};(D.perf||[]).forEach(p=>{const m=isoMois(p['Mois']);if(!m)return;const y=+m.slice(0,4),mo=m.slice(5,7);
+    const set=(k,ca,mg)=>{V[k]=V[k]||{};if(num(ca)!==null&&V[k].ca==null)V[k].ca=+ca;if(num(mg)!==null&&V[k].mg==null)V[k].mg=+mg};
+    set(m,p['CA HT N'],p['Marge € N']);set((y-1)+'-'+mo+'-01',p['CA HT N-1'],p['Marge € N-1'])});
+  // la valeur N d'une ligne prime sur la valeur N-1 reprise d'une autre ligne
+  (D.perf||[]).forEach(p=>{const m=isoMois(p['Mois']);if(m&&num(p['CA HT N'])!==null){V[m].ca=+p['CA HT N'];if(num(p['Marge € N'])!==null)V[m].mg=+p['Marge € N']}});
+  const moisAvecN=(D.perf||[]).filter(p=>num(p['CA HT N'])!==null).map(p=>isoMois(p['Mois'])).filter(Boolean).sort();
+  if(!moisAvecN.length)return '';
+  const der=moisAvecN[moisAvecN.length-1],dy=+der.slice(0,4),dm=+der.slice(5,7);
+  const ex=dm>=4?dy:dy-1; // exercice en cours : 1er avril ex → 31 mars ex+1
+  const ms=y=>Array.from({length:12},(_,i)=>{const mm=(3+i)%12+1,yy=mm>=4?y:y+1;return yy+'-'+String(mm).padStart(2,'0')+'-01'});
+  const MC=ms(ex),MP=ms(ex-1),nb=MC.indexOf(der)+1;
+  const g=(k,f)=>V[k]&&V[k][f]!=null?V[k][f]:null;
+  const ca=MC.map((k,i)=>i<nb?g(k,'ca'):null),caP=MP.map(k=>g(k,'ca'));
+  const S=(arr,n)=>arr.slice(0,n).reduce((s,v)=>s+(v||0),0),comp=(arr,n)=>arr.slice(0,n).every(v=>v!==null);
+  const tC=S(ca,nb),tPP=comp(caP,nb)?S(caP,nb):null,tP=comp(caP,12)?S(caP,12):null;
+  const mC=S(MC.map(k=>g(k,'mg')),nb),mPP=comp(MP.map(k=>g(k,'mg')),nb)?S(MP.map(k=>g(k,'mg')),nb):null,mP=comp(MP.map(k=>g(k,'mg')),12)?S(MP.map(k=>g(k,'mg')),12):null;
+  const ec=tPP?tC/tPP-1:null,proj=tPP&&tP?tC*tP/tPP:null;
+  const cumul=arr=>{let t=0;return arr.map(v=>v===null?null:(t+=v))};
+  const sA=modeEx==='cumul'?cumul(ca):ca,sB=modeEx==='cumul'?cumul(caP):caP;
+  const all=[...sA,...sB].filter(v=>v!==null);if(!all.length)return '';
+  const W=340,H=180,gx=44,d=8,hb=22,ht=10,mx=Math.max(...all)*1.08;
+  const X=i=>gx+i*(W-gx-d)/11,Yp=v=>ht+(H-ht-hb)*(1-v/mx);
+  const line=(arr,c,dash)=>{const p=arr.map((v,i)=>v===null?null:X(i).toFixed(1)+','+Yp(v).toFixed(1)).filter(Boolean);return p.length?`<polyline points="${p.join(' ')}" fill="none" stroke="${c}" stroke-width="2.2" ${dash?'stroke-dasharray="4 4"':''}/>`:''};
+  const k=v=>v>=1e6?(v/1e6).toLocaleString('fr-FR',{maximumFractionDigits:1})+' M':Math.round(v/1000)+' k';
+  const lib=y=>y+'-'+String(y+1).slice(2), MCC=['Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc','Jan','Fév','Mar'];
+  const pctTxt=x=>x===null?'—':(x>0?'+':'')+(x*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';
+  const fin='au '+String(new Date(dy,dm,0).getDate()).padStart(2,'0')+'/'+String(dm).padStart(2,'0')+'/'+dy;
+  return `<div class="carte"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="flex:1">Exercice comptable ${lib(ex)} vs ${lib(ex-1)} (1er avril → 31 mars)</b>
+   <div class="filtres" id="exMode" style="margin:0">${[['cumul','Cumulé'],['mois','Par mois']].map(o=>`<button data-m="${o[0]}" class="${o[0]===modeEx?'on':''}">${o[1]}</button>`).join('')}</div></div>
+   <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px" role="img" aria-label="CA HT par exercice comptable">
+   ${[0,0.5,1].map(t=>mx/1.08*t).map(v=>`<line x1="${gx}" x2="${W-d}" y1="${Yp(v)}" y2="${Yp(v)}" stroke="#eceff1"/><text x="${gx-4}" y="${Yp(v)+3}" font-size="9" text-anchor="end" fill="#78909c">${k(v)}</text>`).join('')}
+   ${line(sB,'#90a4ae',1)}${line(sA,'#1b5e20')}
+   ${MCC.map((m,i)=>`<text x="${X(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="#78909c">${m}</text>`).join('')}</svg>
+   <div class="sub" style="font-size:11px;color:var(--doux)"><span style="color:#1b5e20">━ ${lib(ex)}</span> · <span style="color:#90a4ae">┅ ${lib(ex-1)}</span> · ${modeEx==='cumul'?'CA HT cumulé depuis le 1er avril':'CA HT de chaque mois'}</div>
+   <div class="ligne"><span>CA HT exercice ${lib(ex-1)} (complet)</span><b>${tP!==null?eur(tP):'—'}</b></div>
+   <div class="ligne"><span>CA HT ${lib(ex)} du 01/04/${ex} ${fin} (${nb} mois)</span><b>${eur(tC)}</b></div>
+   <div class="ligne"><span>CA HT ${lib(ex-1)} même période</span><b>${tPP!==null?eur(tPP):'—'}</b></div>
+   <div class="ligne"><span>Écart CA, même période</span><b class="${ec===null?'':cls(ec)}">${pctTxt(ec)}${tPP!==null?' ('+(tC-tPP>0?'+':'')+eur(tC-tPP)+')':''}</b></div>
+   <div class="ligne"><span>Marge € ${lib(ex)} / même période ${lib(ex-1)}</span><b>${eur(mC)} / ${mPP!==null?eur(mPP):'—'}</b></div>
+   <div class="ligne"><span>Marge € exercice ${lib(ex-1)} (complet)</span><b>${mP!==null?eur(mP):'—'}</b></div>
+   <div class="ligne"><span>Projection CA ${lib(ex)} au 31/03/${ex+1}</span><b>${proj!==null?eur(proj):'—'}</b></div>
+   <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">Mois complets saisis dans « Performance » (Vindilis). Le mois en cours s'ajoute au bilan mensuel du 3. La projection applique à ${lib(ex)} le poids des mois restants observé en ${lib(ex-1)}.</div></div>`}
 function accueil(){majHH();
   const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
   const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};
@@ -233,6 +278,7 @@ function accueil(){majHH();
   <div class="carte"><div class="ligne"><span>Effet fréquentation</span><b class="${cls(eF)}">${eur(eF)}</b></div>
   <div class="ligne"><span>Effet marge par client</span><b class="${cls(eM)}">${eur(eM)}</b></div></div>
   ${grapheCA(ms,moisSel)}
+  ${carteExercice()}
   <div class="titre">Cumul ${an} (${nbCum} mois saisis jusqu'à ${moisFr(moisSel)})</div><div class="kpis">${kpi2('CA HT cumulé',cum('CA HT N'),cum('CA HT N-1'),eur)}${kpi2('Marge € cumulée',cum('Marge € N'),cum('Marge € N-1'),eur)}</div>
   <div class="titre">Leviers</div><div class="carte">${lev}</div>
   <div class="titre">Top 5 des actions</div>${top.length?top.map(carteReco).join(''):'<p class="vide">Aucune action ouverte 👍</p>'}`;
@@ -240,6 +286,7 @@ function accueil(){majHH();
   document.querySelectorAll('.tuile').forEach(t=>t.onclick=()=>{vue=t.dataset.go;if(vue==='lab'){filtreLab='À valider';recherche=''}rendre();scrollTo(0,0)});
   $('#mSel').onchange=e=>go(e.target.value);
   if($('#mPrev'))$('#mPrev').onclick=()=>{if(i>0)go(ms[i-1])};
+  document.querySelectorAll('#exMode button').forEach(b=>b.onclick=()=>{modeEx=b.dataset.m;const y=scrollY;accueil();scrollTo(0,y)});
   if($('#mNext'))$('#mNext').onclick=()=>{if(i<ms.length-1)go(ms[i+1])};
   brancherStatuts();
 }
@@ -305,6 +352,40 @@ function tend(nom){const t=(D.tendances||[]).find(r=>r['Laboratoire']===nom)||{}
     em:ev(x['Marge € 12 mois'],t['Marge € N-1']),eca:ev(x['CA HT 12 mois'],t['CA HT N-1']),eq:ev(t['Quantité N'],t['Quantité N-1']),g:num(t['Évolution nationale GERS %'])}}
 function gersDet(t){const c=String(t['Commentaire']||''),n=re=>{const m=c.match(re);return m?(m[1]==='−'||m[1]==='-'?-1:1)*parseFloat(m[2].replace(',','.'))/100:null};
   const r=c.match(/Référence GERS : ([^.]*)\./);return {all:n(/toutes officines \([^)]*\) ([+−-])(\d+,\d) %/),vol:n(/volumes grandes officines ([+−-])(\d+,\d) %/),ref:r?r[1]:'',faible:/Volume GERS faible/.test(c)}}
+let modeAn='cumul';
+const MOIS_C=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sep','Oct','Nov','Déc'];
+function carteAnnees(nom){
+  const R=(D.ventesMois||[]).filter(r=>r['Laboratoire']===nom&&num(r['Année'])!==null);
+  if(!R.length)return '<div class="carte"><b>Ventes par année civile</b><div class="sub" style="white-space:normal;font-size:12px;color:var(--doux)">Pas encore de ventes mensuelles pour ce laboratoire (chargement à venir depuis Vindilis).</div></div>';
+  const Y=Math.max(...R.map(r=>+r['Année'])),cur=R.find(r=>+r['Année']===Y),prev=R.find(r=>+r['Année']===Y-1);
+  const vals=r=>MOIS_C.map(m=>r?num(r[m]):null);
+  const a=vals(cur),b=vals(prev);
+  let last=-1;a.forEach((v,i)=>{if(v!==null)last=i});
+  const cumA=(()=>{let t=0;return a.map((v,i)=>i>last?null:(t+=(v||0)))})(), cumB=(()=>{let t=0;return b.map(v=>v===null?null:(t+=v))})();
+  const sA=modeAn==='cumul'?cumA:a.map((v,i)=>i>last?null:v), sB=modeAn==='cumul'?cumB:b;
+  const tot=arr=>arr.reduce((s,v)=>s+(v||0),0);
+  const caY=tot(a.slice(0,last+1)), caPrevPer=prev?tot(b.slice(0,last+1)):null, caPrev=prev?tot(b):null;
+  const ec=caPrevPer?caY/caPrevPer-1:null, proj=caPrevPer&&caPrev?caY*caPrev/caPrevPer:null;
+  const all=[...sA,...sB].filter(v=>v!==null);if(!all.length)return '';
+  const W=340,H=180,g=44,d=8,hb=22,ht=10,mx=Math.max(...all)*1.08||1,mn=0;
+  const X=i=>g+i*(W-g-d)/11,Yp=v=>ht+(H-ht-hb)*(1-(v-mn)/(mx-mn));
+  const line=(arr,c,dash)=>{const p=arr.map((v,i)=>v===null?null:X(i).toFixed(1)+','+Yp(v).toFixed(1)).filter(Boolean);return p.length?`<polyline points="${p.join(' ')}" fill="none" stroke="${c}" stroke-width="2.2" ${dash?'stroke-dasharray="4 4"':''}/>`+arr.map((v,i)=>v===null?'':`<circle cx="${X(i).toFixed(1)}" cy="${Yp(v).toFixed(1)}" r="2.4" fill="${c}"/>`).join(''):''};
+  const k=v=>v>=1e6?(v/1e6).toLocaleString('fr-FR',{maximumFractionDigits:1})+' M':v>=1000?(v/1000).toLocaleString('fr-FR',{maximumFractionDigits:v>=10000?0:1})+' k':Math.round(v).toString();
+  const ticks=[0,0.5,1].map(t=>mn+(mx-mn)*t);
+  const arrete=cur&&cur['Arrêté au']?dfr(cur['Arrêté au']):(last>=0?MOIS_C[last]+' '+Y:'—');
+  return `<div class="carte"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="flex:1">Ventes ${Y-1} / ${Y} (sell-out HT)</b>
+   <div class="filtres" id="anMode" style="margin:0">${[['cumul','Cumulé'],['mois','Par mois']].map(o=>`<button data-m="${o[0]}" class="${o[0]===modeAn?'on':''}">${o[1]}</button>`).join('')}</div></div>
+   <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px" role="img" aria-label="Ventes ${Y-1} et ${Y} par mois">
+   ${ticks.map(v=>`<line x1="${g}" x2="${W-d}" y1="${Yp(v)}" y2="${Yp(v)}" stroke="#eceff1"/><text x="${g-4}" y="${Yp(v)+3}" font-size="9" text-anchor="end" fill="#78909c">${k(v)}</text>`).join('')}
+   ${line(sB,'#90a4ae',1)}${line(sA,'#1b5e20')}
+   ${MOIS_C.map((m,i)=>`<text x="${X(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="#78909c">${m}</text>`).join('')}</svg>
+   <div class="sub" style="font-size:11px;color:var(--doux)"><span style="color:#1b5e20">━ ${Y}</span> · <span style="color:#90a4ae">┅ ${Y-1}</span> · ${modeAn==='cumul'?'cumul depuis janvier':'CA de chaque mois'}</div>
+   <div class="ligne"><span>CA ${Y-1} (année complète)</span><b>${caPrev!==null?eur(caPrev):'—'}</b></div>
+   <div class="ligne"><span>CA ${Y} au ${arrete} (${last+1} mois)</span><b>${eur(caY)}</b></div>
+   <div class="ligne"><span>CA ${Y-1} sur la même période</span><b>${caPrevPer!==null?eur(caPrevPer):'—'}</b></div>
+   <div class="ligne"><span>Écart ${Y} vs ${Y-1}, même période</span><b class="${ec===null?'':cls(ec)}">${ec===null?'—':(ec>0?'+':'')+(ec*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' % ('+(caY-caPrevPer>0?'+':'')+eur(caY-caPrevPer)+')'}</b></div>
+   <div class="ligne"><span>Projection ${Y} au rythme actuel</span><b>${proj!==null?eur(proj):'—'}</b></div>
+   <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">Ventes aux clients (sell-out) HT, Vindilis, par année civile — utile pour suivre les objectifs de RFA. La projection applique à ${Y} le poids des mois restants observé en ${Y-1}.</div></div>`}
 function carteGers(T){if(T.g===null)return '<div class="carte"><div class="sub" style="white-space:normal">Face au marché (GERS) : pas encore de donnée pour ce laboratoire.</div></div>';
   const G=gersDet(T.t),L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`,d=T.eca!==null?T.eca-T.g:null;
   return `<div class="carte"><div style="font-weight:600;margin-bottom:4px">Face au marché (GERS, CA 12 mois vs N-1)</div>${L('Nous (CA HT)',T.eca===null?'—':fleche(T.eca))}${L('Grandes officines (CA ≥ 5 M€)',fleche(T.g))}${L('Toutes officines',G.all===null?'—':fleche(G.all))}${G.vol===null?'':L('Volumes grandes officines',fleche(G.vol))}${d===null?'':L('Écart avec les grandes officines',(d>=0?'+':'−')+Math.abs(d*100).toFixed(1).replace('.',',')+' pts')}
@@ -340,7 +421,7 @@ function fiche(nom,ong){
     <div class="carte">${L('Prix',e[0]+' '+esc(e[1])+(x['Date repricing']?' le '+dfr(x['Date repricing']):''))}${L('Part de la marge (prix libre)',pct(x['Part de la marge %']))}${L('Classe Pareto','<span class="badge '+esc(x['Classe'])+'">'+esc(x['Classe']||'–')+'</span>')}
      ${L('Univers',esc(x['Univers']||'—'))}${L('Politique prix',esc(x['Politique prix']||'—'))}${L('Score 360°','<span class="score">'+esc(x['Score 360° /5'])+'/5</span>')}
      ${L('Opérations en cours / à venir',ops.length)}${L('Emplacements · écrans',empl.length+' · '+ecr.length)}</div>
-    ${carteGers(T)}${carteStock(nom)}
+    ${carteAnnees(nom)}${carteGers(T)}${carteStock(nom)}
     <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">N = sept. 2025 → août 2026 ; N-1 = sept. 2024 → août 2025 (Vindilis, statistiques fournisseurs).</div>`;
   } else if(ongletFiche==='prix'){
     corps=`<div class="carte"><div style="font-size:18px">${e[0]} <b>${esc(e[1])}</b></div>
@@ -364,6 +445,7 @@ function fiche(nom,ong){
    <button class="btn" id="mod">Modifier la fiche</button>`;
   $('#ret').onclick=labos; $('#mod').onclick=()=>formulaire('LABORATOIRES',x); brancherStatuts(); fab(null);
   document.querySelectorAll('#ogf button').forEach(b=>b.onclick=()=>fiche(nom,b.dataset.o));
+  document.querySelectorAll('#anMode button').forEach(b=>b.onclick=()=>{modeAn=b.dataset.m;const y=scrollY;fiche(nom);scrollTo(0,y)});
   document.querySelectorAll('.op').forEach(c=>c.onclick=()=>{const o=(D.operations||[]).find(z=>z['ID']===c.dataset.id);if(o)formulaire('OPERATIONS',o)});
   document.querySelectorAll('#stp button').forEach(b=>b.onclick=async()=>{
     const av={s:x['Statut prix'],d:x['Date repricing']}; x['Statut prix']=b.dataset.s;

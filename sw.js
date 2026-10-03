@@ -1,4 +1,4 @@
-const C='pilotage-v16';const F=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-180.png','./3d.html','./model-viewer.min.js','./meshopt_decoder.js','./draco_decoder.wasm','./draco_wasm_wrapper.js'];
+const C='pilotage-v17';const F=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-180.png','./3d.html','./model-viewer.min.js','./meshopt_decoder.js','./draco_decoder.wasm','./draco_wasm_wrapper.js'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
 const LOURD=/\.(glb|wasm)$|model-viewer\.min\.js$|draco_|meshopt_/;
