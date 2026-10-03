@@ -87,8 +87,8 @@ main>.item,main>.reco,main>.op{grid-column:auto}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.13';
-const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Agenda'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
+const APP_V='1.14';
+const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Événements'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -159,7 +159,10 @@ function navig(){
   $('#nav').innerHTML=ONGLETS.map(o=>`<button data-v="${o[0]}" class="${o[0]===vue?'on':''}"><span>${o[1]}</span>${o[2]}</button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{const v=b.dataset.v; if(v==='3d'){location.href='3d.html';return} if(v==='cfg'){vue='cfg';navig();reglages();return} vue=v;recherche='';rendre();scrollTo(0,0)});
 }
-function rendre(){navig(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
+/* Opérations Opeaz : on ne garde que les laboratoires que la pharmacie travaille (présents avec des ventes sur 12 mois) */
+function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;const ok={};(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>0)ok[l['Laboratoire']]=1});
+  D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
+function rendre(){navig(); filtrerOps(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
   ({acc:accueil,act:actions,lab:labos,cmd:commandes,agd:agenda,ray:rayon,ecr:ecrans,mois:mois,cfg:reglages})[vue]();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
@@ -478,7 +481,7 @@ function commandes(){
 
 /* ---------- Agenda commercial ---------- */
 function agenda(){
-  $('#ht').textContent='Agenda commercial';
+  $('#ht').textContent='Événements de la pharmacie';
   const ordre={'En cours':0,'À préparer':1,'À venir':2,'Passé':3};
   const all=(D.calendrier||[]).slice().sort((a,b)=>(ordre[a['Statut']]??2)-(ordre[b['Statut']]??2)||String(a['Début']).localeCompare(String(b['Début'])));
   const l=all.filter(e=>voirPasses||e['Statut']!=='Passé');
@@ -496,7 +499,7 @@ function agenda(){
   $('#m').insertAdjacentHTML('beforeend',`<div class="titre">Opérations laboratoires — clients (Opeaz)</div>
    <div class="filtres" id="opf">${['En cours ('+enc.length+')','À venir 45 j ('+av.length+')'].map((t,i)=>`<button data-i="${i}" class="${i===filtreOps?'on':''}">${t}</button>`).join('')}</div>
    <div id="opl">${(filtreOps?av:enc).map(carteOp).join('')||'<p class="vide">Aucune.</p>'}</div>
-   <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">Opérations vers le client (sell-out) en cours et à venir, extraites d'Opeaz. Touchez une opération pour noter sa mise en place.</div>`);
+   <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">Opérations vers le client (sell-out) en cours et à venir, extraites d'Opeaz, limitées aux laboratoires que la pharmacie travaille${D.opsMasquees?' ('+D.opsMasquees+' opération(s) de laboratoires non travaillés masquée(s))':''}. Touchez une opération pour noter sa mise en place.</div>`);
   document.querySelectorAll('#opf button').forEach(b=>b.onclick=()=>{filtreOps=+b.dataset.i;agenda();});
   document.querySelectorAll('.op').forEach(c=>c.onclick=()=>{const o=(D.operations||[]).find(z=>z['ID']===c.dataset.id);if(o)formulaire('OPERATIONS',o)});
   fab(()=>formulaire('CALENDRIER',null));
