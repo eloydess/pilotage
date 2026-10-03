@@ -210,6 +210,14 @@ function liste(sheet,cle,titre,sous){
 const rayon=()=>liste('SURFACE_VENTE','Code emplacement','Surface de vente',x=>[x['Type'],x['Laboratoire'],x['Produit / thème'],x['Fin']?'fin '+dfr(x['Fin']):'',num(x['Marge €/semaine'])!==null?eur(x['Marge €/semaine'])+'/sem.':'',x['Relais écran']==='Non'?'⚠ sans écran':''].filter(Boolean).map(esc).join(' · '));
 const ecrans=()=>liste('ECRANS','Code écran','Écrans',x=>[x['Position'],x['Laboratoire'],x['Contenu diffusé'],x['Fin']?'fin '+dfr(x['Fin']):'',x['Relais rayon']==='Non'?'⚠ sans relais rayon':''].filter(Boolean).map(esc).join(' · '));
 
+function blocRef(){const r=D.rhRef;if(!r||!r[1]||num(r[1][1])===null||num(r[1][2])===null)return '';
+  const m=r[1],bu=r[2]||[],h=r[3]||[],ec=r[4]||[];const baisse=num(m[3])<0;
+  return `<div style="border-top:1px solid #e0e0e0;margin-top:8px;padding-top:8px"><div class="sub" style="font-size:12px;color:var(--doux)">${esc(r[5]&&r[5][0]||'')}</div>
+    <div class="ligne"><span>Masse salariale / mois</span><b class="${baisse?'pos':'neg'}">${eur(m[2])} <span style="color:var(--doux);font-weight:400">vs ${eur(m[1])}</span></b></div>
+    <div class="ligne"><span>Écart vs référence</span><b class="${baisse?'pos':'neg'}">${num(m[3])>0?'+':''}${eur(m[3])} (${pct(m[4],1)})</b></div>
+    ${num(bu[1])!==null?`<div class="ligne"><span>Bulletins / mois</span><b>${(+bu[2]).toLocaleString('fr-FR',{maximumFractionDigits:1})} <span style="color:var(--doux);font-weight:400">vs ${(+bu[1]).toLocaleString('fr-FR',{maximumFractionDigits:1})}</span></b></div>`:''}
+    ${num(h[1])!==null?`<div class="ligne"><span>Heures payées / mois</span><b>${ent(h[2])} <span style="color:var(--doux);font-weight:400">vs ${ent(h[1])}</span></b></div>`:''}
+    ${num(ec[1])!==null?`<div class="ligne"><span>Économie cumulée</span><b class="${ec[1]>0?'pos':'neg'}">${eur(ec[1])}</b></div>`:''}</div>`;}
 function mois(){
   $('#ht').textContent='Performance mensuelle';
   const rh=D.perf.filter(p=>num(p['Masse salariale chargée N'])!==null).slice(-1)[0];
@@ -217,6 +225,7 @@ function mois(){
     <div class="ligne"><span>Masse salariale chargée</span><b>${eur(rh['Masse salariale chargée N'])}${num(rh['Masse salariale chargée N-1'])!==null?' <span style="color:var(--doux);font-weight:400">vs '+eur(rh['Masse salariale chargée N-1'])+'</span>':''}</b></div>
     <div class="ligne"><span>Masse salariale / marge</span><b class="${num(rh['Masse salariale / marge N'])!==null&&num(rh['Masse salariale / marge N-1'])!==null?(rh['Masse salariale / marge N']>rh['Masse salariale / marge N-1']?'neg':'pos'):''}">${pct(rh['Masse salariale / marge N'])}${num(rh['Masse salariale / marge N-1'])!==null?' <span style="color:var(--doux);font-weight:400">vs '+pct(rh['Masse salariale / marge N-1'])+'</span>':''}</b></div>
     <div class="ligne"><span>Marge par heure travaillée</span><b>${eur2(rh['Marge par heure N'])}</b></div>
+    ${blocRef()}
     <button class="btn sec" id="bRh">🔒 Détail par collaborateur</button></div>`
     :`<div class="carte"><b>Équipe</b><div class="sub" style="font-size:13px;color:var(--doux)">Les indicateurs de masse salariale apparaîtront dès que l'onglet PAIE sera rempli.</div><button class="btn sec" id="bRh">🔒 Détail par collaborateur</button></div>`;
   $('#m').innerHTML=carteRh+`<p class="titre">Fréquentation réelle = Ventes − 2 × recyclage</p>`+D.perf.map((p,i)=>`<div class="carte item" data-i="${i}">
