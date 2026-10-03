@@ -87,7 +87,7 @@ main>.item,main>.reco,main>.op{grid-column:auto}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.11';
+const APP_V='1.12';
 const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Agenda'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -150,7 +150,7 @@ function reglages(){
   $('#m').innerHTML=`${derniereErreur?`<div class="carte" style="border-left:4px solid #c62828"><b>⚠ ${esc(derniereErreur)}</b></div>`:''}<div class="carte"><p>Saisissez votre code d'accès puis touchez « Enregistrer ». L'adresse est déjà remplie : n'y touchez pas.</p>
   <label>Adresse de l'application Web</label><input id="u" value="${esc(c.url)}" placeholder="https://script.google.com/macros/s/…/exec">
   <label>Code d'accès</label><input id="c" type="password" inputmode="numeric" value="${esc(c.code)}">
-  <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>`;
+  <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>`+(D&&D.fraicheur&&D.fraicheur.length?`<div class="titre">Mises à jour des données</div><div class="carte">${D.fraicheur.map(f=>`<div class="ligne"><span>${f.enRetard?'⚠':'✅'} ${esc(f.source)}<br><small style="color:var(--doux)">${esc(f.frequence)}${f.echec?' · dernier échec '+esc(f.echec):''}</small></span><b class="${f.enRetard?'neg':''}">${esc(f.dernier)}</b></div>`).join('')}</div>`:'');
   $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim()||URL_DEF);$('#ok').textContent='Connexion…';ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='acc';charger()};
 }
 
