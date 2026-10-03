@@ -62,6 +62,7 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 <div id="toast"></div>
 <script>
 'use strict';
+const APP_V='1.4.1';
 const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois']];
 let D=null,vue='acc',filtre='Ouvertes',recherche='';
 const $=s=>document.querySelector(s);
@@ -107,7 +108,7 @@ function reglages(){
   $('#m').innerHTML=`${derniereErreur?`<div class="carte" style="border-left:4px solid #c62828"><b>⚠ ${esc(derniereErreur)}</b></div>`:''}<div class="carte"><p>Collez l'adresse de l'application Web (Apps Script › Déployer) et votre code d'accès.</p>
   <label>Adresse de l'application Web</label><input id="u" value="${esc(c.url)}" placeholder="https://script.google.com/macros/s/…/exec">
   <label>Code d'accès</label><input id="c" type="password" inputmode="numeric" value="${esc(c.code)}">
-  <button class="btn" id="ok">Enregistrer</button></div>`;
+  <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>`;
   $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim());ls.set('pil_code',$('#c').value.trim());charger()};
 }
 
@@ -210,6 +211,19 @@ function liste(sheet,cle,titre,sous){
 const rayon=()=>liste('SURFACE_VENTE','Code emplacement','Surface de vente',x=>[x['Type'],x['Laboratoire'],x['Produit / thème'],x['Fin']?'fin '+dfr(x['Fin']):'',num(x['Marge €/semaine'])!==null?eur(x['Marge €/semaine'])+'/sem.':'',x['Relais écran']==='Non'?'⚠ sans écran':''].filter(Boolean).map(esc).join(' · '));
 const ecrans=()=>liste('ECRANS','Code écran','Écrans',x=>[x['Position'],x['Laboratoire'],x['Contenu diffusé'],x['Fin']?'fin '+dfr(x['Fin']):'',x['Relais rayon']==='Non'?'⚠ sans relais rayon':''].filter(Boolean).map(esc).join(' · '));
 
+function grapheMasse(){const S=(D.rhSerie||[]).filter(x=>num(x[1])!==null);if(S.length<2)return '';
+  const W=340,H=170,g=38,d=8,hb=22,ht=10;const vals=S.map(x=>+x[1]),ref=num(S[S.length-1][2]);
+  const mx=Math.max(...vals,ref||0)*1.05,mn=0;const X=i=>g+i*(W-g-d)/(S.length-1),Y=v=>ht+(H-ht-hb)*(1-(v-mn)/(mx-mn));
+  const pts=S.map((x,i)=>X(i).toFixed(1)+','+Y(+x[1]).toFixed(1)).join(' ');
+  const ticks=[0,0.25,0.5,0.75,1].map(t=>mx*t);
+  const k=v=>Math.round(v/1000)+' k';
+  const lab=S.map((x,i)=>{const m=isoMois(x[0]);return (m.slice(5,7)==='01'||i===S.length-1)?`<text x="${X(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="#78909c">${m.slice(5,7)==='01'?m.slice(0,4):moisFr(m).slice(0,4)+'.'}</text>`:''}).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px" role="img" aria-label="Masse salariale chargée par mois">
+   ${ticks.map(v=>`<line x1="${g}" x2="${W-d}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eceff1"/><text x="${g-4}" y="${Y(v)+3}" font-size="9" text-anchor="end" fill="#78909c">${k(v)}</text>`).join('')}
+   ${ref!==null?`<line x1="${g}" x2="${W-d}" y1="${Y(ref)}" y2="${Y(ref)}" stroke="#c62828" stroke-dasharray="4 4"/><text x="${W-d}" y="${Y(ref)-4}" font-size="9" text-anchor="end" fill="#c62828">référence ${k(ref)}</text>`:''}
+   <polyline points="${pts}" fill="none" stroke="#2e7d32" stroke-width="2"/>
+   <circle cx="${X(S.length-1)}" cy="${Y(vals[vals.length-1])}" r="3.5" fill="#2e7d32"/>
+   ${lab}</svg><div class="sub" style="font-size:11px;color:var(--doux)">Masse salariale chargée par mois (€) — dernier point : ${eur(vals[vals.length-1])} (${moisFr(S[S.length-1][0])})</div>`;}
 function blocRef(){const r=D.rhRef;if(!r||!r[1]||num(r[1][1])===null||num(r[1][2])===null)return '';
   const m=r[1],bu=r[2]||[],h=r[3]||[],ec=r[4]||[];const baisse=num(m[3])<0;
   return `<div style="border-top:1px solid #e0e0e0;margin-top:8px;padding-top:8px"><div class="sub" style="font-size:12px;color:var(--doux)">${esc(r[5]&&r[5][0]||'')}</div>
@@ -217,7 +231,7 @@ function blocRef(){const r=D.rhRef;if(!r||!r[1]||num(r[1][1])===null||num(r[1][2
     <div class="ligne"><span>Écart vs référence</span><b class="${baisse?'pos':'neg'}">${num(m[3])>0?'+':''}${eur(m[3])} (${pct(m[4],1)})</b></div>
     ${num(bu[1])!==null?`<div class="ligne"><span>Bulletins / mois</span><b>${(+bu[2]).toLocaleString('fr-FR',{maximumFractionDigits:1})} <span style="color:var(--doux);font-weight:400">vs ${(+bu[1]).toLocaleString('fr-FR',{maximumFractionDigits:1})}</span></b></div>`:''}
     ${num(h[1])!==null?`<div class="ligne"><span>Heures payées / mois</span><b>${ent(h[2])} <span style="color:var(--doux);font-weight:400">vs ${ent(h[1])}</span></b></div>`:''}
-    ${num(ec[1])!==null?`<div class="ligne"><span>Économie cumulée</span><b class="${ec[1]>0?'pos':'neg'}">${eur(ec[1])}</b></div>`:''}</div>`;}
+    ${num(ec[1])!==null?`<div class="ligne"><span>Économie cumulée</span><b class="${ec[1]>0?'pos':'neg'}">${eur(ec[1])}</b></div>`:''}${grapheMasse()}</div>`;}
 function mois(){
   $('#ht').textContent='Performance mensuelle';
   const rh=D.perf.filter(p=>num(p['Masse salariale chargée N'])!==null).slice(-1)[0];
