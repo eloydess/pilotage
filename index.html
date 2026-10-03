@@ -67,9 +67,9 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.6';
+const APP_V='1.7';
 const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Agenda'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
-let D=null,vue='acc',filtre='Ouvertes',recherche='',filtreLab='Tous',voirPasses=false;
+let D=null,vue='acc',filtre='Ouvertes',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -192,14 +192,14 @@ function accueil(){
   const c=D.cockpit,lev=[19,20,21,22,23,24,25,26].map(j=>`<div class="ligne"><span>${esc(c[j][0])}</span><b>${j===23?eur(c[j][1]):(j===20?(num(c[j][1])===null?'—':(+c[j][1]).toLocaleString('fr-FR',{maximumFractionDigits:1})):esc(c[j][1]))}</b></div>`).join('');
   const top=D.recos.filter(ouverte).slice(0,5);
   const cmdU=(D.commandes||[]).filter(c=>c['Priorité']==='Urgent').length, cmdN=(D.commandes||[]).length;
-  const evP=(D.calendrier||[]).filter(e=>e['Statut']==='En cours'||e['Statut']==='À préparer').length;
+  const evP=(D.calendrier||[]).filter(e=>e['Statut']==='En cours'||e['Statut']==='À préparer').length, opN=(D.operations||[]).filter(o=>o['Statut']==='En cours').length;
   const lV=(D.labos||[]).filter(l=>etatPrix(l)[2]==='À valider').length, lR=(D.labos||[]).filter(l=>etatPrix(l)[2]==='À revoir').length;
   const cap=P('P_CAPTATION'),capO=P('P_CAPTATION_OBJ'),capR=P('P_CAPTATION_RESTE');
   const capt=cap===null?'':`<div class="carte"><div class="l" style="font-size:12px;color:var(--doux)">Part de la consommation de vos clients que vous captez</div>
     <div style="font-size:28px;font-weight:800">${pct(cap)}</div><div class="barre" style="position:relative"><i style="width:${Math.min(cap*100,100)}%"></i>${capO!==null?`<span style="position:absolute;top:0;bottom:0;left:${capO*100}%;width:2px;background:var(--rouge)"></span>`:''}</div>
     <div class="sub" style="font-size:12px;color:var(--doux)">Objectif ${pct(capO)}${capR!==null?` · il reste <b style="color:var(--txt)">${eur(capR)}</b> à capter chez vos clients actuels`:''}</div></div>`;
   const tuiles=`<div class="tuiles"><div class="tuile" data-go="cmd"><b class="${cmdU?'neg':''}">${cmdU}</b><span>commande(s) urgente(s) sur ${cmdN}</span></div>
-    <div class="tuile" data-go="agd"><b>${evP}</b><span>événement(s) à préparer / en cours</span></div>
+    <div class="tuile" data-go="agd"><b>${evP}</b><span>événement(s) à préparer · ${opN} opération(s) labo en cours</span></div>
     <div class="tuile" data-go="lab"><b>${lV+lR}</b><span>labos prix à valider / revoir</span></div></div>`;
   $('#m').innerHTML=sel+tuiles+capt+`<div class="kpis">${kpi2('CA HT du mois',p['CA HT N'],p['CA HT N-1'],eur)}${kpi2('Marge € du mois',p['Marge € N'],p['Marge € N-1'],eur)}
     ${kpi2('Fréquentation réelle',p['Fréquentation réelle N'],p['Fréquentation réelle N-1'],ent)}${kpi2('Marge € par client',p['Marge €/client N'],p['Marge €/client N-1'],eur2)}
@@ -236,10 +236,12 @@ function labos(){
   const tous=D.labos.slice().sort((a,b)=>(num(b['Marge € 12 mois'])||0)-(num(a['Marge € 12 mois'])||0));
   const per=tous.filter(x=>{const g=etatPrix(x)[2];return g!=='Imposé'&&g!=='Hors périmètre'||x['Statut prix']});
   const mT=per.reduce((s,x)=>s+(num(x['Marge € 12 mois'])||0),0), mF=per.filter(x=>x['Statut prix']==='Fait').reduce((s,x)=>s+(num(x['Marge € 12 mois'])||0),0);
-  const grp=['Tous','À faire','À valider','À revoir','Fait','Imposé','Hors périmètre'];
-  const nb=g=>g==='Tous'?tous.length:tous.filter(x=>etatPrix(x)[2]===g).length;
+  const grp=['Tous','À faire','À valider','À revoir','Fait','Imposé','Hors périmètre','En recul','En hausse'];
+  const EM={};tous.forEach(x=>EM[x['Laboratoire']]=tend(x['Laboratoire']).em);
+  const inG=(x,g)=>g==='Tous'||(g==='En recul'?EM[x['Laboratoire']]!==null&&EM[x['Laboratoire']]<=-0.05:g==='En hausse'?EM[x['Laboratoire']]!==null&&EM[x['Laboratoire']]>=0.05:etatPrix(x)[2]===g);
+  const nb=g=>tous.filter(x=>inG(x,g)).length;
   const q=recherche.toLowerCase();
-  const l=tous.filter(x=>(filtreLab==='Tous'||etatPrix(x)[2]===filtreLab)&&(!q||String(x['Laboratoire']).toLowerCase().includes(q)));
+  const l=tous.filter(x=>inG(x,filtreLab)&&(!q||String(x['Laboratoire']).toLowerCase().includes(q)));
   $('#m').innerHTML=`<div class="carte"><b>Avancement des prix</b><div class="barre"><i style="width:${mT?Math.round(mF/mT*100):0}%"></i></div>
    <div class="sub" style="font-size:12px;color:var(--doux)">${mT?Math.round(mF/mT*100):0} % de la marge du périmètre prix est à jour (${eur(mF)} sur ${eur(mT)}) · ✅ ${nb('Fait')} fait · 🟠 ${nb('À valider')} à valider · 🟡 ${nb('À revoir')} à revoir · ⭕ ${nb('À faire')} à faire</div></div>
   <input id="q" placeholder="Rechercher parmi les ${tous.length} laboratoires" value="${esc(recherche)}">
@@ -247,37 +249,70 @@ function labos(){
   <p class="titre">${l.length} laboratoire(s) — tri par marge</p>
   ${l.map(x=>{const e=etatPrix(x);return `<div class="carte item" data-k="${esc(x['Laboratoire'])}"><span class="ico" title="${esc(e[1])}">${e[0]}</span>
    <div class="grow"><b>${esc(x['Laboratoire'])}</b><div class="sub">${eur(x['Marge € 12 mois'])} de marge · ${esc(e[1])}${x['Date repricing']?' le '+dfr(x['Date repricing']):''}${x['Suivi repricing']?' · '+esc(String(x['Suivi repricing']).split(' — ')[0]):''}</div></div>
+   ${EM[x['Laboratoire']]!==null?`<span style="font-size:12px">${fleche(EM[x['Laboratoire']])}</span>`:''}
    ${x['Classe']?`<span class="badge ${esc(x['Classe'])}">${esc(x['Classe'])}</span>`:''}</div>`}).join('')||'<p class="vide">Aucun laboratoire.</p>'}`;
   const qi=$('#q'); qi.oninput=()=>{recherche=qi.value;labos();const n=$('#q');n.focus();n.setSelectionRange(n.value.length,n.value.length)};
   document.querySelectorAll('.filtres button').forEach(b=>b.onclick=()=>{filtreLab=b.dataset.g;labos()});
-  document.querySelectorAll('.item').forEach(e=>e.onclick=()=>fiche(e.dataset.k));
+  document.querySelectorAll('.item').forEach(e=>e.onclick=()=>fiche(e.dataset.k,'syn'));
   fab(()=>formulaire('LABORATOIRES',null));
 }
 
-function fiche(nom){
-  const x=D.labos.find(l=>l['Laboratoire']===nom); if(!x)return;
+/* ---------- Tendances et opérations par laboratoire ---------- */
+function tend(nom){const t=(D.tendances||[]).find(r=>r['Laboratoire']===nom)||{};const x=D.labos.find(l=>l['Laboratoire']===nom)||{};
+  const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b>0?a/b-1:null;
+  return {t,m:num(x['Marge € 12 mois']),m1:num(t['Marge € N-1']),ca:num(x['CA HT 12 mois']),ca1:num(t['CA HT N-1']),q:num(t['Quantité N']),q1:num(t['Quantité N-1']),
+    em:ev(x['Marge € 12 mois'],t['Marge € N-1']),eca:ev(x['CA HT 12 mois'],t['CA HT N-1']),eq:ev(t['Quantité N'],t['Quantité N-1']),g:num(t['Évolution nationale GERS %'])}}
+const opsLabo=nom=>(D.operations||[]).filter(o=>o['Laboratoire']===nom).sort((a,b)=>String(a['Début']).localeCompare(String(b['Début'])));
+const fleche=v=>v===null?'':`<b class="${v<0?'neg':'pos'}">${v<0?'▼':'▲'} ${pct(Math.abs(v))}</b>`;
+function verdict(T){
+  if(T.em===null)return ['❔','Pas d\'historique N-1 pour juger','Nouveau fournisseur ou libellé changé : comparer à nouveau dans 3 mois.'];
+  let v=T.em>=0.05?['🟢','Il fonctionne','Marge en hausse de '+pct(T.em)+' sur 12 mois.']:T.em<=-0.05?['🔴','Il recule','Marge en baisse de '+pct(Math.abs(T.em))+' sur 12 mois.']:['🟡','Stable','Marge stable sur 12 mois ('+pct(T.em,1)+').'];
+  if(T.g!==null&&T.eca!==null){const d=T.eca-T.g;
+    v[2]+=' Marché national (GERS) : '+pct(T.g,1)+' ; nous : '+pct(T.eca,1)+'. '+(d>0.05?'Nous gagnons des parts de marché : à faire savoir (écrans, vitrine).':d<-0.05?'Le marché fait mieux que nous : vérifier prix, ruptures et visibilité.':'Nous suivons le marché.');}
+  else v[2]+=' Tendance nationale GERS : pas encore importée.';
+  return v;}
+let ongletFiche='syn';
+function fiche(nom,ong){
+  const x=D.labos.find(l=>l['Laboratoire']===nom); if(!x)return; if(ong)ongletFiche=ong;
   $('#ht').textContent=nom;
   const L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`;
   const empl=D.surface.filter(s=>s['Laboratoire']===nom), ecr=D.ecrans.filter(e=>e['Laboratoire']===nom);
   const rec=D.recos.filter(r=>ouverte(r)&&(r['Cible']===nom||String(r['Constat']).includes(nom)));
   const e=etatPrix(x), sts=(D.refs&&D.refs['Statut prix'])||['À faire','En cours','À valider','À revoir','À importer','Fait'];
-  const j=jours(x['Date repricing']);
-  const suivi=j===null?'':`<div class="sub" style="font-size:12px;color:var(--doux);margin-top:6px">Nouveaux prix depuis ${j} jour(s). Points de mesure : J+15, J+30, J+60, J+90 — comparer les ventes et la marge du laboratoire avant / après (export ventes Vindilis du labo).</div>`;
+  const T=tend(nom), V=verdict(T), ops=opsLabo(nom), j=jours(x['Date repricing']);
+  const OG=[['syn','Synthèse'],['prix','Prix'],['ops','Opérations ('+ops.length+')'],['vis','Rayon & écrans'],['act','Actions ('+rec.length+')']];
+  let corps='';
+  if(ongletFiche==='syn'){
+    corps=`<div class="carte"><div style="font-size:18px">${V[0]} <b>${V[1]}</b></div><div class="sub" style="font-size:13px;white-space:normal;margin-top:4px">${esc(V[2])}</div></div>
+    <div class="kpis">${kpi2('Marge 12 mois',T.m,T.m1,eur)}${kpi2('CA HT 12 mois',T.ca,T.ca1,eur)}${kpi2('Unités vendues',T.q,T.q1,ent)}
+     <div class="carte kpi"><div class="l">Taux de marge</div><div class="v">${pct(x['Taux de marge %'])}</div><div class="e" style="color:var(--doux);font-weight:400">N-1 : ${T.m1!==null&&T.ca1?pct(T.m1/T.ca1):'—'}</div></div></div>
+    <div class="carte">${L('Prix',e[0]+' '+esc(e[1])+(x['Date repricing']?' le '+dfr(x['Date repricing']):''))}${L('Part de la marge (prix libre)',pct(x['Part de la marge %']))}${L('Classe Pareto','<span class="badge '+esc(x['Classe'])+'">'+esc(x['Classe']||'–')+'</span>')}
+     ${L('Univers',esc(x['Univers']||'—'))}${L('Politique prix',esc(x['Politique prix']||'—'))}${L('Score 360°','<span class="score">'+esc(x['Score 360° /5'])+'/5</span>')}
+     ${L('Opérations en cours / à venir',ops.length)}${L('Emplacements · écrans',empl.length+' · '+ecr.length)}</div>
+    <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">N = sept. 2025 → août 2026 ; N-1 = sept. 2024 → août 2025 (Vindilis, statistiques fournisseurs).</div>`;
+  } else if(ongletFiche==='prix'){
+    corps=`<div class="carte"><div style="font-size:18px">${e[0]} <b>${esc(e[1])}</b></div>
+     ${x['Date repricing']?L('Changement de prix le',dfr(x['Date repricing'])):''}${x['Suivi repricing']?L('Suivi',esc(x['Suivi repricing'])):''}
+     ${j===null?'':`<div class="sub" style="font-size:12px;color:var(--doux);margin-top:6px;white-space:normal">Nouveaux prix depuis ${j} jour(s). Mesures à J+15, J+30, J+60, J+90 : ventes et marge du laboratoire avant / après.</div>`}
+     <div class="statuts" id="stp">${sts.map(s=>`<button data-s="${esc(s)}" class="${x['Statut prix']===s?'on':''}">${esc(s)}</button>`).join('')}</div></div>
+    <div class="carte">${L('Remise avant',pct(x['Remise avant %']))}${L('Remises arrière (info)',pct(x['Remises arrière % (info)']))}${L('Remise globale (info)',pct(x['Remise globale % (info)']))}
+     ${L('Produits à corriger',esc(x['Produits à corriger']))}${L('Impact prix cibles',eur(x['Impact prix cibles €/an'])+'/an')}
+     ${x['Commentaire']?`<div class="sub" style="font-size:13px;margin-top:8px;white-space:normal">${esc(x['Commentaire'])}</div>`:''}</div>`;
+  } else if(ongletFiche==='ops'){
+    const hausse=ops.some(o=>/remise immédiate|promotion/i.test(o['Type'])&&o['Statut']==='En cours');
+    corps=(hausse?`<div class="carte alerte"><b>Remise immédiate en cours</b><div class="sub" style="font-size:12px;white-space:normal">Aucune hausse de prix sur les produits concernés pendant l'opération.</div></div>`:'')+
+     (ops.map(carteOp).join('')||'<p class="vide">Aucune opération Opeaz en cours ou à venir pour ce laboratoire.</p>');
+  } else if(ongletFiche==='vis'){
+    corps=`<div class="titre">Emplacements (${empl.length})</div><div class="carte">${empl.map(s=>L(esc(s['Code emplacement'])+' · '+esc(s['Type']),'<span class="badge '+esc(s['Statut'])+'">'+esc(s['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
+     <div class="titre">Écrans (${ecr.length})</div><div class="carte">${ecr.map(e=>L(esc(e['Code écran'])+' · '+esc(e['Contenu diffusé']),'<span class="badge '+esc(e['Statut'])+'">'+esc(e['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
+     ${T.em!==null&&T.em>0.05&&x['Classe']==='A'?'<div class="carte diag">Laboratoire qui progresse : bon candidat pour un message écran (« nos prix bas » ou nouveauté).</div>':''}`;
+  } else corps=rec.map(carteReco).join('')||'<p class="vide">Aucune action ouverte.</p>';
   $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Laboratoires</button>
-  <div class="carte"><div style="font-size:18px">${e[0]} <b>${esc(e[1])}</b></div>
-   ${x['Date repricing']?L('Changement de prix le',dfr(x['Date repricing'])):''}${x['Suivi repricing']?L('Suivi',esc(x['Suivi repricing'])):''}${suivi}
-   <div class="statuts" id="stp">${sts.map(s=>`<button data-s="${esc(s)}" class="${x['Statut prix']===s?'on':''}">${esc(s)}</button>`).join('')}</div></div>
-  <div class="carte">${L('Marge 12 mois',eur(x['Marge € 12 mois']))}${L('CA HT 12 mois',eur(x['CA HT 12 mois']))}${L('Taux de marge',pct(x['Taux de marge %']))}${L('Part de la marge (prix libre)',pct(x['Part de la marge %']))}${L('Classe Pareto','<span class="badge '+esc(x['Classe'])+'">'+esc(x['Classe']||'–')+'</span>')}
-  ${L('Univers',esc(x['Univers']||'—'))}${L('Politique prix',esc(x['Politique prix']||'—'))}${L('Score 360°','<span class="score">'+esc(x['Score 360° /5'])+'/5</span>')}
-  ${L('Remise avant',pct(x['Remise avant %']))}${L('Remises arrière (info)',pct(x['Remises arrière % (info)']))}${L('Remise globale (info)',pct(x['Remise globale % (info)']))}
-  ${L('Produits à corriger',esc(x['Produits à corriger']))}${L('Impact prix cibles',eur(x['Impact prix cibles €/an'])+'/an')}
-  ${L('Référent',esc(x['Référent']||'—'))}${L('Promo en cours',esc(x['Promo en cours']||'—'))}
-  ${x['Commentaire']?`<div class="sub" style="font-size:13px;margin-top:8px;white-space:normal">${esc(x['Commentaire'])}</div>`:''}</div>
-  <div class="titre">Emplacements (${empl.length})</div><div class="carte">${empl.map(s=>L(esc(s['Code emplacement'])+' · '+esc(s['Type']),'<span class="badge '+esc(s['Statut'])+'">'+esc(s['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
-  <div class="titre">Écrans (${ecr.length})</div><div class="carte">${ecr.map(e=>L(esc(e['Code écran'])+' · '+esc(e['Contenu diffusé']),'<span class="badge '+esc(e['Statut'])+'">'+esc(e['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
-  <div class="titre">Actions ouvertes (${rec.length})</div>${rec.map(carteReco).join('')}
-  <button class="btn" id="mod">Modifier la fiche</button>`;
+   <div class="filtres" id="ogf">${OG.map(o=>`<button data-o="${o[0]}" class="${o[0]===ongletFiche?'on':''}">${o[1]}</button>`).join('')}</div>${corps}
+   <button class="btn" id="mod">Modifier la fiche</button>`;
   $('#ret').onclick=labos; $('#mod').onclick=()=>formulaire('LABORATOIRES',x); brancherStatuts(); fab(null);
+  document.querySelectorAll('#ogf button').forEach(b=>b.onclick=()=>fiche(nom,b.dataset.o));
+  document.querySelectorAll('.op').forEach(c=>c.onclick=()=>{const o=(D.operations||[]).find(z=>z['ID']===c.dataset.id);if(o)formulaire('OPERATIONS',o)});
   document.querySelectorAll('#stp button').forEach(b=>b.onclick=async()=>{
     const av={s:x['Statut prix'],d:x['Date repricing']}; x['Statut prix']=b.dataset.s;
     if(b.dataset.s==='Fait'&&!x['Date repricing'])x['Date repricing']=auj();
@@ -286,6 +321,10 @@ function fiche(nom){
     if(await poster({action:'upsert',sheet:'LABORATOIRES',row}))toast('Statut prix : '+b.dataset.s);
     else{x['Statut prix']=av.s;x['Date repricing']=av.d;fiche(nom)}});
 }
+function carteOp(o){return `<div class="carte op" data-id="${esc(o['ID'])}" style="cursor:pointer">${bdg(o['Statut']==='En cours'?'En cours':'À venir')} <b>${esc(o['Type'])}</b>
+  <div style="margin-top:4px">${esc(o['Opération'])}</div>
+  <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">${esc(o['Laboratoire']||o['Laboratoire Opeaz'])} · du ${dfr(o['Début'])} au ${dfr(o['Fin'])} · ${ent(o['Nb produits'])} produit(s)${o['Mise en place']?' · mise en place : '+esc(o['Mise en place']):''}</div>
+  ${o['Conditions']?`<div class="sub" style="font-size:12px;white-space:normal;margin-top:4px">${esc(o['Conditions'])}</div>`:''}</div>`}
 
 /* ---------- Commandes ---------- */
 function commandes(){
@@ -317,6 +356,14 @@ function agenda(){
   <button class="btn sec" id="passes">${voirPasses?'Masquer':'Afficher'} les événements passés</button>`;
   document.querySelectorAll('.ev').forEach(c=>c.onclick=ev=>{if(ev.target.classList.contains('ed')){formulaire('CALENDRIER',D.calendrier[+c.dataset.i]);return}const o=c.querySelector('.ordre');o.style.display=o.style.display==='none'?'block':'none'});
   $('#passes').onclick=()=>{voirPasses=!voirPasses;agenda()};
+  const ops=(D.operations||[]).slice().sort((a,b)=>String(a['Début']).localeCompare(String(b['Début'])));
+  const enc=ops.filter(o=>o['Statut']==='En cours'), av=ops.filter(o=>o['Statut']==='À venir'&&jours(o['Début'])!==null&&jours(o['Début'])>=-45);
+  $('#m').insertAdjacentHTML('beforeend',`<div class="titre">Opérations laboratoires — clients (Opeaz)</div>
+   <div class="filtres" id="opf">${['En cours ('+enc.length+')','À venir 45 j ('+av.length+')'].map((t,i)=>`<button data-i="${i}" class="${i===filtreOps?'on':''}">${t}</button>`).join('')}</div>
+   <div id="opl">${(filtreOps?av:enc).map(carteOp).join('')||'<p class="vide">Aucune.</p>'}</div>
+   <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">Opérations vers le client (sell-out) en cours et à venir, extraites d'Opeaz. Touchez une opération pour noter sa mise en place.</div>`);
+  document.querySelectorAll('#opf button').forEach(b=>b.onclick=()=>{filtreOps=+b.dataset.i;agenda();});
+  document.querySelectorAll('.op').forEach(c=>c.onclick=()=>{const o=(D.operations||[]).find(z=>z['ID']===c.dataset.id);if(o)formulaire('OPERATIONS',o)});
   fab(()=>formulaire('CALENDRIER',null));
 }
 
@@ -420,11 +467,11 @@ async function chargerPaie(code2){
 function fab(fn){let f=$('.fab'); if(f)f.remove(); if(!fn)return; f=document.createElement('button'); f.className='fab'; f.textContent='+'; f.onclick=fn; document.body.appendChild(f)}
 
 /* ---------- Formulaire générique (champs saisissables uniquement) ---------- */
-const LISTES={'Politique prix':'Politique prix','Statut prix':'Statut prix','Promo en cours':'Oui / Non','Type':"Type d'emplacement",'Zone / univers':'Zone / univers','Univers':'Zone / univers','Plateforme':'Plateforme écran','Position':'Position écran'};
+const LISTES={'Mise en place':'Oui / Non','Politique prix':'Politique prix','Statut prix':'Statut prix','Promo en cours':'Oui / Non','Type':"Type d'emplacement",'Zone / univers':'Zone / univers','Univers':'Zone / univers','Plateforme':'Plateforme écran','Position':'Position écran'};
 const DATES=['Date repricing','Début','Fin','Préparer dès','Date export'];
 const PCTS=['Remise avant %','Remises arrière % (info)'];
 const NUMS=['Couverture stock (mois)','Commander sous (jours)','CA HT 12 mois','Marge € 12 mois','Marge € générée (période)','CA HT N','CA HT N-1','Marge € N','Marge € N-1','Ventes Vindilis N','Recyclage N','Ventes Vindilis N-1','Recyclage N-1','Objectif marge €'];
-const CLES={LABORATOIRES:'Laboratoire',SURFACE_VENTE:'Code emplacement',ECRANS:'Code écran',PERFORMANCE:'Mois',CALENDRIER:'Événement',COMMANDES:'Laboratoire'};
+const CLES={OPERATIONS:'ID',LABORATOIRES:'Laboratoire',SURFACE_VENTE:'Code emplacement',ECRANS:'Code écran',PERFORMANCE:'Mois',CALENDRIER:'Événement',COMMANDES:'Laboratoire'};
 function formulaire(sheet,x){
   const champs=D.schema[sheet], cle=CLES[sheet], neuf=!x; x=x||{};
   $('#ht').textContent=neuf?'Nouveau':String(sheet==='PERFORMANCE'?moisFr(x[cle]):x[cle]);
