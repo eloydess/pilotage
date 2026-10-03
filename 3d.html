@@ -12,7 +12,7 @@
 import './model-viewer.min.js';
 customElements.get('model-viewer').meshoptDecoderLocation = new URL('meshopt_decoder.js', location.href).href;
 customElements.get('model-viewer').dracoDecoderLocation = new URL('./', location.href).href;
-document.getElementById('mv').setAttribute('src','pharmacie.glb');
+document.getElementById('mv').setAttribute('src','pharmacie.glb?v=2');
 </script>
 <style>
 :root{--vert:#1b5e20;--vert2:#2e7d32;--carte:#fff;--txt:#1d2622;--doux:#5f6b66;--ligne:#e1e6e3}
@@ -51,10 +51,10 @@ model-viewer{position:fixed;top:calc(48px + env(safe-area-inset-top));bottom:0;l
 <model-viewer id="mv" camera-orbit="25deg 55deg 40%" camera-controls touch-action="none" interaction-prompt="none" shadow-intensity="0" exposure="1.05"
   min-camera-orbit="auto 0deg auto" max-camera-orbit="auto 180deg auto" interpolation-decay="120" disable-tap>
   <div slot="progress-bar"></div>
-  <div class="chargement" slot="poster" id="poster"><div>Chargement de la maquette…</div><div class="b"><span id="pb"></span></div></div>
+  <div class="chargement" slot="poster" id="poster"><div>Chargement de la maquette (5 Mo, une seule fois : ensuite elle reste sur l'appareil)…</div><div class="b"><span id="pb"></span></div></div>
 </model-viewer>
 <div class="barre" id="barre"></div>
-<div class="legende" id="legende"><span><i class="Actif"></i>Actif</span><span><i class="Vide"></i>Vide</span><span><i class="Échu"></i>Échu</span><span>● rayon · ■ écran</span></div>
+<div class="legende" id="legende"><span><i class="Actif"></i>En place</span><span><i class="Vide"></i>Libre</span><span><i class="Échu"></i>À changer</span><span>● = emplacement en rayon · ■ = écran</span></div>
 <div id="fiche"></div>
 <div id="place"><b>Mode placement</b><br>Choisissez un élément puis touchez la maquette à son emplacement.<select id="selPlace"></select></div>
 <div id="msg"></div>
@@ -122,7 +122,7 @@ function fiche(x){
     ?L('Type',esc(o['Type']||'—'))+L('Laboratoire',esc(o['Laboratoire']||'—')+(x.classe?' ('+esc(x.classe)+')':''))+L('Produit / thème',esc(o['Produit / thème']||'—'))+L('Promo liée',esc(o['Promo liée']||'—'))+L('Période',dfr(o['Début'])+' → '+dfr(o['Fin']))+L('Marge / semaine',eur(o['Marge €/semaine']))+L('Relais écran',esc(o['Relais écran']||'—'))
     :L('Position',esc(o['Position']||'—'))+L('Format',esc(o['Format (px)']||'—'))+L('Contenu',esc(o['Contenu diffusé']||'—'))+L('Laboratoire',esc(o['Laboratoire']||'—'))+L('Période',dfr(o['Début'])+' → '+dfr(o['Fin']))+L('Relais rayon',esc(o['Relais rayon']||'—'));
   const sheet=x.kind==='rayon'?'SURFACE_VENTE':'ECRANS';
-  $('#fiche').innerHTML=`<h3>${esc(x.code)} <span class="${esc(x.statut||'inconnu')}" style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;line-height:18px;color:#fff">${esc(x.statut||'?')}</span></h3>${rows}
+  $('#fiche').innerHTML=`<h3>${esc(x.code)} <span class="${esc(x.statut||'inconnu')}" style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;line-height:18px;color:#fff">${esc(({Actif:'En place',Vide:'Libre',Échu:'À changer'})[x.statut]||x.statut||'?')}</span></h3>${rows}
    <div class="bt"><a href="index.html?ouvrir=${sheet}&cle=${encodeURIComponent(x.code)}">Modifier</a><button class="sec" id="dep">Déplacer</button><button class="sec" id="fer">Fermer</button></div>`;
   $('#fiche').style.display='block'; $('#legende').style.display='none';
   $('#fer').onclick=fermer; $('#dep').onclick=()=>{fermer();basculerPlacement(true);$('#selPlace').value=x.code};
@@ -155,7 +155,7 @@ mv.addEventListener('pointerup',async e=>{
   if(await poster({action:'upsert',sheet:'POSITIONS_3D',row})){msg(code+' placé ✓');ls.set('pil_cache',JSON.stringify(D))}
 });
 mv.addEventListener('progress',e=>{$('#pb').style.width=Math.round(e.detail.totalProgress*100)+'%'});
-mv.addEventListener('error',()=>msg('Impossible de charger la maquette 3D',5000));
+mv.addEventListener('error',()=>{$('#poster').innerHTML='<div>Chargement interrompu (réseau).</div><button id="bRetry" style="margin-top:10px;border:0;border-radius:8px;padding:8px 14px;background:#2e7d32;color:#fff;font-size:15px">Réessayer</button>';$('#bRetry').onclick=()=>{mv.src='pharmacie.glb?v=2&r='+Date.now()}});
 charger();
 </script>
 </body>

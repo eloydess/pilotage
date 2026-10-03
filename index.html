@@ -20,6 +20,8 @@ header{position:sticky;top:0;z-index:5;background:var(--vert);color:#fff;padding
 header h1{font-size:17px;margin:0;flex:1}
 header button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:8px;padding:6px 10px;font-size:14px}
 main{padding:12px 16px;max-width:760px;margin:auto}
+.fige{position:sticky;top:var(--hh,52px);z-index:4;background:var(--fond);margin:0 -16px;padding:8px 16px 2px;box-shadow:0 6px 8px -8px rgba(0,0,0,.35)}.fige>.carte{margin-top:0}.fige .titre{margin:6px 0 4px}
+.leg{font-size:12px;color:var(--doux);white-space:normal;line-height:1.6}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;color:var(--doux);padding:6px 2px 5px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:52px}
 nav button span{font-size:19px}
@@ -61,7 +63,7 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 /* --- Version ordinateur (même adresse, mêmes données) --- */
 @media (min-width:1024px){
 body{padding:0 0 30px 230px}
-header{padding:14px 28px}header h1{font-size:20px}
+header{padding:14px 28px}header h1{font-size:20px}.fige{margin:0 -28px;padding:10px 28px 2px}
 nav{top:0;bottom:0;right:auto;width:230px;display:flex;flex-direction:column;border-top:0;border-right:1px solid var(--ligne);padding:70px 10px 10px;gap:2px}
 nav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;min-height:44px;padding:8px 14px;border-radius:10px}
 nav button span{font-size:20px;width:26px;text-align:center}
@@ -85,7 +87,7 @@ main>.item,main>.reco,main>.op{grid-column:auto}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.9';
+const APP_V='1.10';
 const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Agenda'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -192,7 +194,10 @@ function grapheCA(ms,sel){const P=(D.perf||[]).map(p=>({m:isoMois(p['Mois']),n:n
    ${line('n1','#90a4ae',1)}${line('n','#1b5e20')}
    ${P.map((p,i)=>`<text x="${X(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="${i===si?'#1b5e20':'#78909c'}" ${i===si?'font-weight="700"':''}>${moisFr(p.m).slice(0,3)}</text>`).join('')}
   </svg><div class="sub" style="font-size:11px;color:var(--doux)"><span style="color:#1b5e20">━ N</span> · <span style="color:#90a4ae">┅ N-1</span> · mois sélectionné surligné</div></div>`}
-function accueil(){
+const majHH=()=>{const h=document.querySelector('header');if(h)document.documentElement.style.setProperty('--hh',h.offsetHeight+'px')};
+addEventListener('resize',majHH);addEventListener('load',majHH);setTimeout(majHH,0);
+const ST_LIB={Actif:'En place',Vide:'Libre',Échu:'À changer'};const stLib=v=>ST_LIB[v]||v;
+function accueil(){majHH();
   const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
   const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};
   $('#ht').textContent='Pilotage — '+moisFr(moisSel);
@@ -219,7 +224,7 @@ function accueil(){
   const tuiles=`<div class="tuiles"><div class="tuile" data-go="cmd"><b class="${cmdU?'neg':''}">${cmdU}</b><span>commande(s) urgente(s) sur ${cmdN}</span></div>
     <div class="tuile" data-go="agd"><b>${evP}</b><span>événement(s) à préparer · ${opN} opération(s) labo en cours</span></div>
     <div class="tuile" data-go="lab"><b>${lV+lR}</b><span>labos prix à valider / revoir</span></div></div>`;
-  $('#m').innerHTML=sel+tuiles+capt+`<div class="kpis">${kpi2('CA HT du mois',p['CA HT N'],p['CA HT N-1'],eur)}${kpi2('Marge € du mois',p['Marge € N'],p['Marge € N-1'],eur)}
+  $('#m').innerHTML='<div class="fige">'+sel+tuiles+'</div>'+capt+`<div class="kpis">${kpi2('CA HT du mois',p['CA HT N'],p['CA HT N-1'],eur)}${kpi2('Marge € du mois',p['Marge € N'],p['Marge € N-1'],eur)}
     ${kpi2('Fréquentation réelle',p['Fréquentation réelle N'],p['Fréquentation réelle N-1'],ent)}${kpi2('Marge € par client',p['Marge €/client N'],p['Marge €/client N-1'],eur2)}
     <div class="carte kpi"><div class="l">Taux de marge</div><div class="v">${pct(tN)}</div><div class="e ${tN!==null&&tN1!==null?cls(tN-tN1):''}">${tN!==null&&tN1!==null?((tN-tN1)*100>0?'+':'')+((tN-tN1)*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' pt':'—'} <span style="color:var(--doux);font-weight:400">vs ${pct(tN1)}</span></div></div>
     ${kpi2('Objectif marge',p['Marge € N'],p['Objectif retenu €'],eur).replace('vs ','obj. ')}</div>
@@ -277,11 +282,11 @@ function labos(){
   const nb=g=>tous.filter(x=>inG(x,g)).length;
   const q=recherche.toLowerCase();
   const l=tous.filter(x=>inG(x,filtreLab)&&(!q||String(x['Laboratoire']).toLowerCase().includes(q)));
-  $('#m').innerHTML=`<div class="carte"><b>Avancement des prix</b><div class="barre"><i style="width:${mT?Math.round(mF/mT*100):0}%"></i></div>
+  $('#m').innerHTML=`<div class="fige"><div class="carte"><b>Avancement des prix</b><div class="barre"><i style="width:${mT?Math.round(mF/mT*100):0}%"></i></div>
    <div class="sub" style="font-size:12px;color:var(--doux)">${mT?Math.round(mF/mT*100):0} % de la marge du périmètre prix est à jour (${eur(mF)} sur ${eur(mT)}) · ✅ ${nb('Fait')} fait · 🟠 ${nb('À valider')} à valider · 🟡 ${nb('À revoir')} à revoir · ⭕ ${nb('À faire')} à faire</div></div>
   <input id="q" placeholder="Rechercher parmi les ${tous.length} laboratoires" value="${esc(recherche)}">
   <div class="filtres" style="margin-top:8px">${grp.map(g=>`<button class="${g===filtreLab?'on':''}" data-g="${g}">${g} (${nb(g)})</button>`).join('')}</div>
-  <p class="titre">${l.length} laboratoire(s) — tri par marge sur 12 mois (sept. 2025 → août 2026)</p>
+  <p class="titre">${l.length} laboratoire(s) — tri par marge sur 12 mois (sept. 2025 → août 2026)</p></div>
   ${l.map(x=>{const e=etatPrix(x);return `<div class="carte item" data-k="${esc(x['Laboratoire'])}"><span class="ico" title="${esc(e[1])}">${e[0]}</span>
    <div class="grow"><b>${esc(x['Laboratoire'])}</b><div class="sub">${eur(x['Marge € 12 mois'])} de marge sur 12 mois · ${esc(e[1])}${x['Date repricing']?' le '+dfr(x['Date repricing']):''}${x['Suivi repricing']?' · '+esc(String(x['Suivi repricing']).split(' — ')[0]):''}</div></div>
    ${EM[x['Laboratoire']]!==null?`<span style="font-size:12px">${fleche(EM[x['Laboratoire']])}</span>`:''}
@@ -349,8 +354,8 @@ function fiche(nom,ong){
     corps=(hausse?`<div class="carte alerte"><b>Remise immédiate en cours</b><div class="sub" style="font-size:12px;white-space:normal">Aucune hausse de prix sur les produits concernés pendant l'opération.</div></div>`:'')+
      (ops.map(carteOp).join('')||'<p class="vide">Aucune opération Opeaz en cours ou à venir pour ce laboratoire.</p>');
   } else if(ongletFiche==='vis'){
-    corps=`<div class="titre">Emplacements (${empl.length})</div><div class="carte">${empl.map(s=>L(esc(s['Code emplacement'])+' · '+esc(s['Type']),'<span class="badge '+esc(s['Statut'])+'">'+esc(s['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
-     <div class="titre">Écrans (${ecr.length})</div><div class="carte">${ecr.map(e=>L(esc(e['Code écran'])+' · '+esc(e['Contenu diffusé']),'<span class="badge '+esc(e['Statut'])+'">'+esc(e['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
+    corps=`<div class="titre">Emplacements (${empl.length})</div><div class="carte">${empl.map(s=>L(esc(s['Code emplacement'])+' · '+esc(s['Type']),'<span class="badge '+esc(s['Statut'])+'">'+esc(stLib(s['Statut']))+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
+     <div class="titre">Écrans (${ecr.length})</div><div class="carte">${ecr.map(e=>L(esc(e['Code écran'])+' · '+esc(e['Contenu diffusé']),'<span class="badge '+esc(e['Statut'])+'">'+esc(stLib(e['Statut']))+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
      ${T.em!==null&&T.em>0.05&&x['Classe']==='A'?'<div class="carte diag">Laboratoire qui progresse : bon candidat pour un message écran (« nos prix bas » ou nouveauté).</div>':''}`;
   } else corps=rec.map(carteReco).join('')||'<p class="vide">Aucune action ouverte.</p>';
   $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Laboratoires</button>
@@ -394,7 +399,7 @@ function agenda(){
   const ordre={'En cours':0,'À préparer':1,'À venir':2,'Passé':3};
   const all=(D.calendrier||[]).slice().sort((a,b)=>(ordre[a['Statut']]??2)-(ordre[b['Statut']]??2)||String(a['Début']).localeCompare(String(b['Début'])));
   const l=all.filter(e=>voirPasses||e['Statut']!=='Passé');
-  $('#m').innerHTML=`<p class="titre">${l.length} événement(s) — touchez pour l'ordre de préparation</p>
+  $('#m').innerHTML=`<div class="fige"><p class="titre">${l.length} événement(s) — touchez pour l'ordre de préparation</p></div>
   ${l.map(e=>`<div class="carte ev" data-i="${(D.calendrier||[]).indexOf(e)}" style="cursor:pointer">${bdg(e['Statut']||'')} <b>${esc(e['Événement'])}</b>
    <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">${dfr(e['Début'])}${e['Fin']&&e['Fin']!==e['Début']?' → '+dfr(e['Fin']):''} · préparer dès le ${dfr(e['Préparer dès'])} · ${esc(e['Affluence']||'')}</div>
    <div class="sub" style="font-size:13px;white-space:normal;margin-top:4px">${esc(e['Catégories']||'')}</div>
@@ -419,8 +424,8 @@ function liste(sheet,cle,titre,sous){
   $('#ht').textContent=titre;
   const ordre={Échu:0,Vide:1,Actif:2};
   const t=l.slice().sort((a,b)=>(ordre[a['Statut']]??3)-(ordre[b['Statut']]??3));
-  $('#m').innerHTML=`<p class="titre">${t.length} élément(s) — échus et vides en premier</p>`+(t.map((x,i)=>`<div class="carte item" data-i="${l.indexOf(x)}">
-   <span class="badge ${esc(x['Statut'])}">${esc(x['Statut'])}</span><div class="grow"><b>${esc(x[cle])}</b><div class="sub">${sous(x)}</div></div>
+  $('#m').innerHTML=`<div class="carte leg">${sheet==='SURFACE_VENTE'?'<b>Emplacements physiques en rayon</b> (tête de gondole, présentoir, vitrine…).':'<b>Écrans d\'affichage dynamique</b> (vitrine et intérieur).'}<br><span class="badge Actif">En place</span> une mise en avant est programmée et sa date de fin n\'est pas passée · <span class="badge Vide">Libre</span> rien de programmé : emplacement à remplir · <span class="badge Échu">À changer</span> la date de fin est passée : retirer ou renouveler</div><p class="titre">${t.length} élément(s) — « À changer » et « Libre » en premier</p>`+(t.map((x,i)=>`<div class="carte item" data-i="${l.indexOf(x)}">
+   <span class="badge ${esc(x['Statut'])}">${esc(stLib(x['Statut']))}</span><div class="grow"><b>${esc(x[cle])}</b><div class="sub">${sous(x)}</div></div>
    ${x['Classe labo']?'<span class="badge '+esc(x['Classe labo'])+'">'+esc(x['Classe labo'])+'</span>':''}</div>`).join('')||'<p class="vide">Aucun élément.</p>');
   document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire(sheet,l[+e.dataset.i]));
   fab(()=>formulaire(sheet,null));
