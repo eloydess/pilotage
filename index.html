@@ -262,13 +262,19 @@ function tend(nom){const t=(D.tendances||[]).find(r=>r['Laboratoire']===nom)||{}
   const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b>0?a/b-1:null;
   return {t,m:num(x['Marge € 12 mois']),m1:num(t['Marge € N-1']),ca:num(x['CA HT 12 mois']),ca1:num(t['CA HT N-1']),q:num(t['Quantité N']),q1:num(t['Quantité N-1']),
     em:ev(x['Marge € 12 mois'],t['Marge € N-1']),eca:ev(x['CA HT 12 mois'],t['CA HT N-1']),eq:ev(t['Quantité N'],t['Quantité N-1']),g:num(t['Évolution nationale GERS %'])}}
+function gersDet(t){const c=String(t['Commentaire']||''),n=re=>{const m=c.match(re);return m?(m[1]==='−'||m[1]==='-'?-1:1)*parseFloat(m[2].replace(',','.'))/100:null};
+  const r=c.match(/Référence GERS : ([^.]*)\./);return {all:n(/toutes officines \([^)]*\) ([+−-])(\d+,\d) %/),vol:n(/volumes grandes officines ([+−-])(\d+,\d) %/),ref:r?r[1]:'',faible:/Volume GERS faible/.test(c)}}
+function carteGers(T){if(T.g===null)return '<div class="carte"><div class="sub" style="white-space:normal">Face au marché (GERS) : pas encore de donnée pour ce laboratoire.</div></div>';
+  const G=gersDet(T.t),L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`,d=T.eca!==null?T.eca-T.g:null;
+  return `<div class="carte"><div style="font-weight:600;margin-bottom:4px">Face au marché (GERS, CA 12 mois vs N-1)</div>${L('Nous (CA HT)',T.eca===null?'—':fleche(T.eca))}${L('Grandes officines (CA ≥ 5 M€)',fleche(T.g))}${L('Toutes officines',G.all===null?'—':fleche(G.all))}${G.vol===null?'':L('Volumes grandes officines',fleche(G.vol))}${d===null?'':L('Écart avec les grandes officines',(d>=0?'+':'−')+Math.abs(d*100).toFixed(1).replace('.',',')+' pts')}
+   <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal;margin-top:4px">Panel GERS constant (5 214 officines, dont 374 à plus de 5 M€ TTC), relevé du 03/10/2026${G.ref?' ; référence : '+esc(G.ref):''}.${G.faible?' Volume GERS faible : tendance peu fiable.':''}</div></div>`}
 const opsLabo=nom=>(D.operations||[]).filter(o=>o['Laboratoire']===nom).sort((a,b)=>String(a['Début']).localeCompare(String(b['Début'])));
 const fleche=v=>v===null?'':`<b class="${v<0?'neg':'pos'}">${v<0?'▼':'▲'} ${pct(Math.abs(v))}</b>`;
 function verdict(T){
   if(T.em===null)return ['❔','Pas d\'historique N-1 pour juger','Nouveau fournisseur ou libellé changé : comparer à nouveau dans 3 mois.'];
   let v=T.em>=0.05?['🟢','Il fonctionne','Marge en hausse de '+pct(T.em)+' sur 12 mois.']:T.em<=-0.05?['🔴','Il recule','Marge en baisse de '+pct(Math.abs(T.em))+' sur 12 mois.']:['🟡','Stable','Marge stable sur 12 mois ('+pct(T.em,1)+').'];
   if(T.g!==null&&T.eca!==null){const d=T.eca-T.g;
-    v[2]+=' Marché national (GERS) : '+pct(T.g,1)+' ; nous : '+pct(T.eca,1)+'. '+(d>0.05?'Nous gagnons des parts de marché : à faire savoir (écrans, vitrine).':d<-0.05?'Le marché fait mieux que nous : vérifier prix, ruptures et visibilité.':'Nous suivons le marché.');}
+    v[2]+=' Grandes officines (GERS, CA ≥ 5 M€) : '+pct(T.g,1)+' ; nous : '+pct(T.eca,1)+'. '+(d>0.05?'Nous gagnons des parts de marché : à faire savoir (écrans, vitrine).':d<-0.05?'Le marché fait mieux que nous : vérifier prix, ruptures et visibilité.':'Nous suivons le marché.');}
   else v[2]+=' Tendance nationale GERS : pas encore importée.';
   return v;}
 let ongletFiche='syn';
@@ -289,6 +295,7 @@ function fiche(nom,ong){
     <div class="carte">${L('Prix',e[0]+' '+esc(e[1])+(x['Date repricing']?' le '+dfr(x['Date repricing']):''))}${L('Part de la marge (prix libre)',pct(x['Part de la marge %']))}${L('Classe Pareto','<span class="badge '+esc(x['Classe'])+'">'+esc(x['Classe']||'–')+'</span>')}
      ${L('Univers',esc(x['Univers']||'—'))}${L('Politique prix',esc(x['Politique prix']||'—'))}${L('Score 360°','<span class="score">'+esc(x['Score 360° /5'])+'/5</span>')}
      ${L('Opérations en cours / à venir',ops.length)}${L('Emplacements · écrans',empl.length+' · '+ecr.length)}</div>
+    ${carteGers(T)}
     <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">N = sept. 2025 → août 2026 ; N-1 = sept. 2024 → août 2025 (Vindilis, statistiques fournisseurs).</div>`;
   } else if(ongletFiche==='prix'){
     corps=`<div class="carte"><div style="font-size:18px">${e[0]} <b>${esc(e[1])}</b></div>
