@@ -15,13 +15,13 @@
 :root{--vert:#1b5e20;--vert2:#2e7d32;--fond:#f4f6f5;--carte:#fff;--txt:#1d2622;--doux:#5f6b66;--ligne:#e1e6e3;--rouge:#c62828;--orange:#e65100;--bleu:#0d47a1;--violet:#4a148c}
 @media (prefers-color-scheme:dark){:root{--fond:#111614;--carte:#1b2220;--txt:#e8eeeb;--doux:#9fb0a8;--ligne:#2a3330;--vert2:#66bb6a;--rouge:#ef5350;--orange:#ffa040}}
 *{box-sizing:border-box}
-body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt);padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt);padding-bottom:calc(124px + env(safe-area-inset-bottom))}
 header{position:sticky;top:0;z-index:5;background:var(--vert);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
 header h1{font-size:17px;margin:0;flex:1}
 header button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:8px;padding:6px 10px;font-size:14px}
 main{padding:12px 16px;max-width:760px;margin:auto}
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
-nav button{flex:1;border:0;background:none;color:var(--doux);padding:8px 2px 7px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{border:0;background:none;color:var(--doux);padding:6px 2px 5px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:52px}
 nav button span{font-size:19px}
 nav button.on{color:var(--vert2);font-weight:600}
 .carte{background:var(--carte);border:1px solid var(--ligne);border-radius:12px;padding:12px 14px;margin:0 0 10px}
@@ -49,22 +49,27 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 .filtres button.on{background:var(--vert2);color:#fff;border-color:var(--vert2)}
 .diag{border-left:4px solid var(--orange);font-weight:600}
 .score{font-weight:800;font-size:15px}
-#toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#263238;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:9;max-width:90%}
+#toast{position:fixed;left:50%;bottom:140px;transform:translateX(-50%);background:#263238;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:9;max-width:90%}
 #toast.on{opacity:1}
 .vide{color:var(--doux);text-align:center;padding:24px 0}
-.fab{position:fixed;right:18px;bottom:calc(80px + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;border:0;background:var(--vert2);color:#fff;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.ico{font-size:20px;width:26px;text-align:center;flex:none}
+.barre{height:10px;border-radius:5px;background:var(--ligne);overflow:hidden;margin:8px 0 4px}.barre i{display:block;height:100%;background:var(--vert2)}
+.tuiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}.tuile{background:var(--carte);border:1px solid var(--ligne);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer}.tuile b{display:block;font-size:22px}.tuile span{font-size:11px;color:var(--doux)}
+.alerte{border-left:4px solid var(--rouge)}
+.ordre{white-space:pre-line;font-size:13px;margin-top:8px;padding:8px 10px;background:var(--fond);border-radius:8px}
+.fab{position:fixed;right:18px;bottom:calc(132px + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;border:0;background:var(--vert2);color:#fff;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
 </style>
 </head>
 <body>
-<header><h1 id="ht">Pilotage</h1><a href="3d.html" style="background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:6px 10px;font-size:14px;text-decoration:none">🧊 3D</a><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
+<header><h1 id="ht">Pilotage</h1><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
 <main id="m"></main>
 <nav id="nav"></nav>
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.5';
-const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois']];
-let D=null,vue='acc',filtre='Ouvertes',recherche='';
+const APP_V='1.6';
+const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Agenda'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
+let D=null,vue='acc',filtre='Ouvertes',recherche='',filtreLab='Tous',voirPasses=false;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -77,6 +82,22 @@ const dfr=v=>{if(!v)return '—';const p=String(v).split('-');return p.length===
 const isoMois=v=>{if(v===null||v===undefined||v==='')return '';const n=Number(v);if(isFinite(n)&&n>20000){const d=new Date(Date.UTC(1899,11,30)+Math.round(n)*864e5);return d.toISOString().slice(0,10)}return String(v)};
 const moisFr=v=>{const s=isoMois(v);if(!/^\d{4}-\d{2}/.test(s))return s||'—';const p=s.split('-');const d=new Date(+p[0],+p[1]-1,15);return d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})};
 const cls=v=>num(v)===null?'':(v<0?'neg':'pos');
+
+const COUL={'Urgent':['#ffcdd2','#b71c1c'],'Cette semaine':['#ffe0b2','#8a3b00'],'À surveiller':['#e3f2fd','#0d47a1'],'En cours':['#ffcdd2','#b71c1c'],'À préparer':['#ffe0b2','#8a3b00'],'À venir':['#e3f2fd','#0d47a1'],'Passé':['#eceff1','#78909c']};
+const bdg=t=>{const c=COUL[t];return `<span class="badge" ${c?`style="background:${c[0]};color:${c[1]}"`:''}>${esc(t)}</span>`};
+const auj=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const jours=v=>{if(!v||!/^\d{4}-\d{2}-\d{2}/.test(v))return null;const a=new Date(String(v).slice(0,10)+'T12:00:00'),b=new Date(auj()+'T12:00:00');return Math.round((b-a)/864e5)};
+/* Statut prix d'un laboratoire : icône + libellé + groupe de filtre */
+function etatPrix(x){const pol=x['Politique prix']||'',st=x['Statut prix']||'';
+  if(pol==='Imposé')return ['🔒','Prix imposé','Imposé'];
+  if(st==='Fait')return ['✅','Prix à jour','Fait'];
+  if(st==='À valider')return ['🟠','À valider','À valider'];
+  if(st==='À revoir'||st==='À importer')return ['🟡',st,'À revoir'];
+  if(st==='En cours')return ['🔵','En cours','À valider'];
+  if(st==='À faire')return ['⭕','À faire','À faire'];
+  if(pol==='Administré')return ['➖','Hors périmètre (remboursé)','Hors périmètre'];
+  return ['❔','À préciser','À faire'];}
+const P=k=>D&&D.params?num(D.params[k]):null;
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2600)}
 
 /* ---------- API ---------- */
@@ -91,7 +112,7 @@ async function charger(silencieux){
     const j=await r.json();
     enCours=false;
     if(!j.ok){derniereErreur=j.err||'Erreur';toast(derniereErreur);if(/Code/.test(j.err||'')||!D)reglages();return}
-    derniereErreur=''; D=j; ls.set('pil_cache',JSON.stringify(j)); rendre(); if(!silencieux)toast('À jour');
+    derniereErreur=''; D=j; ls.set('pil_cache',JSON.stringify(j)); if(vue==='cfg')vue='acc'; rendre(); if(!silencieux)toast('À jour');
   }catch(e){enCours=false;derniereErreur='Connexion impossible au serveur ('+(e&&e.message||e)+').';if(D)toast('Hors ligne : dernières données affichées');else{toast('Connexion impossible');reglages();}}
 }
 async function poster(body){
@@ -109,16 +130,16 @@ function reglages(){
   <label>Adresse de l'application Web</label><input id="u" value="${esc(c.url)}" placeholder="https://script.google.com/macros/s/…/exec">
   <label>Code d'accès</label><input id="c" type="password" inputmode="numeric" value="${esc(c.code)}">
   <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>`;
-  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim());ls.set('pil_code',$('#c').value.trim());charger()};
+  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim());ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='acc';charger()};
 }
 
 /* ---------- Rendu ---------- */
 function navig(){
   $('#nav').innerHTML=ONGLETS.map(o=>`<button data-v="${o[0]}" class="${o[0]===vue?'on':''}"><span>${o[1]}</span>${o[2]}</button>`).join('');
-  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{vue=b.dataset.v;recherche='';rendre();scrollTo(0,0)});
+  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{const v=b.dataset.v; if(v==='3d'){location.href='3d.html';return} if(v==='cfg'){vue='cfg';navig();reglages();return} vue=v;recherche='';rendre();scrollTo(0,0)});
 }
 function rendre(){navig(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
-  ({acc:accueil,act:actions,lab:labos,ray:rayon,ecr:ecrans,mois:mois})[vue]();}
+  ({acc:accueil,act:actions,lab:labos,cmd:commandes,agd:agenda,ray:rayon,ecr:ecrans,mois:mois,cfg:reglages})[vue]();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
 function carteReco(r,i){
@@ -170,7 +191,17 @@ function accueil(){
   const diag=ec===null?'':(ec>=0?'Marge en progression vs N-1':(eF!==null&&eM!==null?('Le recul vient surtout '+(Math.abs(eF)>=Math.abs(eM)?'de la FRÉQUENTATION (moins de clients)':'de la MARGE PAR CLIENT (panier / prix)')):'Marge en recul vs N-1'));
   const c=D.cockpit,lev=[19,20,21,22,23,24,25,26].map(j=>`<div class="ligne"><span>${esc(c[j][0])}</span><b>${j===23?eur(c[j][1]):(j===20?(num(c[j][1])===null?'—':(+c[j][1]).toLocaleString('fr-FR',{maximumFractionDigits:1})):esc(c[j][1]))}</b></div>`).join('');
   const top=D.recos.filter(ouverte).slice(0,5);
-  $('#m').innerHTML=sel+`<div class="kpis">${kpi2('CA HT du mois',p['CA HT N'],p['CA HT N-1'],eur)}${kpi2('Marge € du mois',p['Marge € N'],p['Marge € N-1'],eur)}
+  const cmdU=(D.commandes||[]).filter(c=>c['Priorité']==='Urgent').length, cmdN=(D.commandes||[]).length;
+  const evP=(D.calendrier||[]).filter(e=>e['Statut']==='En cours'||e['Statut']==='À préparer').length;
+  const lV=(D.labos||[]).filter(l=>etatPrix(l)[2]==='À valider').length, lR=(D.labos||[]).filter(l=>etatPrix(l)[2]==='À revoir').length;
+  const cap=P('P_CAPTATION'),capO=P('P_CAPTATION_OBJ'),capR=P('P_CAPTATION_RESTE');
+  const capt=cap===null?'':`<div class="carte"><div class="l" style="font-size:12px;color:var(--doux)">Part de la consommation de vos clients que vous captez</div>
+    <div style="font-size:28px;font-weight:800">${pct(cap)}</div><div class="barre" style="position:relative"><i style="width:${Math.min(cap*100,100)}%"></i>${capO!==null?`<span style="position:absolute;top:0;bottom:0;left:${capO*100}%;width:2px;background:var(--rouge)"></span>`:''}</div>
+    <div class="sub" style="font-size:12px;color:var(--doux)">Objectif ${pct(capO)}${capR!==null?` · il reste <b style="color:var(--txt)">${eur(capR)}</b> à capter chez vos clients actuels`:''}</div></div>`;
+  const tuiles=`<div class="tuiles"><div class="tuile" data-go="cmd"><b class="${cmdU?'neg':''}">${cmdU}</b><span>commande(s) urgente(s) sur ${cmdN}</span></div>
+    <div class="tuile" data-go="agd"><b>${evP}</b><span>événement(s) à préparer / en cours</span></div>
+    <div class="tuile" data-go="lab"><b>${lV+lR}</b><span>labos prix à valider / revoir</span></div></div>`;
+  $('#m').innerHTML=sel+tuiles+capt+`<div class="kpis">${kpi2('CA HT du mois',p['CA HT N'],p['CA HT N-1'],eur)}${kpi2('Marge € du mois',p['Marge € N'],p['Marge € N-1'],eur)}
     ${kpi2('Fréquentation réelle',p['Fréquentation réelle N'],p['Fréquentation réelle N-1'],ent)}${kpi2('Marge € par client',p['Marge €/client N'],p['Marge €/client N-1'],eur2)}
     <div class="carte kpi"><div class="l">Taux de marge</div><div class="v">${pct(tN)}</div><div class="e ${tN!==null&&tN1!==null?cls(tN-tN1):''}">${tN!==null&&tN1!==null?((tN-tN1)*100>0?'+':'')+((tN-tN1)*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' pt':'—'} <span style="color:var(--doux);font-weight:400">vs ${pct(tN1)}</span></div></div>
     ${kpi2('Objectif marge',p['Marge € N'],p['Objectif retenu €'],eur).replace('vs ','obj. ')}</div>
@@ -182,6 +213,7 @@ function accueil(){
   <div class="titre">Leviers</div><div class="carte">${lev}</div>
   <div class="titre">Top 5 des actions</div>${top.length?top.map(carteReco).join(''):'<p class="vide">Aucune action ouverte 👍</p>'}`;
   const go=m=>{moisSel=m;accueil();};
+  document.querySelectorAll('.tuile').forEach(t=>t.onclick=()=>{vue=t.dataset.go;if(vue==='lab'){filtreLab='À valider';recherche=''}rendre();scrollTo(0,0)});
   $('#mSel').onchange=e=>go(e.target.value);
   if($('#mPrev'))$('#mPrev').onclick=()=>{if(i>0)go(ms[i-1])};
   if($('#mNext'))$('#mNext').onclick=()=>{if(i<ms.length-1)go(ms[i+1])};
@@ -200,15 +232,24 @@ function actions(){
 }
 
 function labos(){
-  $('#ht').textContent='Laboratoires';
-  const l=D.labos.slice().sort((a,b)=>(num(b['Marge € 12 mois'])||0)-(num(a['Marge € 12 mois'])||0))
-    .filter(x=>!recherche||String(x['Laboratoire']).toLowerCase().includes(recherche.toLowerCase()));
-  $('#m').innerHTML=`<input id="q" placeholder="Rechercher un laboratoire" value="${esc(recherche)}">
+  $('#ht').textContent='Laboratoires — prix';
+  const tous=D.labos.slice().sort((a,b)=>(num(b['Marge € 12 mois'])||0)-(num(a['Marge € 12 mois'])||0));
+  const per=tous.filter(x=>{const g=etatPrix(x)[2];return g!=='Imposé'&&g!=='Hors périmètre'||x['Statut prix']});
+  const mT=per.reduce((s,x)=>s+(num(x['Marge € 12 mois'])||0),0), mF=per.filter(x=>x['Statut prix']==='Fait').reduce((s,x)=>s+(num(x['Marge € 12 mois'])||0),0);
+  const grp=['Tous','À faire','À valider','À revoir','Fait','Imposé','Hors périmètre'];
+  const nb=g=>g==='Tous'?tous.length:tous.filter(x=>etatPrix(x)[2]===g).length;
+  const q=recherche.toLowerCase();
+  const l=tous.filter(x=>(filtreLab==='Tous'||etatPrix(x)[2]===filtreLab)&&(!q||String(x['Laboratoire']).toLowerCase().includes(q)));
+  $('#m').innerHTML=`<div class="carte"><b>Avancement des prix</b><div class="barre"><i style="width:${mT?Math.round(mF/mT*100):0}%"></i></div>
+   <div class="sub" style="font-size:12px;color:var(--doux)">${mT?Math.round(mF/mT*100):0} % de la marge du périmètre prix est à jour (${eur(mF)} sur ${eur(mT)}) · ✅ ${nb('Fait')} fait · 🟠 ${nb('À valider')} à valider · 🟡 ${nb('À revoir')} à revoir · ⭕ ${nb('À faire')} à faire</div></div>
+  <input id="q" placeholder="Rechercher parmi les ${tous.length} laboratoires" value="${esc(recherche)}">
+  <div class="filtres" style="margin-top:8px">${grp.map(g=>`<button class="${g===filtreLab?'on':''}" data-g="${g}">${g} (${nb(g)})</button>`).join('')}</div>
   <p class="titre">${l.length} laboratoire(s) — tri par marge</p>
-  ${l.map(x=>`<div class="carte item" data-k="${esc(x['Laboratoire'])}"><span class="badge ${esc(x['Classe'])}">${esc(x['Classe']||'–')}</span>
-   <div class="grow"><b>${esc(x['Laboratoire'])}</b><div class="sub">${eur(x['Marge € 12 mois'])} · ${pct(x['Part de la marge %'])} de la marge · ${esc(x['Politique prix']||'')}</div></div>
-   <span class="score">${x['Score 360° /5']===''?'':esc(x['Score 360° /5'])+'/5'}</span></div>`).join('')}`;
-  const q=$('#q'); q.oninput=()=>{recherche=q.value;labos();const n=$('#q');n.focus();n.setSelectionRange(n.value.length,n.value.length)};
+  ${l.map(x=>{const e=etatPrix(x);return `<div class="carte item" data-k="${esc(x['Laboratoire'])}"><span class="ico" title="${esc(e[1])}">${e[0]}</span>
+   <div class="grow"><b>${esc(x['Laboratoire'])}</b><div class="sub">${eur(x['Marge € 12 mois'])} de marge · ${esc(e[1])}${x['Date repricing']?' le '+dfr(x['Date repricing']):''}${x['Suivi repricing']?' · '+esc(String(x['Suivi repricing']).split(' — ')[0]):''}</div></div>
+   ${x['Classe']?`<span class="badge ${esc(x['Classe'])}">${esc(x['Classe'])}</span>`:''}</div>`}).join('')||'<p class="vide">Aucun laboratoire.</p>'}`;
+  const qi=$('#q'); qi.oninput=()=>{recherche=qi.value;labos();const n=$('#q');n.focus();n.setSelectionRange(n.value.length,n.value.length)};
+  document.querySelectorAll('.filtres button').forEach(b=>b.onclick=()=>{filtreLab=b.dataset.g;labos()});
   document.querySelectorAll('.item').forEach(e=>e.onclick=()=>fiche(e.dataset.k));
   fab(()=>formulaire('LABORATOIRES',null));
 }
@@ -219,17 +260,64 @@ function fiche(nom){
   const L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`;
   const empl=D.surface.filter(s=>s['Laboratoire']===nom), ecr=D.ecrans.filter(e=>e['Laboratoire']===nom);
   const rec=D.recos.filter(r=>ouverte(r)&&(r['Cible']===nom||String(r['Constat']).includes(nom)));
+  const e=etatPrix(x), sts=(D.refs&&D.refs['Statut prix'])||['À faire','En cours','À valider','À revoir','À importer','Fait'];
+  const j=jours(x['Date repricing']);
+  const suivi=j===null?'':`<div class="sub" style="font-size:12px;color:var(--doux);margin-top:6px">Nouveaux prix depuis ${j} jour(s). Points de mesure : J+15, J+30, J+60, J+90 — comparer les ventes et la marge du laboratoire avant / après (export ventes Vindilis du labo).</div>`;
   $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Laboratoires</button>
-  <div class="carte">${L('Score 360°','<span class="score">'+esc(x['Score 360° /5'])+'/5</span>')}${L('Classe Pareto','<span class="badge '+esc(x['Classe'])+'">'+esc(x['Classe']||'–')+'</span>')}
-  ${L('Marge 12 mois',eur(x['Marge € 12 mois']))}${L('Part de la marge',pct(x['Part de la marge %']))}${L('Taux de marge',pct(x['Taux de marge %']))}
-  ${L('Politique prix',esc(x['Politique prix']||'—'))}${L('Remise avant',pct(x['Remise avant %']))}${L('Remises arrière (info)',pct(x['Remises arrière % (info)']))}${L('Remise globale (info)',pct(x['Remise globale % (info)']))}
-  ${L('Statut prix',esc(x['Statut prix']||'—'))}${L('Suivi repricing',esc(x['Suivi repricing']||'—'))}${L('Produits à corriger',esc(x['Produits à corriger']))}${L('Impact prix cibles',eur(x['Impact prix cibles €/an'])+'/an')}
-  ${L('Référent',esc(x['Référent']||'—'))}${L('Promo en cours',esc(x['Promo en cours']||'—'))}</div>
+  <div class="carte"><div style="font-size:18px">${e[0]} <b>${esc(e[1])}</b></div>
+   ${x['Date repricing']?L('Changement de prix le',dfr(x['Date repricing'])):''}${x['Suivi repricing']?L('Suivi',esc(x['Suivi repricing'])):''}${suivi}
+   <div class="statuts" id="stp">${sts.map(s=>`<button data-s="${esc(s)}" class="${x['Statut prix']===s?'on':''}">${esc(s)}</button>`).join('')}</div></div>
+  <div class="carte">${L('Marge 12 mois',eur(x['Marge € 12 mois']))}${L('CA HT 12 mois',eur(x['CA HT 12 mois']))}${L('Taux de marge',pct(x['Taux de marge %']))}${L('Part de la marge (prix libre)',pct(x['Part de la marge %']))}${L('Classe Pareto','<span class="badge '+esc(x['Classe'])+'">'+esc(x['Classe']||'–')+'</span>')}
+  ${L('Univers',esc(x['Univers']||'—'))}${L('Politique prix',esc(x['Politique prix']||'—'))}${L('Score 360°','<span class="score">'+esc(x['Score 360° /5'])+'/5</span>')}
+  ${L('Remise avant',pct(x['Remise avant %']))}${L('Remises arrière (info)',pct(x['Remises arrière % (info)']))}${L('Remise globale (info)',pct(x['Remise globale % (info)']))}
+  ${L('Produits à corriger',esc(x['Produits à corriger']))}${L('Impact prix cibles',eur(x['Impact prix cibles €/an'])+'/an')}
+  ${L('Référent',esc(x['Référent']||'—'))}${L('Promo en cours',esc(x['Promo en cours']||'—'))}
+  ${x['Commentaire']?`<div class="sub" style="font-size:13px;margin-top:8px;white-space:normal">${esc(x['Commentaire'])}</div>`:''}</div>
   <div class="titre">Emplacements (${empl.length})</div><div class="carte">${empl.map(s=>L(esc(s['Code emplacement'])+' · '+esc(s['Type']),'<span class="badge '+esc(s['Statut'])+'">'+esc(s['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
   <div class="titre">Écrans (${ecr.length})</div><div class="carte">${ecr.map(e=>L(esc(e['Code écran'])+' · '+esc(e['Contenu diffusé']),'<span class="badge '+esc(e['Statut'])+'">'+esc(e['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
   <div class="titre">Actions ouvertes (${rec.length})</div>${rec.map(carteReco).join('')}
   <button class="btn" id="mod">Modifier la fiche</button>`;
   $('#ret').onclick=labos; $('#mod').onclick=()=>formulaire('LABORATOIRES',x); brancherStatuts(); fab(null);
+  document.querySelectorAll('#stp button').forEach(b=>b.onclick=async()=>{
+    const av={s:x['Statut prix'],d:x['Date repricing']}; x['Statut prix']=b.dataset.s;
+    if(b.dataset.s==='Fait'&&!x['Date repricing'])x['Date repricing']=auj();
+    fiche(nom);
+    const row={'Laboratoire':nom,'Statut prix':b.dataset.s}; if(b.dataset.s==='Fait')row['Date repricing']=x['Date repricing'];
+    if(await poster({action:'upsert',sheet:'LABORATOIRES',row}))toast('Statut prix : '+b.dataset.s);
+    else{x['Statut prix']=av.s;x['Date repricing']=av.d;fiche(nom)}});
+}
+
+/* ---------- Commandes ---------- */
+function commandes(){
+  $('#ht').textContent='Commandes';
+  const l=(D.commandes||[]).slice().sort((a,b)=>(num(a['Commander sous (jours)'])??999)-(num(b['Commander sous (jours)'])??999)||(num(b['Marge € 12 mois'])||0)-(num(a['Marge € 12 mois'])||0));
+  const dates=l.map(c=>c['Date export']).filter(Boolean).sort(), dx=dates[dates.length-1], age=jours(dx);
+  const vieux=age!==null&&age>2;
+  $('#m').innerHTML=`<div class="carte ${vieux?'alerte':''}"><b>${dx?'Données du '+dfr(dx)+(age!==null?' (il y a '+age+' j)':''):'Aucune donnée'}</b>
+   <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">${vieux?'⚠ Données anciennes : vérifier le stock réel dans Vindilis avant de commander. ':''}Couverture = mois de stock restants au rythme des ventes ; « commander sous » = délai avant rupture, délai de livraison déduit.</div></div>
+  <p class="titre">${l.length} laboratoire(s) — du plus urgent au moins urgent</p>
+  ${l.map((c,i)=>`<div class="carte item" data-i="${(D.commandes||[]).indexOf(c)}">${bdg(c['Priorité']||'—')}
+   <div class="grow"><b>${esc(c['Laboratoire'])}</b><div class="sub">commander sous ${ent(c['Commander sous (jours)'])} j · couverture ${num(c['Couverture stock (mois)'])===null?'—':(+c['Couverture stock (mois)']).toLocaleString('fr-FR',{maximumFractionDigits:1})} mois · marge ${eur(c['Marge € 12 mois'])}/an</div></div></div>`).join('')||'<p class="vide">Aucune alerte de commande.</p>'}`;
+  document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire('COMMANDES',D.commandes[+e.dataset.i]));
+  fab(()=>formulaire('COMMANDES',null));
+}
+
+/* ---------- Agenda commercial ---------- */
+function agenda(){
+  $('#ht').textContent='Agenda commercial';
+  const ordre={'En cours':0,'À préparer':1,'À venir':2,'Passé':3};
+  const all=(D.calendrier||[]).slice().sort((a,b)=>(ordre[a['Statut']]??2)-(ordre[b['Statut']]??2)||String(a['Début']).localeCompare(String(b['Début'])));
+  const l=all.filter(e=>voirPasses||e['Statut']!=='Passé');
+  $('#m').innerHTML=`<p class="titre">${l.length} événement(s) — touchez pour l'ordre de préparation</p>
+  ${l.map(e=>`<div class="carte ev" data-i="${(D.calendrier||[]).indexOf(e)}" style="cursor:pointer">${bdg(e['Statut']||'')} <b>${esc(e['Événement'])}</b>
+   <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">${dfr(e['Début'])}${e['Fin']&&e['Fin']!==e['Début']?' → '+dfr(e['Fin']):''} · préparer dès le ${dfr(e['Préparer dès'])} · ${esc(e['Affluence']||'')}</div>
+   <div class="sub" style="font-size:13px;white-space:normal;margin-top:4px">${esc(e['Catégories']||'')}</div>
+   <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">📍 ${esc(e['Emplacements']||'—')} · 📺 ${esc(e['Écrans']||'—')}</div>
+   <div class="ordre" style="display:none">${esc(String(e['Ordre de préparation']||'').replace(/\s*(\d+\.)\s/g,'\n$1 ').trim())}<button class="btn sec ed" style="margin-top:8px">Modifier</button></div></div>`).join('')||'<p class="vide">Rien à venir.</p>'}
+  <button class="btn sec" id="passes">${voirPasses?'Masquer':'Afficher'} les événements passés</button>`;
+  document.querySelectorAll('.ev').forEach(c=>c.onclick=ev=>{if(ev.target.classList.contains('ed')){formulaire('CALENDRIER',D.calendrier[+c.dataset.i]);return}const o=c.querySelector('.ordre');o.style.display=o.style.display==='none'?'block':'none'});
+  $('#passes').onclick=()=>{voirPasses=!voirPasses;agenda()};
+  fab(()=>formulaire('CALENDRIER',null));
 }
 
 function liste(sheet,cle,titre,sous){
@@ -244,7 +332,16 @@ function liste(sheet,cle,titre,sous){
   fab(()=>formulaire(sheet,null));
 }
 const rayon=()=>liste('SURFACE_VENTE','Code emplacement','Surface de vente',x=>[x['Type'],x['Laboratoire'],x['Produit / thème'],x['Fin']?'fin '+dfr(x['Fin']):'',num(x['Marge €/semaine'])!==null?eur(x['Marge €/semaine'])+'/sem.':'',x['Relais écran']==='Non'?'⚠ sans écran':''].filter(Boolean).map(esc).join(' · '));
-const ecrans=()=>liste('ECRANS','Code écran','Écrans',x=>[x['Position'],x['Laboratoire'],x['Contenu diffusé'],x['Fin']?'fin '+dfr(x['Fin']):'',x['Relais rayon']==='Non'?'⚠ sans relais rayon':''].filter(Boolean).map(esc).join(' · '));
+const REGLES=[['Un écran, un objectif','Faire entrer, monter le panier ou prendre rendez-vous. Jamais les trois.'],['Un seul message dehors','Une boucle de cinq messages ne se lit pas.'],['Quatre semaines de stock','Ne jamais diffuser un produit en rupture.'],['Même visuel dedans et dehors','Pendant toute la campagne.'],['Rotation tous les 15 jours','Sept jours en période d\'événement.'],['Une mesure par campagne','Ventes du produit sur 4 semaines contre les 4 précédentes.']];
+function ecrans(){
+  liste('ECRANS','Code écran','Écrans',x=>[x['Position'],x['Laboratoire'],x['Contenu diffusé'],x['Début']?'du '+dfr(x['Début']):'',x['Fin']?'au '+dfr(x['Fin']):'',x['Relais rayon']==='Non'?'⚠ sans relais rayon':'',!x['Contenu diffusé']&&x['Commentaire']?x['Commentaire']:''].filter(Boolean).map(esc).join(' · '));
+  const camp=(D.calendrier||[]).filter(e=>e['Statut']==='En cours'||e['Statut']==='À préparer');
+  const haut=`<div class="titre">À diffuser maintenant (${camp.length})</div>${camp.map(e=>`<div class="carte">${bdg(e['Statut'])} <b>${esc(e['Événement'])}</b><div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">📺 ${esc(e['Écrans']||'—')} · du ${dfr(e['Début'])} au ${dfr(e['Fin'])}</div></div>`).join('')||'<p class="vide">Aucune campagne en cours.</p>'}
+   <div class="carte"><b>Mesurer l'impact</b><div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">Renseignez Début, Fin, Contenu et Laboratoire de chaque diffusion : l'effet se lit sur les ventes du produit 4 semaines pendant vs 4 semaines avant.</div></div>
+   <div class="titre">Les écrans</div>`;
+  $('#m').insertAdjacentHTML('afterbegin',haut);
+  $('#m').insertAdjacentHTML('beforeend',`<div class="titre">Les règles</div><div class="carte">${REGLES.map(r=>`<div class="ligne"><span><b>${r[0]}</b></span><span style="text-align:right;font-size:13px">${r[1]}</span></div>`).join('')}</div>`);
+}
 
 function grapheMasse(){const S=(D.rhSerie||[]).filter(x=>num(x[1])!==null);if(S.length<2)return '';
   const W=340,H=170,g=38,d=8,hb=22,ht=10;const vals=S.map(x=>+x[1]),ref=num(S[S.length-1][2]);
@@ -324,22 +421,22 @@ function fab(fn){let f=$('.fab'); if(f)f.remove(); if(!fn)return; f=document.cre
 
 /* ---------- Formulaire générique (champs saisissables uniquement) ---------- */
 const LISTES={'Politique prix':'Politique prix','Statut prix':'Statut prix','Promo en cours':'Oui / Non','Type':"Type d'emplacement",'Zone / univers':'Zone / univers','Univers':'Zone / univers','Plateforme':'Plateforme écran','Position':'Position écran'};
-const DATES=['Date repricing','Début','Fin'];
+const DATES=['Date repricing','Début','Fin','Préparer dès','Date export'];
 const PCTS=['Remise avant %','Remises arrière % (info)'];
-const NUMS=['CA HT 12 mois','Marge € 12 mois','Marge € générée (période)','CA HT N','CA HT N-1','Marge € N','Marge € N-1','Ventes Vindilis N','Recyclage N','Ventes Vindilis N-1','Recyclage N-1','Objectif marge €'];
-const CLES={LABORATOIRES:'Laboratoire',SURFACE_VENTE:'Code emplacement',ECRANS:'Code écran',PERFORMANCE:'Mois'};
+const NUMS=['Couverture stock (mois)','Commander sous (jours)','CA HT 12 mois','Marge € 12 mois','Marge € générée (période)','CA HT N','CA HT N-1','Marge € N','Marge € N-1','Ventes Vindilis N','Recyclage N','Ventes Vindilis N-1','Recyclage N-1','Objectif marge €'];
+const CLES={LABORATOIRES:'Laboratoire',SURFACE_VENTE:'Code emplacement',ECRANS:'Code écran',PERFORMANCE:'Mois',CALENDRIER:'Événement',COMMANDES:'Laboratoire'};
 function formulaire(sheet,x){
   const champs=D.schema[sheet], cle=CLES[sheet], neuf=!x; x=x||{};
   $('#ht').textContent=neuf?'Nouveau':String(sheet==='PERFORMANCE'?moisFr(x[cle]):x[cle]);
   const champ=h=>{
     const v=x[h]??'', id='f_'+champs.indexOf(h), ro=(!neuf&&h===cle)?'disabled':'';
-    if(h==='Laboratoire'&&sheet!=='LABORATOIRES') return `<label>${h}</label><select id="${id}"><option value=""></option>${D.labos.map(l=>`<option ${l['Laboratoire']===v?'selected':''}>${esc(l['Laboratoire'])}</option>`).join('')}</select>`;
+    if(h==='Laboratoire'&&sheet!=='LABORATOIRES') return `<label>${h}</label><select id="${id}" ${ro}><option value=""></option>${D.labos.map(l=>`<option ${l['Laboratoire']===v?'selected':''}>${esc(l['Laboratoire'])}</option>`).join('')}${v&&!D.labos.some(l=>l['Laboratoire']===v)?`<option selected>${esc(v)}</option>`:''}</select>`;
     if(LISTES[h]){const o=(D.refs[LISTES[h]]||[]); return `<label>${h}</label><select id="${id}"><option value=""></option>${o.map(s=>`<option ${s===v?'selected':''}>${esc(s)}</option>`).join('')}${v&&!o.includes(v)?`<option selected>${esc(v)}</option>`:''}</select>`}
     if(h==='Mois') return `<label>${h}</label><input id="${id}" type="month" value="${esc(isoMois(v).slice(0,7))}" ${ro}>`;
     if(DATES.includes(h)) return `<label>${h}</label><input id="${id}" type="date" value="${esc(v)}">`;
     if(PCTS.includes(h)) return `<label>${h} (en %)</label><input id="${id}" type="number" step="0.1" inputmode="decimal" value="${num(v)===null?'':+(v*100).toFixed(2)}">`;
     if(NUMS.includes(h)) return `<label>${h}</label><input id="${id}" type="number" step="any" inputmode="decimal" value="${esc(v)}">`;
-    if(h==='Commentaire') return `<label>${h}</label><textarea id="${id}" rows="2">${esc(v)}</textarea>`;
+    if(h==='Commentaire'||h==='Ordre de préparation'||h==='Catégories') return `<label>${h}</label><textarea id="${id}" rows="2">${esc(v)}</textarea>`;
     return `<label>${h}</label><input id="${id}" value="${esc(v)}" ${ro}>`;
   };
   const aide=sheet==='PERFORMANCE'?'<p class="sub" style="font-size:12px;color:var(--doux)">Ventes = colonne « Ventes » du comparatif jour Vindilis ; le recyclage est déduit deux fois automatiquement.</p>':'';
