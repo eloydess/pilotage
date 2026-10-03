@@ -62,7 +62,7 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.4.1';
+const APP_V='1.5';
 const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois']];
 let D=null,vue='acc',filtre='Ouvertes',recherche='';
 const $=s=>document.querySelector(s);
@@ -137,19 +137,54 @@ function brancherStatuts(){
   });
 }
 
+let moisSel='';
+function moisDispo(){return (D.perf||[]).filter(p=>num(p['Marge € N'])!==null||num(p['CA HT N'])!==null).map(p=>isoMois(p['Mois'])).filter(Boolean).sort()}
+function kpi2(l,n,n1,fmt){const e=(num(n)!==null&&num(n1)!==null&&+n1!==0)?(n/n1-1):null;
+  return `<div class="carte kpi"><div class="l">${l}</div><div class="v">${fmt(n)}</div><div class="e ${cls(e)}">${e===null?'—':pct(e,1)} <span style="color:var(--doux);font-weight:400">vs ${fmt(n1)}</span></div></div>`}
+function grapheCA(ms,sel){const P=(D.perf||[]).map(p=>({m:isoMois(p['Mois']),n:num(p['CA HT N']),n1:num(p['CA HT N-1'])})).filter(p=>p.m&&(p.n!==null||p.n1!==null)).sort((a,b)=>a.m<b.m?-1:1).slice(-12);
+  if(P.length<2)return '';const W=340,H=170,g=40,d=8,hb=22,ht=10;const all=P.flatMap(p=>[p.n,p.n1]).filter(v=>v!==null);
+  const mx=Math.max(...all)*1.08,mn=Math.min(...all)*0.85;const X=i=>g+i*(W-g-d)/(P.length-1),Y=v=>ht+(H-ht-hb)*(1-(v-mn)/(mx-mn));
+  const line=(k,c,dash)=>`<polyline points="${P.map((p,i)=>p[k]===null?'':X(i).toFixed(1)+','+Y(p[k]).toFixed(1)).filter(Boolean).join(' ')}" fill="none" stroke="${c}" stroke-width="2" ${dash?'stroke-dasharray="4 4"':''}/>`;
+  const ticks=[0,0.5,1].map(t=>mn+(mx-mn)*t);const k=v=>Math.round(v/1000)+' k';
+  const si=P.findIndex(p=>p.m===sel);
+  return `<div class="carte"><b>Chiffre d'affaires HT — N vs N-1</b><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px" role="img" aria-label="CA HT N vs N-1">
+   ${ticks.map(v=>`<line x1="${g}" x2="${W-d}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eceff1"/><text x="${g-4}" y="${Y(v)+3}" font-size="9" text-anchor="end" fill="#78909c">${k(v)}</text>`).join('')}
+   ${si>=0?`<line x1="${X(si)}" x2="${X(si)}" y1="${ht}" y2="${H-hb}" stroke="#ffb300" stroke-width="6" opacity=".25"/>`:''}
+   ${line('n1','#90a4ae',1)}${line('n','#1b5e20')}
+   ${P.map((p,i)=>`<text x="${X(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="${i===si?'#1b5e20':'#78909c'}" ${i===si?'font-weight="700"':''}>${moisFr(p.m).slice(0,3)}</text>`).join('')}
+  </svg><div class="sub" style="font-size:11px;color:var(--doux)"><span style="color:#1b5e20">━ N</span> · <span style="color:#90a4ae">┅ N-1</span> · mois sélectionné surligné</div></div>`}
 function accueil(){
-  $('#ht').textContent='Pilotage — '+moisFr(D.cockpit[3][1]);
-  const c=D.cockpit, k=(i,fmt)=>`<div class="carte kpi"><div class="l">${esc(c[i][0])}</div><div class="v">${fmt(c[i][1])}</div>
-    <div class="e ${cls(c[i][3])}">${pct(c[i][4],1)} <span style="color:var(--doux);font-weight:400">vs ${fmt(c[i][2])}</span></div></div>`;
-  const lev=[19,20,21,22,23,24,25,26].map(i=>`<div class="ligne"><span>${esc(c[i][0])}</span><b>${i===23?eur(c[i][1]):(i===20?(num(c[i][1])===null?'—':(+c[i][1]).toLocaleString('fr-FR',{maximumFractionDigits:1})):esc(c[i][1]))}</b></div>`).join('');
+  const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
+  const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};
+  $('#ht').textContent='Pilotage — '+moisFr(moisSel);
+  const i=ms.indexOf(moisSel);
+  const sel=`<div class="carte" style="display:flex;align-items:center;gap:8px;padding:8px 10px">
+    <button class="btn sec" id="mPrev" style="width:auto;margin:0;padding:8px 14px" ${i<=0?'disabled':''}>‹</button>
+    <select id="mSel" style="flex:1;margin:0">${ms.slice().reverse().map(m=>`<option value="${m}" ${m===moisSel?'selected':''}>${moisFr(m)}</option>`).join('')}</select>
+    <button class="btn sec" id="mNext" style="width:auto;margin:0;padding:8px 14px" ${i>=ms.length-1?'disabled':''}>›</button></div>`;
+  const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;
+  const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
+  const an=moisSel.slice(0,4),cum=k=>{const l=(D.perf||[]).filter(x=>{const m=isoMois(x['Mois']);return m.slice(0,4)===an&&m<=moisSel&&num(x[k])!==null});return l.length?l.reduce((s,x)=>s+(+x[k]),0):null};
+  const nbCum=(D.perf||[]).filter(x=>{const m=isoMois(x['Mois']);return m.slice(0,4)===an&&m<=moisSel&&num(x['CA HT N'])!==null}).length;
+  const eF=num(p['Effet fréquentation €']),eM=num(p['Effet marge/client €']),ec=num(p['Écart marge €']);
+  const diag=ec===null?'':(ec>=0?'Marge en progression vs N-1':(eF!==null&&eM!==null?('Le recul vient surtout '+(Math.abs(eF)>=Math.abs(eM)?'de la FRÉQUENTATION (moins de clients)':'de la MARGE PAR CLIENT (panier / prix)')):'Marge en recul vs N-1'));
+  const c=D.cockpit,lev=[19,20,21,22,23,24,25,26].map(j=>`<div class="ligne"><span>${esc(c[j][0])}</span><b>${j===23?eur(c[j][1]):(j===20?(num(c[j][1])===null?'—':(+c[j][1]).toLocaleString('fr-FR',{maximumFractionDigits:1})):esc(c[j][1]))}</b></div>`).join('');
   const top=D.recos.filter(ouverte).slice(0,5);
-  $('#m').innerHTML=`<div class="kpis">${k(6,eur)}${k(7,ent)}${k(8,eur2)}${k(9,eur)}${k(10,ent)}</div>
-  <div class="carte diag">${esc(c[15][1])}</div>
-  <div class="carte"><div class="ligne"><span>Effet fréquentation</span><b class="${cls(c[13][1])}">${eur(c[13][1])}</b></div>
-  <div class="ligne"><span>Effet marge par client</span><b class="${cls(c[14][1])}">${eur(c[14][1])}</b></div>
-  <div class="ligne"><span>${esc(c[16][0])}</span><b>${esc(c[16][1])}</b></div></div>
+  $('#m').innerHTML=sel+`<div class="kpis">${kpi2('CA HT du mois',p['CA HT N'],p['CA HT N-1'],eur)}${kpi2('Marge € du mois',p['Marge € N'],p['Marge € N-1'],eur)}
+    ${kpi2('Fréquentation réelle',p['Fréquentation réelle N'],p['Fréquentation réelle N-1'],ent)}${kpi2('Marge € par client',p['Marge €/client N'],p['Marge €/client N-1'],eur2)}
+    <div class="carte kpi"><div class="l">Taux de marge</div><div class="v">${pct(tN)}</div><div class="e ${tN!==null&&tN1!==null?cls(tN-tN1):''}">${tN!==null&&tN1!==null?((tN-tN1)*100>0?'+':'')+((tN-tN1)*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' pt':'—'} <span style="color:var(--doux);font-weight:400">vs ${pct(tN1)}</span></div></div>
+    ${kpi2('Objectif marge',p['Marge € N'],p['Objectif retenu €'],eur).replace('vs ','obj. ')}</div>
+  ${diag?`<div class="carte diag">${esc(diag)}</div>`:''}
+  <div class="carte"><div class="ligne"><span>Effet fréquentation</span><b class="${cls(eF)}">${eur(eF)}</b></div>
+  <div class="ligne"><span>Effet marge par client</span><b class="${cls(eM)}">${eur(eM)}</b></div></div>
+  ${grapheCA(ms,moisSel)}
+  <div class="titre">Cumul ${an} (${nbCum} mois saisis jusqu'à ${moisFr(moisSel)})</div><div class="kpis">${kpi2('CA HT cumulé',cum('CA HT N'),cum('CA HT N-1'),eur)}${kpi2('Marge € cumulée',cum('Marge € N'),cum('Marge € N-1'),eur)}</div>
   <div class="titre">Leviers</div><div class="carte">${lev}</div>
   <div class="titre">Top 5 des actions</div>${top.length?top.map(carteReco).join(''):'<p class="vide">Aucune action ouverte 👍</p>'}`;
+  const go=m=>{moisSel=m;accueil();};
+  $('#mSel').onchange=e=>go(e.target.value);
+  if($('#mPrev'))$('#mPrev').onclick=()=>{if(i>0)go(ms[i-1])};
+  if($('#mNext'))$('#mNext').onclick=()=>{if(i<ms.length-1)go(ms[i+1])};
   brancherStatuts();
 }
 
