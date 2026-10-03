@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b5e20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pilotage">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Pilotage Pharmacie</title>
+<style>
+:root{--vert:#1b5e20;--vert2:#2e7d32;--fond:#f4f6f5;--carte:#fff;--txt:#1d2622;--doux:#5f6b66;--ligne:#e1e6e3;--rouge:#c62828;--orange:#e65100;--bleu:#0d47a1;--violet:#4a148c}
+@media (prefers-color-scheme:dark){:root{--fond:#111614;--carte:#1b2220;--txt:#e8eeeb;--doux:#9fb0a8;--ligne:#2a3330;--vert2:#66bb6a;--rouge:#ef5350;--orange:#ffa040}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt);padding-bottom:calc(70px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--vert);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
+header h1{font-size:17px;margin:0;flex:1}
+header button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:8px;padding:6px 10px;font-size:14px}
+main{padding:12px 16px;max-width:760px;margin:auto}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;border:0;background:none;color:var(--doux);padding:8px 2px 7px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button span{font-size:19px}
+nav button.on{color:var(--vert2);font-weight:600}
+.carte{background:var(--carte);border:1px solid var(--ligne);border-radius:12px;padding:12px 14px;margin:0 0 10px}
+.titre{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--doux);margin:16px 2px 8px;font-weight:600}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi .l{font-size:12px;color:var(--doux)}.kpi .v{font-size:20px;font-weight:700;margin:2px 0}.kpi .e{font-size:13px;font-weight:600}
+.pos{color:var(--vert2)}.neg{color:var(--rouge)}
+.ligne{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--ligne)}.ligne:last-child{border:0}
+.ligne b{text-align:right}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--ligne);color:var(--txt)}
+.p1{background:#ffcdd2;color:#b71c1c}.p2{background:#ffe0b2;color:#8a3b00}.p3{background:#e3f2fd;color:#0d47a1}
+.A{background:#c8e6c9;color:#1b5e20}.B{background:#fff59d;color:#5d4b00}.C{background:#eceff1;color:#455a64}
+.Actif{background:#c8e6c9;color:#1b5e20}.Vide{background:#ffe0b2;color:#8a3b00}.Échu{background:#ffcdd2;color:#b71c1c}
+.reco .cible{font-weight:700}.reco .act{margin:6px 0}.reco .meta{font-size:12px;color:var(--doux)}
+.statuts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.statuts button{border:1px solid var(--ligne);background:none;color:var(--txt);border-radius:16px;padding:5px 10px;font-size:13px}
+.statuts button.on{background:var(--vert2);border-color:var(--vert2);color:#fff}
+.item{display:flex;align-items:center;gap:10px;cursor:pointer}.item .grow{flex:1;min-width:0}.item .sub{font-size:12px;color:var(--doux);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+input,select,textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--ligne);border-radius:8px;background:var(--fond);color:var(--txt)}
+label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
+.btn{display:block;width:100%;border:0;border-radius:10px;padding:12px;font-size:16px;font-weight:600;background:var(--vert2);color:#fff;margin-top:14px}
+.btn.sec{background:var(--ligne);color:var(--txt)}
+.filtres{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px}
+.filtres button{flex:none;border:1px solid var(--ligne);background:var(--carte);color:var(--txt);border-radius:16px;padding:5px 12px;font-size:13px}
+.filtres button.on{background:var(--vert2);color:#fff;border-color:var(--vert2)}
+.diag{border-left:4px solid var(--orange);font-weight:600}
+.score{font-weight:800;font-size:15px}
+#toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);background:#263238;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:9;max-width:90%}
+#toast.on{opacity:1}
+.vide{color:var(--doux);text-align:center;padding:24px 0}
+.fab{position:fixed;right:18px;bottom:calc(80px + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;border:0;background:var(--vert2);color:#fff;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+</style>
+</head>
+<body>
+<header><h1 id="ht">Pilotage</h1><a href="3d.html" style="background:rgba(255,255,255,.15);color:#fff;border-radius:8px;padding:6px 10px;font-size:14px;text-decoration:none">🧊 3D</a><button id="bRef" aria-label="Actualiser">↻</button></header>
+<main id="m"></main>
+<nav id="nav"></nav>
+<div id="toast"></div>
+<script>
+'use strict';
+const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois']];
+let D=null,vue='acc',filtre='Ouvertes',recherche='';
+const $=s=>document.querySelector(s);
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=v=>(v===''||v===null||v===undefined||isNaN(+v))?null:+v;
+const eur=v=>num(v)===null?'—':Math.round(+v).toLocaleString('fr-FR')+' €';
+const eur2=v=>num(v)===null?'—':(+v).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+const ent=v=>num(v)===null?'—':Math.round(+v).toLocaleString('fr-FR');
+const pct=(v,s)=>num(v)===null?'—':((s&&v>0?'+':'')+(v*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %');
+const dfr=v=>{if(!v)return '—';const p=String(v).split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:v};
+const moisFr=v=>{if(!v)return '—';const d=new Date(String(v)+'T12:00');return isNaN(d)?v:d.toLocaleDateString('fr-FR',{month:'long',year:'numeric'})};
+const cls=v=>num(v)===null?'':(v<0?'neg':'pos');
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2600)}
+
+/* ---------- API ---------- */
+const cfg=()=>({url:ls.get('pil_url')||'',code:ls.get('pil_code')||''});
+async function charger(silencieux){
+  const c=cfg(); if(!c.url||!c.code){reglages();return}
+  if(!silencieux)toast('Actualisation…');
+  try{
+    const r=await fetch(c.url+'?code='+encodeURIComponent(c.code)+'&t='+Date.now());
+    const j=await r.json();
+    if(!j.ok){toast(j.err||'Erreur');if(/Code/.test(j.err||''))reglages();return}
+    D=j; ls.set('pil_cache',JSON.stringify(j)); rendre(); if(!silencieux)toast('À jour');
+  }catch(e){toast('Hors ligne : dernières données affichées');}
+}
+async function poster(body){
+  const c=cfg();
+  try{
+    const r=await fetch(c.url,{method:'POST',body:JSON.stringify(Object.assign({code:c.code},body))});
+    const j=await r.json(); if(!j.ok){toast(j.err||'Erreur');return false} return true;
+  }catch(e){toast('Échec de l\'envoi (réseau)');return false}
+}
+
+/* ---------- Réglages ---------- */
+function reglages(){
+  const c=cfg(); $('#ht').textContent='Réglages';
+  $('#m').innerHTML=`<div class="carte"><p>Collez l'adresse de l'application Web (Apps Script › Déployer) et votre code d'accès.</p>
+  <label>Adresse de l'application Web</label><input id="u" value="${esc(c.url)}" placeholder="https://script.google.com/macros/s/…/exec">
+  <label>Code d'accès</label><input id="c" type="password" inputmode="numeric" value="${esc(c.code)}">
+  <button class="btn" id="ok">Enregistrer</button></div>`;
+  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim());ls.set('pil_code',$('#c').value.trim());charger()};
+}
+
+/* ---------- Rendu ---------- */
+function navig(){
+  $('#nav').innerHTML=ONGLETS.map(o=>`<button data-v="${o[0]}" class="${o[0]===vue?'on':''}"><span>${o[1]}</span>${o[2]}</button>`).join('');
+  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{vue=b.dataset.v;recherche='';rendre();scrollTo(0,0)});
+}
+function rendre(){navig(); if(!D){$('#m').innerHTML='<p class="vide">Chargement…</p>';return}
+  ({acc:accueil,act:actions,lab:labos,ray:rayon,ecr:ecrans,mois:mois})[vue]();}
+
+const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
+function carteReco(r,i){
+  const st=['Nouveau','En cours','Fait','Ignoré'];
+  return `<div class="carte reco"><div><span class="badge p${r['Priorité']}">P${r['Priorité']}</span> <span class="badge">${esc(r['Domaine'])}</span></div>
+  <div class="cible" style="margin-top:6px">${esc(r['Cible'])}</div><div class="meta">${esc(r['Constat'])}</div>
+  <div class="act">→ ${esc(r['Action recommandée'])}</div>
+  <div class="meta">${num(r['Impact € estimé /an'])!==null?'Impact estimé : <b>'+eur(r['Impact € estimé /an'])+'/an</b> · ':''}${r['Responsable']?'Responsable : '+esc(r['Responsable'])+' · ':''}détectée le ${dfr(r['Détectée le'])}</div>
+  <div class="statuts">${st.map(s=>`<button data-id="${esc(r['ID'])}" data-s="${s}" class="${r['Statut']===s?'on':''}">${s}</button>`).join('')}</div></div>`;
+}
+function brancherStatuts(){
+  document.querySelectorAll('.statuts button').forEach(b=>b.onclick=async()=>{
+    const r=D.recos.find(x=>x['ID']===b.dataset.id); if(!r)return;
+    const ancien=r['Statut']; r['Statut']=b.dataset.s; rendre();
+    if(!(await poster({action:'reco',id:r['ID'],statut:b.dataset.s}))){r['Statut']=ancien;rendre()} else toast('Statut : '+b.dataset.s);
+  });
+}
+
+function accueil(){
+  $('#ht').textContent='Pilotage — '+moisFr(D.cockpit[3][1]);
+  const c=D.cockpit, k=(i,fmt)=>`<div class="carte kpi"><div class="l">${esc(c[i][0])}</div><div class="v">${fmt(c[i][1])}</div>
+    <div class="e ${cls(c[i][3])}">${pct(c[i][4],1)} <span style="color:var(--doux);font-weight:400">vs ${fmt(c[i][2])}</span></div></div>`;
+  const lev=[19,20,21,22,23,24,25,26].map(i=>`<div class="ligne"><span>${esc(c[i][0])}</span><b>${i===23?eur(c[i][1]):(i===20?(num(c[i][1])===null?'—':(+c[i][1]).toLocaleString('fr-FR',{maximumFractionDigits:1})):esc(c[i][1]))}</b></div>`).join('');
+  const top=D.recos.filter(ouverte).slice(0,5);
+  $('#m').innerHTML=`<div class="kpis">${k(6,eur)}${k(7,ent)}${k(8,eur2)}${k(9,eur)}${k(10,ent)}</div>
+  <div class="carte diag">${esc(c[15][1])}</div>
+  <div class="carte"><div class="ligne"><span>Effet fréquentation</span><b class="${cls(c[13][1])}">${eur(c[13][1])}</b></div>
+  <div class="ligne"><span>Effet marge par client</span><b class="${cls(c[14][1])}">${eur(c[14][1])}</b></div>
+  <div class="ligne"><span>${esc(c[16][0])}</span><b>${esc(c[16][1])}</b></div></div>
+  <div class="titre">Leviers</div><div class="carte">${lev}</div>
+  <div class="titre">Top 5 des actions</div>${top.length?top.map(carteReco).join(''):'<p class="vide">Aucune action ouverte 👍</p>'}`;
+  brancherStatuts();
+}
+
+function actions(){
+  $('#ht').textContent='Actions';
+  const doms=['Ouvertes','P1','Prix','Laboratoire','Visibilité','Surface de vente','Écrans','Promotions','Équipe','Suivi','Performance','Faites'];
+  let l=D.recos.slice();
+  if(filtre==='Faites')l=l.filter(r=>!ouverte(r)); else{l=l.filter(ouverte); if(filtre==='P1')l=l.filter(r=>+r['Priorité']===1); else if(filtre!=='Ouvertes')l=l.filter(r=>r['Domaine']===filtre)}
+  $('#m').innerHTML=`<div class="filtres">${doms.map(d=>`<button class="${d===filtre?'on':''}" data-f="${d}">${d}</button>`).join('')}</div>
+  <p class="titre">${l.length} action(s)</p>${l.map(carteReco).join('')||'<p class="vide">Rien ici.</p>'}`;
+  document.querySelectorAll('.filtres button').forEach(b=>b.onclick=()=>{filtre=b.dataset.f;actions()});
+  brancherStatuts();
+}
+
+function labos(){
+  $('#ht').textContent='Laboratoires';
+  const l=D.labos.slice().sort((a,b)=>(num(b['Marge € 12 mois'])||0)-(num(a['Marge € 12 mois'])||0))
+    .filter(x=>!recherche||String(x['Laboratoire']).toLowerCase().includes(recherche.toLowerCase()));
+  $('#m').innerHTML=`<input id="q" placeholder="Rechercher un laboratoire" value="${esc(recherche)}">
+  <p class="titre">${l.length} laboratoire(s) — tri par marge</p>
+  ${l.map(x=>`<div class="carte item" data-k="${esc(x['Laboratoire'])}"><span class="badge ${esc(x['Classe'])}">${esc(x['Classe']||'–')}</span>
+   <div class="grow"><b>${esc(x['Laboratoire'])}</b><div class="sub">${eur(x['Marge € 12 mois'])} · ${pct(x['Part de la marge %'])} de la marge · ${esc(x['Politique prix']||'')}</div></div>
+   <span class="score">${x['Score 360° /5']===''?'':esc(x['Score 360° /5'])+'/5'}</span></div>`).join('')}`;
+  const q=$('#q'); q.oninput=()=>{recherche=q.value;labos();const n=$('#q');n.focus();n.setSelectionRange(n.value.length,n.value.length)};
+  document.querySelectorAll('.item').forEach(e=>e.onclick=()=>fiche(e.dataset.k));
+  fab(()=>formulaire('LABORATOIRES',null));
+}
+
+function fiche(nom){
+  const x=D.labos.find(l=>l['Laboratoire']===nom); if(!x)return;
+  $('#ht').textContent=nom;
+  const L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`;
+  const empl=D.surface.filter(s=>s['Laboratoire']===nom), ecr=D.ecrans.filter(e=>e['Laboratoire']===nom);
+  const rec=D.recos.filter(r=>ouverte(r)&&(r['Cible']===nom||String(r['Constat']).includes(nom)));
+  $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Laboratoires</button>
+  <div class="carte">${L('Score 360°','<span class="score">'+esc(x['Score 360° /5'])+'/5</span>')}${L('Classe Pareto','<span class="badge '+esc(x['Classe'])+'">'+esc(x['Classe']||'–')+'</span>')}
+  ${L('Marge 12 mois',eur(x['Marge € 12 mois']))}${L('Part de la marge',pct(x['Part de la marge %']))}${L('Taux de marge',pct(x['Taux de marge %']))}
+  ${L('Politique prix',esc(x['Politique prix']||'—'))}${L('Remise avant',pct(x['Remise avant %']))}${L('Remises arrière (info)',pct(x['Remises arrière % (info)']))}${L('Remise globale (info)',pct(x['Remise globale % (info)']))}
+  ${L('Statut prix',esc(x['Statut prix']||'—'))}${L('Suivi repricing',esc(x['Suivi repricing']||'—'))}${L('Produits à corriger',esc(x['Produits à corriger']))}${L('Impact prix cibles',eur(x['Impact prix cibles €/an'])+'/an')}
+  ${L('Référent',esc(x['Référent']||'—'))}${L('Promo en cours',esc(x['Promo en cours']||'—'))}</div>
+  <div class="titre">Emplacements (${empl.length})</div><div class="carte">${empl.map(s=>L(esc(s['Code emplacement'])+' · '+esc(s['Type']),'<span class="badge '+esc(s['Statut'])+'">'+esc(s['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
+  <div class="titre">Écrans (${ecr.length})</div><div class="carte">${ecr.map(e=>L(esc(e['Code écran'])+' · '+esc(e['Contenu diffusé']),'<span class="badge '+esc(e['Statut'])+'">'+esc(e['Statut'])+'</span>')).join('')||'<span class="sub">Aucun</span>'}</div>
+  <div class="titre">Actions ouvertes (${rec.length})</div>${rec.map(carteReco).join('')}
+  <button class="btn" id="mod">Modifier la fiche</button>`;
+  $('#ret').onclick=labos; $('#mod').onclick=()=>formulaire('LABORATOIRES',x); brancherStatuts(); fab(null);
+}
+
+function liste(sheet,cle,titre,sous){
+  const l=D[sheet==='SURFACE_VENTE'?'surface':'ecrans'];
+  $('#ht').textContent=titre;
+  const ordre={Échu:0,Vide:1,Actif:2};
+  const t=l.slice().sort((a,b)=>(ordre[a['Statut']]??3)-(ordre[b['Statut']]??3));
+  $('#m').innerHTML=`<p class="titre">${t.length} élément(s) — échus et vides en premier</p>`+(t.map((x,i)=>`<div class="carte item" data-i="${l.indexOf(x)}">
+   <span class="badge ${esc(x['Statut'])}">${esc(x['Statut'])}</span><div class="grow"><b>${esc(x[cle])}</b><div class="sub">${sous(x)}</div></div>
+   ${x['Classe labo']?'<span class="badge '+esc(x['Classe labo'])+'">'+esc(x['Classe labo'])+'</span>':''}</div>`).join('')||'<p class="vide">Aucun élément.</p>');
+  document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire(sheet,l[+e.dataset.i]));
+  fab(()=>formulaire(sheet,null));
+}
+const rayon=()=>liste('SURFACE_VENTE','Code emplacement','Surface de vente',x=>[x['Type'],x['Laboratoire'],x['Produit / thème'],x['Fin']?'fin '+dfr(x['Fin']):'',num(x['Marge €/semaine'])!==null?eur(x['Marge €/semaine'])+'/sem.':'',x['Relais écran']==='Non'?'⚠ sans écran':''].filter(Boolean).map(esc).join(' · '));
+const ecrans=()=>liste('ECRANS','Code écran','Écrans',x=>[x['Position'],x['Laboratoire'],x['Contenu diffusé'],x['Fin']?'fin '+dfr(x['Fin']):'',x['Relais rayon']==='Non'?'⚠ sans relais rayon':''].filter(Boolean).map(esc).join(' · '));
+
+function mois(){
+  $('#ht').textContent='Performance mensuelle';
+  const rh=D.perf.filter(p=>num(p['Masse salariale chargée N'])!==null).slice(-1)[0];
+  const carteRh=rh?`<div class="carte"><div class="ligne"><span><b>Équipe — ${moisFr(rh['Mois'])}</b></span><span></span></div>
+    <div class="ligne"><span>Masse salariale chargée</span><b>${eur(rh['Masse salariale chargée N'])}${num(rh['Masse salariale chargée N-1'])!==null?' <span style="color:var(--doux);font-weight:400">vs '+eur(rh['Masse salariale chargée N-1'])+'</span>':''}</b></div>
+    <div class="ligne"><span>Masse salariale / marge</span><b class="${num(rh['Masse salariale / marge N'])!==null&&num(rh['Masse salariale / marge N-1'])!==null?(rh['Masse salariale / marge N']>rh['Masse salariale / marge N-1']?'neg':'pos'):''}">${pct(rh['Masse salariale / marge N'])}${num(rh['Masse salariale / marge N-1'])!==null?' <span style="color:var(--doux);font-weight:400">vs '+pct(rh['Masse salariale / marge N-1'])+'</span>':''}</b></div>
+    <div class="ligne"><span>Marge par heure travaillée</span><b>${eur2(rh['Marge par heure N'])}</b></div>
+    <button class="btn sec" id="bRh">🔒 Détail par collaborateur</button></div>`
+    :`<div class="carte"><b>Équipe</b><div class="sub" style="font-size:13px;color:var(--doux)">Les indicateurs de masse salariale apparaîtront dès que l'onglet PAIE sera rempli.</div><button class="btn sec" id="bRh">🔒 Détail par collaborateur</button></div>`;
+  $('#m').innerHTML=carteRh+`<p class="titre">Fréquentation réelle = Ventes − 2 × recyclage</p>`+D.perf.map((p,i)=>`<div class="carte item" data-i="${i}">
+   <div class="grow"><b style="text-transform:capitalize">${moisFr(p['Mois'])}</b><div class="sub">Marge ${eur(p['Marge € N'])} vs ${eur(p['Marge € N-1'])} · clients ${ent(p['Fréquentation réelle N'])} vs ${ent(p['Fréquentation réelle N-1'])}${num(p['Masse salariale / marge N'])!==null?' · salaires '+pct(p['Masse salariale / marge N'])+' de la marge':''}</div></div>
+   <b class="${cls(p['Écart marge €'])}">${pct(p['Écart marge %'],1)}</b></div>`).join('');
+  document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire('PERFORMANCE',D.perf[+e.dataset.i]));
+  $('#bRh').onclick=()=>equipe();
+  fab(null);
+}
+
+/* ---------- Détail RH : second code, jamais stocké durablement ---------- */
+const ss={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}},del(k){try{sessionStorage.removeItem(k)}catch(e){}}};
+let PAIE=null, moisRh='';
+async function equipe(){
+  $('#ht').textContent='Équipe 🔒'; fab(null);
+  const code2=ss.get('pil_code2');
+  if(!code2||!PAIE){
+    $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Performance</button><div class="carte"><p>Le détail des salaires est protégé par le <b>code RH</b> (différent du code de l'application).</p>
+    <label>Code RH</label><input id="c2" type="password" autocomplete="off"><button class="btn" id="okRh">Déverrouiller</button></div>`;
+    $('#ret').onclick=mois;
+    $('#okRh').onclick=async()=>{const v=$('#c2').value.trim(); if(!v)return; if(await chargerPaie(v)){ss.set('pil_code2',v);equipe()}};
+    if(code2&&!PAIE&&await chargerPaie(code2))equipe();
+    return;
+  }
+  const lm=[...new Set(PAIE.map(r=>String(r['Mois'])))].filter(Boolean).sort().reverse();
+  if(!moisRh||!lm.includes(moisRh))moisRh=lm[0]||'';
+  const l=PAIE.filter(r=>String(r['Mois'])===moisRh).sort((a,b)=>(num(b['Coût employeur'])||0)-(num(a['Coût employeur'])||0));
+  const t=k=>l.reduce((s,r)=>s+(num(r[k])||0),0);
+  const L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`;
+  $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Performance</button>
+   <select id="selM">${lm.map(m=>`<option value="${esc(m)}" ${m===moisRh?'selected':''}>${moisFr(m)}</option>`).join('')}</select>
+   <div class="carte" style="margin-top:10px">${L('Collaborateurs',l.length)}${L('Heures payées',ent(t('Heures payées')))}${L('Salaires bruts',eur(t('Salaire brut')))}${L('Coût employeur total',eur(t('Coût employeur')))}${L('Coût horaire moyen',t('Heures payées')?eur2(t('Coût employeur')/t('Heures payées')):'—')}</div>
+   ${l.map(r=>`<div class="carte"><b>${esc(r['Collaborateur'])}</b><div class="sub" style="font-size:12px;color:var(--doux)">${esc([r['Fonction'],r['Contrat']].filter(Boolean).join(' · '))}</div>
+     ${L('Heures payées',ent(r['Heures payées']))}${L('Salaire brut',eur2(r['Salaire brut']))}${L('Coût employeur',eur2(r['Coût employeur']))}${L('Coût horaire',eur2(r['Coût horaire']))}</div>`).join('')||'<p class="vide">Aucun bulletin pour ce mois.</p>'}
+   <button class="btn sec" id="lock">🔒 Verrouiller</button>`;
+  $('#ret').onclick=mois; $('#selM').onchange=e=>{moisRh=e.target.value;equipe()};
+  $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;mois();toast('Détail RH verrouillé')};
+}
+async function chargerPaie(code2){
+  const c=cfg();
+  try{const r=await fetch(c.url+'?code='+encodeURIComponent(c.code)+'&action=rh&code2='+encodeURIComponent(code2)+'&t='+Date.now());const j=await r.json();
+    if(!j.ok){toast(j.err||'Erreur');ss.del('pil_code2');return false} PAIE=j.paie||[]; return true}
+  catch(e){toast('Réseau indisponible');return false}
+}
+
+function fab(fn){let f=$('.fab'); if(f)f.remove(); if(!fn)return; f=document.createElement('button'); f.className='fab'; f.textContent='+'; f.onclick=fn; document.body.appendChild(f)}
+
+/* ---------- Formulaire générique (champs saisissables uniquement) ---------- */
+const LISTES={'Politique prix':'Politique prix','Statut prix':'Statut prix','Promo en cours':'Oui / Non','Type':"Type d'emplacement",'Zone / univers':'Zone / univers','Univers':'Zone / univers','Plateforme':'Plateforme écran','Position':'Position écran'};
+const DATES=['Date repricing','Début','Fin'];
+const PCTS=['Remise avant %','Remises arrière % (info)'];
+const NUMS=['CA HT 12 mois','Marge € 12 mois','Marge € générée (période)','CA HT N','CA HT N-1','Marge € N','Marge € N-1','Ventes Vindilis N','Recyclage N','Ventes Vindilis N-1','Recyclage N-1','Objectif marge €'];
+const CLES={LABORATOIRES:'Laboratoire',SURFACE_VENTE:'Code emplacement',ECRANS:'Code écran',PERFORMANCE:'Mois'};
+function formulaire(sheet,x){
+  const champs=D.schema[sheet], cle=CLES[sheet], neuf=!x; x=x||{};
+  $('#ht').textContent=neuf?'Nouveau':String(sheet==='PERFORMANCE'?moisFr(x[cle]):x[cle]);
+  const champ=h=>{
+    const v=x[h]??'', id='f_'+champs.indexOf(h), ro=(!neuf&&h===cle)?'disabled':'';
+    if(h==='Laboratoire'&&sheet!=='LABORATOIRES') return `<label>${h}</label><select id="${id}"><option value=""></option>${D.labos.map(l=>`<option ${l['Laboratoire']===v?'selected':''}>${esc(l['Laboratoire'])}</option>`).join('')}</select>`;
+    if(LISTES[h]){const o=(D.refs[LISTES[h]]||[]); return `<label>${h}</label><select id="${id}"><option value=""></option>${o.map(s=>`<option ${s===v?'selected':''}>${esc(s)}</option>`).join('')}${v&&!o.includes(v)?`<option selected>${esc(v)}</option>`:''}</select>`}
+    if(h==='Mois') return `<label>${h}</label><input id="${id}" type="month" value="${esc(String(v).slice(0,7))}" ${ro}>`;
+    if(DATES.includes(h)) return `<label>${h}</label><input id="${id}" type="date" value="${esc(v)}">`;
+    if(PCTS.includes(h)) return `<label>${h} (en %)</label><input id="${id}" type="number" step="0.1" inputmode="decimal" value="${num(v)===null?'':+(v*100).toFixed(2)}">`;
+    if(NUMS.includes(h)) return `<label>${h}</label><input id="${id}" type="number" step="any" inputmode="decimal" value="${esc(v)}">`;
+    if(h==='Commentaire') return `<label>${h}</label><textarea id="${id}" rows="2">${esc(v)}</textarea>`;
+    return `<label>${h}</label><input id="${id}" value="${esc(v)}" ${ro}>`;
+  };
+  const aide=sheet==='PERFORMANCE'?'<p class="sub" style="font-size:12px;color:var(--doux)">Ventes = colonne « Ventes » du comparatif jour Vindilis ; le recyclage est déduit deux fois automatiquement.</p>':'';
+  $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Retour</button><div class="carte">${aide}${champs.map(champ).join('')}
+   <button class="btn" id="env">Enregistrer</button></div>`;
+  $('#ret').onclick=()=>rendre(); fab(null);
+  $('#env').onclick=async()=>{
+    const row={};
+    champs.forEach((h,i)=>{const e=$('#f_'+i); if(!e)return; let v=e.value.trim();
+      if(h==='Mois'&&v)v=v+'-01';
+      else if(PCTS.includes(h))v=v===''?'':Math.round(parseFloat(v.replace(',','.'))*100)/10000;
+      else if(NUMS.includes(h))v=v===''?'':parseFloat(v.replace(',','.'));
+      row[h]=v;});
+    if(!row[cle]){toast('« '+cle+' » est obligatoire');return}
+    if(PCTS.some(h=>(h in row)&&row[h]!==''&&(isNaN(row[h])||row[h]<0||row[h]>1))){toast('Remise : entre 0 et 100 %');return}
+    if(NUMS.some(h=>(h in row)&&row[h]!==''&&isNaN(row[h]))){toast('Nombre invalide');return}
+    $('#env').disabled=true; $('#env').textContent='Enregistrement…';
+    if(await poster({action:'upsert',sheet,row})){toast('Enregistré — recommandations recalculées');await charger(true)}
+    else{$('#env').disabled=false;$('#env').textContent='Enregistrer'}
+  };
+}
+
+/* ---------- Démarrage ---------- */
+$('#bRef').onclick=()=>charger();
+try{const c=ls.get('pil_cache'); if(c)D=JSON.parse(c)}catch(e){}
+rendre(); charger(!!D);
+// Ouverture directe d'une fiche depuis la vue 3D : index.html?ouvrir=SURFACE_VENTE&cle=TG01
+(function(){try{const q=new URLSearchParams(location.search),sh=q.get('ouvrir'),k=q.get('cle');if(!D||!sh||!k)return;
+  const l=sh==='SURFACE_VENTE'?D.surface:sh==='ECRANS'?D.ecrans:null;if(!l)return;
+  const x=l.find(r=>String(r[CLES[sh]])===k);vue=sh==='SURFACE_VENTE'?'ray':'ecr';navig();formulaire(sh,x||Object.fromEntries([[CLES[sh],k]]));
+  history.replaceState(null,'','index.html');}catch(e){}})();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>

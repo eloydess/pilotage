@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1b5e20">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Pharmacie 3D</title>
+<script type="module">
+import './model-viewer.min.js';
+customElements.get('model-viewer').meshoptDecoderLocation = new URL('meshopt_decoder.js', location.href).href;
+customElements.get('model-viewer').dracoDecoderLocation = new URL('./', location.href).href;
+document.getElementById('mv').setAttribute('src','pharmacie.glb');
+</script>
+<style>
+:root{--vert:#1b5e20;--vert2:#2e7d32;--carte:#fff;--txt:#1d2622;--doux:#5f6b66;--ligne:#e1e6e3}
+@media (prefers-color-scheme:dark){:root{--carte:#1b2220;--txt:#e8eeeb;--doux:#9fb0a8;--ligne:#2a3330}}
+*{box-sizing:border-box}html,body{margin:0;height:100%;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--txt);background:#111}
+header{position:fixed;top:0;left:0;right:0;z-index:5;background:var(--vert);color:#fff;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;display:flex;align-items:center;gap:8px}
+header h1{font-size:16px;margin:0;flex:1}
+header a,header button{background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:8px;padding:6px 10px;font-size:14px;text-decoration:none}
+header button.on{background:#fff;color:var(--vert)}
+model-viewer{position:fixed;top:calc(48px + env(safe-area-inset-top));bottom:0;left:0;right:0;width:100%;height:auto;background:#dfe6e2;--poster-color:#dfe6e2}
+.barre{position:fixed;left:8px;right:8px;top:calc(56px + env(safe-area-inset-top));z-index:4;display:flex;gap:6px;overflow-x:auto}
+.barre button{flex:none;border:0;border-radius:16px;padding:6px 11px;font-size:13px;background:rgba(255,255,255,.92);color:#1d2622;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.barre button.on{background:var(--vert2);color:#fff}
+.pin{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.45);font:700 10px/22px sans-serif;color:#fff;text-align:center;padding:0;cursor:pointer;--min-hotspot-opacity:.35}
+.pin[data-visible]{opacity:1}.pin:not([data-visible]){opacity:.35}
+.Actif{background:#2e7d32}.Vide{background:#ef6c00}.Échu{background:#c62828}.inconnu{background:#607d8b}
+.pin.ecran{border-radius:6px}
+.pin.cache{display:none}
+.legende{position:fixed;left:8px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:4;background:rgba(255,255,255,.92);color:#1d2622;border-radius:10px;padding:6px 10px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap}
+.legende i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+#fiche{position:fixed;left:8px;right:8px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:6;background:var(--carte);border-radius:14px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,.35);display:none;max-width:520px;margin:auto}
+#fiche .l{display:flex;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px solid var(--ligne);font-size:14px}#fiche .l:last-of-type{border:0}
+#fiche h3{margin:0 0 6px;font-size:16px}
+#fiche .bt{display:flex;gap:8px;margin-top:10px}
+#fiche .bt a,#fiche .bt button{flex:1;text-align:center;border:0;border-radius:9px;padding:9px;font-size:14px;font-weight:600;background:var(--vert2);color:#fff;text-decoration:none}
+#fiche .bt button.sec{background:var(--ligne);color:var(--txt)}
+#place{position:fixed;left:8px;right:8px;top:calc(96px + env(safe-area-inset-top));z-index:6;background:var(--carte);border-radius:12px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:none;max-width:520px;margin:auto;font-size:14px}
+#place select{width:100%;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--ligne);margin-top:6px}
+#msg{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);background:rgba(0,0,0,.75);color:#fff;padding:10px 16px;border-radius:12px;z-index:9;display:none;text-align:center;max-width:85%}
+.chargement{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#37474f;font-size:14px;gap:8px}
+.chargement .b{width:180px;height:6px;background:#b0bec5;border-radius:3px;overflow:hidden}.chargement .b span{display:block;height:100%;width:0;background:var(--vert2)}
+</style>
+</head>
+<body>
+<header><a href="index.html">←</a><h1>Pharmacie 3D</h1><button id="bPlace">📍 Placer</button></header>
+<model-viewer id="mv" camera-orbit="25deg 55deg 40%" camera-controls touch-action="none" interaction-prompt="none" shadow-intensity="0" exposure="1.05"
+  min-camera-orbit="auto 0deg auto" max-camera-orbit="auto 180deg auto" interpolation-decay="120" disable-tap>
+  <div slot="progress-bar"></div>
+  <div class="chargement" slot="poster" id="poster"><div>Chargement de la maquette…</div><div class="b"><span id="pb"></span></div></div>
+</model-viewer>
+<div class="barre" id="barre"></div>
+<div class="legende" id="legende"><span><i class="Actif"></i>Actif</span><span><i class="Vide"></i>Vide</span><span><i class="Échu"></i>Échu</span><span>● rayon · ■ écran</span></div>
+<div id="fiche"></div>
+<div id="place"><b>Mode placement</b><br>Choisissez un élément puis touchez la maquette à son emplacement.<select id="selPlace"></select></div>
+<div id="msg"></div>
+<script>
+'use strict';
+const $=s=>document.querySelector(s), mv=$('#mv');
+const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=v=>(v===''||v==null||isNaN(+v))?null:+v;
+const eur=v=>num(v)===null?'—':Math.round(+v).toLocaleString('fr-FR')+' €';
+const dfr=v=>{if(!v)return '—';const p=String(v).split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:v};
+let D=null, filtre='Tout', placement=false;
+function msg(t,ms){const m=$('#msg');m.textContent=t;m.style.display='block';clearTimeout(msg.t);msg.t=setTimeout(()=>m.style.display='none',ms||2200)}
+const cfg=()=>({url:ls.get('pil_url')||'',code:ls.get('pil_code')||''});
+
+async function charger(){
+  try{const c=ls.get('pil_cache'); if(c){D=JSON.parse(c); dessiner()}}catch(e){}
+  const k=cfg(); if(!k.url){msg('Configurez d\'abord l\'application (écran Accueil).',4000);return}
+  try{const r=await fetch(k.url+'?code='+encodeURIComponent(k.code)+'&t='+Date.now()); const j=await r.json();
+    if(j.ok){D=j; ls.set('pil_cache',JSON.stringify(j)); dessiner()} else msg(j.err||'Erreur')}catch(e){msg('Hors ligne : dernières données')}
+}
+async function poster(body){const k=cfg();
+  try{const r=await fetch(k.url,{method:'POST',body:JSON.stringify(Object.assign({code:k.code},body))});const j=await r.json();if(!j.ok){msg(j.err||'Erreur');return false}return true}
+  catch(e){msg('Échec réseau');return false}}
+
+/* Éléments = emplacements + écrans, positions issues de l'onglet POSITIONS_3D */
+function elements(){
+  if(!D)return [];
+  const pos={}; (D.positions||[]).forEach(p=>{if(p['Code'])pos[p['Code']]=p});
+  const e=[];
+  (D.surface||[]).forEach(s=>e.push({code:s['Code emplacement'],kind:'rayon',o:s,statut:s['Statut'],labo:s['Laboratoire'],classe:s['Classe labo'],p:pos[s['Code emplacement']]}));
+  (D.ecrans||[]).forEach(s=>e.push({code:s['Code écran'],kind:'ecran',o:s,statut:s['Statut'],labo:s['Laboratoire'],classe:s['Classe labo'],p:pos[s['Code écran']]}));
+  return e.filter(x=>x.code);
+}
+const visible=x=>filtre==='Tout'||(filtre==='À traiter'&&(x.statut==='Vide'||x.statut==='Échu'))||(filtre==='Classe A'&&x.classe==='A')||(filtre==='Écrans'&&x.kind==='ecran')||(filtre==='Rayon'&&x.kind==='rayon');
+
+function dessiner(){
+  mv.querySelectorAll('.pin').forEach(p=>p.remove());
+  const els=elements();
+  els.filter(x=>x.p&&x.p['Position']).forEach(x=>{
+    const b=document.createElement('button');
+    b.className='pin '+(x.kind==='ecran'?'ecran ':'')+(x.statut||'inconnu')+(visible(x)?'':' cache');
+    b.slot='hotspot-'+x.code.replace(/[^A-Za-z0-9_-]/g,'_');
+    b.dataset.position=x.p['Position']; if(x.p['Normale'])b.dataset.normal=x.p['Normale'];
+    b.dataset.visibilityAttribute='visible';
+    b.textContent=x.kind==='ecran'?'▣':(x.classe==='A'?'A':'');
+    b.title=x.code;
+    b.onclick=ev=>{ev.stopPropagation();fiche(x)};
+    mv.appendChild(b);
+  });
+  const sans=els.filter(x=>!x.p||!x.p['Position']).length;
+  $('#barre').innerHTML=['Tout','À traiter','Classe A','Rayon','Écrans'].map(f=>`<button class="${f===filtre?'on':''}" data-f="${f}">${f}</button>`).join('')+
+    `<button data-v="haut">⬆ Dessus</button><button data-v="reset">⟲ Vue</button>`+(sans?`<button data-f="__place">📍 ${sans} à placer</button>`:'');
+  $('#barre').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    if(b.dataset.v==='haut'){mv.cameraOrbit='0deg 0deg auto';mv.cameraTarget='auto auto auto';return}
+    if(b.dataset.v==='reset'){mv.cameraOrbit='25deg 55deg 40%';mv.cameraTarget='auto auto auto';mv.fieldOfView='auto';return}
+    if(b.dataset.f==='__place'){basculerPlacement(true);return}
+    filtre=b.dataset.f;dessiner()});
+  remplirPlacement();
+}
+
+function fiche(x){
+  const o=x.o, L=(a,b)=>`<div class="l"><span>${a}</span><b>${b}</b></div>`;
+  const rows=x.kind==='rayon'
+    ?L('Type',esc(o['Type']||'—'))+L('Laboratoire',esc(o['Laboratoire']||'—')+(x.classe?' ('+esc(x.classe)+')':''))+L('Produit / thème',esc(o['Produit / thème']||'—'))+L('Promo liée',esc(o['Promo liée']||'—'))+L('Période',dfr(o['Début'])+' → '+dfr(o['Fin']))+L('Marge / semaine',eur(o['Marge €/semaine']))+L('Relais écran',esc(o['Relais écran']||'—'))
+    :L('Position',esc(o['Position']||'—'))+L('Format',esc(o['Format (px)']||'—'))+L('Contenu',esc(o['Contenu diffusé']||'—'))+L('Laboratoire',esc(o['Laboratoire']||'—'))+L('Période',dfr(o['Début'])+' → '+dfr(o['Fin']))+L('Relais rayon',esc(o['Relais rayon']||'—'));
+  const sheet=x.kind==='rayon'?'SURFACE_VENTE':'ECRANS';
+  $('#fiche').innerHTML=`<h3>${esc(x.code)} <span class="${esc(x.statut||'inconnu')}" style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;line-height:18px;color:#fff">${esc(x.statut||'?')}</span></h3>${rows}
+   <div class="bt"><a href="index.html?ouvrir=${sheet}&cle=${encodeURIComponent(x.code)}">Modifier</a><button class="sec" id="dep">Déplacer</button><button class="sec" id="fer">Fermer</button></div>`;
+  $('#fiche').style.display='block'; $('#legende').style.display='none';
+  $('#fer').onclick=fermer; $('#dep').onclick=()=>{fermer();basculerPlacement(true);$('#selPlace').value=x.code};
+}
+function fermer(){$('#fiche').style.display='none';$('#legende').style.display='flex'}
+
+/* Placement : toucher la maquette enregistre la position 3D dans le classeur */
+function remplirPlacement(){
+  const els=elements(), s=$('#selPlace'), cur=s.value;
+  const opt=x=>`<option value="${esc(x.code)}">${x.p&&x.p['Position']?'✓ ':''}${esc(x.code)} — ${x.kind==='ecran'?'écran':esc(x.o['Type']||'rayon')}${x.labo?' · '+esc(x.labo):''}</option>`;
+  s.innerHTML=els.filter(x=>!x.p||!x.p['Position']).map(opt).join('')+'<option disabled>── déjà placés ──</option>'+els.filter(x=>x.p&&x.p['Position']).map(opt).join('');
+  if(cur)s.value=cur;
+}
+function basculerPlacement(on){placement=on;$('#bPlace').classList.toggle('on',on);$('#place').style.display=on?'block':'none';if(on){fermer();msg('Touchez la maquette pour placer l\'élément choisi',2500)}}
+$('#bPlace').onclick=()=>basculerPlacement(!placement);
+let down=null;
+mv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,t:Date.now()}});
+mv.addEventListener('pointerup',async e=>{
+  if(!down)return; const moved=Math.hypot(e.clientX-down.x,e.clientY-down.y)>8||Date.now()-down.t>600; down=null;
+  if(moved)return;
+  if(!placement){fermer();return}
+  const code=$('#selPlace').value; if(!code){msg('Choisissez un élément');return}
+  const r=mv.getBoundingClientRect(); const hit=mv.positionAndNormalFromPoint(e.clientX-r.left,e.clientY-r.top);
+  if(!hit){msg('Touchez un objet de la maquette');return}
+  const f=v=>[v.x,v.y,v.z].map(n=>n.toFixed(3)+'m').join(' ');
+  const el=elements().find(x=>x.code===code);
+  const row={'Code':code,'Type':el&&el.kind==='ecran'?'Écran':'Rayon','Position':f(hit.position),'Normale':f(hit.normal)};
+  D.positions=(D.positions||[]).filter(p=>p['Code']!==code).concat([row]); dessiner();
+  msg('Enregistrement de '+code+'…',1500);
+  if(await poster({action:'upsert',sheet:'POSITIONS_3D',row})){msg(code+' placé ✓');ls.set('pil_cache',JSON.stringify(D))}
+});
+mv.addEventListener('progress',e=>{$('#pb').style.width=Math.round(e.detail.totalProgress*100)+'%'});
+mv.addEventListener('error',()=>msg('Impossible de charger la maquette 3D',5000));
+charger();
+</script>
+</body>
+</html>
