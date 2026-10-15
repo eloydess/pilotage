@@ -109,7 +109,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='2.1';
+const APP_V='2.2';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📺','Écrans & événements','Écrans'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -599,18 +599,30 @@ function labosV2(){fab(null);const nav=sousNav('sl',[['prix','Prix et fiches'],[
   bind();document.querySelectorAll('tr.lab').forEach(t=>t.onclick=()=>{const n=t.dataset.n.toLowerCase().split(/[ (]/)[0];const x=(D.labos||[]).find(l=>String(l['Laboratoire']).toLowerCase().startsWith(n));if(x)fiche(x['Laboratoire'],'syn');else toast('Fiche introuvable pour '+t.dataset.n)});brancherLiens();}
 
 /* ---------- PROMOS ---------- */
-let sousPro='oct';
+let sousPro='why';let filtreWhy='Tous';
 const CLIENT=/consommateur|remise immédiate|BRI/i;
 const STOP=new Set(['LABORATOIRES','LABORATOIRE','LABO','PHARMA','PHARMACEUTICAL','FRANCE','SANTE','SANTÉ','T2026','09P','LES','DES','THE','GROUPE','DERMO','DERMATOLOGIE','COSMETIQUE','NR','ET','DE','DU','SAS','SA']);
 function motsLab(o){return [o['Laboratoire'],o['Laboratoire Opeaz']].join(' ').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').split(/[^A-Z0-9]+/).filter(w=>w.length>=3&&!STOP.has(w))}
 function promoVindilis(o){if(!A)return null;const ws=motsLab(o),d=String(o['Début']),f=String(o['Fin']);
   return A.promosVindilis.filter(p=>!p.permanente&&p.debut<=f&&p.fin>=d).find(p=>{const n=p.nom.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'');return ws.some(w=>n.includes(w))})||null}
 function promos(){$('#ht').textContent='Promos';fab(null);
-  const nav=sousNav('sp',[['oct','Octobre'],['nov','Novembre'],['eff','Ça marche ?']],sousPro);
+  const nav=sousNav('sp',[['why','Pourquoi ça ne sort pas'],['oct','Octobre : manquantes'],['nov','Novembre'],['eff','Mesures']],sousPro);
   if(!A){$('#m').innerHTML=nav+pasAudit();document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos()});return}
   const regle=`<div class="carte al v"><b class="t">Une promotion n'est utile que si…</b><div class="sub w">1) elle est en caisse (Vindilis) le premier jour, 2) elle est visible (tête de gondole, écran, réseaux sociaux), 3) sa compensation est réclamée (Opeaz, accord direct, facture Digipharmacie). Sinon elle baisse la marge sans ramener de clients.</div></div>`;
   let h='';
-  if(sousPro==='oct'){const enc=A.promosVindilis.filter(p=>!p.permanente&&p.debut<='2026-10-31'&&p.fin>='2026-10-01');
+  if(sousPro==='why'&&A.pourquoi){const W=A.pourquoi,V={ok:['✅','Ça marche','var(--vert2)'],mitige:['🟡','Mitigé','var(--orange)'],ko:['❌','Ne sort pas','var(--rouge)']};
+    const L=W.promos.filter(x=>filtreWhy==='Tous'||x.verdict===filtreWhy),c=k=>W.promos.filter(x=>x.verdict===k).length;
+    h=`<div class="carte"><b>Promotions d'octobre : ce qui sort, ce qui ne sort pas</b><div class="sub w" style="margin-top:4px">${esc(W.periode)}. ${W.total.n} promotions ont vendu au moins une fois : ${ent(W.total.q)} unités au prix promo, ${eur2(W.total.ca)} HT, pour ${eur2(W.total.remise)} HT de remise accordée. <b style="color:var(--rouge)">${W.zero.length} promotions de 2026 actives n'ont fait aucune vente</b>, et ${W.legacy} anciennes promotions « permanentes » sont encore ouvertes dans Vindilis (à nettoyer).</div>
+     <div class="sub w" style="margin-top:6px">Pour chaque promotion : ventes au prix promo par jour, ventes de la gamme sans la remise, évolution du laboratoire contre octobre 2025, présence à l'écran, puis la cause probable et quoi faire. <b>À venir</b> : l'écart de prix avec le marché GERS produit par produit (connexion GERS à rouvrir) et l'inventaire complet des écrans.</div></div>
+     <div class="filtres" id="fw">${['Tous','ok','mitige','ko'].map(k=>`<button data-f="${k}" class="${k===filtreWhy?'on':''}">${k==='Tous'?'Toutes ('+W.promos.length+')':V[k][0]+' '+V[k][1]+' ('+c(k)+')'}</button>`).join('')}</div>
+     ${L.map(x=>{const v=V[x.verdict];return `<div class="carte demi" style="border-left:5px solid ${v[2]}"><div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:18px">${v[0]}</span><div style="flex:1"><b>${esc(x.nom)}</b><div class="sub">${esc(x.type)} · ${esc(x.debut)} → ${esc(x.fin)}</div></div></div>
+      <div class="kpis" style="margin-top:8px;grid-template-columns:repeat(3,1fr)"><div><div class="sub">Au prix promo</div><b>${ent(x.q)} u</b> <span class="sub">(${String(x.parJour).replace('.',',')}/jour)</span></div><div><div class="sub">Gamme sans remise</div><b>${ent(x.qHP)} u</b></div><div><div class="sub">Labo vs oct. 2025</div>${x.labo?`<b class="${cls(x.labo.ev)}">${pc1(x.labo.ev)}</b><div class="sub">${ent(x.labo.u25)} → ${ent(x.labo.u26)} u</div>`:'<span class="sub">—</span>'}</div></div>
+      <div class="sub w" style="margin-top:6px">📺 ${x.ecran?esc(x.ecran):'Écran : non relevé'} · Remise accordée ${eur2(x.remise)} HT · ${x.nProd} produit(s) vendu(s) en promo</div>
+      ${x.causes.length?`<div style="margin-top:6px;font-size:14px">${x.causes.map(t=>'• '+esc(t)).join('<br>')}</div>`:''}
+      <div style="margin-top:6px;font-size:14px"><b>→ ${esc(x.reco)}</b></div>
+      <details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Détail par produit (${x.produits.length})</summary><div class="tw"><table class="t"><tr><th>Produit</th><th class="n">Promo</th><th class="n">Sans remise</th></tr>${x.produits.map(r=>`<tr><td>${esc(r[0])}</td><td class="n">${ent(r[1])}</td><td class="n">${ent(r[2])}</td></tr>`).join('')}</table></div></details></div>`}).join('')}
+     <div class="carte al"><b class="t">${W.zero.length} promotions actives en octobre sans aucune vente</b><div class="sub w">Promotion en caisse mais personne n'achète : produit absent du rayon, offre invisible, ou mauvais produit. À vérifier en rayon cette semaine ; Guigoz : vérifier aussi la règle sur les laits infantiles.</div>${W.zero.map(z=>`<div class="ligne"><span>${esc(z[0])}</span><b style="font-weight:400;white-space:nowrap">${dfr(z[1])} → ${dfr(z[2])}</b></div>`).join('')}</div>`;
+  } else if(sousPro==='oct'){const enc=A.promosVindilis.filter(p=>!p.permanente&&p.debut<='2026-10-31'&&p.fin>='2026-10-01');
     h=`<div class="carte al"><b class="t">${A.opeazManquantes.length} opérations Opeaz d'octobre sans promotion dans Vindilis</b><div class="sub w">Contrôle fait le 15/10 sur les 88 promotions Vindilis actives en octobre. Certaines passent peut-être par des « formats promo » marqués sur l'emballage : à confirmer ligne par ligne avant création.</div></div>
      <div class="carte"><div class="tw"><table class="t"><tr><th>Laboratoire</th><th>Opération Opeaz</th><th>Dans Vindilis ?</th></tr>${A.opeazManquantes.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td><span class="pt" style="background:${/Présente/.test(r[2])?'var(--orange)':'var(--rouge)'}"></span>${esc(r[2])}</td></tr>`).join('')}</table></div></div>
      ${regle}<div class="titre">Promotions datées dans Vindilis couvrant octobre (${enc.length})</div><div class="carte">${enc.map(p=>`<div class="ligne"><span>${esc(p.nom)}</span><b style="font-weight:400;white-space:nowrap">${dfr(p.debut)} → ${dfr(p.fin)}</b></div>`).join('')}</div>`;
@@ -629,7 +641,7 @@ function promos(){$('#ht').textContent='Promos';fab(null);
      ${A.promoStats.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td></tr>`).join('')}</table></div></div>${regle}
      <div class="carte al o"><b class="t">Compensations à réclamer</b><div class="sub w">Topicrem Octobre Rose −30 % (marge négative sans compensation) et Avène Octobre Rose : vérifier dans Opeaz, les accords directs et les factures Digipharmacie. Lifescan : vendu sans marge (12,96 € pour 2 349,15 € de CA au T3).</div></div>`;
   }
-  $('#m').innerHTML=nav+h;document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos();scrollTo(0,0)});}
+  $('#m').innerHTML=nav+h;document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos();scrollTo(0,0)});document.querySelectorAll('#fw button').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f;promos()});}
 
 /* ---------- STOCK & COMMANDES ---------- */
 let sousStk='rec',labStk='';
