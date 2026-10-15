@@ -12,20 +12,22 @@
 <link rel="icon" href="icon-192.png">
 <title>Pilotage Pharmacie</title>
 <style>
-:root{--vert:#1b5e20;--vert2:#2e7d32;--fond:#f4f6f5;--carte:#fff;--txt:#1d2622;--doux:#5f6b66;--ligne:#e1e6e3;--rouge:#c62828;--orange:#e65100;--bleu:#0d47a1;--violet:#4a148c}
-@media (prefers-color-scheme:dark){:root{--fond:#111614;--carte:#1b2220;--txt:#e8eeeb;--doux:#9fb0a8;--ligne:#2a3330;--vert2:#66bb6a;--rouge:#ef5350;--orange:#ffa040}}
+:root{--vert:#1b5e20;--vert2:#2e7d32;--fond:#f4f6f5;--carte:#fff;--txt:#1d2622;--doux:#5f6b66;--ligne:#e1e6e3;--rouge:#c62828;--orange:#e65100;--bleu:#0d47a1;--violet:#4a148c;--rcl:#fdecea;--ocl:#fff4e0;--vcl:#e8f5e9;--bcl:#e3f2fd}
+@media (prefers-color-scheme:dark){:root{--fond:#111614;--carte:#1b2220;--txt:#e8eeeb;--doux:#9fb0a8;--ligne:#2a3330;--vert2:#66bb6a;--rouge:#ef5350;--orange:#ffa040;--rcl:#3a1d1d;--ocl:#3a2a12;--vcl:#16301b;--bcl:#13263b}}
 *{box-sizing:border-box}
-body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt);padding-bottom:calc(124px + env(safe-area-inset-bottom))}
-header{position:sticky;top:0;z-index:5;background:var(--vert);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:10px}
-header h1{font-size:17px;margin:0;flex:1}
+body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt);padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--vert);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;display:flex;align-items:center;gap:8px}
+header h1{font-size:17px;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:8px;padding:6px 10px;font-size:14px}
+#maj{font-size:11px;opacity:.85;white-space:nowrap}
 main{padding:12px 16px;max-width:760px;margin:auto}
 .fige{position:sticky;top:var(--hh,52px);z-index:4;background:var(--fond);margin:0 -16px;padding:8px 16px 2px;box-shadow:0 6px 8px -8px rgba(0,0,0,.35)}.fige>.carte{margin-top:0}.fige .titre{margin:6px 0 4px}
 .leg{font-size:12px;color:var(--doux);white-space:normal;line-height:1.6}
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(5,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
-nav button{border:0;background:none;color:var(--doux);padding:6px 2px 5px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:52px}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(7,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{border:0;background:none;color:var(--doux);padding:6px 1px 5px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:54px;line-height:1.15;text-align:center}
 nav button span{font-size:19px}
-nav button.on{color:var(--vert2);font-weight:600}
+nav button .lc{display:none}
+nav button.on{color:var(--vert2);font-weight:700}
 .carte{background:var(--carte);border:1px solid var(--ligne);border-radius:12px;padding:12px 14px;margin:0 0 10px}
 .titre{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--doux);margin:16px 2px 8px;font-weight:600}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -42,53 +44,73 @@ nav button.on{color:var(--vert2);font-weight:600}
 .statuts button{border:1px solid var(--ligne);background:none;color:var(--txt);border-radius:16px;padding:5px 10px;font-size:13px}
 .statuts button.on{background:var(--vert2);border-color:var(--vert2);color:#fff}
 .item{display:flex;align-items:center;gap:10px;cursor:pointer}.item .grow{flex:1;min-width:0}.item .sub{font-size:12px;color:var(--doux);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub{font-size:12px;color:var(--doux)}.sub.w{white-space:normal}
 input,select,textarea{width:100%;font:inherit;padding:9px 10px;border:1px solid var(--ligne);border-radius:8px;background:var(--fond);color:var(--txt)}
 label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
-.btn{display:block;width:100%;border:0;border-radius:10px;padding:12px;font-size:16px;font-weight:600;background:var(--vert2);color:#fff;margin-top:14px}
+.btn{display:block;width:100%;border:0;border-radius:10px;padding:12px;font-size:16px;font-weight:600;background:var(--vert2);color:#fff;margin-top:14px;cursor:pointer}
 .btn.sec{background:var(--ligne);color:var(--txt)}
 .filtres{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px}
-.filtres button{flex:none;border:1px solid var(--ligne);background:var(--carte);color:var(--txt);border-radius:16px;padding:5px 12px;font-size:13px}
+.filtres button{flex:none;border:1px solid var(--ligne);background:var(--carte);color:var(--txt);border-radius:16px;padding:5px 12px;font-size:13px;cursor:pointer}
 .filtres button.on{background:var(--vert2);color:#fff;border-color:var(--vert2)}
 .diag{border-left:4px solid var(--orange);font-weight:600}
 .score{font-weight:800;font-size:15px}
-#toast{position:fixed;left:50%;bottom:140px;transform:translateX(-50%);background:#263238;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:9;max-width:90%}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:#263238;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:9;max-width:90%}
 #toast.on{opacity:1}
 .vide{color:var(--doux);text-align:center;padding:24px 0}
 .ico{font-size:20px;width:26px;text-align:center;flex:none}
-.barre{height:10px;border-radius:5px;background:var(--ligne);overflow:hidden;margin:8px 0 4px}.barre i{display:block;height:100%;background:var(--vert2)}
-.tuiles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}.tuile{background:var(--carte);border:1px solid var(--ligne);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer}.tuile b{display:block;font-size:22px}.tuile span{font-size:11px;color:var(--doux)}
+.barre{height:10px;border-radius:5px;background:var(--ligne);overflow:hidden;margin:8px 0 4px;position:relative}.barre i{display:block;height:100%;background:var(--vert2)}
+.tuiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.tuile{background:var(--carte);border:1px solid var(--ligne);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer}.tuile b{display:block;font-size:22px}.tuile span{font-size:11px;color:var(--doux)}
 .alerte{border-left:4px solid var(--rouge)}
+.al{border-left:5px solid var(--rouge);background:var(--rcl)}.al.o{border-color:var(--orange);background:var(--ocl)}.al.v{border-color:var(--vert2);background:var(--vcl)}.al.b{border-color:var(--bleu);background:var(--bcl)}
+.al b.t{display:block;margin-bottom:3px}
 .ordre{white-space:pre-line;font-size:13px;margin-top:8px;padding:8px 10px;background:var(--fond);border-radius:8px}
-.fab{position:fixed;right:18px;bottom:calc(132px + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;border:0;background:var(--vert2);color:#fff;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.fab{position:fixed;right:18px;bottom:calc(86px + env(safe-area-inset-bottom));width:52px;height:52px;border-radius:50%;border:0;background:var(--vert2);color:#fff;font-size:28px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+.tw{overflow-x:auto;margin:0 -4px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--doux);text-align:left;padding:6px 6px;border-bottom:2px solid var(--ligne);white-space:nowrap}
+table.t td{padding:6px 6px;border-bottom:1px solid var(--ligne);vertical-align:top}
+table.t td.n,table.t th.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+table.t tr.tot td{font-weight:700;border-top:2px solid var(--ligne)}
+.gros{font-size:28px;font-weight:800;line-height:1.1}
+.chk{display:flex;gap:10px;align-items:flex-start}
+.chk input{width:22px;height:22px;flex:none;margin-top:2px}
+.fait{opacity:.55}.fait .grow b{text-decoration:line-through}
+.pt{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.split>*{min-width:0}
+.lien{color:var(--vert2);font-weight:600;cursor:pointer;text-decoration:underline}
 /* --- Version ordinateur (même adresse, mêmes données) --- */
 @media (min-width:1024px){
-body{padding:0 0 30px 230px}
+body{padding:0 0 30px 236px}
 header{padding:14px 28px}header h1{font-size:20px}.fige{margin:0 -28px;padding:10px 28px 2px}
-nav{top:0;bottom:0;right:auto;width:230px;display:flex;flex-direction:column;border-top:0;border-right:1px solid var(--ligne);padding:70px 10px 10px;gap:2px}
-nav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;min-height:44px;padding:8px 14px;border-radius:10px}
+nav{top:0;bottom:0;right:auto;width:236px;display:flex;flex-direction:column;border-top:0;border-right:1px solid var(--ligne);padding:70px 10px 10px;gap:2px}
+nav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px;min-height:44px;padding:8px 14px;border-radius:10px;cursor:pointer;text-align:left}
 nav button span{font-size:20px;width:26px;text-align:center}
+nav button .sc{display:none}nav button .lc{display:inline}
 nav button.on{background:var(--fond)}
 nav::before{content:"Pilotage pharmacie";position:absolute;top:22px;left:24px;font-weight:800;color:var(--vert2);font-size:16px}
 main{max-width:1500px;padding:20px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:0 16px;align-items:start}
 main>*{grid-column:1/-1}
-main>.item,main>.reco,main>.op{grid-column:auto}
+main>.item,main>.reco,main>.op,main>.demi{grid-column:auto}
 .kpis{grid-template-columns:repeat(4,1fr)}
-.tuiles{grid-template-columns:repeat(3,1fr)}
+.tuiles{grid-template-columns:repeat(4,1fr)}
 .item .sub{white-space:normal}
+.split{display:grid;grid-template-columns:minmax(360px,420px) 1fr;gap:16px;align-items:start}
+.split>.gauche{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow:auto}
 .fab{bottom:28px;right:28px}
 #toast{bottom:40px}
 }
+nav button em{font-style:normal}
 </style>
 </head>
 <body>
-<header><h1 id="ht">Pilotage</h1><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
+<header><h1 id="ht">Pilotage</h1><span id="maj"></span><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
 <main id="m"></main>
 <nav id="nav"></nav>
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='1.14';
-const ONGLETS=[['acc','🎯','Accueil'],['act','✅','Actions'],['lab','🧪','Labos'],['cmd','📦','Commandes'],['agd','📅','Événements'],['ray','🛒','Rayon'],['ecr','📺','Écrans'],['mois','📈','Mois'],['3d','🧊','3D'],['cfg','⚙️','Réglages']];
+const APP_V='2.0';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📺','Écrans & événements','Écrans'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -133,7 +155,7 @@ async function charger(silencieux){
     const j=await r.json();
     enCours=false;
     if(!j.ok){derniereErreur=j.err||'Erreur';toast(derniereErreur);if(/Code/.test(j.err||'')||!D)reglages();return}
-    derniereErreur=''; D=j; ls.set('pil_cache',JSON.stringify(j)); if(vue==='cfg')vue='acc'; rendre(); if(!silencieux)toast('À jour');
+    derniereErreur=''; D=j; ls.set('pil_cache',JSON.stringify(j)); if(vue==='cfg')vue='acc'; rendre(); if(!silencieux)toast('À jour'); chargerAudit();
   }catch(e){enCours=false;derniereErreur='Connexion impossible au serveur ('+(e&&e.message||e)+').';if(D)toast('Hors ligne : dernières données affichées');else{toast('Connexion impossible');reglages();}}
 }
 async function poster(body){
@@ -146,24 +168,28 @@ async function poster(body){
 
 /* ---------- Réglages ---------- */
 function reglages(){
-  const c=cfg(); $('#ht').textContent='Réglages';
+  const c=cfg(); $('#ht').textContent='Réglages'; fab(null);
   $('#m').innerHTML=`${derniereErreur?`<div class="carte" style="border-left:4px solid #c62828"><b>⚠ ${esc(derniereErreur)}</b></div>`:''}<div class="carte"><p>Saisissez votre code d'accès puis touchez « Enregistrer ». L'adresse est déjà remplie : n'y touchez pas.</p>
   <label>Adresse de l'application Web</label><input id="u" value="${esc(c.url)}" placeholder="https://script.google.com/macros/s/…/exec">
   <label>Code d'accès</label><input id="c" type="password" inputmode="numeric" value="${esc(c.code)}">
-  <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>`+(D&&D.fraicheur&&D.fraicheur.length?`<div class="titre">Mises à jour des données</div><div class="carte">${D.fraicheur.map(f=>`<div class="ligne"><span>${f.enRetard?'⚠':'✅'} ${esc(f.source)}<br><small style="color:var(--doux)">${esc(f.frequence)}${f.echec?' · dernier échec '+esc(f.echec):''}</small></span><b class="${f.enRetard?'neg':''}">${esc(f.dernier)}</b></div>`).join('')}</div>`:'');
-  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim()||URL_DEF);$('#ok').textContent='Connexion…';ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='acc';charger()};
+  <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>
+  <div class="carte"><b>Analyses (Vindilis, GERS, recommandes, promotions)</b><div class="sub w" style="margin-top:4px">${A?'Arrêtées au '+esc(A.majLib)+'. Sources : '+esc(A.sources):esc(auditErr||'Non chargées.')} Ces données sont chiffrées avec votre code d'accès.</div><button class="btn sec" id="bAud">Recharger les analyses</button></div>
+  <div class="carte"><b>Maquette 3D de la pharmacie</b><div class="sub w" style="margin-top:4px">Sortie du menu principal tant que Rayon et Écrans ne sont pas remplis.</div><button class="btn sec" id="b3d">Ouvrir la 3D</button></div>`+(D&&D.fraicheur&&D.fraicheur.length?`<div class="titre">Mises à jour des données</div><div class="carte">${D.fraicheur.map(f=>`<div class="ligne"><span>${f.enRetard?'⚠':'✅'} ${esc(f.source)}<br><small style="color:var(--doux)">${esc(f.frequence)}${f.echec?' · dernier échec '+esc(f.echec):''}</small></span><b class="${f.enRetard?'neg':''}">${esc(f.dernier)}</b></div>`).join('')}</div>`:'');
+  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim()||URL_DEF);$('#ok').textContent='Connexion…';ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='acc';A=null;charger()};
+  $('#bAud').onclick=async()=>{toast('Chargement des analyses…');await chargerAudit();toast(A?'Analyses à jour':auditErr||'Échec');if(vue==='cfg')reglages()};
+  $('#b3d').onclick=()=>{location.href='3d.html'};
 }
 
 /* ---------- Rendu ---------- */
 function navig(){
-  $('#nav').innerHTML=ONGLETS.map(o=>`<button data-v="${o[0]}" class="${o[0]===vue?'on':''}"><span>${o[1]}</span>${o[2]}</button>`).join('');
+  $('#nav').innerHTML=ONGLETS.map(o=>`<button data-v="${o[0]}" class="${o[0]===vue?'on':''}"><span>${o[1]}</span><em class="sc">${o[3]}</em><em class="lc">${o[2]}</em></button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{const v=b.dataset.v; if(v==='3d'){location.href='3d.html';return} if(v==='cfg'){vue='cfg';navig();reglages();return} vue=v;recherche='';rendre();scrollTo(0,0)});
 }
 /* Opérations Opeaz : on ne garde que les laboratoires que la pharmacie travaille (présents avec des ventes sur 12 mois) */
 function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;const ok={};(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>0)ok[l['Laboratoire']]=1});
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
 function rendre(){navig(); filtrerOps(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
-  ({acc:accueil,act:actions,lab:labos,cmd:commandes,agd:agenda,ray:rayon,ecr:ecrans,mois:mois,cfg:reglages})[vue]();}
+  ({acc:accueil,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
 function carteReco(r,i){
@@ -246,54 +272,6 @@ function carteExercice(){
    <div class="ligne"><span>Marge € exercice ${lib(ex-1)} (complet)</span><b>${mP!==null?eur(mP):'—'}</b></div>
    <div class="ligne"><span>Projection CA ${lib(ex)} au 31/03/${ex+1}</span><b>${proj!==null?eur(proj):'—'}</b></div>
    <div class="sub" style="font-size:11px;color:var(--doux);white-space:normal">Mois complets saisis dans « Performance » (Vindilis). Le mois en cours s'ajoute au bilan mensuel du 3. La projection applique à ${lib(ex)} le poids des mois restants observé en ${lib(ex-1)}.</div></div>`}
-function accueil(){majHH();
-  const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
-  const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};
-  $('#ht').textContent='Pilotage — '+moisFr(moisSel);
-  const i=ms.indexOf(moisSel);
-  const sel=`<div class="carte" style="display:flex;align-items:center;gap:8px;padding:8px 10px">
-    <button class="btn sec" id="mPrev" style="width:auto;margin:0;padding:8px 14px" ${i<=0?'disabled':''}>‹</button>
-    <select id="mSel" style="flex:1;margin:0">${ms.slice().reverse().map(m=>`<option value="${m}" ${m===moisSel?'selected':''}>${moisFr(m)}</option>`).join('')}</select>
-    <button class="btn sec" id="mNext" style="width:auto;margin:0;padding:8px 14px" ${i>=ms.length-1?'disabled':''}>›</button></div>`;
-  const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;
-  const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
-  const an=moisSel.slice(0,4),cum=k=>{const l=(D.perf||[]).filter(x=>{const m=isoMois(x['Mois']);return m.slice(0,4)===an&&m<=moisSel&&num(x[k])!==null});return l.length?l.reduce((s,x)=>s+(+x[k]),0):null};
-  const nbCum=(D.perf||[]).filter(x=>{const m=isoMois(x['Mois']);return m.slice(0,4)===an&&m<=moisSel&&num(x['CA HT N'])!==null}).length;
-  const eF=num(p['Effet fréquentation €']),eM=num(p['Effet marge/client €']),ec=num(p['Écart marge €']);
-  const diag=ec===null?'':(ec>=0?'Marge en progression vs N-1':(eF!==null&&eM!==null?('Le recul vient surtout '+(Math.abs(eF)>=Math.abs(eM)?'de la FRÉQUENTATION (moins de clients)':'de la MARGE PAR CLIENT (panier / prix)')):'Marge en recul vs N-1'));
-  const c=D.cockpit,lev=[19,20,21,22,23,24,25,26].map(j=>`<div class="ligne"><span>${esc(c[j][0])}</span><b>${j===23?eur(c[j][1]):(j===20?(num(c[j][1])===null?'—':(+c[j][1]).toLocaleString('fr-FR',{maximumFractionDigits:1})):esc(c[j][1]))}</b></div>`).join('');
-  const top=D.recos.filter(ouverte).slice(0,5);
-  const cmdU=(D.commandes||[]).filter(c=>c['Priorité']==='Urgent').length, cmdN=(D.commandes||[]).length;
-  const evP=(D.calendrier||[]).filter(e=>e['Statut']==='En cours'||e['Statut']==='À préparer').length, opN=(D.operations||[]).filter(o=>o['Statut']==='En cours').length;
-  const lV=(D.labos||[]).filter(l=>etatPrix(l)[2]==='À valider').length, lR=(D.labos||[]).filter(l=>etatPrix(l)[2]==='À revoir').length;
-  const cap=P('P_CAPTATION'),capO=P('P_CAPTATION_OBJ'),capR=P('P_CAPTATION_RESTE');
-  const capt=cap===null?'':`<div class="carte"><div class="l" style="font-size:12px;color:var(--doux)">Part de la consommation de vos clients que vous captez</div>
-    <div style="font-size:28px;font-weight:800">${pct(cap)}</div><div class="barre" style="position:relative"><i style="width:${Math.min(cap*100,100)}%"></i>${capO!==null?`<span style="position:absolute;top:0;bottom:0;left:${capO*100}%;width:2px;background:var(--rouge)"></span>`:''}</div>
-    <div class="sub" style="font-size:12px;color:var(--doux)">Objectif ${pct(capO)}${capR!==null?` · il reste <b style="color:var(--txt)">${eur(capR)}</b> à capter chez vos clients actuels`:''}</div></div>`;
-  const tuiles=`<div class="tuiles"><div class="tuile" data-go="cmd"><b class="${cmdU?'neg':''}">${cmdU}</b><span>commande(s) urgente(s) sur ${cmdN}</span></div>
-    <div class="tuile" data-go="agd"><b>${evP}</b><span>événement(s) à préparer · ${opN} opération(s) labo en cours</span></div>
-    <div class="tuile" data-go="lab"><b>${lV+lR}</b><span>labos prix à valider / revoir</span></div></div>`;
-  $('#m').innerHTML='<div class="fige">'+sel+tuiles+'</div>'+capt+`<div class="kpis">${kpi2('CA HT du mois',p['CA HT N'],p['CA HT N-1'],eur)}${kpi2('Marge € du mois',p['Marge € N'],p['Marge € N-1'],eur)}
-    ${kpi2('Fréquentation réelle',p['Fréquentation réelle N'],p['Fréquentation réelle N-1'],ent)}${kpi2('Marge € par client',p['Marge €/client N'],p['Marge €/client N-1'],eur2)}
-    <div class="carte kpi"><div class="l">Taux de marge</div><div class="v">${pct(tN)}</div><div class="e ${tN!==null&&tN1!==null?cls(tN-tN1):''}">${tN!==null&&tN1!==null?((tN-tN1)*100>0?'+':'')+((tN-tN1)*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' pt':'—'} <span style="color:var(--doux);font-weight:400">vs ${pct(tN1)}</span></div></div>
-    ${kpi2('Objectif marge',p['Marge € N'],p['Objectif retenu €'],eur).replace('vs ','obj. ')}</div>
-  ${diag?`<div class="carte diag">${esc(diag)}</div>`:''}
-  <div class="carte"><div class="ligne"><span>Effet fréquentation</span><b class="${cls(eF)}">${eur(eF)}</b></div>
-  <div class="ligne"><span>Effet marge par client</span><b class="${cls(eM)}">${eur(eM)}</b></div></div>
-  ${grapheCA(ms,moisSel)}
-  ${carteExercice()}
-  <div class="titre">Cumul ${an} (${nbCum} mois saisis jusqu'à ${moisFr(moisSel)})</div><div class="kpis">${kpi2('CA HT cumulé',cum('CA HT N'),cum('CA HT N-1'),eur)}${kpi2('Marge € cumulée',cum('Marge € N'),cum('Marge € N-1'),eur)}</div>
-  <div class="titre">Leviers</div><div class="carte">${lev}</div>
-  <div class="titre">Top 5 des actions</div>${top.length?top.map(carteReco).join(''):'<p class="vide">Aucune action ouverte 👍</p>'}`;
-  const go=m=>{moisSel=m;accueil();};
-  document.querySelectorAll('.tuile').forEach(t=>t.onclick=()=>{vue=t.dataset.go;if(vue==='lab'){filtreLab='À valider';recherche=''}rendre();scrollTo(0,0)});
-  $('#mSel').onchange=e=>go(e.target.value);
-  if($('#mPrev'))$('#mPrev').onclick=()=>{if(i>0)go(ms[i-1])};
-  document.querySelectorAll('#exMode button').forEach(b=>b.onclick=()=>{modeEx=b.dataset.m;const y=scrollY;accueil();scrollTo(0,y)});
-  if($('#mNext'))$('#mNext').onclick=()=>{if(i<ms.length-1)go(ms[i+1])};
-  brancherStatuts();
-}
-
 function classement(){
   const m={};const get=n=>m[n]=m[n]||{n,stock:0,marche:0,prix:0,rupt:0,tg:null,te:null};
   (D.commandes||[]).forEach(c=>{const x=get(c['Laboratoire']);x.stock=(num(c['Marge en rupture €/mois'])||0)*12;x.rupt=num(c['Ruptures (réf.)'])||0});
@@ -302,7 +280,7 @@ function classement(){
     const pol=l['Politique prix']||'';if(pol==='Libre'&&l['Statut prix']!=='Fait')x.prix=num(l['Impact prix cibles €/an'])||0});
   return Object.values(m).map(x=>({...x,tot:x.stock+x.marche+x.prix})).filter(x=>x.tot>0&&(x.marge||0)>0).sort((a,b)=>b.tot-a.tot);
 }
-function actions(){
+function actionsServeur(){
   $('#ht').textContent='Actions'; fab(null);
   if(filtre==='Classement'){const c=classement().slice(0,25);
     $('#m').innerHTML=`<div class="filtres">${['Classement','Ouvertes','P1','Stock','Marché','Prix','Laboratoire','Écrans','Faites'].map(d=>`<button class="${d===filtre?'on':''}" data-f="${d}">${d}</button>`).join('')}</div>
@@ -322,7 +300,8 @@ function actions(){
   brancherStatuts();
 }
 
-function labos(){
+function labos(){sousLab='prix';labosV2()}
+function labosListe(){
   $('#ht').textContent='Laboratoires — prix';
   const tous=D.labos.slice().sort((a,b)=>(num(b['Marge € 12 mois'])||0)-(num(a['Marge € 12 mois'])||0));
   const per=tous.filter(x=>{const g=etatPrix(x)[2];return g!=='Imposé'&&g!=='Hors périmètre'||x['Statut prix']});
@@ -463,7 +442,244 @@ function carteOp(o){return `<div class="carte op" data-id="${esc(o['ID'])}" styl
   <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">${esc(o['Laboratoire']||o['Laboratoire Opeaz'])} · du ${dfr(o['Début'])} au ${dfr(o['Fin'])} · ${ent(o['Nb produits'])} produit(s)${o['Mise en place']?' · mise en place : '+esc(o['Mise en place']):''}</div>
   ${o['Conditions']?`<div class="sub" style="font-size:12px;white-space:normal;margin-top:4px">${esc(o['Conditions'])}</div>`:''}</div>`}
 
-/* ---------- Commandes ---------- */
+/* ================= v2 : données d'analyse chiffrées (audit.enc.json) ================= */
+let A=null,auditErr='';
+const b64d=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function dechiffrer(o,code){const te=new TextEncoder();
+  const km=await crypto.subtle.importKey('raw',te.encode(code),'PBKDF2',false,['deriveKey']);
+  const k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64d(o.salt),iterations:o.it,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(o.iv)},k,b64d(o.data));
+  if(o.gz){const st=new Blob([pt]).stream().pipeThrough(new DecompressionStream('gzip'));return JSON.parse(await new Response(st).text())}
+  return JSON.parse(new TextDecoder().decode(pt))}
+async function chargerAudit(){const c=cfg();if(!c.code)return;
+  let o=null;try{const r=await fetch('audit.enc.json?t='+Date.now());if(r.ok){o=await r.json();ls.set('pil_audit',JSON.stringify(o))}}catch(e){}
+  if(!o){try{o=JSON.parse(ls.get('pil_audit')||'null')}catch(e){}}
+  if(!o){auditErr='Analyses indisponibles (hors ligne).';return}
+  try{A=await dechiffrer(o,c.code);auditErr='';majBandeau();if(D)rendre()}catch(e){A=null;auditErr='Analyses illisibles avec ce code d\'accès.'}}
+function majBandeau(){const m=$('#maj');if(m)m.textContent=A?'Analyses du '+A.majLib.replace(/^\w+ /,'').replace(' 2026',''):''}
+const pc1=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %');
+const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
+const eurS=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.round(Math.abs(v)).toLocaleString('fr-FR')+' €');
+const sousNav=(id,opts,cur)=>`<div class="filtres" id="${id}">${opts.map(o=>`<button data-k="${o[0]}" class="${o[0]===cur?'on':''}">${o[1]}</button>`).join('')}</div>`;
+const lienV=(t,v)=>`<span class="lien" data-go="${v}">${t}</span>`;
+function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1]}rendre();scrollTo(0,0)})}
+const pasAudit=()=>`<div class="carte al o"><b class="t">Analyses du 15/10 non chargées</b><div class="sub w">${esc(auditErr||'Chargement…')} Les données du serveur restent affichées.</div></div>`;
+
+/* ---------- Statut des 10 actions (enregistré sur cet appareil) ---------- */
+const actFaite=id=>ls.get('pil_act_'+id)==='1';
+const joursAv=d=>{const j=jours(d);return j===null?'':j>0?'en retard de '+j+' j':j===0?'aujourd\'hui':'dans '+(-j)+' j'};
+
+/* ---------- ACCUEIL ---------- */
+function alertes(){const L=[];
+  if(A){const c=A.cerp,t=c.lignes.reduce((s,x)=>s+x[2],0),r=c.lignes.reduce((s,x)=>s+x[4],0);
+    L.push(['','Commandes CERP du 13 au 15/10 : '+eur2(t)+' HT, '+eur2(r)+' reçus','Aucune commande CERP n\'avait dépassé '+eur2(c.maxDepuisMai)+' depuis mai. À vérifier avant toute autre commande (auteur, transmission, paiement).','stk:rec']);
+    const b=A.stock.filter(s=>s.decision==='commander');
+    L.push(['o','À commander : '+b.map(s=>s.nom).join(' et ')+' ('+eur2(b.reduce((s,x)=>s+x.besoin,0))+')',b.reduce((s,x)=>s+x.nRupt,0)+' références en rupture, '+eur(b.reduce((s,x)=>s+x.margePerdue,0))+' de marge perdue par mois. Ce sont les seuls labos sans commande en attente.','stk:rec']);
+    L.push(['o','Promotions : '+A.opeazManquantes.length+' opérations Opeaz d\'octobre absentes de Vindilis','Et novembre n\'est presque pas prêt. À créer avant le 31/10, après votre validation.','pro:oct']);}
+  const fr=(D.fraicheur||[]).filter(f=>f.enRetard);
+  if(fr.length)L.push(['','Mises à jour automatiques en retard ('+fr.length+')',fr.map(f=>f.source+' : '+f.dernier).join(' · '),'cfg']);
+  return L.slice(0,3).map(a=>`<div class="carte al ${a[0]}" data-go="${a[3]}" style="cursor:pointer"><b class="t">${esc(a[1])}</b><div class="sub w">${esc(a[2])}</div></div>`).join('')}
+function carteEnCours(){if(!A)return pasAudit();const o=A.octobre,e=ev(o.m,o.m1),ec=ev(o.c,o.c1),eo=ev(o.ordo,o.ordo1);
+  return `<div class="carte"><div class="sub">Octobre, du 1er au 14 — comparé aux mêmes jours de semaine 2025 (Vindilis)</div>
+   <div class="kpis" style="margin-top:8px">
+    <div class="kpi"><div class="l">Marge €</div><div class="v">${eur(o.m)}</div><div class="e ${cls(e)}">${pct(e,1)} <span style="color:var(--doux);font-weight:400">vs ${eur(o.m1)}</span></div></div>
+    <div class="kpi"><div class="l">Clients réels</div><div class="v">${ent(o.c)}</div><div class="e ${cls(ec)}">${pct(ec,1)} <span style="color:var(--doux);font-weight:400">vs ${ent(o.c1)}</span></div></div>
+    <div class="kpi"><div class="l">Marge par client</div><div class="v">${eur2(o.mc)}</div><div class="e ${cls(o.mc-o.mc1)}">${pct(ev(o.mc,o.mc1),1)} <span style="color:var(--doux);font-weight:400">vs ${eur2(o.mc1)}</span></div></div>
+    <div class="kpi"><div class="l">Ordonnances</div><div class="v">${ent(o.ordo)}</div><div class="e ${cls(eo)}">${pct(eo,1)} <span style="color:var(--doux);font-weight:400">vs ${ent(o.ordo1)}</span></div></div></div>
+   <div class="ligne" style="margin-top:6px"><span>Effet fréquentation (moins de clients)</span><b class="neg">${eurS(o.effetFreq)}</b></div>
+   <div class="ligne"><span>Effet marge par client</span><b class="pos">${eurS(o.effetPanier)}</b></div>
+   <div class="ligne"><span>Taux de marge</span><b>${pct(o.taux)} <span style="color:var(--doux);font-weight:400">vs ${pct(o.taux1)}</span></b></div></div>
+  <div class="carte diag">Le recul vient de la fréquentation, pas du prix : priorité à faire revenir des clients (promotions en caisse, écrans, événements, ruptures comblées), pas à baisser encore les prix.</div>
+  <div class="carte"><b>Objectif d'octobre : égaler 2025 (${eur2(o.octobre2025)} de marge)</b>
+   <div class="barre"><i style="width:${Math.min(100,Math.round(o.m/o.octobre2025*100))}%"></i></div>
+   <div class="sub w">Fait au 14/10 : ${eur(o.m)} (${Math.round(o.m/o.octobre2025*100)} %). Au rythme actuel : ≈ ${eur(o.projection)}. Il manque ≈ ${eur(o.manque)}, soit <b style="color:var(--txt)">≈ ${eur(o.parJour)} de marge en plus par jour</b> d'ouverture restant.</div>
+   <div class="ligne" style="margin-top:6px"><span>Novembre : cible = novembre 2025</span><b>${eur2(A.novembre.cible)} · ${ent(A.novembre.clients)} clients</b></div></div>`}
+function carteMarche(){if(!A)return '';return `<div class="carte"><b>Nous face au marché (GERS, pharmacies uniquement, en volume)</b>
+  <div class="tw"><table class="t"><tr><th>Indicateur</th><th class="n">Marché</th><th class="n">Nous</th><th class="n">Écart</th></tr>
+  ${A.gersNous.map(r=>`<tr><td>${esc(r[0])}</td><td class="n">${esc(r[1])}</td><td class="n neg">${esc(r[2])}</td><td class="n"><b>${esc(r[3])}</b></td></tr>`).join('')}</table></div>
+  <div class="sub w" style="margin-top:6px">Le marché national est stable : ≈ 10 points de recul sont propres à la pharmacie (ruptures, ordonnances, trafic du centre commercial). ${lienV('Détail par laboratoire','lab:mar')}</div></div>`}
+function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);
+  const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
+  const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};const i=ms.indexOf(moisSel);
+  const nA=A?A.actions.filter(a=>!actFaite(a.id)).length:null;
+  const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur 10','act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
+  const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
+  $('#m').innerHTML=`${alertes()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
+   <div class="titre">Mois en cours</div>${carteEnCours()}${carteMarche()}
+   <div class="titre">Mois complets (Vindilis, chargés dans l'application)</div>
+   <div class="carte" style="display:flex;align-items:center;gap:8px;padding:8px 10px">
+    <button class="btn sec" id="mPrev" style="width:auto;margin:0;padding:8px 14px" ${i<=0?'disabled':''}>‹</button>
+    <select id="mSel" style="flex:1;margin:0">${ms.slice().reverse().map(m=>`<option value="${m}" ${m===moisSel?'selected':''}>${moisFr(m)}</option>`).join('')}</select>
+    <button class="btn sec" id="mNext" style="width:auto;margin:0;padding:8px 14px" ${i>=ms.length-1?'disabled':''}>›</button></div>
+   <div class="kpis">${kpi2('Marge € du mois',p['Marge € N'],p['Marge € N-1'],eur)}${kpi2('Clients réels',p['Fréquentation réelle N'],p['Fréquentation réelle N-1'],ent)}${kpi2('Marge € par client',p['Marge €/client N'],p['Marge €/client N-1'],eur2)}
+    <div class="carte kpi"><div class="l">Taux de marge</div><div class="v">${pct(tN)}</div><div class="e ${tN!==null&&tN1!==null?cls(tN-tN1):''}">${tN!==null&&tN1!==null?((tN-tN1)*100>0?'+':'')+((tN-tN1)*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' pt':'—'} <span style="color:var(--doux);font-weight:400">vs ${pct(tN1)}</span></div></div></div>
+   <div class="carte"><div class="ligne"><span>Effet fréquentation</span><b class="${cls(p['Effet fréquentation €'])}">${eur(p['Effet fréquentation €'])}</b></div><div class="ligne"><span>Effet marge par client</span><b class="${cls(p['Effet marge/client €'])}">${eur(p['Effet marge/client €'])}</b></div><div class="ligne"><span>CA HT (pour information)</span><b>${eur(p['CA HT N'])} <span style="color:var(--doux);font-weight:400">vs ${eur(p['CA HT N-1'])}</span></b></div></div>
+   ${carteExercice()}
+   ${A?`<div class="carte"><div class="sub w"><b style="color:var(--txt)">Contexte local.</b> ${esc(A.contexte)}</div></div>`:''}`;
+  const go=m=>{moisSel=m;accueil()};$('#mSel').onchange=e=>go(e.target.value);
+  if($('#mPrev'))$('#mPrev').onclick=()=>{if(i>0)go(ms[i-1])};if($('#mNext'))$('#mNext').onclick=()=>{if(i<ms.length-1)go(ms[i+1])};
+  document.querySelectorAll('#exMode button').forEach(b=>b.onclick=()=>{modeEx=b.dataset.m;const y=scrollY;accueil();scrollTo(0,y)});
+  document.querySelectorAll('[data-go="cfg"]').forEach(e=>e.onclick=()=>{vue='cfg';navig();reglages()});
+  brancherLiens();}
+
+
+/* ---------- AVANT / APRÈS : ce qui marche, ce qui ne marche pas ---------- */
+const VERDP={ok:['✅','Volume et marge en hausse'],mitige:['🟡','Volume oui, marge non'],ko:['🔻','Volume en baisse'],attente:['⏳','Stable'],stock:['📦','À juger après réassort'],peu:['·','Trop peu de ventes']};
+const VERD={ok:['✅','Ça marche','var(--vert2)'],mitige:['🟡','Mitigé','var(--orange)'],ko:['❌','Ne marche pas','var(--rouge)'],attente:['⏳','Trop tôt pour conclure','var(--bleu)'],stock:['📦','À juger après réassort','var(--doux)'],peu:['·','Trop peu de ventes','var(--doux)']};
+let filtreAv='Tous';
+function verdictPrix(r){if(r[3]<20&&r[4]<20)return 'peu';if(r[9])return 'stock';const d=(r[2]??0)-(r[1]??0);if(d>=10)return r[6]>=r[5]?'ok':'mitige';if(d<=-10)return 'ko';return 'attente'}
+function avantApres(){const L=A.avantApres,n=k=>L.filter(x=>x.verdict===k).length;
+  const PL=A.prixLabos.map(r=>[r,verdictPrix(r)]),fl=['Tous','ok','mitige','ko','attente','stock'];
+  const vis=PL.filter(([r,v])=>filtreAv==='Tous'||v===filtreAv);
+  return `<div class="carte"><b>Chaque action est mesurée : avant / après</b><div class="sub w" style="margin-top:4px">✅ ${n('ok')} ça marche · 🟡 ${n('mitige')} mitigé · ❌ ${n('ko')} ne marche pas · ⏳ ${n('attente')} trop tôt. Chaque ligne a sa date de prochaine mesure : on garde ce qui marche, on corrige ou on arrête le reste.</div></div>
+  ${L.map(x=>{const V=VERD[x.verdict];return `<div class="carte demi" style="border-left:5px solid ${V[2]}"><div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:18px">${V[0]}</span><div class="grow" style="flex:1"><b>${esc(x.quoi)}</b><div class="sub">${esc(x.quand)} · <b style="color:${V[2]}">${V[1]}</b></div></div></div>
+   <div class="kpis" style="margin-top:8px;grid-template-columns:1fr 1fr"><div><div class="sub">Avant</div><div style="font-size:14px">${esc(x.avant)}</div></div><div><div class="sub">Après</div><div style="font-size:14px;font-weight:600">${esc(x.apres)}</div></div></div>
+   <div class="sub w" style="margin-top:6px">${esc(x.lecture)}</div><div class="sub" style="margin-top:4px">📅 Prochaine mesure : ${dfr(x.prochaine)} (${joursAv(x.prochaine)})</div></div>`}).join('')}
+  <div class="titre" id="avPrix">Baisse de prix : laboratoire par laboratoire (J+15)</div>
+  <div class="carte"><div class="sub w">Avant = évolution des unités au 3e trimestre (juillet–septembre 2026 contre 2025). Après = du 1er au 14 octobre, contre les mêmes jours de 2025. Si l'écart s'améliore de 10 points ou plus, la baisse de prix attire des clients ; si la marge suit aussi, elle fonctionne. Labos en rupture : impossible de juger le prix tant que le stock manque. Quinze jours, c'est court : la décision (garder, corriger ou revenir en arrière) se prend à J+30, le 30/10. UPSA profite aussi du réassort de septembre.</div>
+   <div class="filtres" id="fav" style="margin-top:8px">${fl.map(f=>`<button data-f="${f}" class="${f===filtreAv?'on':''}">${f==='Tous'?'Tous':VERDP[f][0]+' '+VERDP[f][1]} (${f==='Tous'?PL.length:PL.filter(x=>x[1]===f).length})</button>`).join('')}</div>
+   <div class="tw"><table class="t"><tr><th>Laboratoire</th><th class="n">Unités avant</th><th class="n">Unités après</th><th class="n">Marge 1–14 oct. 2025 → 2026</th><th class="n">Taux T3 → oct.</th><th>Verdict</th></tr>
+   ${vis.map(([r,v])=>`<tr><td><b>${esc(r[0])}</b><div class="sub">${ent(r[3])} → ${ent(r[4])} u en oct.</div></td><td class="n ${cls(r[1])}">${pc1(r[1])}</td><td class="n ${cls(r[2])}">${pc1(r[2])}</td><td class="n">${eur(r[5])} → <b class="${cls(r[6]-r[5])}">${eur(r[6])}</b></td><td class="n">${r[7]===null?'—':String(r[7]).replace('.',',')+' %'} → ${r[8]===null?'—':String(r[8]).replace('.',',')+' %'}</td><td>${VERDP[v][0]} ${VERDP[v][1]}</td></tr>`).join('')}</table></div></div>`}
+
+/* ---------- ACTIONS ---------- */
+let sousAct='dix';
+function actions(){fab(null);
+  const navA=()=>{document.querySelectorAll('#sa button').forEach(b=>b.onclick=()=>{sousAct=b.dataset.k;if(sousAct==='cls')filtre='Classement';if(sousAct==='rec')filtre='Ouvertes';actions();scrollTo(0,0)})};
+  if(sousAct==='av'&&A){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+avantApres();navA();
+    document.querySelectorAll('#fav button').forEach(b=>b.onclick=()=>{filtreAv=b.dataset.f;const y=scrollY;actions();scrollTo(0,y)});return}
+  if(sousAct!=='dix'&&sousAct!=='av'){sousAct=filtre==='Classement'?'cls':'rec';actionsServeur();
+    $('#ht').textContent='Actions';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct));
+    navA();return}
+  $('#ht').textContent='Actions';
+  if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto']],sousAct)+pasAudit();navA();return}
+  const L=A.actions.slice().sort((a,b)=>actFaite(a.id)-actFaite(b.id)||String(a.quand).localeCompare(String(b.quand)));
+  const nF=A.actions.filter(a=>actFaite(a.id)).length;
+  $('#m').innerHTML=sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+
+   `<div class="carte"><b>${nF} sur ${A.actions.length} faites</b><div class="barre"><i style="width:${nF*10}%"></i></div><div class="sub w">Dix actions au maximum, chacune avec un responsable, une échéance et ce qu'elle rapporte. Cochez quand c'est fait (enregistré sur cet appareil).</div></div>
+   ${L.map(a=>{const f=actFaite(a.id),j=jours(a.quand);return `<div class="carte demi ${f?'fait':''}"><div class="chk"><input type="checkbox" data-id="${a.id}" ${f?'checked':''} aria-label="Fait"><div class="grow"><b>${esc(a.titre)}</b>
+    <div class="sub w" style="margin-top:4px">👤 ${esc(a.qui)} · 📅 ${dfr(a.quand)} ${f?'':`<span class="${j!==null&&j>0?'neg':''}">(${joursAv(a.quand)})</span>`}</div>
+    <div class="sub w">🎯 ${esc(a.enjeu)}</div>${a.detail?`<div class="sub w" style="margin-top:4px">${esc(a.detail)}</div>`:''}</div></div></div>`}).join('')}`;
+  navA();
+  document.querySelectorAll('.chk input').forEach(c=>c.onchange=()=>{ls.set('pil_act_'+c.dataset.id,c.checked?'1':'0');toast(c.checked?'Action faite':'Action rouverte');actions()});}
+
+/* ---------- LABOS & PRIX ---------- */
+let sousLab='prix';
+function labosV2(){fab(null);const nav=sousNav('sl',[['prix','Prix et fiches'],['mar','Face au marché'],['rep','Reprise après réassort']],sousLab);
+  const bind=()=>document.querySelectorAll('#sl button').forEach(b=>b.onclick=()=>{sousLab=b.dataset.k;recherche='';labosV2();scrollTo(0,0)});
+  if(sousLab==='prix'){labosListe();$('#ht').textContent='Labos & prix';
+    const P=A&&A.prix;const fige=document.querySelector('.fige');
+    const j15=P?`<div class="carte al b"><b class="t">Prix revus le ${esc(P.dates)} (${P.revus} labos) : point à J+15</b><div class="sub w">Unités ${pc1(P.unitesOct)} en octobre (${pc1(P.unitesT3)} au T3) : pas encore d'effet volume. Taux de marge ${String(P.taux[0]).replace('.',',')} % → ${String(P.taux[1]).replace('.',',')} %. Marge T3 ${eur(P.margeT3[0])} → ${eur(P.margeT3[1])} (les autres fournisseurs : ${eur(P.autresMargeT3[0])} → ${eur(P.autresMargeT3[1])}). <b>${esc(P.regle)}</b> Mesure J+30 : ${dfr(P.mesureJ30)}. ${lienV('Voir labo par labo','act:av')}</div></div>`:'';
+    if(fige)fige.insertAdjacentHTML('beforebegin',nav);else $('#m').insertAdjacentHTML('afterbegin',nav);
+    if(fige)fige.insertAdjacentHTML('afterend',j15);
+    bind();brancherLiens();fab(()=>formulaire('LABORATOIRES',null));return}
+  $('#ht').textContent='Labos & prix';
+  if(!A){$('#m').innerHTML=nav+pasAudit();bind();return}
+  if(sousLab==='mar'){
+    $('#m').innerHTML=nav+`<div class="carte"><b>Notre volume contre celui du marché, juillet–septembre 2026 vs 2025</b><div class="sub w">Unités vendues (Vindilis) contre unités du marché national (GERS, pharmacies uniquement). Tri : du plus gros retard au plus net gain. Touchez un labo pour sa fiche.</div></div>
+    <div class="carte"><div class="tw"><table class="t"><tr><th>Laboratoire</th><th class="n">Nous</th><th class="n">Marché</th><th class="n">Écart</th><th class="n">Marge T3</th></tr>
+    ${A.marche.map(r=>`<tr class="lab" data-n="${esc(r[0])}" style="cursor:pointer"><td>${esc(r[0])}<div class="sub">${ent(r[5])} → ${ent(r[6])} u</div></td><td class="n ${cls(r[1])}">${pc1(r[1])}</td><td class="n">${pc1(r[2])}</td><td class="n ${cls(r[3])}"><b>${(r[3]>0?'+':'−')+Math.abs(r[3]).toLocaleString('fr-FR',{maximumFractionDigits:1})} pts</b></td><td class="n ${cls(r[4])}">${eurS(r[4])}</td></tr>`).join('')}</table></div></div>
+    <div class="carte"><div class="sub w">Lecture : là où le marché progresse et où nous reculons fortement, la cause est presque toujours chez nous, en commençant par les ruptures. Biogaran recule volontairement (Zentiva en priorité).</div></div>
+    ${A.constatsLabos.map(c=>`<div class="carte demi"><b>${esc(c[0])}</b><div class="sub w" style="margin-top:4px">${esc(c[1])}</div><div style="margin-top:6px;font-size:14px">→ ${esc(c[2])}</div></div>`).join('')}`;
+  } else {
+    const M=['Juil.','Août','Sept.','Oct. 1–14'];
+    $('#m').innerHTML=nav+`<div class="carte al o"><b class="t">Le réassort marche, mais il n'est pas renouvelé</b><div class="sub w">SVR, UPSA et Hartmann reviennent après leur commande, puis rechutent un mois et demi plus tard faute de commande de suivi. La règle d'1,5 mois de couverture est maintenant calculée dans ${lienV('Stock & commandes','stk:rec')}.</div></div>
+    <div class="carte"><div class="tw"><table class="t"><tr><th>Laboratoire</th>${M.map(m=>`<th class="n">${m}</th>`).join('')}</tr>
+    ${A.reprise.map(r=>`<tr><td><b>${esc(r[0])}</b><div class="sub w">Commandes : ${esc(r[1])}</div></td>${r[2].map(m=>{const e=ev(m[0],m[1]);return `<td class="n">${ent(m[0])} / ${ent(m[1])}<div class="${cls(e)}" style="font-weight:700">${pct(e,1)}</div></td>`}).join('')}</tr>`).join('')}</table></div>
+    <div class="sub w" style="margin-top:6px">Unités 2026 / 2025, même mois (octobre : mêmes jours de semaine). Source : statistiques fournisseurs et liste des commandes Vindilis.</div></div>`;
+  }
+  bind();document.querySelectorAll('tr.lab').forEach(t=>t.onclick=()=>{const n=t.dataset.n.toLowerCase().split(/[ (]/)[0];const x=(D.labos||[]).find(l=>String(l['Laboratoire']).toLowerCase().startsWith(n));if(x)fiche(x['Laboratoire'],'syn');else toast('Fiche introuvable pour '+t.dataset.n)});brancherLiens();}
+
+/* ---------- PROMOS ---------- */
+let sousPro='oct';
+const CLIENT=/consommateur|remise immédiate|BRI/i;
+const STOP=new Set(['LABORATOIRES','LABORATOIRE','LABO','PHARMA','PHARMACEUTICAL','FRANCE','SANTE','SANTÉ','T2026','09P','LES','DES','THE','GROUPE','DERMO','DERMATOLOGIE','COSMETIQUE','NR','ET','DE','DU','SAS','SA']);
+function motsLab(o){return [o['Laboratoire'],o['Laboratoire Opeaz']].join(' ').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').split(/[^A-Z0-9]+/).filter(w=>w.length>=3&&!STOP.has(w))}
+function promoVindilis(o){if(!A)return null;const ws=motsLab(o),d=String(o['Début']),f=String(o['Fin']);
+  return A.promosVindilis.filter(p=>!p.permanente&&p.debut<=f&&p.fin>=d).find(p=>{const n=p.nom.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'');return ws.some(w=>n.includes(w))})||null}
+function promos(){$('#ht').textContent='Promos';fab(null);
+  const nav=sousNav('sp',[['oct','Octobre'],['nov','Novembre'],['eff','Ça marche ?']],sousPro);
+  if(!A){$('#m').innerHTML=nav+pasAudit();document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos()});return}
+  const regle=`<div class="carte al v"><b class="t">Une promotion n'est utile que si…</b><div class="sub w">1) elle est en caisse (Vindilis) le premier jour, 2) elle est visible (tête de gondole, écran, réseaux sociaux), 3) sa compensation est réclamée (Opeaz, accord direct, facture Digipharmacie). Sinon elle baisse la marge sans ramener de clients.</div></div>`;
+  let h='';
+  if(sousPro==='oct'){const enc=A.promosVindilis.filter(p=>!p.permanente&&p.debut<='2026-10-31'&&p.fin>='2026-10-01');
+    h=`<div class="carte al"><b class="t">${A.opeazManquantes.length} opérations Opeaz d'octobre sans promotion dans Vindilis</b><div class="sub w">Contrôle fait le 15/10 sur les 88 promotions Vindilis actives en octobre. Certaines passent peut-être par des « formats promo » marqués sur l'emballage : à confirmer ligne par ligne avant création.</div></div>
+     <div class="carte"><div class="tw"><table class="t"><tr><th>Laboratoire</th><th>Opération Opeaz</th><th>Dans Vindilis ?</th></tr>${A.opeazManquantes.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td><span class="pt" style="background:${/Présente/.test(r[2])?'var(--orange)':'var(--rouge)'}"></span>${esc(r[2])}</td></tr>`).join('')}</table></div></div>
+     ${regle}<div class="titre">Promotions datées dans Vindilis couvrant octobre (${enc.length})</div><div class="carte">${enc.map(p=>`<div class="ligne"><span>${esc(p.nom)}</span><b style="font-weight:400;white-space:nowrap">${dfr(p.debut)} → ${dfr(p.fin)}</b></div>`).join('')}</div>`;
+  } else if(sousPro==='nov'){
+    const ops=(D.operations||[]).filter(o=>CLIENT.test(o['Type'])&&String(o['Début'])<='2026-11-30'&&String(o['Fin'])>='2026-11-01').sort((a,b)=>String(a['Laboratoire']).localeCompare(String(b['Laboratoire'])));
+    const R=ops.map(o=>[o,promoVindilis(o)]),ok=R.filter(r=>r[1]).length;
+    const nv=A.promosVindilis.filter(p=>!p.permanente&&p.debut<='2026-11-30'&&p.fin>='2026-11-01'&&p.creee>='2026-09-01');
+    h=`<div class="carte al o"><b class="t">Novembre : ${ops.length} opérations Opeaz vers le client, ${ops.length-ok} sans aucune promotion Vindilis du même laboratoire</b><div class="sub w">Objectif : marge ≥ ${eur2(A.novembre.cible)} (novembre 2025). Toutes les promotions de novembre doivent être créées avant le 31/10, après votre validation ; contrôle le 1er novembre au matin. Rapprochement automatique par nom de laboratoire : à confirmer.</div></div>
+     <div class="carte"><b>À créer en priorité (par marge)</b>${A.novembreACreer.map(t=>`<div class="ligne"><span>${esc(t)}</span><b><span class="pt" style="background:var(--rouge)"></span></b></div>`).join('')}</div>
+     <div class="carte"><b>Déjà prêtes dans Vindilis pour novembre (${nv.length})</b>${nv.map(p=>`<div class="ligne"><span>${esc(p.nom)}</span><b style="font-weight:400;white-space:nowrap">${dfr(p.debut)} → ${dfr(p.fin)}</b></div>`).join('')}</div>
+     <div class="carte al b"><div class="sub w"><b style="color:var(--txt)">Vigilance.</b> ${esc(A.vigilance)}</div></div>
+     <div class="titre">Opérations Opeaz vers le client actives en novembre (${ops.length})</div>
+     ${R.map(([o,p])=>`<div class="carte demi"><span class="pt" style="background:${p?'var(--vert2)':'var(--rouge)'}"></span><b>${esc(o['Laboratoire Opeaz']||o['Laboratoire'])}</b> · ${esc(o['Type'])}<div style="margin-top:4px">${esc(o['Opération'])}</div><div class="sub w">${dfr(o['Début'])} → ${dfr(o['Fin'])} · ${ent(o['Nb produits'])} produit(s)${o['Conditions']?' · '+esc(o['Conditions']):''}</div><div class="sub w" style="margin-top:4px">${p?'Vindilis : '+esc(p.nom):'<b class="neg">Aucune promotion Vindilis trouvée</b>'}</div></div>`).join('')||'<p class="vide">Aucune.</p>'}`;
+  } else {
+    h=`<div class="carte"><b>Promotions d'octobre mesurées (Vindilis › Promotions › Stats)</b><div class="tw"><table class="t"><tr><th>Promotion</th><th class="n">Au prix promo</th><th class="n">Hors promo</th><th>Effet sur le labo (1–14 oct. vs 2025)</th><th>Verdict</th></tr>
+     ${A.promoStats.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td></tr>`).join('')}</table></div></div>${regle}
+     <div class="carte al o"><b class="t">Compensations à réclamer</b><div class="sub w">Topicrem Octobre Rose −30 % (marge négative sans compensation) et Avène Octobre Rose : vérifier dans Opeaz, les accords directs et les factures Digipharmacie. Lifescan : vendu sans marge (12,96 € pour 2 349,15 € de CA au T3).</div></div>`;
+  }
+  $('#m').innerHTML=nav+h;document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos();scrollTo(0,0)});}
+
+/* ---------- STOCK & COMMANDES ---------- */
+let sousStk='rec',labStk='';
+const DEC={commander:['Commander','var(--vert2)'],completer:['Clôturer l\'ancienne, puis compléter','var(--bleu)'],option:['Optionnel','var(--doux)'],bloque:['Ne pas recommander : débloquer l\'attente','var(--orange)']};
+function stock(){$('#ht').textContent='Stock & commandes';fab(null);
+  const nav=sousNav('sk',[['rec','Recommandes 1,5 mois'],['cerp','CERP & trésorerie'],['rup','Ruptures (relevé serveur)']],sousStk);
+  const bind=()=>{document.querySelectorAll('#sk button').forEach(b=>b.onclick=()=>{sousStk=b.dataset.k;stock();scrollTo(0,0)});brancherLiens()};
+  if(sousStk==='rup'){commandes();$('#ht').textContent='Stock & commandes';$('#m').insertAdjacentHTML('afterbegin',nav);bind();return}
+  if(!A){$('#m').innerHTML=nav+pasAudit();bind();return}
+  const T=A.tresorerie,dispo=T.bpgo+T.cebpl-T.suiviRJ,cerpT=A.cerp.lignes.reduce((s,x)=>s+x[2],0);
+  if(sousStk==='cerp'){
+    $('#m').innerHTML=nav+`<div class="carte al"><b class="t">4 commandes CERP créées les 13 et 15/10 : ${eur2(cerpT)} HT</b><div class="sub w">Depuis mai, aucune commande CERP n'avait dépassé ${eur2(A.cerp.maxDepuisMai)}. Elles n'ont pas été créées par Claude (lecture seule dans Vindilis). À confirmer : auteur, transmission, paiement. Le détail des lignes ne s'ouvre pas dans Vindilis (« le contenu ne peut pas être chargé »).</div></div>
+     <div class="carte"><div class="tw"><table class="t"><tr><th>Créée le</th><th>Compte</th><th class="n">Montant HT</th><th class="n">Reçu / attendu</th><th class="n">Reçu</th></tr>${A.cerp.lignes.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td class="n">${eur2(r[2])}</td><td class="n">${esc(r[3])}</td><td class="n">${r[4]?eur2(r[4]):'—'}</td></tr>`).join('')}
+     <tr class="tot"><td colspan="2">Total</td><td class="n">${eur2(cerpT)}</td><td></td><td class="n">${eur2(A.cerp.lignes.reduce((s,x)=>s+x[4],0))}</td></tr></table></div>
+     <div class="sub w" style="margin-top:6px">CERP par mois (commandé / reçu) : septembre ${eur2(A.cerp.moisSep[0])} / ${eur2(A.cerp.moisSep[1])} ; octobre au 15 ${eur2(A.cerp.moisOct[0])} / ${eur2(A.cerp.moisOct[1])}.</div></div>
+     <div class="carte"><b>Trésorerie (soldes du ${dfr(T.date)})</b>
+      <div class="ligne"><span>BPGO + CEBPL</span><b>${eur2(T.bpgo+T.cebpl)}</b></div><div class="ligne"><span>− Factures en cours (suivi RJ)</span><b>− ${eur2(T.suiviRJ)}</b></div>
+      <div class="ligne"><span><b>= Disponible avant nouvelles commandes</b></span><b>${eur2(dispo)}</b></div>
+      <div class="ligne"><span>Commandes directes en attente (≥ 200 €, depuis le 15/08)</span><b>${eur2(T.attenteDirect)}</b></div>
+      <div class="ligne"><span>Commandes CERP 13–15/10 non reçues</span><b class="neg">${eur2(cerpT)}</b></div>
+      <div class="sub w" style="margin-top:6px">Le calendrier de paiement de la CERP pendant la procédure n'est pas connu de l'application : [MANQUANT]. Toute commande reste soumise à votre validation puis à celle de l'administrateur judiciaire.</div></div>`;
+    bind();return}
+  const S=A.stock.slice().sort((a,b)=>({commander:0,completer:1,bloque:2,option:3}[a.decision]-{commander:0,completer:1,bloque:2,option:3}[b.decision])||b.margePerdue-a.margePerdue);
+  if(!labStk||!S.some(s=>s.id===labStk))labStk=S[0].id;
+  const aCmd=S.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0),aCpl=S.filter(s=>s.decision==='completer').reduce((s,x)=>s+x.besoin,0);
+  const lib=S.filter(s=>s.decision==='bloque'&&s.attente>s.besoin).reduce((s,x)=>s+x.attente-x.besoin,0);
+  const x=S.find(s=>s.id===labStk);
+  const liste=`<div class="carte"><b>Disponible : ${eur2(dispo)}</b><div class="sub w">À commander maintenant : <b style="color:var(--txt)">${eur2(aCmd)}</b> (${(Math.round(aCmd/dispo*1000)/10).toLocaleString('fr-FR')} % du disponible) · compléments : ${eur2(aCpl)} · trésorerie libérable en réduisant les commandes bloquées : ≈ ${eur(lib)}. ${lienV('Vérifier d\'abord les commandes CERP','stk:cerp')}</div></div>
+   ${S.map(s=>`<div class="carte item ${s.id===labStk?'on':''}" data-l="${s.id}" style="${s.id===labStk?'outline:2px solid var(--vert2)':''}"><span class="pt" style="background:${DEC[s.decision][1]}"></span><div class="grow"><b>${esc(s.nom)}</b>
+     <div class="sub">${esc(DEC[s.decision][0])}</div><div class="sub">Besoin ${eur(s.besoin)} · attente ${s.attente?eur(s.attente):'—'} · ${s.nRupt} ruptures · ${eur(s.margePerdue)}/mois</div></div></div>`).join('')}`;
+  const det=`<div class="carte"><div style="display:flex;gap:8px;align-items:center"><span class="pt" style="background:${DEC[x.decision][1]}"></span><b style="font-size:17px;flex:1">${esc(x.nom)}</b></div>
+    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Besoin 1,5 mois</div><div class="v">${eur2(x.besoin)}</div><div class="e" style="color:var(--doux);font-weight:400">${x.nRef} réf. · ${ent(x.unites)} unités</div></div>
+     <div class="kpi"><div class="l">Déjà en attente</div><div class="v">${x.attente?eur2(x.attente):'—'}</div><div class="e" style="color:var(--doux);font-weight:400">${esc(x.attenteDetail||'aucune commande directe')}</div></div>
+     <div class="kpi"><div class="l">Ruptures (vendues ≥ 1/mois)</div><div class="v ${x.nRupt?'neg':''}">${x.nRupt}</div><div class="e" style="color:var(--doux);font-weight:400">${eur2(x.margePerdue)} de marge / mois</div></div>
+     <div class="kpi"><div class="l">Ventes / mois (rotation)</div><div class="v">${ent(x.rotTotale)}</div><div class="e" style="color:var(--doux);font-weight:400">stock des réf. vendues : ${eur(x.stockValeur)} au PAN</div></div></div>
+    <div class="carte al ${x.decision==='commander'?'v':x.decision==='bloque'?'o':'b'}" style="margin:10px 0 0"><b class="t">${esc(DEC[x.decision][0])}</b><div class="sub w">${x.decision==='bloque'?'La commande en attente dépasse le besoin à 1,5 mois'+(x.attente>x.besoin?' de '+eur2(x.attente-x.besoin):'')+'. Le problème est le paiement ou la réception : payer et réceptionner, ou ramener la commande au besoin.':x.decision==='commander'?'Aucune commande en attente. Conditions directes à confirmer avec le laboratoire ; vérifier d\'abord que les commandes CERP des 13–15/10 ne contiennent pas déjà ces références.':x.decision==='completer'?'Clôturer d\'abord l\'ancienne commande jamais reçue, puis passer ce complément.':'Stock global élevé : seulement les ruptures si besoin.'}</div></div></div>
+   <div class="carte"><input id="qs" placeholder="Rechercher un produit ou un CIP" value="${esc(recherche)}"><div class="tw" style="margin-top:8px"><table class="t"><tr><th>Produit</th><th class="n">Stock</th><th class="n">Rot./mois</th><th class="n">Qté</th><th class="n">PAN</th><th class="n">Montant</th></tr>
+    ${x.lignes.filter(l=>!recherche||(l[0]+' '+l[1]).toLowerCase().includes(recherche.toLowerCase())).map(l=>`<tr><td>${l[7]?'<span class="pt" style="background:var(--rouge)" title="rupture"></span>':''}${esc(l[1])}<div class="sub">${esc(l[0])}</div></td><td class="n ${l[2]<=0?'neg':''}">${String(l[2]).replace('.',',')}</td><td class="n">${String(l[3]).replace('.',',')}</td><td class="n"><b>${l[4]}</b></td><td class="n">${eur2(l[5])}</td><td class="n">${eur2(l[6])}</td></tr>`).join('')}
+    <tr class="tot"><td>Total</td><td></td><td></td><td class="n">${ent(x.unites)}</td><td></td><td class="n">${eur2(x.besoin)}</td></tr></table></div>
+    <div class="sub w" style="margin-top:6px">Quantité = 1,5 × rotation mensuelle − stock (références vendues au moins 1 fois par mois), arrondie au minimum de commande, au PAN du catalogue Vindilis du 15/10. Le stock est faux pour les livraisons non réceptionnées. Rouge = rupture.</div></div>`;
+  $('#m').innerHTML=nav+`<div class="split"><div class="gauche">${liste}</div><div id="det">${det}</div></div>`;
+  bind();
+  document.querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{labStk=e.dataset.l;recherche='';stock();if(innerWidth<1024){const d=$('#det');if(d)d.scrollIntoView({behavior:'smooth'})}});
+  const q=$('#qs');if(q)q.oninput=()=>{recherche=q.value;stock();const n=$('#qs');n.focus();n.setSelectionRange(n.value.length,n.value.length)};}
+
+/* ---------- ÉCRANS & ÉVÉNEMENTS ---------- */
+let sousEve='agd';
+const MANQUANTS=[['Ligue 72 — Octobre Rose','2026-10-19','Place centrale 13 h 30–16 h 30, atelier 16 h 30–17 h 30'],['Campagne de vaccination grippe','2026-10-13','Écran extérieur : un seul message à la fois'],['Calendrier de l\'Avent','2026-10-10','Lancé le 10/10']];
+function evenements(){const nav=sousNav('se',[['agd','Événements'],['ecr','Écrans'],['ray','Rayon']],sousEve);
+  if(sousEve==='agd')agendaListe();else if(sousEve==='ecr')ecrans();else rayon();
+  $('#ht').textContent='Écrans & événements';
+  const noms=(D.calendrier||[]).map(e=>sansAcc(e['Événement']));
+  const man=MANQUANTS.filter(m=>!noms.some(n=>n.includes(sansAcc(m[0]).split(' ')[0])));
+  const extra=sousEve==='agd'&&man.length?`<div class="carte al o"><b class="t">Manquent au calendrier</b>${man.map(m=>`<div class="ligne"><span>${esc(m[0])}<br><small style="color:var(--doux)">${esc(m[2])}</small></span><b>${dfr(m[1])}</b></div>`).join('')}<div class="sub w">Bouton + pour les ajouter.</div></div>`:
+    sousEve==='ecr'?`<div class="carte al b"><b class="t">Parc réel : 13 écrans MagicInfo + 4 Cenareo</b><div class="sub w">Les fiches ci-dessous sont à compléter avec le contenu réellement diffusé (mis en place le 12/10). Règle : ne jamais diffuser un produit en rupture.</div></div>`:'';
+  $('#m').insertAdjacentHTML('afterbegin',nav+extra);
+  document.querySelectorAll('#se button').forEach(b=>b.onclick=()=>{sousEve=b.dataset.k;evenements();scrollTo(0,0)});}
+
+/* ---------- Commandes (relevé du serveur) ---------- */
 function commandes(){
   $('#ht').textContent='Commandes — état du stock';
   const l=(D.commandes||[]).slice().sort((a,b)=>(num(b['Marge en rupture €/mois'])||0)-(num(a['Marge en rupture €/mois'])||0));
@@ -480,7 +696,8 @@ function commandes(){
 }
 
 /* ---------- Agenda commercial ---------- */
-function agenda(){
+function agenda(){sousEve='agd';evenements()}
+function agendaListe(){
   $('#ht').textContent='Événements de la pharmacie';
   const ordre={'En cours':0,'À préparer':1,'À venir':2,'Passé':3};
   const all=(D.calendrier||[]).slice().sort((a,b)=>(ordre[a['Statut']]??2)-(ordre[b['Statut']]??2)||String(a['Début']).localeCompare(String(b['Début'])));
@@ -553,7 +770,7 @@ function blocRef(){const r=D.rhRef;if(!r||!r[1]||num(r[1][1])===null||num(r[1][2
     ${num(h[1])!==null?`<div class="ligne"><span>Heures payées / mois</span><b>${ent(h[2])} <span style="color:var(--doux);font-weight:400">vs ${ent(h[1])}</span></b></div>`:''}
     ${num(ec[1])!==null?`<div class="ligne"><span>Économie cumulée</span><b class="${ec[1]>0?'pos':'neg'}">${eur(ec[1])}</b></div>`:''}${grapheMasse()}</div>`;}
 function mois(){
-  $('#ht').textContent='Performance mensuelle';
+  $('#ht').textContent='Mois & équipe';
   const rh=D.perf.filter(p=>num(p['Masse salariale chargée N'])!==null).slice(-1)[0];
   const carteRh=rh?`<div class="carte"><div class="ligne"><span><b>Équipe — ${moisFr(rh['Mois'])}</b></span><span></span></div>
     <div class="ligne"><span>Masse salariale chargée</span><b>${eur(rh['Masse salariale chargée N'])}${num(rh['Masse salariale chargée N-1'])!==null?' <span style="color:var(--doux);font-weight:400">vs '+eur(rh['Masse salariale chargée N-1'])+'</span>':''}</b></div>
@@ -654,11 +871,11 @@ function formulaire(sheet,x){
 /* ---------- Démarrage ---------- */
 $('#bRef').onclick=()=>charger();
 try{const c=ls.get('pil_cache'); if(c)D=JSON.parse(c)}catch(e){}
-rendre(); charger(!!D);
+rendre(); charger(!!D); chargerAudit();
 // Ouverture directe d'une fiche depuis la vue 3D : index.html?ouvrir=SURFACE_VENTE&cle=TG01
 (function(){try{const q=new URLSearchParams(location.search),sh=q.get('ouvrir'),k=q.get('cle');if(!D||!sh||!k)return;
   const l=sh==='SURFACE_VENTE'?D.surface:sh==='ECRANS'?D.ecrans:null;if(!l)return;
-  const x=l.find(r=>String(r[CLES[sh]])===k);vue=sh==='SURFACE_VENTE'?'ray':'ecr';navig();formulaire(sh,x||Object.fromEntries([[CLES[sh],k]]));
+  const x=l.find(r=>String(r[CLES[sh]])===k);vue='eve';sousEve=sh==='SURFACE_VENTE'?'ray':'ecr';navig();formulaire(sh,x||Object.fromEntries([[CLES[sh],k]]));
   history.replaceState(null,'','index.html');}catch(e){}})();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
