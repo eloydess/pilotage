@@ -111,7 +111,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='2.7';
+const APP_V='2.8';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans','Écrans'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -513,7 +513,7 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);
   const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
   const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};const i=ms.indexOf(moisSel);
   const nA=A?A.actions.filter(a=>!actFaite(a.id)).length:null;
-  const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur 10','act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
+  const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur '+(A?A.actions.length:'—'),'act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
   const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
   $('#m').innerHTML=`${alertes()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
    <div class="titre">Mois en cours</div>${carteEnCours()}${carteMarche()}
@@ -554,22 +554,34 @@ function avantApres(){const L=A.avantApres,n=k=>L.filter(x=>x.verdict===k).lengt
 
 /* ---------- ACTIONS ---------- */
 let sousAct='dix';
+let filtreTh='Tous',filtreSt='À faire';
 function actions(){fab(null);
   const navA=()=>{document.querySelectorAll('#sa button').forEach(b=>b.onclick=()=>{sousAct=b.dataset.k;if(sousAct==='cls')filtre='Classement';if(sousAct==='rec')filtre='Ouvertes';actions();scrollTo(0,0)})};
-  if(sousAct==='av'&&A){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+avantApres();navA();
+  if(sousAct==='av'&&A){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+avantApres();navA();
     document.querySelectorAll('#fav button').forEach(b=>b.onclick=()=>{filtreAv=b.dataset.f;const y=scrollY;actions();scrollTo(0,y)});return}
   if(sousAct!=='dix'&&sousAct!=='av'){sousAct=filtre==='Classement'?'cls':'rec';actionsServeur();
-    $('#ht').textContent='Actions';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct));
+    $('#ht').textContent='Actions';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct));
     navA();return}
   $('#ht').textContent='Actions';
-  if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto']],sousAct)+pasAudit();navA();return}
-  const L=A.actions.slice().sort((a,b)=>actFaite(a.id)-actFaite(b.id)||String(a.quand).localeCompare(String(b.quand)));
-  const nF=A.actions.filter(a=>actFaite(a.id)).length;
-  $('#m').innerHTML=sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+
-   `<div class="carte"><b>${nF} sur ${A.actions.length} faites</b><div class="barre"><i style="width:${nF*10}%"></i></div><div class="sub w">Dix actions au maximum, chacune avec un responsable, une échéance et ce qu'elle rapporte. Cochez quand c'est fait : c'est enregistré sur le serveur et visible sur le téléphone comme sur l'ordinateur.</div></div>
-   ${L.map(a=>{const f=actFaite(a.id),j=jours(a.quand);return `<div class="carte demi ${f?'fait':''}"><div class="chk"><input type="checkbox" data-id="${a.id}" ${f?'checked':''} aria-label="Fait"><div class="grow"><b>${esc(a.titre)}</b>
+  if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto']],sousAct)+pasAudit();navA();return}
+  const TH=[...new Set(A.actions.map(a=>a.theme||'Autres'))];
+  const L=A.actions.filter(a=>(filtreTh==='Tous'||a.theme===filtreTh)&&(filtreSt==='Toutes'||(filtreSt==='À faire'?!actFaite(a.id):actFaite(a.id)))).sort((a,b)=>actFaite(a.id)-actFaite(b.id)||String(a.quand).localeCompare(String(b.quand)));
+  const nF=A.actions.filter(a=>actFaite(a.id)).length,nR=A.actions.filter(a=>!actFaite(a.id)&&jours(a.quand)!==null&&jours(a.quand)>0).length,pct=Math.round(nF/A.actions.length*100);
+  const carteA=a=>{const f=actFaite(a.id),j=jours(a.quand);return `<div class="carte demi ${f?'fait':''}"><div class="chk"><input type="checkbox" data-id="${a.id}" ${f?'checked':''} aria-label="Fait"><div class="grow"><b>${esc(a.titre)}</b>
     <div class="sub w" style="margin-top:4px">👤 ${esc(a.qui)} · 📅 ${dfr(a.quand)} ${f?'':`<span class="${j!==null&&j>0?'neg':''}">(${joursAv(a.quand)})</span>`}</div>
-    <div class="sub w">🎯 ${esc(a.enjeu)}</div>${a.detail?`<div class="sub w" style="margin-top:4px">${esc(a.detail)}</div>`:''}</div></div></div>`}).join('')}`;
+    <div class="sub w">🎯 ${esc(a.enjeu)}</div>
+    ${a.etapes&&a.etapes.length?`<details style="margin-top:6px" ${f?'':'open'}><summary class="sub" style="cursor:pointer"><b>Comment faire</b> (${a.etapes.length} étapes)</summary><ol style="margin:6px 0 0 18px;padding:0;font-size:14px;line-height:1.45">${a.etapes.map(t=>`<li>${esc(t)}</li>`).join('')}</ol></details>`:(a.detail?`<div class="sub w" style="margin-top:4px">${esc(a.detail)}</div>`:'')}
+    ${a.mesure&&a.mesure!=='—'?`<div class="sub w" style="margin-top:6px">📏 <b>Avant / après :</b> ${esc(a.mesure)}</div>`:''}
+    ${a.go?`<button class="lien" data-go="${a.go}" style="margin-top:6px;background:none;border:0;padding:0;font-size:14px">Ouvrir l'onglet ›</button>`:''}</div></div></div>`};
+  const groupes=filtreTh==='Tous'?TH.map(t=>[t,L.filter(a=>(a.theme||'Autres')===t)]).filter(g=>g[1].length):[[filtreTh,L]];
+  $('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+
+   `<div class="carte"><b>Plan d'action global : ${nF} sur ${A.actions.length} faites</b>${nR?` · <b class="neg">${nR} en retard</b>`:''}<div class="barre"><i style="width:${pct}%"></i></div><div class="sub w">Toutes les actions de tous les onglets, chacune avec un responsable, une échéance, la façon de faire et sa mesure avant / après. Cochez quand c'est fait : c'est enregistré sur le serveur et visible sur le téléphone comme sur l'ordinateur.</div></div>
+   <div class="filtres" id="fst">${['À faire','Faites','Toutes'].map(k=>`<button data-f="${k}" class="${k===filtreSt?'on':''}">${k}</button>`).join('')}</div>
+   <div class="filtres" id="fth">${['Tous',...TH].map(k=>`<button data-f="${esc(k)}" class="${k===filtreTh?'on':''}">${k==='Tous'?'Tous les thèmes':esc(k)+' ('+A.actions.filter(a=>a.theme===k&&!actFaite(a.id)).length+')'}</button>`).join('')}</div>
+   ${groupes.map(([t,l])=>`<div class="titre">${esc(t)} (${l.length})</div>${l.map(carteA).join('')}`).join('')||'<div class="carte sub">Aucune action dans ce filtre.</div>'}`;
+  document.querySelectorAll('#fst button').forEach(b=>b.onclick=()=>{filtreSt=b.dataset.f;actions()});
+  document.querySelectorAll('#fth button').forEach(b=>b.onclick=()=>{filtreTh=b.dataset.f;actions()});
+  document.querySelectorAll('#m [data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;if(g==='act')return;const nb=document.querySelector(`nav button[data-v="${g}"]`);if(nb)nb.click()});
   navA();
   document.querySelectorAll('.chk input').forEach(c=>c.onchange=async()=>{const v=c.checked?'1':'0';ls.set('pil_act_'+c.dataset.id,v);const ok=await majEtat('act_'+c.dataset.id,v);toast(ok?(c.checked?'Action faite — visible sur tous vos appareils':'Action rouverte'):'Non enregistré (réseau) : réessayez');actions()});}
 
