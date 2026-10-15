@@ -23,7 +23,7 @@ header button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius
 main{padding:12px 16px;max-width:760px;margin:auto}
 .fige{position:sticky;top:var(--hh,52px);z-index:4;background:var(--fond);margin:0 -16px;padding:8px 16px 2px;box-shadow:0 6px 8px -8px rgba(0,0,0,.35)}.fige>.carte{margin-top:0}.fige .titre{margin:6px 0 4px}
 .leg{font-size:12px;color:var(--doux);white-space:normal;line-height:1.6}
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(9,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(10,minmax(46px,1fr));overflow-x:auto;padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;color:var(--doux);padding:6px 0 5px;font-size:9.5px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:54px;line-height:1.15;text-align:center}
 nav button span{font-size:19px}
 nav button .lc{display:none}
@@ -111,8 +111,8 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='3.0';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans','Écrans'],['con','🏁','Concurrence','Concur.'],['mois','📈','Mois & équipe','Mois']];
+const APP_V='3.1';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -191,7 +191,7 @@ function navig(){
 function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;const ok={};(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>0)ok[l['Laboratoire']]=1});
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
 function rendre(){navig(); filtrerOps(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
-  ({acc:accueil,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,con:concurrence,mois:mois,cfg:reglages}[vue]||accueil)();}
+  ({acc:accueil,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
 function carteReco(r,i){
@@ -972,7 +972,7 @@ function mois(){
    <div class="grow"><b style="text-transform:capitalize">${moisFr(p['Mois'])}</b><div class="sub">Marge ${eur(p['Marge € N'])} vs ${eur(p['Marge € N-1'])} · clients ${ent(p['Fréquentation réelle N'])} vs ${ent(p['Fréquentation réelle N-1'])}${num(p['Masse salariale / marge N'])!==null?' · salaires '+pct(p['Masse salariale / marge N'])+' de la marge':''}</div></div>
    <b class="${cls(p['Écart marge €'])}">${pct(p['Écart marge %'],1)}</b></div>`).join('');
   document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire('PERFORMANCE',D.perf[+e.dataset.i]));
-  $('#bRh').onclick=()=>equipe();
+  $('#bRh').onclick=()=>{const nb=document.querySelector('nav button[data-v="col"]');if(nb)nb.click();else equipe()};
   fab(null);
 }
 
@@ -999,15 +999,68 @@ async function equipe(){
   const l=PAIE.filter(r=>isoMois(r['Mois'])===moisRh).sort((a,b)=>(num(b['Coût employeur'])||0)-(num(a['Coût employeur'])||0));
   const t=k=>l.reduce((s,r)=>s+(num(r[k])||0),0);
   const L=(a,b)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>`;
-  $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Performance</button>
+  $('#m').innerHTML=`<button class="btn sec" id="ret" style="margin:0 0 10px">← Collaborateurs</button>
    <select id="selM">${lm.map(m=>`<option value="${esc(m)}" ${m===moisRh?'selected':''}>${moisFr(m)}</option>`).join('')}</select>
    <div class="carte" style="margin-top:10px">${L('Collaborateurs',l.length)}${L('Heures payées',ent(t('Heures payées')))}${L('Salaires bruts',eur(t('Salaire brut')))}${L('Coût employeur total',eur(t('Coût employeur')))}${L('Coût horaire moyen',t('Heures payées')?eur2(t('Coût employeur')/t('Heures payées')):'—')}</div>
    ${l.map(r=>{const q=resp(r['Collaborateur']);return `<div class="carte"><b>${esc(r['Collaborateur'])}</b>${q&&q['Titre']?' — '+esc(q['Titre']):''}<div class="sub" style="font-size:12px;color:var(--doux)">${esc([r['Fonction'],r['Contrat']].filter(Boolean).join(' · '))}</div>${q&&q['Responsabilités']?`<div class="sub" style="font-size:12px;white-space:normal;margin-top:4px">🎯 ${esc(q['Responsabilités'])}</div>`:''}
      ${L('Heures payées',ent(r['Heures payées']))}${L('Salaire brut',eur2(r['Salaire brut']))}${L('Coût employeur',eur2(r['Coût employeur']))}${L('Coût horaire',eur2(r['Coût horaire']))}</div>`}).join('')||'<p class="vide">Aucun bulletin pour ce mois.</p>'}
    <button class="btn sec" id="lock">🔒 Verrouiller</button>`;
-  $('#ret').onclick=mois; $('#selM').onchange=e=>{moisRh=e.target.value;equipe()};
+  $('#ret').onclick=collaborateurs; $('#selM').onchange=e=>{moisRh=e.target.value;equipe()};
   $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;mois();toast('Détail RH verrouillé')};
 }
+/* ---------- Collaborateurs : coût, masse salariale / marge, ventes par vendeur (code RH) ---------- */
+let sousCol='cout';
+function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
+  const nav=sousNav('scl',[['cout','Coût par collaborateur'],['masse','Masse salariale / marge'],['ventes','Ventes par collaborateur']],sousCol);
+  const bind=()=>document.querySelectorAll('#scl button').forEach(b=>b.onclick=()=>{sousCol=b.dataset.k;collaborateurs();scrollTo(0,0)});
+  const code2=ss.get('pil_code2');
+  if(!code2||!PAIE){
+    $('#m').innerHTML=nav+`<div class="carte"><p>Les salaires et les ventes par collaborateur sont protégés par le <b>code RH</b> (différent du code de l'application). Rien n'est gardé sur l'appareil après fermeture.</p><label>Code RH</label><input id="c2" type="password" autocomplete="off"><button class="btn" id="okRh">Déverrouiller</button></div>`;bind();
+    $('#okRh').onclick=async()=>{const v=$('#c2').value.trim();if(!v)return;if(await chargerPaie(v)){ss.set('pil_code2',v);collaborateurs()}};
+    if(code2&&!PAIE)chargerPaie(code2).then(ok=>{if(ok)collaborateurs()});return}
+  const yr=m=>String(isoMois(m)||'').slice(0,4);
+  const P=PAIE.map(r=>({m:isoMois(r['Mois']),c:r['Collaborateur'],f:r['Fonction'],ct:r['Contrat'],h:num(r['Heures payées'])||0,b:num(r['Salaire brut'])||0,k:num(r['Coût employeur'])||0})).filter(r=>r.m&&r.c);
+  const ans=[...new Set(P.map(r=>r.m.slice(0,4)))].sort();
+  let h='';
+  if(sousCol==='cout'){
+    const noms=[...new Set(P.map(r=>r.c))];const S=(n,a,k)=>P.filter(r=>r.c===n&&r.m.startsWith(a)).reduce((s,r)=>s+r[k],0);
+    const der=ans[ans.length-1];noms.sort((x,y)=>S(y,der,'k')-S(x,der,'k')||S(y,ans[0],'k')-S(x,ans[0],'k'));
+    const nbM=(n,a)=>new Set(P.filter(r=>r.c===n&&r.m.startsWith(a)).map(r=>r.m)).size;
+    const tot=a=>P.filter(r=>r.m.startsWith(a)).reduce((s,r)=>s+r.k,0),moisA=a=>new Set(P.filter(r=>r.m.startsWith(a)).map(r=>r.m)).size;
+    h=`<div class="carte"><b>Coût employeur par collaborateur et par année</b><div class="sub w">Source : bulletins de paie (onglet PAIE). Coût employeur = salaire brut + charges patronales. Année en cours : mois disponibles seulement.</div>
+     <div class="kpis" style="margin-top:8px;grid-template-columns:repeat(${Math.min(ans.length,4)},1fr)">${ans.slice(-4).map(a=>`<div><div class="sub">${a} (${moisA(a)} mois)</div><b>${eur(tot(a))}</b><div class="sub">${eur(tot(a)/(moisA(a)||1))} / mois</div></div>`).join('')}</div></div>
+     <div class="carte"><div class="tw"><table class="t"><tr><th>Collaborateur</th>${ans.map(a=>`<th class="n">${a}</th>`).join('')}<th class="n">Coût horaire ${der}</th></tr>
+     ${noms.map(n=>{const q=resp(n),hD=S(n,der,'h');return `<tr><td><b>${esc(n)}</b><div class="sub">${esc((q&&q['Titre'])||P.filter(r=>r.c===n).slice(-1)[0].f||'')}</div></td>${ans.map(a=>{const v=S(n,a,'k');return `<td class="n">${v?eur(v)+`<div class="sub">${nbM(n,a)} mois</div>`:'—'}</td>`}).join('')}<td class="n">${hD?eur2(S(n,der,'k')/hD):'—'}</td></tr>`}).join('')}
+     <tr><td><b>Total</b></td>${ans.map(a=>`<td class="n"><b>${eur(tot(a))}</b></td>`).join('')}<td></td></tr></table></div></div>
+     <button class="btn sec" id="vMois">Détail mois par mois (bulletins)</button>`;
+  } else if(sousCol==='masse'){
+    const M={};(D.rhSerie||[]).forEach(x=>{const m=isoMois(x[0]);if(m&&num(x[1])!==null)M[m]=+x[1]});
+    const MP={};P.forEach(r=>{MP[r.m]=(MP[r.m]||0)+r.k});Object.keys(MP).forEach(m=>{if(!(m in M))M[m]=MP[m]});
+    const G={};(D.perf||[]).forEach(p=>{const m=isoMois(p['Mois']);if(!m)return;const y=+m.slice(0,4),mo=m.slice(5,7),m1=(y-1)+'-'+mo+'-01';
+      if(num(p['Marge € N'])!==null)G[m]={mg:+p['Marge € N'],ca:num(p['CA HT N'])};if(num(p['Marge € N-1'])!==null&&!G[m1])G[m1]={mg:+p['Marge € N-1'],ca:num(p['CA HT N-1'])}});
+    (A&&A.margeMensuelle||[]).forEach(x=>{if(!G[x.m])G[x.m]={mg:x.mg,ca:x.ca}});
+    const ms=Object.keys(M).sort();const rows=ms.map(m=>({m,ms:M[m],mg:G[m]?G[m].mg:null,ca:G[m]?G[m].ca:null}));
+    const exo=m=>{const y=+m.slice(0,4),mo=+m.slice(5,7);return mo>=4?y+'/'+(y+1):(y-1)+'/'+y};
+    const E={};rows.forEach(r=>{const e=exo(r.m);E[e]=E[e]||{ms:0,mg:0,n:0,nm:0};E[e].ms+=r.ms;E[e].n++;if(r.mg!==null){E[e].mg+=r.mg;E[e].nm++}});
+    h=`<div class="carte"><b>Masse salariale chargée et marge, par exercice (avril → mars)</b><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(${Math.min(Object.keys(E).length,4)},1fr)">${Object.keys(E).sort().slice(-4).map(e=>{const x=E[e];return `<div><div class="sub">Exercice ${e} (${x.n} mois)</div><b>${eur(x.ms)}</b>${x.nm===x.n&&x.mg?`<div class="sub">${pct(x.ms/x.mg)} de la marge</div>`:`<div class="sub">marge : ${x.nm}/${x.n} mois connus</div>`}</div>`}).join('')}</div>
+     <div class="sub w" style="margin-top:6px">Masse salariale : série mensuelle de l'onglet PAIE (bulletins). Exercice 2026/2027 en cours.</div></div>
+     <div class="carte"><div class="tw"><table class="t"><tr><th>Mois</th><th class="n">Masse salariale</th><th class="n">Marge</th><th class="n">Salaires / marge</th><th class="n">CA HT</th><th class="n">Salaires / CA</th></tr>
+     ${rows.slice().reverse().map(r=>`<tr><td style="text-transform:capitalize">${moisFr(r.m)}</td><td class="n">${eur(r.ms)}</td><td class="n">${r.mg!==null?eur(r.mg):'<span class="sub">à charger</span>'}</td><td class="n ${r.mg&&r.ms/r.mg>0.5?'neg':''}">${r.mg?pct(r.ms/r.mg):'—'}</td><td class="n">${r.ca!=null?eur(r.ca):'—'}</td><td class="n">${r.ca?pct(r.ms/r.ca):'—'}</td></tr>`).join('')}</table></div>
+     <div class="sub w" style="margin-top:6px">Marge et CA : onglet PERFORMANCE (mois N et N−1)${A&&A.margeMensuelle?' et historique Vindilis':''}. Les mois « à charger » seront complétés par l'export Vindilis (action A39).</div></div>`;
+  } else {
+    const V=A&&A.vendeurs;
+    if(!V){h=`<div class="carte al o"><b class="t">Ventes par collaborateur : en cours d'extraction</b><div class="sub w">Source : Vindilis › Statistiques › Vendeurs (ventes, CA, marge, panier), avec la séparation ordonnance / sans ordonnance. Voir action A38.</div></div>`}
+    else{const per=V.periodes;h=per.map(pr=>{const L=pr.lignes.slice().sort((a,b)=>b.marge-a.marge);const T=L.reduce((s,x)=>({v:s.v+x.ventes,m:s.m+x.marge}),{v:0,m:0});
+      return `<div class="carte"><b>${esc(pr.libelle)}</b><div class="sub w">${esc(pr.source)}</div><div class="tw"><table class="t"><tr><th>Collaborateur</th><th class="n">Ventes</th><th class="n">Marge</th><th class="n">Marge / vente</th><th class="n">Taux</th>${pr.ordo?'<th class="n">Sans ordonnance (marge)</th><th class="n">Part sans ordo.</th>':''}</tr>
+       ${L.map(x=>`<tr><td><b>${esc(x.nom)}</b></td><td class="n">${ent(x.ventes)}</td><td class="n">${eur(x.marge)}</td><td class="n">${x.ventes?eur2(x.marge/x.ventes):'—'}</td><td class="n">${x.ca?pct(x.marge/x.ca):'—'}</td>${pr.ordo?`<td class="n">${x.margeLibre!=null?eur(x.margeLibre):'—'}</td><td class="n">${x.margeLibre!=null&&x.marge?pct(x.margeLibre/x.marge):'—'}</td>`:''}</tr>`).join('')}
+       <tr><td><b>Total</b></td><td class="n"><b>${ent(T.v)}</b></td><td class="n"><b>${eur(T.m)}</b></td><td class="n">${T.v?eur2(T.m/T.v):'—'}</td><td></td>${pr.ordo?'<td></td><td></td>':''}</tr></table></div></div>`}).join('')+
+       `<div class="carte al"><b class="t">Bien lire ces chiffres</b><div class="sub w">La marge d'une ordonnance dépend du médecin, pas du vendeur : on juge un collaborateur surtout sur le <b>sans ordonnance</b> (conseil, parapharmacie, panier) et sur la marge par vente. Les postes (caisse rapide, ordonnances, réception) ne sont pas comparables entre eux : comparer des personnes au même poste.</div></div>`}
+  }
+  $('#m').innerHTML=nav+h+`<button class="btn sec" id="lock" style="margin-top:6px">🔒 Verrouiller</button>`;bind();
+  const vm=document.getElementById('vMois');if(vm)vm.onclick=()=>equipe();
+  $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;collaborateurs();toast('Détail RH verrouillé')};
+}
+
 async function chargerPaie(code2){
   const c=cfg();
   try{const r=await fetch(c.url+'?code='+encodeURIComponent(c.code)+'&action=rh&code2='+encodeURIComponent(code2)+'&t='+Date.now());const j=await r.json();
