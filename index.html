@@ -111,7 +111,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='3.1';
+const APP_V='3.2';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1050,10 +1050,13 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
   } else {
     const V=A&&A.vendeurs;
     if(!V){h=`<div class="carte al o"><b class="t">Ventes par collaborateur : en cours d'extraction</b><div class="sub w">Source : Vindilis › Statistiques › Vendeurs (ventes, CA, marge, panier), avec la séparation ordonnance / sans ordonnance. Voir action A38.</div></div>`}
-    else{const per=V.periodes;h=per.map(pr=>{const L=pr.lignes.slice().sort((a,b)=>b.marge-a.marge);const T=L.reduce((s,x)=>({v:s.v+x.ventes,m:s.m+x.marge}),{v:0,m:0});
-      return `<div class="carte"><b>${esc(pr.libelle)}</b><div class="sub w">${esc(pr.source)}</div><div class="tw"><table class="t"><tr><th>Collaborateur</th><th class="n">Ventes</th><th class="n">Marge</th><th class="n">Marge / vente</th><th class="n">Taux</th>${pr.ordo?'<th class="n">Sans ordonnance (marge)</th><th class="n">Part sans ordo.</th>':''}</tr>
-       ${L.map(x=>`<tr><td><b>${esc(x.nom)}</b></td><td class="n">${ent(x.ventes)}</td><td class="n">${eur(x.marge)}</td><td class="n">${x.ventes?eur2(x.marge/x.ventes):'—'}</td><td class="n">${x.ca?pct(x.marge/x.ca):'—'}</td>${pr.ordo?`<td class="n">${x.margeLibre!=null?eur(x.margeLibre):'—'}</td><td class="n">${x.margeLibre!=null&&x.marge?pct(x.margeLibre/x.marge):'—'}</td>`:''}</tr>`).join('')}
-       <tr><td><b>Total</b></td><td class="n"><b>${ent(T.v)}</b></td><td class="n"><b>${eur(T.m)}</b></td><td class="n">${T.v?eur2(T.m/T.v):'—'}</td><td></td>${pr.ordo?'<td></td><td></td>':''}</tr></table></div></div>`}).join('')+
+    else{const per=V.periodes;h=per.map(pr=>{
+      const cost=n=>{const tk=sansAcc(n).split(/\s+/);const nm=[...new Set(P.map(r=>r.c))].find(c=>tk.includes(sansAcc(c)));if(!nm)return null;const L=P.filter(r=>r.c===nm&&r.m>=pr.du.slice(0,7)+'-01'&&r.m<=pr.au);return L.length?{k:L.reduce((s,r)=>s+r.k,0),h:L.reduce((s,r)=>s+r.h,0),nm}:null};
+      const L=pr.lignes.map(x=>({...x,c:cost(x.nom)})).sort((a,b)=>b.margeLibre-a.margeLibre);
+      return `<div class="carte"><b>${esc(pr.libelle)}</b><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(3,1fr)"><div><div class="sub">Ventes</div><b>${ent(pr.total.ventes)}</b></div><div><div class="sub">Marge totale</div><b>${eur(pr.total.marge)}</b></div><div><div class="sub">dont sans ordonnance</div><b>${eur(pr.total.margeLibre)}</b> <span class="sub">(${pct(pr.total.margeLibre/pr.total.marge)})</span></div></div><div class="sub w" style="margin-top:6px">${esc(pr.source)}</div></div>
+       <div class="carte"><b>Classement sur la marge sans ordonnance (conseil, parapharmacie)</b><div class="tw"><table class="t"><tr><th>Collaborateur</th><th class="n">Ventes</th><th class="n">Marge totale</th><th class="n">Marge sans ordo.</th><th class="n">Part sans ordo.</th><th class="n">Marge / vente sans ordo.</th><th class="n">Coût employeur</th><th class="n">Marge sans ordo. / heure payée</th></tr>
+       ${L.map(x=>`<tr><td><b>${esc(x.nom)}</b></td><td class="n">${ent(x.ventes)}</td><td class="n">${eur(x.marge)}</td><td class="n"><b>${eur(x.margeLibre)}</b></td><td class="n">${x.marge?pct(x.margeLibre/x.marge):'—'}</td><td class="n">${x.ventesLibre?eur2(x.margeLibre/x.ventesLibre):'—'}</td><td class="n">${x.c?eur(x.c.k):'<span class="sub">—</span>'}</td><td class="n">${x.c&&x.c.h?eur2(x.margeLibre/x.c.h):'—'}</td></tr>`).join('')}</table></div>
+       <div class="sub w" style="margin-top:6px">Coût employeur et heures : bulletins de paie de la même période (rapprochement par le prénom). « — » : pas de bulletin trouvé (titulaire, intérimaire, stagiaire, ou prénom différent).</div></div>`}).join('')+
        `<div class="carte al"><b class="t">Bien lire ces chiffres</b><div class="sub w">La marge d'une ordonnance dépend du médecin, pas du vendeur : on juge un collaborateur surtout sur le <b>sans ordonnance</b> (conseil, parapharmacie, panier) et sur la marge par vente. Les postes (caisse rapide, ordonnances, réception) ne sont pas comparables entre eux : comparer des personnes au même poste.</div></div>`}
   }
   $('#m').innerHTML=nav+h+`<button class="btn sec" id="lock" style="margin-top:6px">🔒 Verrouiller</button>`;bind();
