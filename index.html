@@ -111,8 +111,8 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='3.2';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','📈','Mois & équipe','Mois']];
+const APP_V='3.3';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -857,7 +857,20 @@ async function evenements(){const nav=sousNav('se',[['mes','Mesures'],['agd','Ag
   const man=MANQUANTS.filter(m=>!noms.some(n=>n.includes(sansAcc(m[0]).split(' ')[0])));
   const extra=man.length?`<div class="carte al o"><b class="t">Manquent au calendrier</b>${man.map(m=>`<div class="ligne"><span>${esc(m[0])}<br><small style="color:var(--doux)">${esc(m[2])}</small></span><b>${dfr(m[1])}</b></div>`).join('')}<div class="sub w">Bouton + pour les ajouter.</div></div>`:'';
   $('#m').insertAdjacentHTML('afterbegin',nav+extra);bind()}
-async function ecransMenu(){const nav=sousNav('sc',[['ecr','Écrans'],['plan','Plan du magasin'],['ray','Emplacements rayon']],sousEcr);$('#ht').textContent='Écrans';
+function vueReseaux(){const R=A&&A.reseaux;if(!R)return pasAudit();const I=R.instagram,mx=Math.max(...I.parMois.map(x=>x[1]),1);
+  const reels=I.posts.filter(p=>p.vues).slice().sort((a,b)=>b.vues-a.vues);const vC=v=>v>=I.vuesMediane*1.3?'pos':v<I.vuesMediane*0.6?'neg':'';
+  const act=id=>{const x=A.actions.find(y=>y.id===id);return x?`<div style="margin-top:4px;font-size:14px">→ <b>${x.id}</b> : ${esc(x.titre)} ${actFaite(x.id)?'<b class="pos">✓</b>':''}</div>`:''};
+  return `<div class="carte"><b>Instagram — @${esc(I.compte)}</b><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(4,1fr)"><div><div class="sub">Abonnés</div><b>${ent(I.abonnes)}</b></div><div><div class="sub">Publications</div><b>${I.publications}</b></div><div><div class="sub">Vues médianes d'un reel</div><b>${ent(I.vuesMediane)}</b></div><div><div class="sub">Dernière publication</div><b>${dfr(I.dernier)}</b></div></div><div class="sub w" style="margin-top:6px">Relevé du ${esc(R.releve)}. ${esc(I.limite)}</div></div>
+  <div class="carte al o"><b class="t">Le problème n°1 : 7 mois sans rien publier</b><div class="sub w">26 publications en décembre 2025 (calendrier de l'Avent), puis de moins en moins, puis plus rien du 12 mars au 9 octobre 2026. Les vues médianes des reels sont passées d'environ 700 (novembre–décembre) à 390 (janvier–mars) : sans régularité, Instagram montre de moins en moins vos vidéos.</div>
+   <div style="display:flex;align-items:flex-end;gap:4px;height:90px;margin-top:10px">${I.parMois.map(x=>`<div style="flex:1;text-align:center"><div style="background:${x[1]?'var(--vert2)':'var(--rouge)'};height:${Math.max(3,x[1]/mx*70)}px;border-radius:3px 3px 0 0" title="${x[1]} publication(s)"></div><div class="sub" style="font-size:9px">${x[0].slice(5)}/${x[0].slice(2,4)}</div></div>`).join('')}</div>${act('A41')}</div>
+  <div class="carte al v"><b class="t">Ce qui marche</b><div class="sub w">Les reels les plus vus sont des <b>annonces datées</b> (calendrier de l'Avent : 1 457 et 942 vues), une <b>solution à un problème</b> (complexe anti-fatigue : 1 069), une <b>marque connue</b> (Biotherm : 1 012) et les <b>coulisses de l'équipe</b> (879). Les moins vus : routines de marque longues et portraits « coups de cœur » (120 à 460). Le calendrier annoncé la veille du 10/10 : 942 vues et 8 calendriers vendus dès le premier jour par l'animatrice.</div>${act('A42')}${act('A44')}${act('A43')}</div>
+  <div class="carte"><b>Reels classés par vues</b><div class="tw"><table class="t"><tr><th>Date</th><th class="n">Vues</th><th>Sujet</th></tr>${reels.map(p=>`<tr><td>${dfr(p.date)}</td><td class="n ${vC(p.vues)}"><b>${ent(p.vues)}</b></td><td><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.texte.slice(0,80))}</a></td></tr>`).join('')}</table></div></div>
+  <div class="carte"><b>Profil</b>${act('A45')}${act('A47')}</div>
+  <div class="carte al"><b class="t">Ce que l'Ordre permet et interdit</b><div class="sub w">${esc(R.regles.source)}</div><div style="margin-top:6px;font-size:14px"><b class="pos">Permis</b><br>${R.regles.ok.map(t=>'• '+esc(t)).join('<br>')}</div><div style="margin-top:6px;font-size:14px"><b class="neg">Interdit</b><br>${R.regles.non.map(t=>'• '+esc(t)).join('<br>')}</div>${act('A46')}<div class="sub w" style="margin-top:6px">${R.sources.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`).join(' · ')}</div></div>
+  <div class="carte"><b>TikTok</b>${R.tiktok?'':`<div class="sub w">Pas encore analysé : le compte n'est pas connecté dans Chrome.</div>${act('A23')}`}</div>`}
+
+async function ecransMenu(){const nav=sousNav('sc',[['ecr','Écrans'],['res','Réseaux sociaux'],['plan','Plan du magasin'],['ray','Emplacements rayon']],sousEcr);$('#ht').textContent='Écrans & réseaux';
+  if(sousEcr==='res'){fab(null);$('#m').innerHTML=nav+vueReseaux();document.querySelectorAll('#sc button').forEach(b=>b.onclick=()=>{sousEcr=b.dataset.k;ecransMenu();scrollTo(0,0)});return}
   const bind=()=>document.querySelectorAll('#sc button').forEach(b=>b.onclick=()=>{sousEcr=b.dataset.k;ecransMenu();scrollTo(0,0)});
   if(sousEcr==='plan'){await vuePlan(nav,ecransMenu);bind();return}
   if(sousEcr==='ray')rayon();else ecrans();$('#ht').textContent='Écrans';
