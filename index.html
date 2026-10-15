@@ -79,6 +79,23 @@ table.t tr.tot td{font-weight:700;border-top:2px solid var(--ligne)}
 .split>*{min-width:0}
 .planbox{overflow-x:auto;margin-bottom:10px;border:1px solid var(--ligne);border-radius:12px}.splitplan>*{min-width:0}
 .lien{color:var(--vert2);font-weight:600;cursor:pointer;text-decoration:underline}
+.donut{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:6px}.donut svg{flex:none}
+.leg2{display:flex;flex-direction:column;gap:4px;font-size:13px;min-width:0}.leg2.lig{flex-direction:row;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--doux)}
+.clic{cursor:pointer}.leg2 .clic:hover,.bh.clic:hover .bhl{color:var(--vert2);text-decoration:underline}
+.bhs{margin-top:8px;display:flex;flex-direction:column;gap:6px}.bh{display:grid;grid-template-columns:minmax(90px,36%) 1fr minmax(38px,auto);gap:8px;align-items:center;font-size:12.5px}
+.bhl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bhb{display:flex;height:16px;border-radius:4px;background:var(--fond);overflow:hidden}.bhb i{display:block;height:100%}.bhv{text-align:right;font-variant-numeric:tabular-nums;color:var(--doux)}
+.tdb{display:grid;grid-template-columns:1fr;gap:0;align-items:stretch}
+.suivi{margin-top:8px;border-top:1px dashed var(--ligne);padding-top:6px}.suivi summary{cursor:pointer;font-size:13px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.mini{border:1px solid var(--vert2);background:none;color:var(--vert2);border-radius:14px;padding:4px 10px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.blocact{border-left:5px solid var(--vert2)}.blocact>summary{cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;list-style:none}.blocact>summary::-webkit-details-marker{display:none}
+.blocact>summary::after{content:"▾";margin-left:auto;color:var(--doux)}.blocact[open]>summary::after{content:"▴"}
+.ba-t{font-weight:700}.ba-c{font-size:12.5px;color:var(--doux)}.ba-b{flex-basis:100%;height:6px;border-radius:3px;background:var(--ligne);overflow:hidden}.ba-b i{display:block;height:100%;background:var(--vert2)}
+.ba-l{display:flex;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--ligne);font-size:13.5px;cursor:pointer}.ba-l:hover{background:var(--fond)}.ba-l .grow{flex:1;min-width:0}
+.sig{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:7px 9px;margin:8px 0 2px;border-radius:8px;background:var(--ocl);font-size:13px}
+.ba-btn{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.semaine{display:grid;grid-template-columns:1fr;gap:0;align-items:start}
+.flash{animation:fl 1.6s ease-out}@keyframes fl{0%{box-shadow:0 0 0 4px var(--vert2)}100%{box-shadow:0 0 0 0 transparent}}
 /* --- Version ordinateur (même adresse, mêmes données) --- */
 @media (min-width:1024px){
 body{padding:0 0 30px 236px}
@@ -100,6 +117,8 @@ main>.item,main>.reco,main>.op,main>.demi{grid-column:auto}
 .split>.gauche{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow:auto}
 .fab{bottom:28px;right:28px}
 #toast{bottom:40px}
+.tdb{grid-template-columns:1fr 1fr;gap:0 16px}.semaine{grid-template-columns:minmax(300px,1fr) 2fr;gap:0 16px}
+.chart2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 }
 nav button em{font-style:normal}
 </style>
@@ -111,7 +130,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='3.4';
+const APP_V='3.5';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -220,7 +239,7 @@ function grapheCA(ms,sel){const P=(D.perf||[]).map(p=>({m:isoMois(p['Mois']),n:n
   const line=(k,c,dash)=>`<polyline points="${P.map((p,i)=>p[k]===null?'':X(i).toFixed(1)+','+Y(p[k]).toFixed(1)).filter(Boolean).join(' ')}" fill="none" stroke="${c}" stroke-width="2" ${dash?'stroke-dasharray="4 4"':''}/>`;
   const ticks=[0,0.5,1].map(t=>mn+(mx-mn)*t);const k=v=>Math.round(v/1000)+' k';
   const si=P.findIndex(p=>p.m===sel);
-  return `<div class="carte"><b>Chiffre d'affaires HT — N vs N-1</b><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px" role="img" aria-label="CA HT N vs N-1">
+  return `<div class="carte"><b>Chiffre d'affaires HT — N vs N-1</b><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:340px;margin-top:6px" role="img" aria-label="CA HT N vs N-1">
    ${ticks.map(v=>`<line x1="${g}" x2="${W-d}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eceff1"/><text x="${g-4}" y="${Y(v)+3}" font-size="9" text-anchor="end" fill="#78909c">${k(v)}</text>`).join('')}
    ${si>=0?`<line x1="${X(si)}" x2="${X(si)}" y1="${ht}" y2="${H-hb}" stroke="#ffb300" stroke-width="6" opacity=".25"/>`:''}
    ${line('n1','#90a4ae',1)}${line('n','#1b5e20')}
@@ -261,7 +280,7 @@ function carteExercice(){
   const fin='au '+String(new Date(dy,dm,0).getDate()).padStart(2,'0')+'/'+String(dm).padStart(2,'0')+'/'+dy;
   return `<div class="carte"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="flex:1">Exercice comptable ${lib(ex)} vs ${lib(ex-1)} (1er avril → 31 mars)</b>
    <div class="filtres" id="exMode" style="margin:0">${[['cumul','Cumulé'],['mois','Par mois']].map(o=>`<button data-m="${o[0]}" class="${o[0]===modeEx?'on':''}">${o[1]}</button>`).join('')}</div></div>
-   <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px" role="img" aria-label="CA HT par exercice comptable">
+   <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:340px;margin-top:6px" role="img" aria-label="CA HT par exercice comptable">
    ${[0,0.5,1].map(t=>mx/1.08*t).map(v=>`<line x1="${gx}" x2="${W-d}" y1="${Yp(v)}" y2="${Yp(v)}" stroke="#eceff1"/><text x="${gx-4}" y="${Yp(v)+3}" font-size="9" text-anchor="end" fill="#78909c">${k(v)}</text>`).join('')}
    ${line(sB,'#90a4ae',1)}${line(sA,'#1b5e20')}
    ${MCC.map((m,i)=>`<text x="${X(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="#78909c">${m}</text>`).join('')}</svg>
@@ -359,7 +378,7 @@ function carteAnnees(nom){
   const arrete=cur&&cur['Arrêté au']?dfr(cur['Arrêté au']):(last>=0?MOIS_C[last]+' '+Y:'—');
   return `<div class="carte"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="flex:1">Ventes ${Y-1} / ${Y} (sell-out HT)</b>
    <div class="filtres" id="anMode" style="margin:0">${[['cumul','Cumulé'],['mois','Par mois']].map(o=>`<button data-m="${o[0]}" class="${o[0]===modeAn?'on':''}">${o[1]}</button>`).join('')}</div></div>
-   <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px" role="img" aria-label="Ventes ${Y-1} et ${Y} par mois">
+   <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:340px;margin-top:6px" role="img" aria-label="Ventes ${Y-1} et ${Y} par mois">
    ${ticks.map(v=>`<line x1="${g}" x2="${W-d}" y1="${Yp(v)}" y2="${Yp(v)}" stroke="#eceff1"/><text x="${g-4}" y="${Yp(v)+3}" font-size="9" text-anchor="end" fill="#78909c">${k(v)}</text>`).join('')}
    ${line(sB,'#90a4ae',1)}${line(sA,'#1b5e20')}
    ${MOIS_C.map((m,i)=>`<text x="${X(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="#78909c">${m}</text>`).join('')}</svg>
@@ -473,12 +492,135 @@ async function chargerEtat(){const c=cfg();if(!c.code)return;try{const r=await f
   ETAT=j.etat||{};
   // reprise des cases cochées sur cet appareil avant la synchronisation
   if(A)for(const a of A.actions){const k='act_'+a.id;if(ls.get('pil_act_'+a.id)==='1'&&!(k in ETAT)){ETAT[k]='1';poster({action:'etat_set',cle:k,valeur:'1'})}}
-  ls.set('pil_etat',JSON.stringify(ETAT));if(D&&(vue==='act'||vue==='acc'))rendre()}catch(e){}}
+  ls.set('pil_etat',JSON.stringify(ETAT));if(D&&(vue==='act'||vue==='acc'))rendre();else{const b=document.getElementById('blocAct');if(b){const o=b.open;b.remove();injecterBloc();const n=document.getElementById('blocAct');if(n)n.open=o}}}catch(e){}}
 async function majEtat(k,v){const av=ETAT[k];ETAT[k]=v;ls.set('pil_etat',JSON.stringify(ETAT));
   if(!(await poster({action:'etat_set',cle:k,valeur:v}))){if(av===undefined)delete ETAT[k];else ETAT[k]=av;ls.set('pil_etat',JSON.stringify(ETAT));return false}return true}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chargerEtat()});
 const actFaite=id=>ETAT['act_'+id]==='1';
 const joursAv=d=>{const j=jours(d);return j===null?'':j>0?'en retard de '+j+' j':j===0?'aujourd\'hui':'dans '+(-j)+' j'};
+
+/* ---------- SUIVI DES ACTIONS : statut, mise en place, mesure avant / après, verdict (partagé via ETAT) ---------- */
+const NOM_ONG=Object.fromEntries(ONGLETS.map(o=>[o[0],o[2]]));
+const THEMES_DEF=['Stock & commandes','Prix & promotions','Événements & écrans','Merchandising','Concurrence & clients','Équipe','Réseaux sociaux','Application'];
+const actPerso=()=>{try{return JSON.parse(ETAT.actx||'[]')}catch(e){return []}};
+const toutes=()=>(A?A.actions:[]).concat(actPerso());
+const suivi=id=>{try{return JSON.parse(ETAT['acts_'+id]||'{}')}catch(e){return {}}};
+const ajJ=(d,n)=>{if(!d||!/^\d{4}-\d{2}-\d{2}/.test(d))return '';const x=new Date(d.slice(0,10)+'T12:00:00');x.setDate(x.getDate()+n);return x.toISOString().slice(0,10)};
+const dateMesure=a=>{const s=suivi(a.id);return s.dmes||ajJ(s.debut||a.quand,14)};
+function statutA(a){if(actFaite(a.id))return 'faite';const j=jours(a.quand);if(j!==null&&j>0)return 'retard';return suivi(a.id).st==='encours'?'encours':'afaire'}
+const aMesurer=a=>actFaite(a.id)&&!suivi(a.id).verdict&&a.mesure&&a.mesure!=='—'&&(jours(dateMesure(a))??-1)>=0;
+const ST={faite:['Faite','var(--vert2)','✅'],encours:['En cours','var(--bleu)','🔵'],afaire:['À faire','#90a4ae','⭕'],retard:['En retard','var(--rouge)','⏰']};
+const VD={garder:['On garde','var(--vert2)','✅'],corriger:['À corriger','var(--orange)','🟠'],arreter:['On arrête','var(--rouge)','⛔']};
+const ongletA=a=>String(a.go||'act').split(':')[0];
+const actsOnglet=t=>toutes().filter(a=>ongletA(a)===t||(t==='mois'&&ongletA(a)==='col'));
+
+/* Graphiques SVG / HTML, sans bibliothèque */
+function donut(parts,centre,sous,taille){taille=taille||150;const T=parts.reduce((s,p)=>s+p[1],0),r=52,C=2*Math.PI*r,v=parts.filter(p=>p[1]>0);let off=0;
+  const gap=v.length>1?1.2:0;
+  const segs=T?v.map(p=>{const l=p[1]/T*C;const s=`<circle r="${r}" cx="70" cy="70" fill="none" stroke="${p[2]}" stroke-width="22" stroke-dasharray="${Math.max(l-gap,0.5)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"><title>${esc(p[0])} : ${p[1]}</title></circle>`;off+=l;return s}).join(''):`<circle r="${r}" cx="70" cy="70" fill="none" stroke="var(--ligne)" stroke-width="22"/>`;
+  return `<div class="donut"><svg viewBox="0 0 140 140" width="${taille}" height="${taille}" role="img" aria-label="${esc(sous||'')}">${segs}<text x="70" y="72" text-anchor="middle" font-size="${String(centre).length>5?17:24}" font-weight="800" fill="var(--txt)">${esc(centre)}</text><text x="70" y="90" text-anchor="middle" font-size="10" fill="var(--doux)">${esc(sous||'')}</text></svg>
+   <div class="leg2">${parts.map(p=>`<div ${p[3]?`data-f2="${esc(p[3])}" class="clic"`:''}><span class="pt" style="background:${p[2]}"></span>${esc(p[0])} <b>${typeof p[4]==='string'?p[4]:p[1]}</b>${T&&p[4]===undefined?` <span class="sub">${Math.round(p[1]/T*100)} %</span>`:''}</div>`).join('')}</div></div>`}
+function barresH(rows,max){max=max||Math.max(1,...rows.map(r=>r[1].reduce((s,x)=>s+x[0],0)));
+  return `<div class="bhs">${rows.map(r=>`<div class="bh ${r[2]?'clic':''}" ${r[2]?`data-th="${esc(r[2])}"`:''}><div class="bhl" title="${esc(r[0])}">${esc(r[0])}</div><div class="bhb">${r[1].map(x=>x[0]>0?`<i style="width:${(x[0]/max*100).toFixed(2)}%;background:${x[1]}" title="${esc(x[2]||'')}"></i>`:'').join('')}</div><div class="bhv">${r[3]??''}</div></div>`).join('')}</div>`}
+const legende=L=>`<div class="leg2 lig">${L.map(x=>`<span><span class="pt" style="background:${x[1]}"></span>${esc(x[0])}</span>`).join('')}</div>`;
+
+/* Tableau de bord du plan : statuts, thèmes, verdicts, échéances */
+function tableauPlan(L){const n=k=>L.filter(a=>statutA(a)===k).length,F=L.filter(a=>actFaite(a.id));
+  const nv=k=>F.filter(a=>suivi(a.id).verdict===k).length,nm=F.filter(a=>!suivi(a.id).verdict).length;
+  const pc=L.length?Math.round(F.length/L.length*100):0;
+  const TH=[...new Set(THEMES_DEF.concat(L.map(a=>a.theme||'Autres')))].filter(t=>L.some(a=>(a.theme||'Autres')===t));
+  const th=TH.map(t=>{const l=L.filter(a=>(a.theme||'Autres')===t),c=k=>l.filter(a=>statutA(a)===k).length;return [t,[[c('faite'),ST.faite[1],'faites'],[c('encours'),ST.encours[1],'en cours'],[c('retard'),ST.retard[1],'en retard'],[c('afaire'),ST.afaire[1],'à faire']],t,`${c('faite')}/${l.length}`]});
+  const sem=[0,1,2,3,4,5].map(i=>{const d0=ajJ(auj(),i*7),d1=ajJ(auj(),i*7+6);const l=L.filter(a=>!actFaite(a.id)&&(i===0?String(a.quand)<=d1:String(a.quand)>=d0&&String(a.quand)<=d1));return [i===0?'Cette semaine (+ retards)':'Sem. du '+dfr(d0).slice(0,5),[[l.filter(a=>statutA(a)==='retard').length,ST.retard[1],'en retard'],[l.filter(a=>statutA(a)!=='retard').length,'var(--vert2)','prévues']],'',String(l.length)]});
+  return `<div class="tdb">
+   <div class="carte"><b>Où en est le plan</b><div class="sub">Touchez une part pour filtrer</div>${donut([[ST.faite[0]+'s',n('faite'),ST.faite[1],'Faites'],[ST.encours[0],n('encours'),ST.encours[1],'En cours'],[ST.retard[0],n('retard'),ST.retard[1],'En retard'],[ST.afaire[0],n('afaire'),ST.afaire[1],'À faire']],pc+' %','faites sur '+L.length)}</div>
+   <div class="carte"><b>Ce que donnent les actions faites</b><div class="sub">Verdict après la mesure avant / après</div>${donut([[VD.garder[0],nv('garder'),VD.garder[1],'Garder'],[VD.corriger[0],nv('corriger'),VD.corriger[1],'Corriger'],[VD.arreter[0],nv('arreter'),VD.arreter[1],'Arrêter'],['Pas encore mesurées',nm,'#cfd8dc','À mesurer']],String(F.length),'actions faites')}</div>
+   <div class="carte tdb-l"><b>Par thème</b> <span class="sub">(touchez un thème)</span>${barresH(th)}${legende([['Faites',ST.faite[1]],['En cours',ST.encours[1]],['En retard',ST.retard[1]],['À faire',ST.afaire[1]]])}</div>
+   <div class="carte tdb-l"><b>Échéances des 6 prochaines semaines</b>${barresH(sem)}${legende([['En retard',ST.retard[1]],['Prévues','var(--vert2)']])}</div></div>`}
+
+/* Fiche de suivi d'une action */
+function blocSuivi(a){const s=suivi(a.id),st=statutA(a),f=actFaite(a.id);
+  return `<details class="suivi" ${s.verdict||s.avant||s.st==='encours'?'':''}><summary><b>📏 Suivi et mesure</b>${s.debut?` · mise en place le ${dfr(s.debut)}`:''}${f&&!s.verdict?` · <span class="${aMesurer(a)?'neg':''}">mesure le ${dfr(dateMesure(a))}</span>`:''}</summary>
+   <div class="statuts" data-sid="${esc(a.id)}">${[['afaire','À faire'],['encours','En cours'],['faite','Faite']].map(k=>`<button data-st="${k[0]}" class="${(k[0]==='faite'?f:!f&&(k[0]==='encours'?s.st==='encours':s.st!=='encours'))?'on':''}">${k[1]}</button>`).join('')}</div>
+   <div class="g2"><div><label>Mise en place le</label><input type="date" data-k="debut" value="${esc(s.debut||'')}"></div><div><label>Mesure prévue le</label><input type="date" data-k="dmes" value="${esc(s.dmes||ajJ(s.debut||a.quand,14))}"></div>
+   <div><label>Chiffre avant</label><input data-k="avant" value="${esc(s.avant||'')}" placeholder="ex. 12 ventes / sem."></div><div><label>Chiffre après</label><input data-k="apres" value="${esc(s.apres||'')}" placeholder="ex. 19 ventes / sem."></div></div>
+   <label>Verdict</label><div class="statuts" data-vid="${esc(a.id)}">${Object.entries(VD).map(([k,v])=>`<button data-vd="${k}" class="${s.verdict===k?'on':''}" style="${s.verdict===k?`background:${v[1]};border-color:${v[1]}`:''}">${v[2]} ${v[0]}</button>`).join('')}</div>
+   <label>Note</label><textarea data-k="note" rows="2" placeholder="Ce qui a été fait, ce qu'on change">${esc(s.note||'')}</textarea>
+   <button class="btn" data-save="${esc(a.id)}" style="margin-top:10px">Enregistrer le suivi</button>${a.perso?`<button class="btn sec" data-del="${esc(a.id)}" style="margin-top:8px">Retirer cette action ajoutée</button>`:''}</details>`}
+function puce(a){const st=statutA(a),s=suivi(a.id),v=VD[s.verdict];
+  return `<span class="badge" style="background:${ST[st][1]};color:#fff">${ST[st][2]} ${ST[st][0]}</span>${v?` <span class="badge" style="background:${v[1]};color:#fff">${v[2]} ${v[0]}</span>`:''}${aMesurer(a)?' <span class="badge" style="background:var(--orange);color:#fff">📏 À mesurer</span>':''}${a.perso?' <span class="badge">Ajoutée</span>':''}`}
+async function enregistrerSuivi(id,box,maj){const s=suivi(id);box.querySelectorAll('[data-k]').forEach(i=>{if(i.dataset.k==='dmes'&&!s.dmes&&i.value===i.defaultValue)return;s[i.dataset.k]=i.value.trim()});
+  const vb=box.querySelector('[data-vd].on');s.verdict=vb?vb.dataset.vd:'';const sb=box.querySelector('[data-st].on');const st=sb?sb.dataset.st:'afaire';
+  s.st=st==='encours'?'encours':'';if(st!=='afaire'&&!s.debut)s.debut=auj();if(!s.dmes||s.dmes===ajJ(s.debut||'',14))delete s.dmes;s.maj=auj();
+  const ok1=await majEtat('acts_'+id,JSON.stringify(s));const fv=st==='faite'?'1':'0';let ok2=true;if((ETAT['act_'+id]==='1')!==(fv==='1')){ls.set('pil_act_'+id,fv);ok2=await majEtat('act_'+id,fv)}
+  toast(ok1&&ok2?'Suivi enregistré — visible sur tous vos appareils':'Non enregistré (réseau) : réessayez');if(maj)maj()}
+function brancherSuivi(maj){
+  document.querySelectorAll('.suivi .statuts button').forEach(b=>b.onclick=e=>{e.preventDefault();const p=b.parentElement;const on=b.classList.contains('on');p.querySelectorAll('button').forEach(x=>{x.classList.remove('on');x.style.background='';x.style.borderColor=''});if(!(p.dataset.vid&&on)){b.classList.add('on');if(b.dataset.vd){const c=VD[b.dataset.vd][1];b.style.background=c;b.style.borderColor=c}}});
+  document.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>enregistrerSuivi(b.dataset.save,b.closest('.suivi'),maj));
+  document.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{const L=actPerso().filter(x=>x.id!==b.dataset.del);if(await majEtat('actx',JSON.stringify(L)))toast('Action retirée');maj()});}
+
+/* Ajouter une action depuis n'importe quel onglet (ou depuis un signal de données) */
+function formAction(pre,retour){pre=pre||{};fab(null);const og=pre.go||vue;
+  $('#m').innerHTML=`<div class="carte"><b>Nouvelle action</b><div class="sub w">Elle s'ajoute au plan d'action global et dans l'onglet choisi, avec son suivi avant / après.</div>
+   <label>Action</label><input id="na_t" value="${esc(pre.titre||'')}" placeholder="Ce qu'il faut faire">
+   <div class="g2"><div><label>Thème</label><select id="na_th">${THEMES_DEF.map(t=>`<option ${t===(pre.theme||'')?'selected':''}>${esc(t)}</option>`).join('')}</select></div>
+   <div><label>Onglet</label><select id="na_g">${ONGLETS.filter(o=>o[0]!=='act').map(o=>`<option value="${o[0]}" ${o[0]===og?'selected':''}>${esc(o[2])}</option>`).join('')}</select></div>
+   <div><label>Qui (fonction)</label><input id="na_q" value="${esc(pre.qui||'Titulaire')}"></div><div><label>Pour le</label><input id="na_d" type="date" value="${esc(pre.quand||ajJ(auj(),7))}"></div></div>
+   <label>Pourquoi (enjeu)</label><input id="na_e" value="${esc(pre.enjeu||'')}">
+   <label>Comment on mesure avant / après</label><input id="na_m" value="${esc(pre.mesure||'')}" placeholder="ex. ventes du produit 7 jours avant / 7 jours après">
+   <button class="btn" id="na_ok">Ajouter au plan</button><button class="btn sec" id="na_ko">Annuler</button></div>`;
+  $('#na_ko').onclick=retour;
+  $('#na_ok').onclick=async()=>{const t=$('#na_t').value.trim();if(!t){toast('Indiquez l\'action');return}
+    const L=actPerso(),n=L.reduce((m,x)=>Math.max(m,+String(x.id).slice(1)||0),0)+1;
+    L.push({id:'P'+n,perso:1,theme:$('#na_th').value,titre:t,qui:$('#na_q').value.trim(),quand:$('#na_d').value,enjeu:$('#na_e').value.trim()||'—',etapes:[],mesure:$('#na_m').value.trim()||'—',go:$('#na_g').value,cree:auj()});
+    if(await majEtat('actx',JSON.stringify(L))){toast('Action P'+n+' ajoutée au plan');retour()}}}
+
+/* Signaux tirés des données de chaque onglet → proposition d'action */
+function signaux(t){if(!A)return [];const S=[];
+  if(t==='stk'){const b=A.stock.filter(s=>s.decision==='commander');if(b.length)S.push({lie:'A2',txt:b.length+' laboratoire(s) à commander : '+b.map(s=>s.nom).join(', ')+' ('+eur(b.reduce((s,x)=>s+x.margePerdue,0))+' de marge perdue / mois)',pre:{theme:'Stock & commandes',titre:'Commander '+b.map(s=>s.nom).join(' et '),enjeu:eur(b.reduce((s,x)=>s+x.margePerdue,0))+' / mois de marge perdue',mesure:'Ruptures et marge du laboratoire 15 jours avant / après la réception',go:'stk'}});
+    const bl=A.stock.filter(s=>s.decision==='bloque');if(bl.length)S.push({lie:'A3',txt:bl.length+' commande(s) bloquée(s) à débloquer ou réduire',pre:{theme:'Stock & commandes',titre:'Débloquer les commandes en attente : '+bl.map(s=>s.nom).slice(0,4).join(', '),mesure:'Montant en attente avant / après',go:'stk'}})}
+  if(t==='pro'){if(A.opeazManquantes.length)S.push({lie:'A5',txt:A.opeazManquantes.length+' opération(s) Opeaz sans promotion dans Vindilis',pre:{theme:'Prix & promotions',titre:'Créer dans Vindilis les promotions Opeaz manquantes',mesure:'Ventes au prix promo 7 jours avant / après',go:'pro'}});
+    const W=A.pourquoi;if(W&&W.zero&&W.zero.length)S.push({lie:'A12',txt:W.zero.length+' promotion(s) actives sans aucune vente',pre:{theme:'Prix & promotions',titre:'Rendre visibles en rayon les promotions sans vente',mesure:'Ventes au prix promo 7 jours avant / après la mise en avant',go:'pro'}})}
+  if(t==='lab'){const r=(D.recos||[]).filter(ouverte);if(r.length)S.push({txt:r.length+' recommandation(s) automatique(s) ouverte(s) sur les laboratoires',go:'act:rec'})}
+  if(t==='ecr'&&A.reseaux&&A.reseaux.instagram){const p=A.reseaux.instagram.posts||[];const d=p.map(x=>x.date).filter(Boolean).sort().pop();const j=d?jours(String(d).slice(0,10)):null;if(j!==null&&j>7)S.push({lie:'A41',txt:'Dernière publication Instagram il y a '+j+' jours (objectif : 3 par semaine)',pre:{theme:'Réseaux sociaux',titre:'Programmer les 3 publications de la semaine',mesure:'Vues et ventes du produit montré 7 jours avant / après',go:'ecr'}})}
+  return S}
+
+/* Bloc « Actions de cet onglet », posé en tête de chaque onglet */
+const BLOC_ONG=['lab','pro','stk','eve','ecr','con','col','mois'];
+function blocActions(t){const L=actsOnglet(t),c=k=>L.filter(a=>statutA(a)===k).length,f=c('faite'),S=signaux(t);
+  const ouv=ls.get('pil_bloc_'+t);const open=ouv===null?innerWidth>=1024:ouv==='1';
+  const ord=L.slice().sort((a,b)=>({retard:0,encours:1,afaire:2,faite:3}[statutA(a)]-{retard:0,encours:1,afaire:2,faite:3}[statutA(b)])||String(a.quand).localeCompare(String(b.quand)));
+  return `<details class="carte blocact" id="blocAct" data-t="${t}" ${open?'open':''}><summary><span class="ba-t">📌 Actions de cet onglet</span>
+   <span class="ba-c">${c('retard')?`<b class="neg">${c('retard')} en retard</b> · `:''}${c('afaire')+c('encours')} à faire · ${f}/${L.length} faites${S.length?` · <b style="color:var(--orange)">${S.length} signal${S.length>1?'s':''}</b>`:''}</span>
+   <span class="ba-b"><i style="width:${L.length?Math.round(f/L.length*100):0}%"></i></span></summary>
+   ${S.map((s,i)=>{const la=s.lie&&toutes().find(a=>a.id===s.lie);return `<div class="sig"><span>⚡ ${esc(s.txt)}${la?`<span class="sub" style="display:block">Déjà dans le plan : <b>${esc(la.id)}</b> · ${ST[statutA(la)][2]} ${ST[statutA(la)][0]}</span>`:''}</span>${la?`<button class="mini" data-ouvre="${esc(la.id)}">Suivre ${esc(la.id)}</button>`:s.pre?`<button class="mini" data-sig="${i}">Créer l'action</button>`:`<button class="mini" data-go="${s.go}">Voir</button>`}</div>`}).join('')}
+   ${(()=>{const li=a=>`<div class="ba-l" data-ouvre="${esc(a.id)}"><span class="pt" style="background:${ST[statutA(a)][1]}"></span><span class="grow"><b>${esc(a.id)}</b> ${esc(a.titre)}<span class="sub"> · ${esc(a.qui)} · ${dfr(a.quand)}</span></span>${suivi(a.id).verdict?`<span title="${VD[suivi(a.id).verdict][0]}">${VD[suivi(a.id).verdict][2]}</span>`:aMesurer(a)?'<span title="À mesurer">📏</span>':''}</div>`;return ord.slice(0,6).map(li).join('')+(ord.length>6?`<details><summary class="sub" style="cursor:pointer;padding:6px 0">Voir les ${ord.length-6} autres actions</summary>${ord.slice(6).map(li).join('')}</details>`:'')})()}
+   ${ord.length?'':'<div class="sub">Aucune action rattachée à cet onglet pour l\'instant.</div>'}
+   <div class="ba-btn"><button class="mini" id="baPlan">Voir dans le plan d'action ›</button><button class="mini" id="baAdd">+ Ajouter une action</button></div></details>`}
+function injecterBloc(){const m=$('#m');if(!m||!A||!BLOC_ONG.includes(vue)||document.getElementById('blocAct'))return;
+  if(!m.firstElementChild||/^Chargement/.test(m.textContent.trim())||document.getElementById('na_t'))return;
+  const t=vue,first=m.firstElementChild;const html=blocActions(t);
+  if(first&&first.classList.contains('filtres'))first.insertAdjacentHTML('afterend',html);else if(first&&first.id==='ret')first.insertAdjacentHTML('afterend',html);else m.insertAdjacentHTML('afterbegin',html);
+  const b=document.getElementById('blocAct');const retour=()=>{vue=t;rendre();scrollTo(0,0)};
+  b.ontoggle=()=>ls.set('pil_bloc_'+t,b.open?'1':'0');
+  b.querySelectorAll('[data-ouvre]').forEach(e=>e.onclick=()=>{ouvrirAction(e.dataset.ouvre)});
+  b.querySelectorAll('[data-sig]').forEach(e=>e.onclick=()=>formAction(signaux(t)[+e.dataset.sig].pre,retour));
+  b.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]&&vue==='act'){sousAct=p[1]==='rec'?'rec':p[1];if(p[1]==='rec')filtre='Ouvertes'}rendre();scrollTo(0,0)});
+  $('#baPlan').onclick=()=>{filtreOng=t;filtreTh='Tous';filtreSt='Toutes';sousAct='dix';vue='act';rendre();scrollTo(0,0)};
+  $('#baAdd').onclick=()=>formAction({go:t},retour);}
+function ouvrirAction(id){filtreOng='';filtreTh='Tous';filtreSt='Toutes';sousAct='dix';vue='act';focusAct=id;rendre();
+  setTimeout(()=>{const e=document.getElementById('act-'+id);if(e){e.scrollIntoView({behavior:'smooth',block:'start'});e.classList.add('flash');const d=e.querySelector('details.suivi');if(d)d.open=true}focusAct=''},60)}
+let filtreOng='',focusAct='';
+new MutationObserver(()=>injecterBloc()).observe(document.getElementById('m'),{childList:true});
+
+/* Accueil : le plan en un coup d'œil + ce qui tombe cette semaine */
+function carteSemaine(){if(!A)return '';const L=toutes(),re=L.filter(a=>statutA(a)==='retard'),se=L.filter(a=>!actFaite(a.id)&&statutA(a)!=='retard'&&(jours(a.quand)??1)<=0&&(jours(a.quand)??0)>=-6),me=L.filter(aMesurer);
+  const n=k=>L.filter(a=>statutA(a)===k).length,F=L.filter(a=>actFaite(a.id)).length;
+  const lig=(a,lib,c)=>`<div class="ba-l" data-ouvre="${esc(a.id)}"><span class="pt" style="background:${c}"></span><span class="grow"><b>${esc(a.id)}</b> ${esc(a.titre)}<span class="sub"> · ${esc(a.qui)} · ${lib}</span></span><span class="sub">${esc(NOM_ONG[ongletA(a)]||'')}</span></div>`;
+  return `<div class="semaine"><div class="carte">${donut([['Faites',n('faite'),ST.faite[1],'Faites'],['En cours',n('encours'),ST.encours[1],'En cours'],['En retard',n('retard'),ST.retard[1],'En retard'],['À faire',n('afaire'),ST.afaire[1],'À faire']],Math.round(F/(L.length||1)*100)+' %','plan d\'action',130)}<button class="mini" data-go="act:dix" style="margin-top:6px">Ouvrir le plan d'action ›</button></div>
+   <div class="carte"><b>Cette semaine</b>
+   ${re.length?`<div class="titre" style="margin:8px 0 2px;color:var(--rouge)">En retard (${re.length})</div>${re.slice(0,6).map(a=>lig(a,'prévu le '+dfr(a.quand),ST.retard[1])).join('')}${re.length>6?`<div class="sub">… et ${re.length-6} autre(s)</div>`:''}`:''}
+   <div class="titre" style="margin:8px 0 2px">À faire d'ici 7 jours (${se.length})</div>${se.slice(0,8).map(a=>lig(a,dfr(a.quand),statutA(a)==='encours'?ST.encours[1]:'var(--vert2)')).join('')||'<div class="sub">Rien d\'autre cette semaine.</div>'}${se.length>8?`<div class="sub" style="margin-top:4px">… et ${se.length-8} autre(s) : <span class="lien" data-go="act:dix">tout voir dans le plan</span></div>`:''}
+   <div class="titre" style="margin:8px 0 2px;color:var(--orange)">Mesures avant / après à faire (${me.length})</div>${me.map(a=>lig(a,'mesure prévue le '+dfr(dateMesure(a)),'var(--orange)')).join('')||'<div class="sub">Aucune mesure en attente.</div>'}</div></div>`}
 
 /* ---------- ACCUEIL ---------- */
 function alertes(){const L=[];
@@ -512,10 +654,10 @@ function carteMarche(){if(!A)return '';return `<div class="carte"><b>Nous face a
 function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);
   const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
   const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};const i=ms.indexOf(moisSel);
-  const nA=A?A.actions.filter(a=>!actFaite(a.id)).length:null;
-  const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur '+(A?A.actions.length:'—'),'act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
+  const nA=A?toutes().filter(a=>!actFaite(a.id)).length:null;
+  const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur '+(A?toutes().length:'—'),'act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
   const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
-  $('#m').innerHTML=`${alertes()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
+  $('#m').innerHTML=`${alertes()}${carteSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
    <div class="titre">Mois en cours</div>${carteEnCours()}${carteMarche()}
    <div class="titre">Mois complets (Vindilis, chargés dans l'application)</div>
    <div class="carte" style="display:flex;align-items:center;gap:8px;padding:8px 10px">
@@ -531,7 +673,9 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);
   if($('#mPrev'))$('#mPrev').onclick=()=>{if(i>0)go(ms[i-1])};if($('#mNext'))$('#mNext').onclick=()=>{if(i<ms.length-1)go(ms[i+1])};
   document.querySelectorAll('#exMode button').forEach(b=>b.onclick=()=>{modeEx=b.dataset.m;const y=scrollY;accueil();scrollTo(0,y)});
   document.querySelectorAll('[data-go="cfg"]').forEach(e=>e.onclick=()=>{vue='cfg';navig();reglages()});
-  brancherLiens();}
+  brancherLiens();
+  document.querySelectorAll('.semaine [data-ouvre]').forEach(e=>e.onclick=()=>ouvrirAction(e.dataset.ouvre));
+  document.querySelectorAll('.semaine [data-f2]').forEach(e=>e.onclick=()=>{filtreSt=e.dataset.f2;filtreTh='Tous';filtreOng='';sousAct='dix';vue='act';rendre();scrollTo(0,0)});}
 
 
 /* ---------- AVANT / APRÈS : ce qui marche, ce qui ne marche pas ---------- */
@@ -593,6 +737,7 @@ function concurrence(){fab(null);$('#ht').textContent='Concurrence';
     const act=id=>{const x=A.actions.find(y=>y.id===id);return x?`<div style="margin-top:4px;font-size:14px">→ Action <b>${x.id}</b> : ${esc(x.titre)} ${actFaite(x.id)?'<b class="pos">✓</b>':''}</div>`:''};
     h=`<div class="carte"><b>${ent(a.z1.pop)} habitants à moins de 1 km, ${ent(a.z25.pop)} à moins de 2,5 km</b><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(4,1fr)"><div><div class="sub">60 ans et plus</div><b>${pc(a.z1.a60)}</b></div><div><div class="sub">Moins de 15 ans</div><b>${pc(a.z1.a0014)}</b></div><div><div class="sub">Revenu médian / an</div><b>${e0(a.z1.revMed)}</b></div><div><div class="sub">Sans voiture</div><b>${pc(a.z1.sansVoit)}</b></div></div><div class="sub w" style="margin-top:6px">${esc(K.millesime)}. ${esc(K.note)}</div></div>
     <div class="carte al v"><b class="t">Deux clientèles très différentes à deux pas</b><div class="sub w">À l'<b>est et au sud</b> (Sources, Pavoine, Marcel Paul, Bruyères, Cité des Pins) : des <b>seniors</b>, 31 à 39 % de 60 ans et plus. À l'<b>ouest</b> (Glonnières, Ronceray, puis Sablons et Épau) : des <b>familles jeunes en grande précarité</b>, 55 à 67 % de pauvreté, beaucoup sans voiture. Plus loin et en voiture (Changé, Ruaudin, Mission) : une clientèle <b>aisée</b>. Une seule pharmacie peut servir les trois, à condition de leur parler séparément.</div>${act('A34')}${act('A35')}${act('A36')}${act('A37')}</div>
+    ${(()=>{const pr={};K.iris.forEach(x=>{pr[x.profil]=(pr[x.profil]||0)+(x.pop||0)});const T=Object.values(pr).reduce((s,v)=>s+v,0);return `<div class="carte"><b>Habitants des quartiers étudiés, par profil</b><div class="sub">Somme des Iris du tableau ci-dessous</div>${donut(Object.entries(pr).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,v,PC[k]||'var(--doux)',null,ent(v)+' · '+Math.round(v/T*100)+' %']),ent(T),'habitants')}</div>`})()}
     <div class="carte"><b>Comparaison</b><div class="tw"><table class="t"><tr><th></th><th class="n">&lt; 1 km</th><th class="n">&lt; 2,5 km</th><th class="n">Le Mans</th><th class="n">France</th></tr>
      ${lig('Moins de 3 ans','a0002',pc)}${lig('Moins de 15 ans','a0014',pc)}${lig('15–29 ans','a1529',pc)}${lig('60–74 ans','a6074',pc)}${lig('75 ans et plus','a75',pc)}${lig('Femmes','femmes',pc)}${lig('Immigrés','immig',pc)}${lig('Ménages d\'une personne','seuls',pc)}${lig('Familles monoparentales (% des ménages)','mono',pc)}${lig('Ménages sans voiture','sansVoit',pc)}${lig('Chômage (15–64 ans actifs)','chom',pc)}${lig('Revenu disponible médian par unité de consommation','revMed',e0)}${lig('Taux de pauvreté','pauv',pc)}${lig('Part des prestations sociales dans le revenu','prest',pc)}</table></div>
      <div class="sub w" style="margin-top:6px">France : chiffres de la commune de référence INSEE (recensement 2023, revenus 2023) quand ils existent. Le Mans : même méthode que les zones (somme des Iris).</div></div>
@@ -623,26 +768,37 @@ function actions(){fab(null);
     navA();return}
   $('#ht').textContent='Actions';
   if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto']],sousAct)+pasAudit();navA();return}
-  const TH=[...new Set(A.actions.map(a=>a.theme||'Autres'))];
-  const L=A.actions.filter(a=>(filtreTh==='Tous'||a.theme===filtreTh)&&(filtreSt==='Toutes'||(filtreSt==='À faire'?!actFaite(a.id):actFaite(a.id)))).sort((a,b)=>actFaite(a.id)-actFaite(b.id)||String(a.quand).localeCompare(String(b.quand)));
-  const nF=A.actions.filter(a=>actFaite(a.id)).length,nR=A.actions.filter(a=>!actFaite(a.id)&&jours(a.quand)!==null&&jours(a.quand)>0).length,pct=Math.round(nF/A.actions.length*100);
-  const carteA=a=>{const f=actFaite(a.id),j=jours(a.quand);return `<div class="carte demi ${f?'fait':''}"><div class="chk"><input type="checkbox" data-id="${a.id}" ${f?'checked':''} aria-label="Fait"><div class="grow"><b>${esc(a.titre)}</b>
-    <div class="sub w" style="margin-top:4px">👤 ${esc(a.qui)} · 📅 ${dfr(a.quand)} ${f?'':`<span class="${j!==null&&j>0?'neg':''}">(${joursAv(a.quand)})</span>`}</div>
+  const TOUT=toutes(),TH=[...new Set(THEMES_DEF.concat(TOUT.map(a=>a.theme||'Autres')))].filter(t=>TOUT.some(a=>(a.theme||'Autres')===t));
+  const FST={'À faire':a=>statutA(a)!=='faite','En cours':a=>statutA(a)==='encours','En retard':a=>statutA(a)==='retard','À mesurer':aMesurer,'Faites':a=>actFaite(a.id),'Garder':a=>suivi(a.id).verdict==='garder','Corriger':a=>suivi(a.id).verdict==='corriger','Arrêter':a=>suivi(a.id).verdict==='arreter','Toutes':()=>true};
+  if(!FST[filtreSt])filtreSt='À faire';
+  const L=TOUT.filter(a=>(filtreTh==='Tous'||(a.theme||'Autres')===filtreTh)&&(!filtreOng||ongletA(a)===filtreOng||(filtreOng==='mois'&&ongletA(a)==='col'))&&FST[filtreSt](a)).sort((a,b)=>({retard:0,encours:1,afaire:2,faite:3}[statutA(a)]-{retard:0,encours:1,afaire:2,faite:3}[statutA(b)])||String(a.quand).localeCompare(String(b.quand)));
+  const carteA=a=>{const f=actFaite(a.id),j=jours(a.quand),s=suivi(a.id);return `<div class="carte demi ${f?'fait':''}" id="act-${esc(a.id)}" style="border-left:5px solid ${ST[statutA(a)][1]}"><div class="chk"><input type="checkbox" data-id="${esc(a.id)}" ${f?'checked':''} aria-label="Fait"><div class="grow"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:3px"><span class="sub"><b>${esc(a.id)}</b></span>${puce(a)}</div><b>${esc(a.titre)}</b>
+    <div class="sub w" style="margin-top:4px">👤 ${esc(a.qui)} · 📅 ${dfr(a.quand)} ${f?'':`<span class="${j!==null&&j>0?'neg':''}">(${joursAv(a.quand)})</span>`} · 📂 ${esc(NOM_ONG[ongletA(a)]||'')}</div>
     <div class="sub w">🎯 ${esc(a.enjeu)}</div>
-    ${a.etapes&&a.etapes.length?`<details style="margin-top:6px" ${f?'':'open'}><summary class="sub" style="cursor:pointer"><b>Comment faire</b> (${a.etapes.length} étapes)</summary><ol style="margin:6px 0 0 18px;padding:0;font-size:14px;line-height:1.45">${a.etapes.map(t=>`<li>${esc(t)}</li>`).join('')}</ol></details>`:(a.detail?`<div class="sub w" style="margin-top:4px">${esc(a.detail)}</div>`:'')}
+    ${a.etapes&&a.etapes.length?`<details style="margin-top:6px" ${focusAct===a.id?'open':''}><summary class="sub" style="cursor:pointer"><b>Comment faire</b> (${a.etapes.length} étapes)</summary><ol style="margin:6px 0 0 18px;padding:0;font-size:14px;line-height:1.45">${a.etapes.map(t=>`<li>${esc(t)}</li>`).join('')}</ol></details>`:(a.detail?`<div class="sub w" style="margin-top:4px">${esc(a.detail)}</div>`:'')}
     ${a.mesure&&a.mesure!=='—'?`<div class="sub w" style="margin-top:6px">📏 <b>Avant / après :</b> ${esc(a.mesure)}</div>`:''}
-    ${a.go?`<button class="lien" data-go="${a.go}" style="margin-top:6px;background:none;border:0;padding:0;font-size:14px">Ouvrir l'onglet ›</button>`:''}</div></div></div>`};
+    ${s.avant||s.apres?`<div class="kpis" style="margin-top:6px;grid-template-columns:1fr 1fr"><div><div class="sub">Avant</div><b>${esc(s.avant||'—')}</b></div><div><div class="sub">Après</div><b>${esc(s.apres||'—')}</b></div></div>`:''}
+    ${s.note?`<div class="sub w" style="margin-top:4px">📝 ${esc(s.note)}</div>`:''}
+    ${a.go&&a.go!=='act'?`<button class="lien" data-go="${esc(a.go)}" style="margin-top:6px;background:none;border:0;padding:0;font-size:14px">Ouvrir l'onglet ${esc(NOM_ONG[ongletA(a)]||'')} ›</button>`:''}
+    ${blocSuivi(a)}</div></div></div>`};
   const groupes=filtreTh==='Tous'?TH.map(t=>[t,L.filter(a=>(a.theme||'Autres')===t)]).filter(g=>g[1].length):[[filtreTh,L]];
+  const nc=k=>TOUT.filter(FST[k]).length;
   $('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+
-   `<div class="carte"><b>Plan d'action global : ${nF} sur ${A.actions.length} faites</b>${nR?` · <b class="neg">${nR} en retard</b>`:''}<div class="barre"><i style="width:${pct}%"></i></div><div class="sub w">Toutes les actions de tous les onglets, chacune avec un responsable, une échéance, la façon de faire et sa mesure avant / après. Cochez quand c'est fait : c'est enregistré sur le serveur et visible sur le téléphone comme sur l'ordinateur.</div></div>
-   <div class="filtres" id="fst">${['À faire','Faites','Toutes'].map(k=>`<button data-f="${k}" class="${k===filtreSt?'on':''}">${k}</button>`).join('')}</div>
-   <div class="filtres" id="fth">${['Tous',...TH].map(k=>`<button data-f="${esc(k)}" class="${k===filtreTh?'on':''}">${k==='Tous'?'Tous les thèmes':esc(k)+' ('+A.actions.filter(a=>a.theme===k&&!actFaite(a.id)).length+')'}</button>`).join('')}</div>
+   `<div class="carte"><b>Plan d'action global : toutes les actions de tous les onglets</b><div class="sub w">Chaque action a un responsable, une échéance, la façon de faire et sa mesure avant / après. Ouvrez « Suivi et mesure » pour noter la mise en place, les chiffres avant / après et le verdict : c'est enregistré sur le serveur, visible sur le téléphone comme sur l'ordinateur.</div><div class="ba-btn"><button class="mini" id="paAdd">+ Ajouter une action</button></div></div>
+   ${tableauPlan(TOUT)}
+   <div class="filtres" id="fst">${Object.keys(FST).map(k=>`<button data-f="${k}" class="${k===filtreSt?'on':''}">${k} (${nc(k)})</button>`).join('')}</div>
+   <div class="filtres" id="fth">${['Tous',...TH].map(k=>`<button data-f="${esc(k)}" class="${k===filtreTh?'on':''}">${k==='Tous'?'Tous les thèmes':esc(k)+' ('+TOUT.filter(a=>a.theme===k&&!actFaite(a.id)).length+')'}</button>`).join('')}</div>
+   ${filtreOng?`<div class="sig" style="background:var(--bcl)"><span>Filtré sur l'onglet <b>${esc(NOM_ONG[filtreOng]||filtreOng)}</b></span><button class="mini" id="fOngX">Tout afficher ✕</button></div>`:''}
    ${groupes.map(([t,l])=>`<div class="titre">${esc(t)} (${l.length})</div>${l.map(carteA).join('')}`).join('')||'<div class="carte sub">Aucune action dans ce filtre.</div>'}`;
+  const rej=()=>{const y=scrollY;actions();scrollTo(0,y)};
   document.querySelectorAll('#fst button').forEach(b=>b.onclick=()=>{filtreSt=b.dataset.f;actions()});
-  document.querySelectorAll('#fth button').forEach(b=>b.onclick=()=>{filtreTh=b.dataset.f;actions()});
-  document.querySelectorAll('#m [data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;if(g==='act')return;const nb=document.querySelector(`nav button[data-v="${g}"]`);if(nb)nb.click()});
-  navA();
-  document.querySelectorAll('.chk input').forEach(c=>c.onchange=async()=>{const v=c.checked?'1':'0';ls.set('pil_act_'+c.dataset.id,v);const ok=await majEtat('act_'+c.dataset.id,v);toast(ok?(c.checked?'Action faite — visible sur tous vos appareils':'Action rouverte'):'Non enregistré (réseau) : réessayez');actions()});}
+  document.querySelectorAll('#fth button,.bh[data-th]').forEach(b=>b.onclick=()=>{filtreTh=b.dataset.f||b.dataset.th;actions();const t=$('#fst');if(t)t.scrollIntoView({behavior:'smooth'})});
+  document.querySelectorAll('.tdb [data-f2]').forEach(b=>b.onclick=()=>{filtreSt=b.dataset.f2;filtreTh='Tous';actions();const t=$('#fst');if(t)t.scrollIntoView({behavior:'smooth'})});
+  const fx=$('#fOngX');if(fx)fx.onclick=()=>{filtreOng='';actions()};
+  $('#paAdd').onclick=()=>formAction({go:'acc'},()=>{vue='act';rendre();scrollTo(0,0)});
+  document.querySelectorAll('#m [data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go.split(':');if(g[0]==='act')return;vue=g[0];if(g[1]){if(vue==='lab')sousLab=g[1];if(vue==='pro')sousPro=g[1];if(vue==='stk')sousStk=g[1];if(vue==='eve')sousEve=g[1];if(vue==='ecr')sousEcr=g[1]}rendre();scrollTo(0,0)});
+  navA();brancherSuivi(rej);
+  document.querySelectorAll('.chk>input').forEach(c=>c.onchange=async()=>{const v=c.checked?'1':'0';ls.set('pil_act_'+c.dataset.id,v);const s=suivi(c.dataset.id);if(c.checked&&!s.debut){s.debut=auj();await majEtat('acts_'+c.dataset.id,JSON.stringify(s))}const ok=await majEtat('act_'+c.dataset.id,v);toast(ok?(c.checked?'Action faite — pensez à la mesure du '+dfr(dateMesure(toutes().find(a=>a.id===c.dataset.id)||{})):'Action rouverte'):'Non enregistré (réseau) : réessayez');rej()});}
 
 /* ---------- LABOS & PRIX ---------- */
 let sousLab='prix';
@@ -689,6 +845,7 @@ function promos(){$('#ht').textContent='Promos';fab(null);
     h=`<div class="carte"><b>Promotions d'octobre : ce qui sort, ce qui ne sort pas</b><div class="sub w" style="margin-top:4px">${esc(W.periode)}. ${W.total.n} promotions ont vendu au moins une fois : ${ent(W.total.q)} unités au prix promo, ${eur2(W.total.ca)} HT, pour ${eur2(W.total.remise)} HT de remise accordée. <b style="color:var(--rouge)">${W.zero.length} promotions de 2026 actives n'ont fait aucune vente</b>, et ${W.legacy} anciennes promotions « permanentes » sont encore ouvertes dans Vindilis (à nettoyer).</div>
      <div class="sub w" style="margin-top:6px">Pour chaque promotion : ventes au prix promo par jour, ventes de la gamme sans la remise, évolution du laboratoire contre octobre 2025, présence à l'écran, puis la cause probable et quoi faire. Écrans relevés le 15/10 dans Cenareo et MagicInfo : la plupart des marques ne sont à l'écran que depuis le 12/10, l'effet se mesure le 26/10.</div></div>
      ${(()=>{const M=W.promos.filter(x=>x.marche).concat(W.zero.filter(z=>z[3]).map(z=>({nom:z[0],verdict:'ko',marche:z[3]}))),ch=M.filter(x=>x.marche.verdict==='cher'),bl=M.filter(x=>x.verdict!=='ok'&&x.marche.verdict!=='cher'),hab=M.filter(x=>x.marche.ecPv>=15);return M.length?`<div class="carte al v"><b class="t">Le prix n'est presque jamais la cause</b><div class="sub w">Prix promo comparé, produit par produit, au prix de vente constaté dans les pharmacies (GERS, ${M.reduce((s,x)=>s+x.marche.nGers,0)} produits de ${M.length} promotions ; ${esc(W.marcheSource||'')}). <b>${bl.length} promotions qui sortent mal sont pourtant moins chères que le marché</b> : le problème est la visibilité (rayon, tête de gondole, écran, conseil au comptoir), pas le prix. ${ch.length?`<b style="color:var(--rouge)">Trop chère malgré la remise : ${ch.map(x=>esc(x.nom)).join(', ')}.</b> `:''}${hab.length?`Prix habituel nettement au-dessus du marché (hors promotion) : ${hab.map(x=>esc(x.nom)+' ('+pc1(x.marche.ecPv)+')').join(', ')}.`:''}</div></div>`:''})()}
+     <div class="carte">${donut([['Ça marche',c('ok'),'var(--vert2)','ok'],['Mitigé',c('mitige'),'var(--orange)','mitige'],['Ne sort pas',c('ko'),'var(--rouge)','ko'],['Actives sans aucune vente',W.zero.length,'#90a4ae']],String(W.promos.length+W.zero.length),'promotions d\'octobre')}</div>
      <div class="filtres" id="fw">${['Tous','ok','mitige','ko'].map(k=>`<button data-f="${k}" class="${k===filtreWhy?'on':''}">${k==='Tous'?'Toutes ('+W.promos.length+')':V[k][0]+' '+V[k][1]+' ('+c(k)+')'}</button>`).join('')}</div>
      ${L.map(x=>{const v=V[x.verdict];return `<div class="carte demi" style="border-left:5px solid ${v[2]}"><div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:18px">${v[0]}</span><div style="flex:1"><b>${esc(x.nom)}</b><div class="sub">${esc(x.type)} · ${esc(x.debut)} → ${esc(x.fin)}</div></div></div>
       <div class="kpis" style="margin-top:8px;grid-template-columns:repeat(3,1fr)"><div><div class="sub">Au prix promo</div><b>${ent(x.q)} u</b> <span class="sub">(${String(x.parJour).replace('.',',')}/jour)</span></div><div><div class="sub">Gamme sans remise</div><b>${ent(x.qHP)} u</b></div><div><div class="sub">Labo vs oct. 2025</div>${x.labo?`<b class="${cls(x.labo.ev)}">${pc1(x.labo.ev)}</b><div class="sub">${ent(x.labo.u25)} → ${ent(x.labo.u26)} u</div>`:'<span class="sub">—</span>'}</div></div>
@@ -718,7 +875,7 @@ function promos(){$('#ht').textContent='Promos';fab(null);
      ${A.promoStats.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td></tr>`).join('')}</table></div></div>${regle}
      <div class="carte al o"><b class="t">Compensations à réclamer</b><div class="sub w">Topicrem Octobre Rose −30 % (marge négative sans compensation) et Avène Octobre Rose : vérifier dans Opeaz, les accords directs et les factures Digipharmacie. Lifescan : vendu sans marge (12,96 € pour 2 349,15 € de CA au T3).</div></div>`;
   }
-  $('#m').innerHTML=nav+h;document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos();scrollTo(0,0)});document.querySelectorAll('#fw button').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f;promos()});}
+  $('#m').innerHTML=nav+h;document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos();scrollTo(0,0)});document.querySelectorAll('#fw button').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f;promos()});document.querySelectorAll('#m .donut [data-f2]').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f2;promos()});}
 
 /* ---------- STOCK & COMMANDES ---------- */
 let sousStk='rec',labStk='';
@@ -747,6 +904,7 @@ function stock(){$('#ht').textContent='Stock & commandes';fab(null);
   const lib=S.filter(s=>s.decision==='bloque'&&s.attente>s.besoin).reduce((s,x)=>s+x.attente-x.besoin,0);
   const x=S.find(s=>s.id===labStk);
   const liste=`<div class="carte"><b>Disponible : ${eur2(dispo)}</b><div class="sub w">À commander maintenant : <b style="color:var(--txt)">${eur2(aCmd)}</b> (${(Math.round(aCmd/dispo*1000)/10).toLocaleString('fr-FR')} % du disponible) · compléments : ${eur2(aCpl)} · trésorerie libérable en réduisant les commandes bloquées : ≈ ${eur(lib)}. ${lienV('Vérifier d\'abord les commandes CERP','stk:cerp')}</div></div>
+   <div class="carte"><b>Marge perdue par mois à cause des ruptures</b>${barresH(S.filter(s=>s.margePerdue>0).sort((a,b)=>b.margePerdue-a.margePerdue).map(s=>[s.nom,[[s.margePerdue,DEC[s.decision][1],DEC[s.decision][0]]],'',eur(s.margePerdue)]))}${legende(Object.values(DEC).map(d=>[d[0],d[1]]))}</div>
    ${S.map(s=>`<div class="carte item ${s.id===labStk?'on':''}" data-l="${s.id}" style="${s.id===labStk?'outline:2px solid var(--vert2)':''}"><span class="pt" style="background:${DEC[s.decision][1]}"></span><div class="grow"><b>${esc(s.nom)}</b>
      <div class="sub">${esc(DEC[s.decision][0])}</div><div class="sub">Besoin ${eur(s.besoin)} · attente ${s.attente?eur(s.attente):'—'} · ${s.nRupt} ruptures · ${eur(s.margePerdue)}/mois</div></div></div>`).join('')}`;
   const det=`<div class="carte"><div style="display:flex;gap:8px;align-items:center"><span class="pt" style="background:${DEC[x.decision][1]}"></span><b style="font-size:17px;flex:1">${esc(x.nom)}</b></div>
@@ -958,7 +1116,7 @@ function grapheMasse(){const S=(D.rhSerie||[]).filter(x=>num(x[1])!==null);if(S.
   const ticks=[0,0.25,0.5,0.75,1].map(t=>mx*t);
   const k=v=>Math.round(v/1000)+' k';
   const lab=S.map((x,i)=>{const m=isoMois(x[0]);return (m.slice(5,7)==='01'||i===S.length-1)?`<text x="${X(i)}" y="${H-6}" font-size="9" text-anchor="middle" fill="#78909c">${m.slice(5,7)==='01'?m.slice(0,4):moisFr(m).slice(0,4)+'.'}</text>`:''}).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;margin-top:6px" role="img" aria-label="Masse salariale chargée par mois">
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:340px;margin-top:6px" role="img" aria-label="Masse salariale chargée par mois">
    ${ticks.map(v=>`<line x1="${g}" x2="${W-d}" y1="${Y(v)}" y2="${Y(v)}" stroke="#eceff1"/><text x="${g-4}" y="${Y(v)+3}" font-size="9" text-anchor="end" fill="#78909c">${k(v)}</text>`).join('')}
    ${ref!==null?`<line x1="${g}" x2="${W-d}" y1="${Y(ref)}" y2="${Y(ref)}" stroke="#c62828" stroke-dasharray="4 4"/><text x="${W-d}" y="${Y(ref)-4}" font-size="9" text-anchor="end" fill="#c62828">référence ${k(ref)}</text>`:''}
    <polyline points="${pts}" fill="none" stroke="#2e7d32" stroke-width="2"/>
@@ -1043,6 +1201,7 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
     const tot=a=>P.filter(r=>r.m.startsWith(a)).reduce((s,r)=>s+r.k,0),moisA=a=>new Set(P.filter(r=>r.m.startsWith(a)).map(r=>r.m)).size;
     h=`<div class="carte"><b>Coût employeur par collaborateur et par année</b><div class="sub w">Source : bulletins de paie (onglet PAIE). Coût employeur = salaire brut + charges patronales. Année en cours : mois disponibles seulement.</div>
      <div class="kpis" style="margin-top:8px;grid-template-columns:repeat(${Math.min(ans.length,4)},1fr)">${ans.slice(-4).map(a=>`<div><div class="sub">${a} (${moisA(a)} mois)</div><b>${eur(tot(a))}</b><div class="sub">${eur(tot(a)/(moisA(a)||1))} / mois</div></div>`).join('')}</div></div>
+     <div class="carte"><b>Coût employeur moyen par mois, par année</b>${barresH(ans.map(a=>[a+' ('+moisA(a)+' mois)',[[tot(a)/(moisA(a)||1),'var(--vert2)']],'',eur(tot(a)/(moisA(a)||1))]))}</div>
      <div class="carte"><div class="tw"><table class="t"><tr><th>Collaborateur</th>${ans.map(a=>`<th class="n">${a}</th>`).join('')}<th class="n">Coût horaire ${der}</th></tr>
      ${noms.map(n=>{const q=resp(n),hD=S(n,der,'h');return `<tr><td><b>${esc(n)}</b><div class="sub">${esc((q&&q['Titre'])||P.filter(r=>r.c===n).slice(-1)[0].f||'')}</div></td>${ans.map(a=>{const v=S(n,a,'k');return `<td class="n">${v?eur(v)+`<div class="sub">${nbM(n,a)} mois</div>`:'—'}</td>`}).join('')}<td class="n">${hD?eur2(S(n,der,'k')/hD):'—'}</td></tr>`}).join('')}
      <tr><td><b>Total</b></td>${ans.map(a=>`<td class="n"><b>${eur(tot(a))}</b></td>`).join('')}<td></td></tr></table></div></div>
@@ -1057,7 +1216,8 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
     const exo=m=>{const y=+m.slice(0,4),mo=+m.slice(5,7);return mo>=4?y+'/'+(y+1):(y-1)+'/'+y};
     const E={};rows.forEach(r=>{const e=exo(r.m);E[e]=E[e]||{ms:0,mg:0,n:0,nm:0};E[e].ms+=r.ms;E[e].n++;if(r.mg!==null){E[e].mg+=r.mg;E[e].nm++}});
     h=`<div class="carte"><b>Masse salariale chargée et marge, par exercice (avril → mars)</b><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(${Math.min(Object.keys(E).length,4)},1fr)">${Object.keys(E).sort().slice(-4).map(e=>{const x=E[e];return `<div><div class="sub">Exercice ${e} (${x.n} mois)</div><b>${eur(x.ms)}</b>${x.nm===x.n&&x.mg?`<div class="sub">${pct(x.ms/x.mg)} de la marge</div>`:`<div class="sub">marge : ${x.nm}/${x.n} mois connus</div>`}</div>`}).join('')}</div>
-     <div class="sub w" style="margin-top:6px">Masse salariale : série mensuelle de l'onglet PAIE (bulletins). Exercice 2026/2027 en cours.</div></div>
+     <div class="sub w" style="margin-top:6px">Masse salariale : série mensuelle de l'onglet PAIE (bulletins). Exercice 2026/2027 en cours.</div>
+     ${barresH(rows.filter(r=>r.mg).slice(-24).map(r=>[moisFr(r.m),[[r.ms/r.mg*100,'var(--vert2)']],'',pct(r.ms/r.mg)]),Math.max(60,...rows.filter(r=>r.mg).map(r=>r.ms/r.mg*100)))}<div class="sub" style="margin-top:4px">Salaires / marge, mois par mois (24 derniers mois connus).</div></div>
      <div class="carte"><div class="tw"><table class="t"><tr><th>Mois</th><th class="n">Masse salariale</th><th class="n">Marge</th><th class="n">Salaires / marge</th><th class="n">CA HT</th><th class="n">Salaires / CA</th></tr>
      ${rows.slice().reverse().map(r=>`<tr><td style="text-transform:capitalize">${moisFr(r.m)}</td><td class="n">${eur(r.ms)}</td><td class="n">${r.mg!==null?eur(r.mg):'<span class="sub">à charger</span>'}</td><td class="n ${r.mg&&r.ms/r.mg>0.5?'neg':''}">${r.mg?pct(r.ms/r.mg):'—'}</td><td class="n">${r.ca!=null?eur(r.ca):'—'}</td><td class="n">${r.ca?pct(r.ms/r.ca):'—'}</td></tr>`).join('')}</table></div>
      <div class="sub w" style="margin-top:6px">Marge et CA : onglet PERFORMANCE (mois N et N−1)${A&&A.margeMensuelle?' et historique Vindilis':''}. Les mois « à charger » seront complétés par l'export Vindilis (action A39).</div></div>`;
@@ -1068,6 +1228,8 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
       const cost=n=>{const tk=sansAcc(n).split(/\s+/);const nm=[...new Set(P.map(r=>r.c))].find(c=>tk.includes(sansAcc(c)));if(!nm)return null;const L=P.filter(r=>r.c===nm&&r.m>=pr.du.slice(0,7)+'-01'&&r.m<=pr.au);return L.length?{k:L.reduce((s,r)=>s+r.k,0),h:L.reduce((s,r)=>s+r.h,0),nm}:null};
       const L=pr.lignes.map(x=>({...x,c:cost(x.nom)})).sort((a,b)=>b.margeLibre-a.margeLibre);
       return `<div class="carte"><b>${esc(pr.libelle)}</b><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(3,1fr)"><div><div class="sub">Ventes</div><b>${ent(pr.total.ventes)}</b></div><div><div class="sub">Marge totale</div><b>${eur(pr.total.marge)}</b></div><div><div class="sub">dont sans ordonnance</div><b>${eur(pr.total.margeLibre)}</b> <span class="sub">(${pct(pr.total.margeLibre/pr.total.marge)})</span></div></div><div class="sub w" style="margin-top:6px">${esc(pr.source)}</div></div>
+       <div class="chart2"><div class="carte"><b>Marge : avec ou sans ordonnance</b>${donut([['Avec ordonnance',Math.round(pr.total.marge-pr.total.margeLibre),'var(--bleu)',null,eur(pr.total.marge-pr.total.margeLibre)],['Sans ordonnance (conseil, para.)',Math.round(pr.total.margeLibre),'var(--vert2)',null,eur(pr.total.margeLibre)]],pct(pr.total.margeLibre/pr.total.marge),'sans ordonnance')}</div>
+       <div class="carte"><b>Marge par collaborateur</b>${barresH(L.slice(0,14).map(x=>[x.nom,[[x.margeLibre,'var(--vert2)','sans ordonnance'],[Math.max(0,x.marge-x.margeLibre),'var(--bleu)','avec ordonnance']],'',eur(x.marge)]))}${legende([['Sans ordonnance','var(--vert2)'],['Avec ordonnance','var(--bleu)']])}</div></div>
        <div class="carte"><b>Classement sur la marge sans ordonnance (conseil, parapharmacie)</b><div class="tw"><table class="t"><tr><th>Collaborateur</th><th class="n">Ventes</th><th class="n">Marge totale</th><th class="n">Marge sans ordo.</th><th class="n">Part sans ordo.</th><th class="n">Marge / vente sans ordo.</th><th class="n">Coût employeur</th><th class="n">Marge sans ordo. / heure payée</th></tr>
        ${L.map(x=>`<tr><td><b>${esc(x.nom)}</b></td><td class="n">${ent(x.ventes)}</td><td class="n">${eur(x.marge)}</td><td class="n"><b>${eur(x.margeLibre)}</b></td><td class="n">${x.marge?pct(x.margeLibre/x.marge):'—'}</td><td class="n">${x.ventesLibre?eur2(x.margeLibre/x.ventesLibre):'—'}</td><td class="n">${x.c?eur(x.c.k):'<span class="sub">—</span>'}</td><td class="n">${x.c&&x.c.h?eur2(x.margeLibre/x.c.h):'—'}</td></tr>`).join('')}</table></div>
        <div class="sub w" style="margin-top:6px">Coût employeur et heures : bulletins de paie de la même période (rapprochement par le prénom). « — » : pas de bulletin trouvé (titulaire, intérimaire, stagiaire, ou prénom différent).</div></div>`}).join('')+
