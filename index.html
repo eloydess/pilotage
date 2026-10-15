@@ -109,7 +109,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='2.0';
+const APP_V='2.1';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📺','Écrans & événements','Écrans'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -455,7 +455,7 @@ async function chargerAudit(){const c=cfg();if(!c.code)return;
   let o=null;try{const r=await fetch('audit.enc.json?t='+Date.now());if(r.ok){o=await r.json();ls.set('pil_audit',JSON.stringify(o))}}catch(e){}
   if(!o){try{o=JSON.parse(ls.get('pil_audit')||'null')}catch(e){}}
   if(!o){auditErr='Analyses indisponibles (hors ligne).';return}
-  try{A=await dechiffrer(o,c.code);auditErr='';majBandeau();if(D)rendre()}catch(e){A=null;auditErr='Analyses illisibles avec ce code d\'accès.'}}
+  try{A=await dechiffrer(o,c.code);auditErr='';majBandeau();if(D)rendre();chargerEtat()}catch(e){A=null;auditErr='Analyses illisibles avec ce code d\'accès.'}}
 function majBandeau(){const m=$('#maj');if(m)m.textContent=A?'Analyses du '+A.majLib.replace(/^\w+ /,'').replace(' 2026',''):''}
 const pc1=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %');
 const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
@@ -465,8 +465,17 @@ const lienV=(t,v)=>`<span class="lien" data-go="${v}">${t}</span>`;
 function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1]}rendre();scrollTo(0,0)})}
 const pasAudit=()=>`<div class="carte al o"><b class="t">Analyses du 15/10 non chargées</b><div class="sub w">${esc(auditErr||'Chargement…')} Les données du serveur restent affichées.</div></div>`;
 
-/* ---------- Statut des 10 actions (enregistré sur cet appareil) ---------- */
-const actFaite=id=>ls.get('pil_act_'+id)==='1';
+/* ---------- État partagé (serveur, onglet ETAT_APPLI) : téléphone et ordinateur voient la même chose ---------- */
+let ETAT=(()=>{try{return JSON.parse(ls.get('pil_etat')||'{}')}catch(e){return {}}})();
+async function chargerEtat(){const c=cfg();if(!c.code)return;try{const r=await fetch(c.url,{method:'POST',body:JSON.stringify({code:c.code,action:'etat_get'})});const j=await r.json();if(!j.ok)return;
+  ETAT=j.etat||{};
+  // reprise des cases cochées sur cet appareil avant la synchronisation
+  if(A)for(const a of A.actions){const k='act_'+a.id;if(ls.get('pil_act_'+a.id)==='1'&&!(k in ETAT)){ETAT[k]='1';poster({action:'etat_set',cle:k,valeur:'1'})}}
+  ls.set('pil_etat',JSON.stringify(ETAT));if(D&&(vue==='act'||vue==='acc'))rendre()}catch(e){}}
+async function majEtat(k,v){const av=ETAT[k];ETAT[k]=v;ls.set('pil_etat',JSON.stringify(ETAT));
+  if(!(await poster({action:'etat_set',cle:k,valeur:v}))){if(av===undefined)delete ETAT[k];else ETAT[k]=av;ls.set('pil_etat',JSON.stringify(ETAT));return false}return true}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chargerEtat()});
+const actFaite=id=>ETAT['act_'+id]==='1';
 const joursAv=d=>{const j=jours(d);return j===null?'':j>0?'en retard de '+j+' j':j===0?'aujourd\'hui':'dans '+(-j)+' j'};
 
 /* ---------- ACCUEIL ---------- */
@@ -555,12 +564,12 @@ function actions(){fab(null);
   const L=A.actions.slice().sort((a,b)=>actFaite(a.id)-actFaite(b.id)||String(a.quand).localeCompare(String(b.quand)));
   const nF=A.actions.filter(a=>actFaite(a.id)).length;
   $('#m').innerHTML=sousNav('sa',[['dix','Les 10 actions'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+
-   `<div class="carte"><b>${nF} sur ${A.actions.length} faites</b><div class="barre"><i style="width:${nF*10}%"></i></div><div class="sub w">Dix actions au maximum, chacune avec un responsable, une échéance et ce qu'elle rapporte. Cochez quand c'est fait (enregistré sur cet appareil).</div></div>
+   `<div class="carte"><b>${nF} sur ${A.actions.length} faites</b><div class="barre"><i style="width:${nF*10}%"></i></div><div class="sub w">Dix actions au maximum, chacune avec un responsable, une échéance et ce qu'elle rapporte. Cochez quand c'est fait : c'est enregistré sur le serveur et visible sur le téléphone comme sur l'ordinateur.</div></div>
    ${L.map(a=>{const f=actFaite(a.id),j=jours(a.quand);return `<div class="carte demi ${f?'fait':''}"><div class="chk"><input type="checkbox" data-id="${a.id}" ${f?'checked':''} aria-label="Fait"><div class="grow"><b>${esc(a.titre)}</b>
     <div class="sub w" style="margin-top:4px">👤 ${esc(a.qui)} · 📅 ${dfr(a.quand)} ${f?'':`<span class="${j!==null&&j>0?'neg':''}">(${joursAv(a.quand)})</span>`}</div>
     <div class="sub w">🎯 ${esc(a.enjeu)}</div>${a.detail?`<div class="sub w" style="margin-top:4px">${esc(a.detail)}</div>`:''}</div></div></div>`}).join('')}`;
   navA();
-  document.querySelectorAll('.chk input').forEach(c=>c.onchange=()=>{ls.set('pil_act_'+c.dataset.id,c.checked?'1':'0');toast(c.checked?'Action faite':'Action rouverte');actions()});}
+  document.querySelectorAll('.chk input').forEach(c=>c.onchange=async()=>{const v=c.checked?'1':'0';ls.set('pil_act_'+c.dataset.id,v);const ok=await majEtat('act_'+c.dataset.id,v);toast(ok?(c.checked?'Action faite — visible sur tous vos appareils':'Action rouverte'):'Non enregistré (réseau) : réessayez');actions()});}
 
 /* ---------- LABOS & PRIX ---------- */
 let sousLab='prix';
