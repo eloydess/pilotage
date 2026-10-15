@@ -111,7 +111,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='2.5';
+const APP_V='2.6';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans','Écrans'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -615,11 +615,11 @@ function promos(){$('#ht').textContent='Promos';fab(null);
   if(sousPro==='why'&&A.pourquoi){const W=A.pourquoi,V={ok:['✅','Ça marche','var(--vert2)'],mitige:['🟡','Mitigé','var(--orange)'],ko:['❌','Ne sort pas','var(--rouge)']};
     const L=W.promos.filter(x=>filtreWhy==='Tous'||x.verdict===filtreWhy),c=k=>W.promos.filter(x=>x.verdict===k).length;
     h=`<div class="carte"><b>Promotions d'octobre : ce qui sort, ce qui ne sort pas</b><div class="sub w" style="margin-top:4px">${esc(W.periode)}. ${W.total.n} promotions ont vendu au moins une fois : ${ent(W.total.q)} unités au prix promo, ${eur2(W.total.ca)} HT, pour ${eur2(W.total.remise)} HT de remise accordée. <b style="color:var(--rouge)">${W.zero.length} promotions de 2026 actives n'ont fait aucune vente</b>, et ${W.legacy} anciennes promotions « permanentes » sont encore ouvertes dans Vindilis (à nettoyer).</div>
-     <div class="sub w" style="margin-top:6px">Pour chaque promotion : ventes au prix promo par jour, ventes de la gamme sans la remise, évolution du laboratoire contre octobre 2025, présence à l'écran, puis la cause probable et quoi faire. <b>À venir</b> : l'écart de prix avec le marché GERS produit par produit (connexion GERS à rouvrir) et l'inventaire complet des écrans.</div></div>
+     <div class="sub w" style="margin-top:6px">Pour chaque promotion : ventes au prix promo par jour, ventes de la gamme sans la remise, évolution du laboratoire contre octobre 2025, présence à l'écran, puis la cause probable et quoi faire. Écrans relevés le 15/10 dans Cenareo et MagicInfo : la plupart des marques ne sont à l'écran que depuis le 12/10, l'effet se mesure le 26/10. <b>À venir</b> : l'écart de prix avec le marché GERS produit par produit (connexion GERS à rouvrir).</div></div>
      <div class="filtres" id="fw">${['Tous','ok','mitige','ko'].map(k=>`<button data-f="${k}" class="${k===filtreWhy?'on':''}">${k==='Tous'?'Toutes ('+W.promos.length+')':V[k][0]+' '+V[k][1]+' ('+c(k)+')'}</button>`).join('')}</div>
      ${L.map(x=>{const v=V[x.verdict];return `<div class="carte demi" style="border-left:5px solid ${v[2]}"><div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:18px">${v[0]}</span><div style="flex:1"><b>${esc(x.nom)}</b><div class="sub">${esc(x.type)} · ${esc(x.debut)} → ${esc(x.fin)}</div></div></div>
       <div class="kpis" style="margin-top:8px;grid-template-columns:repeat(3,1fr)"><div><div class="sub">Au prix promo</div><b>${ent(x.q)} u</b> <span class="sub">(${String(x.parJour).replace('.',',')}/jour)</span></div><div><div class="sub">Gamme sans remise</div><b>${ent(x.qHP)} u</b></div><div><div class="sub">Labo vs oct. 2025</div>${x.labo?`<b class="${cls(x.labo.ev)}">${pc1(x.labo.ev)}</b><div class="sub">${ent(x.labo.u25)} → ${ent(x.labo.u26)} u</div>`:'<span class="sub">—</span>'}</div></div>
-      <div class="sub w" style="margin-top:6px">📺 ${x.ecran?esc(x.ecran):'Écran : non relevé'} · Remise accordée ${eur2(x.remise)} HT · ${x.nProd} produit(s) vendu(s) en promo</div>
+      <div class="sub w" style="margin-top:6px">📺 ${x.ecran?'Marque à l\'écran : '+esc(x.ecran):'Marque absente des écrans'} · Remise accordée ${eur2(x.remise)} HT · ${x.nProd} produit(s) vendu(s) en promo</div>
       ${x.causes.length?`<div style="margin-top:6px;font-size:14px">${x.causes.map(t=>'• '+esc(t)).join('<br>')}</div>`:''}
       <div style="margin-top:6px;font-size:14px"><b>→ ${esc(x.reco)}</b></div>
       <details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Détail par produit (${x.produits.length})</summary><div class="tw"><table class="t"><tr><th>Produit</th><th class="n">Promo</th><th class="n">Sans remise</th></tr>${x.produits.map(r=>`<tr><td>${esc(r[0])}</td><td class="n">${ent(r[1])}</td><td class="n">${ent(r[2])}</td></tr>`).join('')}</table></div></details></div>`}).join('')}
@@ -786,7 +786,11 @@ async function ecransMenu(){const nav=sousNav('sc',[['ecr','Écrans'],['plan','P
   const bind=()=>document.querySelectorAll('#sc button').forEach(b=>b.onclick=()=>{sousEcr=b.dataset.k;ecransMenu();scrollTo(0,0)});
   if(sousEcr==='plan'){await vuePlan(nav,ecransMenu);bind();return}
   if(sousEcr==='ray')rayon();else ecrans();$('#ht').textContent='Écrans';
-  const extra=sousEcr==='ecr'?`<div class="carte al b"><b class="t">Mesure des écrans : sur la durée</b><div class="sub w">Un écran se juge sur plusieurs semaines : ventes du produit diffusé 2 à 4 semaines pendant la diffusion, contre la même durée avant. Parc réel : 13 écrans MagicInfo + 4 Cenareo ; les fiches ci-dessous sont à compléter avec le contenu réellement diffusé (mis en place le 12/10). Règle : ne jamais diffuser un produit en rupture.</div></div>`:'';
+  const I=A&&A.ecransInventaire;const inv=I?`<div class="carte"><b>Ce qui passe à l'écran (relevé du ${esc(I.releve)})</b>
+   <div class="sub w" style="margin-top:6px"><b style="color:var(--txt)">Cenareo</b> — ${I.cenareo.ecrans.map(esc).join(' · ')} — ${I.cenareo.campagnes} campagnes en cours. Marques : ${I.cenareo.marques.map(esc).join(', ')} (depuis le ${esc(I.cenareo.depuis)}). Publicités du réseau : ${I.cenareo.reseau.map(esc).join(', ')}.</div>
+   <div class="sub w" style="margin-top:6px"><b style="color:var(--txt)">MagicInfo</b> — ${I.magicinfo.ecrans} écrans, listes : ${I.magicinfo.listes.map(esc).join(', ')} (mises à jour le ${esc(I.magicinfo.depuis)}).</div>
+   <div class="sub w" style="margin-top:6px">L'effet de chaque marque à l'écran se lit dans Promos › « Pourquoi ça ne sort pas », à remesurer le 26/10 (2 semaines de diffusion).</div></div>`:'';
+  const extra=sousEcr==='ecr'?`<div class="carte al b"><b class="t">Mesure des écrans : sur la durée</b><div class="sub w">Un écran se juge sur plusieurs semaines : ventes du produit diffusé 2 à 4 semaines pendant la diffusion, contre la même durée avant. Parc réel : 13 écrans MagicInfo + 4 Cenareo ; les fiches ci-dessous sont à compléter avec le contenu réellement diffusé (mis en place le 12/10). Règle : ne jamais diffuser un produit en rupture.</div></div>`+inv:'';
   $('#m').insertAdjacentHTML('afterbegin',nav+extra);bind()}
 
 /* ---------- Commandes (relevé du serveur) ---------- */
