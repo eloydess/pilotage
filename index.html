@@ -77,6 +77,7 @@ table.t tr.tot td{font-weight:700;border-top:2px solid var(--ligne)}
 .fait{opacity:.55}.fait .grow b{text-decoration:line-through}
 .pt{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
 .split>*{min-width:0}
+.planbox{overflow-x:auto;margin-bottom:10px;border:1px solid var(--ligne);border-radius:12px}.splitplan>*{min-width:0}
 .lien{color:var(--vert2);font-weight:600;cursor:pointer;text-decoration:underline}
 /* --- Version ordinateur (même adresse, mêmes données) --- */
 @media (min-width:1024px){
@@ -95,6 +96,7 @@ main>.item,main>.reco,main>.op,main>.demi{grid-column:auto}
 .tuiles{grid-template-columns:repeat(4,1fr)}
 .item .sub{white-space:normal}
 .split{display:grid;grid-template-columns:minmax(360px,420px) 1fr;gap:16px;align-items:start}
+.splitplan{display:grid;grid-template-columns:minmax(0,2fr) minmax(320px,1fr);gap:16px;align-items:start}.planbox svg{min-width:0!important}
 .split>.gauche{position:sticky;top:80px;max-height:calc(100vh - 100px);overflow:auto}
 .fab{bottom:28px;right:28px}
 #toast{bottom:40px}
@@ -109,7 +111,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='2.2';
+const APP_V='2.3';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📺','Écrans & événements','Écrans'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -687,10 +689,61 @@ function stock(){$('#ht').textContent='Stock & commandes';fab(null);
   document.querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{labStk=e.dataset.l;recherche='';stock();if(innerWidth<1024){const d=$('#det');if(d)d.scrollIntoView({behavior:'smooth'})}});
   const q=$('#qs');if(q)q.oninput=()=>{recherche=q.value;stock();const n=$('#qs');n.focus();n.setSelectionRange(n.value.length,n.value.length)};}
 
+
+/* ---------- PLAN 2D DU MAGASIN : emplacements, coins chauds / froids, promos, écrans ---------- */
+let PLAN=null,blocSel='',modePlan='marge';
+async function chargerPlan(){if(PLAN)return PLAN;try{PLAN=await (await fetch('plan.json')).json()}catch(e){PLAN=null}return PLAN}
+const planEtat=()=>{try{return JSON.parse(ETAT.plan||'{}')}catch(e){return {}}};
+const aire=p=>Math.abs(p.reduce((s,a,i)=>{const b=p[(i+1)%p.length];return s+a[0]*b[1]-b[0]*a[1]},0)/2);
+function infosBloc(id,E){const e=E[id]||{};const labs=String(e.labos||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const m=labs.reduce((t,l)=>{const x=(D.labos||[]).find(z=>String(z['Laboratoire']).toUpperCase().startsWith(l.toUpperCase()));return t+(x?(num(x['Marge € 12 mois'])||0):0)},0);
+  const pr=A&&A.pourquoi&&e.promo?A.pourquoi.promos.find(x=>x.nom===e.promo):null;return {e,labs,m,pr}}
+async function planVue(){await chargerPlan();const P=PLAN;if(!P){$('#m').insertAdjacentHTML('beforeend','<p class="vide">Plan indisponible.</p>');return ''}
+  const E=planEtat();const I={};P.blocs.forEach(b=>{const x=infosBloc(b.id,E);x.dens=x.m/Math.max(1,aire(b.p));I[b.id]=x});
+  const dens=Object.values(I).filter(x=>x.m>0).map(x=>x.dens).sort((a,b)=>a-b);const q=f=>dens.length?dens[Math.floor((dens.length-1)*f)]:0;const q1=q(.33),q2=q(.66);
+  const coul=id=>{const x=I[id];if(modePlan==='promo'){if(!x.pr)return '#cfd8dc';return {ok:'#43a047',mitige:'#fb8c00',ko:'#e53935'}[x.pr.verdict]}
+    if(!x.m)return '#cfd8dc';return x.dens>=q2?'#e53935':x.dens>=q1?'#fb8c00':'#42a5f5'};
+  const [x0,y0,x1,y1]=P.bbox;const ecr=(D.positions||[]).filter(p=>/cran/i.test(p['Type']||'')).map(p=>{const v=String(p['Position']).split(' ').map(parseFloat);return {c:p['Code'],x:v[0],y:v[2]}});
+  const svg=`<svg viewBox="${x0} ${y0} ${x1-x0} ${y1-y0}" style="width:100%;min-width:760px;height:auto;background:var(--carte);border-radius:10px" role="img" aria-label="Plan de la surface de vente">
+   ${P.murs.map(r=>`<polyline points="${r.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#78909c" stroke-width=".15"/>`).join('')}
+   ${P.blocs.map(b=>`<g class="bloc" data-id="${b.id}" style="cursor:pointer"><polygon points="${b.p.map(p=>p.join(',')).join(' ')}" fill="${coul(b.id)}" fill-opacity=".75" stroke="${b.id===blocSel?'#1b5e20':'#455a64'}" stroke-width="${b.id===blocSel?.35:.08}"/>
+     <text x="${b.c[0]}" y="${b.c[1]+.35}" font-size=".9" text-anchor="middle" fill="#263238" style="pointer-events:none">${I[b.id].e.nom?esc(String(I[b.id].e.nom).slice(0,14)):b.id}</text></g>`).join('')}
+   ${ecr.map(e=>`<text x="${e.x}" y="${e.y}" font-size="1.6" text-anchor="middle">📺</text>`).join('')}
+</svg>`;
+  const rempli=P.blocs.filter(b=>I[b.id].labs.length||I[b.id].e.nom).length;
+  // recommandations du plan
+  const R=[];P.blocs.forEach(b=>{const x=I[b.id];if(x.pr&&x.pr.verdict==='ko'&&x.m&&x.dens<q1)R.push(`${x.e.nom||b.id} : la promotion « ${x.pr.nom} » ne sort pas et l'emplacement est froid → la déplacer dans un coin chaud.`);
+    if(x.pr&&x.pr.verdict==='ko'&&x.dens>=q2)R.push(`${x.e.nom||b.id} : coin chaud mais la promotion « ${x.pr.nom} » ne sort pas → le problème est le produit ou le prix, pas l'emplacement.`)});
+  const chauds=P.blocs.filter(b=>I[b.id].m&&I[b.id].dens>=q2&&!I[b.id].pr).slice(0,3);if(chauds.length)R.push(`Coins chauds sans promotion : ${chauds.map(b=>I[b.id].e.nom||b.id).join(', ')} → y placer la prochaine promotion importante.`);
+  const sel=blocSel&&P.blocs.find(b=>b.id===blocSel),xs=sel?I[sel.id]:null;
+  const promosOpt=A&&A.pourquoi?A.pourquoi.promos.map(x=>x.nom):[];
+  const panneau=sel?`<div class="carte"><b>Emplacement ${sel.id}</b> <span class="sub">(${aire(sel.p).toFixed(1).replace('.',',')} m² au sol)</span>
+    <label>Nom (ex. « TG entrée Avène », « Linéaire solaires »)</label><input id="pn" value="${esc(xs.e.nom||'')}">
+    <label>Laboratoire(s) présentés, séparés par des virgules</label><input id="pl" list="dlLabs" value="${esc(xs.e.labos||'')}"><datalist id="dlLabs">${(D.labos||[]).slice(0,300).map(l=>`<option value="${esc(String(l['Laboratoire']).replace(/ T20\d\d.*$/,''))}">`).join('')}</datalist>
+    <label>Promotion en cours à cet endroit</label><select id="pp"><option value=""></option>${promosOpt.map(n=>`<option ${n===xs.e.promo?'selected':''}>${esc(n)}</option>`).join('')}</select>
+    <label>Écran relais (code ou nom)</label><input id="pe" value="${esc(xs.e.ecran||'')}">
+    <label>Note</label><input id="pc" value="${esc(xs.e.note||'')}">
+    ${xs.m?`<div class="sub w" style="margin-top:8px">Marge 12 mois des labos présentés : <b style="color:var(--txt)">${eur(xs.m)}</b>${xs.pr?` · promotion : ${({ok:'✅ ça marche',mitige:'🟡 mitigé',ko:'❌ ne sort pas'})[xs.pr.verdict]} (${ent(xs.pr.q)} u en ${xs.pr.jours} j)`:''}</div>`:''}
+    <button class="btn" id="psv">Enregistrer (visible sur tous vos appareils)</button></div>`:'<div class="carte"><div class="sub w">Touchez un emplacement du plan pour indiquer ce qu\'il présente (laboratoires, promotion, écran relais).</div></div>';
+  return `<div class="carte"><b>Plan de la surface de vente</b><div class="sub w" style="margin-top:4px">Plan léger tiré de votre maquette 3D (69 emplacements). ${rempli} emplacement(s) renseigné(s). Couleur = ${modePlan==='promo'?'résultat de la promotion placée à cet endroit':'marge des laboratoires présentés par m² : rouge = coin chaud, orange = moyen, bleu = coin froid, gris = à renseigner'}.</div>
+   <div class="filtres" id="pm" style="margin-top:8px">${[['marge','Coins chauds / froids'],['promo','Promotions placées']].map(o=>`<button data-k="${o[0]}" class="${o[0]===modePlan?'on':''}">${o[1]}</button>`).join('')}<button id="b3d2">Vue 3D</button></div></div>
+   <div class="splitplan"><div class="planbox">${svg}</div><div>${panneau}
+   <div class="carte"><b>Recommandations du plan</b>${R.length?R.map(t=>`<div style="margin-top:6px;font-size:14px">→ ${esc(t)}</div>`).join(''):`<div class="sub w" style="margin-top:4px">Elles apparaîtront dès que les emplacements seront renseignés (laboratoires et promotions) : coins froids à réveiller, promotions mal placées, coins chauds libres.</div>`}
+   <div class="sub w" style="margin-top:8px">Prochaine étape : le parcours client type (entrée → comptoir) tracé sur ce plan, et la mesure avant / après de chaque déplacement.</div></div></div></div>`}
+
 /* ---------- ÉCRANS & ÉVÉNEMENTS ---------- */
-let sousEve='agd';
+let sousEve='plan';
 const MANQUANTS=[['Ligue 72 — Octobre Rose','2026-10-19','Place centrale 13 h 30–16 h 30, atelier 16 h 30–17 h 30'],['Campagne de vaccination grippe','2026-10-13','Écran extérieur : un seul message à la fois'],['Calendrier de l\'Avent','2026-10-10','Lancé le 10/10']];
-function evenements(){const nav=sousNav('se',[['agd','Événements'],['ecr','Écrans'],['ray','Rayon']],sousEve);
+async function evenements(){const nav=sousNav('se',[['plan','Plan du magasin'],['agd','Événements'],['ecr','Écrans'],['ray','Rayon (liste)']],sousEve);
+  if(sousEve==='plan'){$('#ht').textContent='Écrans & événements';fab(null);$('#m').innerHTML=nav+'<p class="vide">Chargement du plan…</p>';const h=await planVue();$('#m').innerHTML=nav+h;
+    document.querySelectorAll('#se button').forEach(b=>b.onclick=()=>{sousEve=b.dataset.k;evenements();scrollTo(0,0)});
+    document.querySelectorAll('.bloc').forEach(g=>g.onclick=()=>{blocSel=g.dataset.id;const y=scrollY;evenements().then(()=>{if(innerWidth<1024){const c=document.querySelector('#pn');if(c)c.scrollIntoView({behavior:'smooth',block:'center'})}else scrollTo(0,y)})});
+    document.querySelectorAll('#pm button[data-k]').forEach(b=>b.onclick=()=>{modePlan=b.dataset.k;evenements()});
+    const b3=$('#b3d2');if(b3)b3.onclick=()=>{location.href='3d.html'};
+    const sv=$('#psv');if(sv)sv.onclick=async()=>{const E=planEtat();E[blocSel]={nom:$('#pn').value.trim(),labos:$('#pl').value.trim(),promo:$('#pp').value,ecran:$('#pe').value.trim(),note:$('#pc').value.trim()};
+      if(!E[blocSel].nom&&!E[blocSel].labos&&!E[blocSel].promo&&!E[blocSel].ecran&&!E[blocSel].note)delete E[blocSel];
+      sv.disabled=true;sv.textContent='Enregistrement…';const ok=await majEtat('plan',JSON.stringify(E));toast(ok?'Emplacement enregistré':'Non enregistré (réseau)');evenements()};
+    return}
   if(sousEve==='agd')agendaListe();else if(sousEve==='ecr')ecrans();else rayon();
   $('#ht').textContent='Écrans & événements';
   const noms=(D.calendrier||[]).map(e=>sansAcc(e['Événement']));
