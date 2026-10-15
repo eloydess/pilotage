@@ -23,7 +23,7 @@ header button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius
 main{padding:12px 16px;max-width:760px;margin:auto}
 .fige{position:sticky;top:var(--hh,52px);z-index:4;background:var(--fond);margin:0 -16px;padding:8px 16px 2px;box-shadow:0 6px 8px -8px rgba(0,0,0,.35)}.fige>.carte{margin-top:0}.fige .titre{margin:6px 0 4px}
 .leg{font-size:12px;color:var(--doux);white-space:normal;line-height:1.6}
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(7,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(8,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;color:var(--doux);padding:6px 1px 5px;font-size:10px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:54px;line-height:1.15;text-align:center}
 nav button span{font-size:19px}
 nav button .lc{display:none}
@@ -111,8 +111,8 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='2.3';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📺','Écrans & événements','Écrans'],['mois','📈','Mois & équipe','Mois']];
+const APP_V='2.4';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans','Écrans'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -191,7 +191,7 @@ function navig(){
 function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;const ok={};(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>0)ok[l['Laboratoire']]=1});
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
 function rendre(){navig(); filtrerOps(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
-  ({acc:accueil,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,mois:mois,cfg:reglages}[vue]||accueil)();}
+  ({acc:accueil,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
 function carteReco(r,i){
@@ -464,7 +464,7 @@ const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
 const eurS=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.round(Math.abs(v)).toLocaleString('fr-FR')+' €');
 const sousNav=(id,opts,cur)=>`<div class="filtres" id="${id}">${opts.map(o=>`<button data-k="${o[0]}" class="${o[0]===cur?'on':''}">${o[1]}</button>`).join('')}</div>`;
 const lienV=(t,v)=>`<span class="lien" data-go="${v}">${t}</span>`;
-function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1]}rendre();scrollTo(0,0)})}
+function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1];if(vue==='ecr')sousEcr=p[1]}rendre();scrollTo(0,0)})}
 const pasAudit=()=>`<div class="carte al o"><b class="t">Analyses du 15/10 non chargées</b><div class="sub w">${esc(auditErr||'Chargement…')} Les données du serveur restent affichées.</div></div>`;
 
 /* ---------- État partagé (serveur, onglet ETAT_APPLI) : téléphone et ordinateur voient la même chose ---------- */
@@ -731,27 +731,63 @@ async function planVue(){await chargerPlan();const P=PLAN;if(!P){$('#m').insertA
    <div class="carte"><b>Recommandations du plan</b>${R.length?R.map(t=>`<div style="margin-top:6px;font-size:14px">→ ${esc(t)}</div>`).join(''):`<div class="sub w" style="margin-top:4px">Elles apparaîtront dès que les emplacements seront renseignés (laboratoires et promotions) : coins froids à réveiller, promotions mal placées, coins chauds libres.</div>`}
    <div class="sub w" style="margin-top:8px">Prochaine étape : le parcours client type (entrée → comptoir) tracé sur ce plan, et la mesure avant / après de chaque déplacement.</div></div></div></div>`}
 
-/* ---------- ÉCRANS & ÉVÉNEMENTS ---------- */
-let sousEve='plan';
+/* ---------- ÉVÉNEMENTS (mesurés sur une journée) et ÉCRANS (mesurés sur la durée) : deux menus, le plan du magasin en commun ---------- */
+let sousEve='mes',sousEcr='ecr';
 const MANQUANTS=[['Ligue 72 — Octobre Rose','2026-10-19','Place centrale 13 h 30–16 h 30, atelier 16 h 30–17 h 30'],['Campagne de vaccination grippe','2026-10-13','Écran extérieur : un seul message à la fois'],['Calendrier de l\'Avent','2026-10-10','Lancé le 10/10']];
-async function evenements(){const nav=sousNav('se',[['plan','Plan du magasin'],['agd','Événements'],['ecr','Écrans'],['ray','Rayon (liste)']],sousEve);
-  if(sousEve==='plan'){$('#ht').textContent='Écrans & événements';fab(null);$('#m').innerHTML=nav+'<p class="vide">Chargement du plan…</p>';const h=await planVue();$('#m').innerHTML=nav+h;
-    document.querySelectorAll('#se button').forEach(b=>b.onclick=()=>{sousEve=b.dataset.k;evenements();scrollTo(0,0)});
-    document.querySelectorAll('.bloc').forEach(g=>g.onclick=()=>{blocSel=g.dataset.id;const y=scrollY;evenements().then(()=>{if(innerWidth<1024){const c=document.querySelector('#pn');if(c)c.scrollIntoView({behavior:'smooth',block:'center'})}else scrollTo(0,y)})});
-    document.querySelectorAll('#pm button[data-k]').forEach(b=>b.onclick=()=>{modePlan=b.dataset.k;evenements()});
-    const b3=$('#b3d2');if(b3)b3.onclick=()=>{location.href='3d.html'};
-    const sv=$('#psv');if(sv)sv.onclick=async()=>{const E=planEtat();E[blocSel]={nom:$('#pn').value.trim(),labos:$('#pl').value.trim(),promo:$('#pp').value,ecran:$('#pe').value.trim(),note:$('#pc').value.trim()};
-      if(!E[blocSel].nom&&!E[blocSel].labos&&!E[blocSel].promo&&!E[blocSel].ecran&&!E[blocSel].note)delete E[blocSel];
-      sv.disabled=true;sv.textContent='Enregistrement…';const ok=await majEtat('plan',JSON.stringify(E));toast(ok?'Emplacement enregistré':'Non enregistré (réseau)');evenements()};
-    return}
-  if(sousEve==='agd')agendaListe();else if(sousEve==='ecr')ecrans();else rayon();
-  $('#ht').textContent='Écrans & événements';
+const REP_MARGE_VENTE=7,REP_TAUX=0.23;
+const mesuresSaisies=()=>{try{return JSON.parse(ETAT.evenements_mesures||'[]')}catch(e){return []}};
+function verdictEv(m){const mv=m.ventes?m.marge/m.ventes:0,t=m.ht?m.marge/m.ht:0;
+  if(!m.ventes)return ['⏳','À mesurer','var(--bleu)'];
+  if(mv>=3*REP_MARGE_VENTE&&t>=REP_TAUX)return ['✅','Très bénéfique','var(--vert2)'];
+  if(mv>=REP_MARGE_VENTE&&t>=REP_TAUX-0.02)return ['🟢','Bénéfique','var(--vert2)'];
+  if(mv>=REP_MARGE_VENTE)return ['🟡','Volume oui, taux faible','var(--orange)'];
+  return ['❌','Pas rentable','var(--rouge)']}
+function carteMesure(m,saisie,idx){const v=verdictEv(m),mv=m.ventes?m.marge/m.ventes:null,t=m.ht?m.marge/m.ht:null;
+  return `<div class="carte demi" style="border-left:5px solid ${v[2]}"><div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:18px">${v[0]}</span><div style="flex:1"><b>${esc(m.nom)}</b><div class="sub">${dfr(m.date)}${m.animatrice?' · animée par '+esc(m.animatrice):''} · <b style="color:${v[2]}">${v[1]}</b></div></div></div>
+   ${m.ventes?`<div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Marge encaissée</div><div class="v">${eur2(m.marge)}</div><div class="e" style="color:var(--doux);font-weight:400">${m.ventes} vente(s)</div></div>
+    <div class="kpi"><div class="l">Marge par vente</div><div class="v ${mv>=REP_MARGE_VENTE?'pos':'neg'}">${eur2(mv)}</div><div class="e" style="color:var(--doux);font-weight:400">repère ≈ ${REP_MARGE_VENTE} €</div></div>
+    <div class="kpi"><div class="l">Taux de marge</div><div class="v ${t>=REP_TAUX?'pos':'neg'}">${pct(t)}</div><div class="e" style="color:var(--doux);font-weight:400">repère ≈ ${pct(REP_TAUX)}</div></div>
+    <div class="kpi"><div class="l">Chiffre d'affaires</div><div class="v">${eur2(m.ht)}</div><div class="e" style="color:var(--doux);font-weight:400">HT${m.ttc?' · '+eur2(m.ttc)+' TTC':''}</div></div></div>`:''}
+   ${m.lecture?`<div class="sub w" style="margin-top:6px">${esc(m.lecture)}</div>`:''}
+   ${m.detail&&m.detail.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Marge par vente (${m.detail.length})</summary>${m.detail.map(d=>`<div class="ligne"><span>${esc(d[0])}</span><b>${eur2(d[1])}</b></div>`).join('')}</details>`:''}
+   ${m.source?`<div class="sub w" style="margin-top:6px">Source : ${esc(m.source)}</div>`:''}
+   ${saisie?`<button class="btn sec supm" data-i="${idx}" style="margin-top:8px">Supprimer cette mesure</button>`:''}</div>`}
+function vueMesures(){const base=(A&&A.evenements)||[],S=mesuresSaisies();
+  return `<div class="carte"><b>Chaque animation mesurée en marge</b><div class="sub w" style="margin-top:4px">Mesure = la marge encaissée par l'animatrice le jour J, tous produits confondus (pas seulement la marque mise en avant). Source : Vindilis › Statistiques › Vendeurs, puis rappel des tickets. Repères de la pharmacie : ≈ ${REP_MARGE_VENTE} € de marge par vente et ≈ ${pct(REP_TAUX)} de taux de marge.</div></div>
+   ${base.map(m=>carteMesure(m,false)).join('')}${S.map((m,i)=>carteMesure(m,true,i)).join('')}
+   <div class="carte"><b>Ajouter la mesure d'une animation</b><div class="sub w" style="margin-top:4px">Le soir de l'animation : Vindilis › Statistiques › Vendeurs, filtrer le jour et le code de l'animatrice, relever le nombre de ventes, le CA HT et la marge. La mesure est partagée entre le téléphone et l'ordinateur.</div>
+    <label>Animation</label><input id="mn" placeholder="ex. Masterclass Octobre Rose — Ligue 72">
+    <div class="kpis" style="grid-template-columns:1fr 1fr"><div><label>Date</label><input id="md" type="date"></div><div><label>Animatrice (prénom et fonction)</label><input id="ma"></div>
+    <div><label>Nombre de ventes</label><input id="mv" type="number" inputmode="numeric"></div><div><label>CA HT (€)</label><input id="mh" type="number" step="0.01" inputmode="decimal"></div>
+    <div><label>Marge (€)</label><input id="mm" type="number" step="0.01" inputmode="decimal"></div><div><label>CA TTC (€, facultatif)</label><input id="mt" type="number" step="0.01" inputmode="decimal"></div></div>
+    <button class="btn" id="msv">Enregistrer la mesure</button></div>`}
+function brancherMesures(){const b=$('#msv');if(b)b.onclick=async()=>{const n=x=>{const v=parseFloat(String($(x).value).replace(',','.'));return isNaN(v)?0:v};
+   const m={nom:$('#mn').value.trim(),date:$('#md').value,animatrice:$('#ma').value.trim(),ventes:n('#mv'),ht:n('#mh'),marge:n('#mm'),ttc:n('#mt'),source:'Vindilis › Statistiques › Vendeurs (saisie)'};
+   if(!m.nom||!m.date){toast('Nom et date obligatoires');return}if(m.ventes<0||m.ht<0){toast('Valeurs négatives impossibles');return}
+   const S=mesuresSaisies();S.push(m);b.disabled=true;b.textContent='Enregistrement…';const ok=await majEtat('evenements_mesures',JSON.stringify(S));toast(ok?'Mesure enregistrée':'Non enregistrée (réseau)');evenements()};
+  document.querySelectorAll('.supm').forEach(x=>x.onclick=async()=>{const S=mesuresSaisies();S.splice(+x.dataset.i,1);await majEtat('evenements_mesures',JSON.stringify(S));toast('Mesure supprimée');evenements()})}
+async function vuePlan(nav,rejouer){$('#m').innerHTML=nav+'<p class="vide">Chargement du plan…</p>';const h=await planVue();$('#m').innerHTML=nav+h;fab(null);
+  document.querySelectorAll('.bloc').forEach(g=>g.onclick=()=>{blocSel=g.dataset.id;const y=scrollY;rejouer().then(()=>{if(innerWidth<1024){const c=document.querySelector('#pn');if(c)c.scrollIntoView({behavior:'smooth',block:'center'})}else scrollTo(0,y)})});
+  document.querySelectorAll('#pm button[data-k]').forEach(b=>b.onclick=()=>{modePlan=b.dataset.k;rejouer()});
+  const b3=$('#b3d2');if(b3)b3.onclick=()=>{location.href='3d.html'};
+  const sv=$('#psv');if(sv)sv.onclick=async()=>{const E=planEtat();E[blocSel]={nom:$('#pn').value.trim(),labos:$('#pl').value.trim(),promo:$('#pp').value,ecran:$('#pe').value.trim(),note:$('#pc').value.trim()};
+    if(!E[blocSel].nom&&!E[blocSel].labos&&!E[blocSel].promo&&!E[blocSel].ecran&&!E[blocSel].note)delete E[blocSel];
+    sv.disabled=true;sv.textContent='Enregistrement…';const ok=await majEtat('plan',JSON.stringify(E));toast(ok?'Emplacement enregistré':'Non enregistré (réseau)');rejouer()}}
+async function evenements(){const nav=sousNav('se',[['mes','Mesures'],['agd','Agenda'],['plan','Plan du magasin']],sousEve);$('#ht').textContent='Événements';
+  const bind=()=>document.querySelectorAll('#se button').forEach(b=>b.onclick=()=>{sousEve=b.dataset.k;evenements();scrollTo(0,0)});
+  if(sousEve==='plan'){await vuePlan(nav,evenements);bind();return}
+  if(sousEve==='mes'){fab(null);$('#m').innerHTML=nav+vueMesures();bind();brancherMesures();return}
+  agendaListe();$('#ht').textContent='Événements';
   const noms=(D.calendrier||[]).map(e=>sansAcc(e['Événement']));
   const man=MANQUANTS.filter(m=>!noms.some(n=>n.includes(sansAcc(m[0]).split(' ')[0])));
-  const extra=sousEve==='agd'&&man.length?`<div class="carte al o"><b class="t">Manquent au calendrier</b>${man.map(m=>`<div class="ligne"><span>${esc(m[0])}<br><small style="color:var(--doux)">${esc(m[2])}</small></span><b>${dfr(m[1])}</b></div>`).join('')}<div class="sub w">Bouton + pour les ajouter.</div></div>`:
-    sousEve==='ecr'?`<div class="carte al b"><b class="t">Parc réel : 13 écrans MagicInfo + 4 Cenareo</b><div class="sub w">Les fiches ci-dessous sont à compléter avec le contenu réellement diffusé (mis en place le 12/10). Règle : ne jamais diffuser un produit en rupture.</div></div>`:'';
-  $('#m').insertAdjacentHTML('afterbegin',nav+extra);
-  document.querySelectorAll('#se button').forEach(b=>b.onclick=()=>{sousEve=b.dataset.k;evenements();scrollTo(0,0)});}
+  const extra=man.length?`<div class="carte al o"><b class="t">Manquent au calendrier</b>${man.map(m=>`<div class="ligne"><span>${esc(m[0])}<br><small style="color:var(--doux)">${esc(m[2])}</small></span><b>${dfr(m[1])}</b></div>`).join('')}<div class="sub w">Bouton + pour les ajouter.</div></div>`:'';
+  $('#m').insertAdjacentHTML('afterbegin',nav+extra);bind()}
+async function ecransMenu(){const nav=sousNav('sc',[['ecr','Écrans'],['plan','Plan du magasin'],['ray','Emplacements rayon']],sousEcr);$('#ht').textContent='Écrans';
+  const bind=()=>document.querySelectorAll('#sc button').forEach(b=>b.onclick=()=>{sousEcr=b.dataset.k;ecransMenu();scrollTo(0,0)});
+  if(sousEcr==='plan'){await vuePlan(nav,ecransMenu);bind();return}
+  if(sousEcr==='ray')rayon();else ecrans();$('#ht').textContent='Écrans';
+  const extra=sousEcr==='ecr'?`<div class="carte al b"><b class="t">Mesure des écrans : sur la durée</b><div class="sub w">Un écran se juge sur plusieurs semaines : ventes du produit diffusé 2 à 4 semaines pendant la diffusion, contre la même durée avant. Parc réel : 13 écrans MagicInfo + 4 Cenareo ; les fiches ci-dessous sont à compléter avec le contenu réellement diffusé (mis en place le 12/10). Règle : ne jamais diffuser un produit en rupture.</div></div>`:'';
+  $('#m').insertAdjacentHTML('afterbegin',nav+extra);bind()}
 
 /* ---------- Commandes (relevé du serveur) ---------- */
 function commandes(){
@@ -949,7 +985,7 @@ rendre(); charger(!!D); chargerAudit();
 // Ouverture directe d'une fiche depuis la vue 3D : index.html?ouvrir=SURFACE_VENTE&cle=TG01
 (function(){try{const q=new URLSearchParams(location.search),sh=q.get('ouvrir'),k=q.get('cle');if(!D||!sh||!k)return;
   const l=sh==='SURFACE_VENTE'?D.surface:sh==='ECRANS'?D.ecrans:null;if(!l)return;
-  const x=l.find(r=>String(r[CLES[sh]])===k);vue='eve';sousEve=sh==='SURFACE_VENTE'?'ray':'ecr';navig();formulaire(sh,x||Object.fromEntries([[CLES[sh],k]]));
+  const x=l.find(r=>String(r[CLES[sh]])===k);vue='ecr';sousEcr=sh==='SURFACE_VENTE'?'ray':'ecr';navig();formulaire(sh,x||Object.fromEntries([[CLES[sh],k]]));
   history.replaceState(null,'','index.html');}catch(e){}})();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
