@@ -111,7 +111,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='2.4';
+const APP_V='2.5';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans','Écrans'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -749,7 +749,7 @@ function carteMesure(m,saisie,idx){const v=verdictEv(m),mv=m.ventes?m.marge/m.ve
     <div class="kpi"><div class="l">Taux de marge</div><div class="v ${t>=REP_TAUX?'pos':'neg'}">${pct(t)}</div><div class="e" style="color:var(--doux);font-weight:400">repère ≈ ${pct(REP_TAUX)}</div></div>
     <div class="kpi"><div class="l">Chiffre d'affaires</div><div class="v">${eur2(m.ht)}</div><div class="e" style="color:var(--doux);font-weight:400">HT${m.ttc?' · '+eur2(m.ttc)+' TTC':''}</div></div></div>`:''}
    ${m.lecture?`<div class="sub w" style="margin-top:6px">${esc(m.lecture)}</div>`:''}
-   ${m.detail&&m.detail.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Marge par vente (${m.detail.length})</summary>${m.detail.map(d=>`<div class="ligne"><span>${esc(d[0])}</span><b>${eur2(d[1])}</b></div>`).join('')}</details>`:''}
+   ${m.detail&&m.detail.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Détail de la marge (${m.detail.length})</summary>${m.detail.map(d=>`<div class="ligne"><span>${esc(d[0])}</span><b>${eur2(d[1])}</b></div>`).join('')}</details>`:''}
    ${m.source?`<div class="sub w" style="margin-top:6px">Source : ${esc(m.source)}</div>`:''}
    ${saisie?`<button class="btn sec supm" data-i="${idx}" style="margin-top:8px">Supprimer cette mesure</button>`:''}</div>`}
 function vueMesures(){const base=(A&&A.evenements)||[],S=mesuresSaisies();
