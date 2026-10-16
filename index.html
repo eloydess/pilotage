@@ -130,7 +130,7 @@ main>.item,main>.reco,main>.op,main>.demi{grid-column:auto}
 nav button em{font-style:normal}
 #rg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;justify-content:center;align-items:flex-start;padding:calc(12px + env(safe-area-inset-top)) 12px}
 #rg .rgb{background:var(--fond);border-radius:14px;padding:12px;width:100%;max-width:640px;max-height:85vh;overflow:auto}
-.rpt{cursor:pointer;display:block}.rpt::after{content:' ▾';color:var(--doux);font-weight:400}.rpf>.rpt::after{content:' ▸'}.rpf>*:not(.rpt){display:none!important}
+.rpt{cursor:pointer}.rpt::before{content:'▾ ';color:var(--doux)}.rpt.rpf::before{content:'▸ '}
 .leaflet-container{font:13px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 </style>
 </head>
@@ -1050,12 +1050,13 @@ function vueAnnee(P){const {parC,der}=equipeAnnees(P),ans=[...new Set(P.map(r=>r
    <div class="sub w" style="margin-top:6px">Présence déduite des bulletins de paie : un collaborateur est présent une année s'il a au moins un bulletin cette année-là. Entrée = premier bulletin, sortie = dernier bulletin avant ${moisFr(der)}. Les bulletins de l'application commencent en ${moisFr(P.reduce((s,r)=>!s||r.m<s?r.m:s,''))} : les entrées de ${debut} ne sont pas comptées (personnes déjà là). Touchez un nom pour sa fiche.</div></div>
    ${pres.map(carte).join('')||'<p class="vide">Aucun bulletin pour cette année.</p>'}
    ${a===ans[ans.length-1]&&RHX&&RHX.fiches?(()=>{const sb=RHX.fiches.filter(f=>!pres.some(x=>ficheRh(x.c)===f));return sb.length?`<div class="carte al b"><b class="t">Dans Sivan, sans bulletin de paie dans l'application</b>${sb.map(f=>`<div class="ligne"><span>${esc(f.prenom)} <span class="sub">${esc([f.fonction,f.contrat].filter(Boolean).join(' · '))}${f.entree?' · contrat depuis le '+dfr(f.entree):''}</span></span>${f.tel?`<a href="tel:${esc(f.tel.replace(/\s/g,''))}">📞</a>`:''}</div>`).join('')}<div class="sub w">Arrivée récente (bulletin pas encore importé) ou salarié payé hors de l'onglet PAIE : à vérifier.</div></div>`:''})():''}`}
+const semCycle=()=>{const d0=Date.UTC(2026,7,31),n=Math.floor((Date.now()-d0)/(7*864e5));return ((n%4)+4)%4};
 function vueFicheCol(P){const {parC,der}=equipeAnnees(P),x=parC[ficheCol];if(!x)return '<p class="vide">Collaborateur introuvable.</p>';
   const q=resp(x.c),f=ficheRh(x.c),ans=Object.keys(x.k).sort(),J=['Lun','Mar','Mer','Jeu','Ven','Sam'];
   const tel=f&&f.tel?String(f.tel):'',telH=tel.replace(/[^\d+]/g,'').replace(/^0/,'+33');
-  const plan=f&&f.planning&&f.planning.length?`<div class="carte"><b>Emploi du temps type sur 4 semaines</b><div class="sub">Source : Sivan${RHX.releve?', relevé du '+dfr(RHX.releve):''}</div>
+  const plan=f&&f.planning&&f.planning.length?`<div class="carte"><b>Emploi du temps type sur 4 semaines</b><div class="sub">Source : Sivan${RHX.releve?', relevé du '+dfr(RHX.releve):''} · emploi du temps en vigueur depuis le ${dfr(f.planningDepuis)} · cycle : S1 = semaine du 31/08/2026</div>
     <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Semaine</th>${J.map(j=>`<th>${j}</th>`).join('')}<th class="n">Heures</th></tr>
-    ${f.planning.map((s,i)=>`<tr><td><b>S${i+1}</b></td>${J.map((j,k)=>{const c=(s.jours||[])[k]||'';return `<td style="${c?'background:var(--vcl)':'color:var(--doux)'}">${esc(c||'repos')}</td>`}).join('')}<td class="n">${s.heures!=null?String(s.heures).replace('.',','):'—'}</td></tr>`).join('')}</table></div></div>`
+    ${f.planning.map((s,i)=>`<tr${i===semCycle()?' style="outline:2px solid var(--vert2)"':''}><td><b>S${i+1}</b>${i===semCycle()?'<div class="sub">cette semaine</div>':''}</td>${J.map((j,k)=>{const c=(s.jours||[])[k]||'';return `<td style="${c?'background:var(--vcl)':'color:var(--doux)'}">${esc(c||'repos')}</td>`}).join('')}<td class="n">${s.heures!=null?String(s.heures).replace('.',','):'—'}</td></tr>`).join('')}</table></div></div>`
     :`<div class="carte al o"><b class="t">Emploi du temps</b><div class="sub w">${RHX?'Pas de planning Sivan rapproché pour ce collaborateur.':'Les fiches Sivan (identité, téléphone, planning sur 4 semaines) ne sont pas encore importées dans l\'application.'}</div></div>`;
   return `<button class="btn sec" id="retCol" style="margin:0 0 10px">← Retour</button>
    <div class="carte"><b style="font-size:17px">${esc(f?[f.prenom,f.nom].filter(Boolean).join(' '):x.c)}</b>${q&&q['Titre']?'<div>'+esc(q['Titre'])+'</div>':''}<div class="sub">${esc([x.f,x.ct].filter(Boolean).join(' · '))}</div>
@@ -1091,8 +1092,22 @@ function rechercheGlobale(){const ov=document.createElement('div');ov.id='rg';ov
     document.querySelectorAll('.rgi').forEach(e=>e.onclick=()=>{ov.remove();idx[+e.dataset.i][3]();scrollTo(0,0)})};
   q.oninput=go;go()}
 /* ---------- Cartes repliables : dans les listes longues, on n'ouvre que ce qu'on touche ---------- */
-function replier(){const m=$('#m');if(!m)return;const C=[...m.children].filter(c=>c.classList.contains('carte')&&!c.classList.contains('item')&&!c.classList.contains('nr')&&c.firstElementChild&&c.firstElementChild.tagName==='B'&&c.children.length>1&&!c.querySelector('svg,canvas,#ccarte,#fcarte,input,select,textarea'));
-  if(C.length<5)return;C.forEach((c,i)=>{if(c.dataset.rp)return;c.dataset.rp=1;const b=c.firstElementChild;b.classList.add('rpt');if(i>0)c.classList.add('rpf');b.onclick=()=>c.classList.toggle('rpf')})}
+function replier(){const m=$('#m');if(!m||m.querySelector('#pfiltre'))return;const ch=[...m.children];
+  const cartes=ch.filter(c=>c.classList.contains('carte')||c.classList.contains('item')).length,titres=ch.filter(c=>c.classList.contains('titre'));
+  const aDejaRecherche=!!m.querySelector('input:not([type=date]):not([type=number]):not([type=password])');
+  if(cartes<12&&titres.length<3)return;
+  /* 1. sections repliables : chaque intertitre ouvre / ferme ses cartes */
+  if(titres.length>=3){titres.forEach((t,k)=>{t.classList.add('rpt');const corps=[];let n=t.nextElementSibling;while(n&&!n.classList.contains('titre')&&!n.classList.contains('filtres')){corps.push(n);n=n.nextElementSibling}
+    t._corps=corps;const nb=corps.filter(c=>c.classList.contains('carte')).length;if(nb&&!/\(\d+\)/.test(t.textContent))t.insertAdjacentHTML('beforeend',` <span class="sub">(${nb})</span>`);
+    const fermer=f=>{t.classList.toggle('rpf',f);corps.forEach(c=>c.style.display=f?'none':'')};fermer(k>0);t.onclick=()=>fermer(!t.classList.contains('rpf'))})}
+  /* 2. recherche dans la page, si l'onglet n'en a pas déjà une */
+  if(aDejaRecherche||cartes<8)return;
+  const ancre=ch.find(c=>c.classList.contains('filtres'));const box=document.createElement('div');box.id='pfiltre';box.innerHTML='<input placeholder="🔎 Chercher dans cette page…" autocomplete="off" style="margin:0 0 10px">';
+  if(ancre)ancre.after(box);else m.prepend(box);const inp=box.firstChild;
+  inp.oninput=()=>{const t=sansAcc(inp.value).trim(),W=t.split(/\s+/).filter(Boolean);[...m.children].forEach(c=>{if(c===box||c.classList.contains('filtres')||c.classList.contains('blocact'))return;
+    if(!W.length){c.style.display='';if(c._corps){}return}
+    if(c.classList.contains('titre')){c.style.display='none';return}const s=sansAcc(c.textContent);c.style.display=W.every(w=>s.includes(w))?'':'none'});
+    if(!W.length)titres.forEach((tt,k)=>{if(tt._corps){tt.classList.toggle('rpf',k>0);tt._corps.forEach(x=>x.style.display=k>0?'none':'')}})}}
 
 let filtreTh='Tous',filtreSt='À faire';
 function actions(){fab(null);
