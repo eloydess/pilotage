@@ -135,6 +135,15 @@ nav button em{font-style:normal}
 .leaflet-container{font:13px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 #nav .pst{position:absolute;top:2px;right:calc(50% - 22px);font-style:normal;font-size:10px;font-weight:700;border-radius:9px;padding:1px 5px;background:var(--doux);color:#fff;line-height:1.3}
 .pst.nv{background:var(--rouge)}.incid{border-left:5px solid var(--rouge)}.incid.calme{border-left-color:var(--vert2)}.incb{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.incid .inc{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ligne);font-size:14px}.incid .inc:last-of-type{border:0}.incid .inc .pt{margin-top:5px;flex:none}.incid .grow{flex:1}.nouv{color:var(--rouge);font-size:11px}
+.og-wrap{padding:10px}.og-titre{background:#1B2A4A;color:#C8A951;font-weight:800;text-align:center;border-radius:10px;padding:10px;letter-spacing:.03em;border-bottom:3px solid #C8A951;margin-bottom:10px;font-size:14px}
+.og-box{overflow:hidden;position:relative}.og{position:relative;padding:4px 0}.og-l{position:absolute;left:0;top:0;pointer-events:none;z-index:0}
+.og-row{display:flex;justify-content:center;align-items:flex-start;gap:22px;margin:0 0 30px;position:relative;z-index:1}.og-row:empty{display:none}.og-side{justify-content:space-between;padding:0 6%}
+.og-g{background:var(--carte);border-radius:10px}.og-gt{background:var(--gc);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;text-align:center;border-radius:7px;padding:5px 10px;cursor:pointer;letter-spacing:.04em}.og-gt span{opacity:.8;font-weight:600}.og-gt b{float:right}
+.og-m{display:flex;gap:8px;margin-top:6px;justify-content:center;flex-wrap:nowrap}.og-g.ferme .og-m{display:none}
+.og-c{width:168px;background:var(--gc);color:#fff;border-radius:8px;border-top:5px solid #C8A951;padding:7px 8px 6px;box-shadow:3px 3px 0 rgba(0,0,0,.35);cursor:pointer;transition:transform .12s}.og-c:hover{transform:translateY(-2px)}
+.og-h{display:flex;align-items:center;gap:6px}.og-a{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:none}.og-n{font-weight:800;font-size:13px;line-height:1.15}
+.og-t{font-size:11px;color:#f3e3b0;margin-top:3px;line-height:1.2}.og-r{font-size:10.5px;color:#e8d9a8;margin-top:4px;line-height:1.25}.og-r.manq{color:#ffcc80;font-style:italic}.og-r i{opacity:.75}
+.og-b{display:flex;gap:4px;margin-top:4px;min-height:0}.og-p{font-size:10px;font-weight:700;border-radius:8px;padding:1px 6px;background:rgba(255,255,255,.2);color:#fff;text-decoration:none}.og-p.nv{background:#C8A951;color:#1B2A4A}.og-p.pa{background:#000}
 </style>
 </head>
 <body>
@@ -144,7 +153,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.6';
+const APP_V='4.7';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1069,7 +1078,7 @@ function vueAnnee(P){const {parC,der}=equipeAnnees(P),ans=[...new Set(P.map(r=>r
    ${pres.map(carte).join('')||'<p class="vide">Aucun bulletin pour cette année.</p>'}
    ${a===ans[ans.length-1]&&RHX&&RHX.fiches?(()=>{const sb=RHX.fiches.filter(f=>!pres.some(x=>ficheRh(x.c)===f));return sb.length?`<div class="carte al b"><b class="t">Dans Sivan, sans bulletin de paie dans l'application</b>${sb.map(f=>`<div class="ligne"><span>${esc(f.prenom)} <span class="sub">${esc([f.fonction,f.contrat].filter(Boolean).join(' · '))}${f.entree?' · contrat depuis le '+dfr(f.entree):''}</span></span>${f.tel?`<a href="tel:${esc(f.tel.replace(/\s/g,''))}">📞</a>`:''}</div>`).join('')}<div class="sub w">Arrivée récente (bulletin pas encore importé) ou salarié payé hors de l'onglet PAIE : à vérifier.</div></div>`:''})():''}`}
 const semCycle=()=>{const d0=Date.UTC(2026,7,31),n=Math.floor((Date.now()-d0)/(7*864e5));return ((n%4)+4)%4};
-function vueFicheCol(P){const {parC,der}=equipeAnnees(P),x=parC[ficheCol];if(!x)return '<p class="vide">Collaborateur introuvable.</p>';
+function vueFicheCol(P){const {parC,der}=equipeAnnees(P);let x=parC[ficheCol];if(!x){const fr=ficheRh(ficheCol),q0=resp(ficheCol);if(!fr&&!q0)return '<p class="vide">Collaborateur introuvable.</p>';x={c:ficheCol,f:fr?fr.fonction:(q0['Titre']||''),ct:fr?fr.contrat:'',entree:'',sortie:null,k:{},mois:new Set(),horsPaie:true}}
   const q=resp(x.c),f=ficheRh(x.c),ans=Object.keys(x.k).sort(),J=['Lun','Mar','Mer','Jeu','Ven','Sam'];
   const tel=f&&f.tel?String(f.tel):'',telH=tel.replace(/[^\d+]/g,'').replace(/^0/,'+33');
   const plan=f&&f.planning&&f.planning.length?`<div class="carte"><b>Emploi du temps type sur 4 semaines</b><div class="sub">Source : Sivan${RHX.releve?', relevé du '+dfr(RHX.releve):''} · emploi du temps en vigueur depuis le ${dfr(f.planningDepuis)} · cycle : S1 = semaine du 31/08/2026</div>
@@ -1081,19 +1090,69 @@ function vueFicheCol(P){const {parC,der}=equipeAnnees(P),x=parC[ficheCol];if(!x)
     ${tel?`<a href="tel:${esc(telH)}" class="btn" style="text-decoration:none;text-align:center">📞 Appeler ${esc(tel)}</a>`:''}
     ${f&&f.email?`<a href="mailto:${esc(f.email)}" class="btn sec" style="text-decoration:none;text-align:center">✉️ ${esc(f.email)}</a>`:''}
     <div class="ligne" style="margin-top:8px"><span>Date de naissance</span><b>${f&&f.naissance?dfr(f.naissance):'—'}</b></div>
-    <div class="ligne"><span>Premier bulletin dans l'application</span><b>${moisFr(x.entree)}</b></div>${f&&f.entree?`<div class="ligne"><span>Contrat actuel depuis (Sivan)</span><b>${dfr(f.entree)}</b></div>`:''}${f&&f.finContrat?`<div class="ligne"><span>Fin de contrat (Sivan)</span><b>${dfr(f.finContrat)}</b></div>`:''}
+    ${x.horsPaie?'<div class="ligne"><span>Bulletins de paie</span><b>aucun dans l\'application</b></div>':`<div class="ligne"><span>Premier bulletin dans l'application</span><b>${moisFr(x.entree)}</b></div>`}${f&&f.entree?`<div class="ligne"><span>Contrat actuel depuis (Sivan)</span><b>${dfr(f.entree)}</b></div>`:''}${f&&f.finContrat?`<div class="ligne"><span>Fin de contrat (Sivan)</span><b>${dfr(f.finContrat)}</b></div>`:''}
     <div class="ligne"><span>Sortie</span><b>${x.sortie?moisFr(x.sortie)+' <span class="sub">(dernier bulletin)</span>':'en poste'}</b></div>
     ${f&&f.contrat?`<div class="ligne"><span>Contrat (Sivan)</span><b>${esc(f.contrat)}</b></div>`:''}${f&&f.heuresHebdo?`<div class="ligne"><span>Heures hebdomadaires</span><b>${esc(f.heuresHebdo)}</b></div>`:''}
     ${q&&q['Responsabilités']?`<div class="sub w" style="margin-top:6px">🎯 ${esc(q['Responsabilités'])}</div>`:''}${q&&q['Laboratoires référents']?`<div class="sub w">Labos référents : ${esc(q['Laboratoires référents'])}</div>`:''}</div>
    ${plan}
    ${f&&f.alertes&&f.alertes.length?`<div class="carte al o"><b class="t">À corriger dans Sivan</b>${f.alertes.map(x=>`<div class="sub w">• ${esc(x)}</div>`).join('')}</div>`:''}
    <div class="carte"><b>Coût employeur par année</b>${ans.map(a=>`<div class="ligne"><span>${a}</span><b>${eur(x.k[a])}</b></div>`).join('')}</div>`}
-function vueOrga(P){const {parC}=equipeAnnees(P),e=D.equipe||[],act=new Set(Object.values(parC).filter(x=>!x.sortie).map(x=>sansAcc(x.c)));
-  const enPoste=e.filter(x=>!P.length||/titulaire/i.test(x['Titre']||'')||act.has(sansAcc(x['Collaborateur']))||[...act].some(c=>c.split(' ')[0]===sansAcc(x['Collaborateur']).split(' ')[0])),partis=e.filter(x=>!enPoste.includes(x));
-  const groupes={};enPoste.forEach(x=>{const t=String(x['Titre']||'Sans titre');const k=/titulaire|directrice|g[ée]rant/i.test(t)?'1 Direction':/pharmacien/i.test(t)?'2 Pharmaciens':/pr[ée]parat|apprenti/i.test(t)?'3 Préparateurs et apprentis':'4 Autres fonctions';(groupes[k]=groupes[k]||[]).push(x)});
-  return `<div class="carte"><b>Organigramme actuel</b><div class="sub w">Collaborateurs en poste (bulletin le dernier mois connu), avec le rôle défini dans l'onglet ÉQUIPE du classeur.</div></div>`+
-   Object.keys(groupes).sort().map(k=>`<div class="titre">${k.slice(2)} (${groupes[k].length})</div>${groupes[k].map(x=>`<div class="carte item colf" data-c="${esc(x['Collaborateur'])}"><div class="grow"><b>${esc(x['Collaborateur'])}</b> — ${esc(x['Titre']||'')}${x['Responsabilités']?`<div class="sub w">🎯 ${esc(x['Responsabilités'])}</div>`:''}</div></div>`).join('')}`).join('')+
-   (partis.length?`<div class="carte al o"><b class="t">Dans l'onglet ÉQUIPE mais sans bulletin le dernier mois</b><div class="sub w">${partis.map(x=>esc(x['Collaborateur'])).join(' · ')} — à retirer du classeur s'ils sont partis.</div></div>`:'')}
+/* ---------- Organigramme interactif (reprend la structure de l'organigramme de mars 2026) ---------- */
+const ORG_G={dir:['Direction','#1B2A4A'],pha:['Pharmaciens','#00695C'],adm:['Administratif','#BF360C'],surf:['Surface de vente','#4527A0'],pre:['Préparateurs diplômés','#1565C0'],etu:['Étudiant pharmacie','#33691E'],para:['Para. / esthétique','#880E4F'],ray:['Rayonniste','#5D4037'],app:['Apprentis préparateurs','#37474F']};
+/* missions de l'organigramme de mars 2026, utilisées quand l'onglet ÉQUIPE ne les précise pas */
+const ORGA_MARS={aline:'Entretiens · Onco · TROD · Grossiste · Stup.',christel:'Resp. merch · Trade · Challenges · Étiquettes · Formations labo · Animations',sandy:'Expanscience · Fidélité · Recrutement',antoine:'Technique · Robot · Ortho · Alertes',sidney:'Location · Merch · Implantation nouveaux produits',mylene:'RDV conseils · Écrans · Animations',audrey:'Rejets TP · Chèques · UDAF · AT non transmissible',herve:'Rayonniste'};
+let orgAn='',orgResp=true,orgFerme={},orgZoom=0;
+function classeOrg(t){t=sansAcc(t);if(/titulaire|directrice|gerant/.test(t))return 'dir';if(/pharmacien/.test(t))return 'pha';if(/etudiant/.test(t))return 'etu';if(/esth|mecp|parapharm|conseill/.test(t))return 'para';if(/apprenti|jeune preparant|eleve/.test(t))return 'app';if(/preparat/.test(t))return 'pre';if(/rayonn|magasin|recept|condition/.test(t))return 'ray';if(/administ|rejet|secret/.test(t))return 'adm';return 'surf'}
+function membresOrg(P,an){const {parC,der}=equipeAnnees(P),dern=der.slice(0,4),M=[],vu=new Set();const prem=n=>sansAcc(n).split(' ')[0];
+  const ajoute=(nom,titre,src,extra)=>{const k=prem(nom);if(vu.has(k))return;vu.add(k);const f=ficheRh(nom),q=resp(nom);
+    let r=q&&q['Responsabilités']&&!/MANQUANT/.test(q['Responsabilités'])?q['Responsabilités']:null,rM=false;if(!r&&ORGA_MARS[k]){r=ORGA_MARS[k];rM=true}
+    M.push(Object.assign({nom,prenom:f?f.prenom:nom.split(' ')[0],famille:f?f.nom:'',titre,g:classeOrg(titre),resp:r,respMars:rM,manque:!r,tel:f&&f.tel,src,cle:parC[nom]?nom:(Object.keys(parC).find(n=>prem(n)===k)||nom)},extra||{}))};
+  if(an===dern){(D.equipe||[]).forEach(e=>{const t=e['Titre']||'',x=Object.values(parC).find(p=>prem(p.c)===prem(e['Collaborateur']));
+      if(/titulaire/i.test(t)||(x&&!x.sortie))ajoute(e['Collaborateur'],t,'ÉQUIPE')});
+    Object.values(parC).filter(x=>!x.sortie).forEach(x=>ajoute(x.c,x.f||'','paie'));
+    (RHX&&RHX.fiches||[]).forEach(f=>ajoute(f.prenom,f.fonction||'','Sivan',{nouveau:!!(f.entree&&f.entree.startsWith(an))}))}
+  else{ajoute('Pierre','Pharmacien titulaire','direction');Object.values(parC).filter(x=>[...x.mois].some(m=>m.startsWith(an))).forEach(x=>{const fa=P.filter(r=>r.c===x.c&&r.m.startsWith(an)).map(r=>r.f).filter(Boolean).pop()||x.f;ajoute(x.c,fa||'','paie',{nouveau:x.entree.startsWith(an),parti:x.sortie&&x.sortie.startsWith(an)})})}
+  if(an===dern)M.forEach(m=>{const x=parC[m.cle];if(x&&x.entree.startsWith(an))m.nouveau=true});
+  return M}
+function carteOrg(m){const c=ORG_G[m.g][1],ini=(m.prenom[0]||'?')+((m.famille||'')[0]||'');
+  return `<div class="og-c colf" data-c="${esc(m.cle)}" style="--gc:${c}" title="${esc(m.titre)}${m.resp?' — '+esc(m.resp):''}">
+   <div class="og-h"><span class="og-a">${esc(ini.toUpperCase())}</span><span class="og-n">${esc(m.prenom)} ${esc((m.famille||'').toUpperCase())}</span></div>
+   <div class="og-t">${esc(m.titre)}</div>
+   ${orgResp?`<div class="og-r ${m.manque?'manq':''}">${m.manque?'À déterminer':esc(m.resp)}${m.respMars?' <i>(mars 2026)</i>':''}</div>`:''}
+   <div class="og-b">${m.nouveau?'<span class="og-p nv">Nouveau</span>':''}${m.parti?'<span class="og-p pa">Parti(e)</span>':''}${m.tel?`<a class="og-p tel" href="tel:${esc(String(m.tel).replace(/\s/g,''))}" onclick="event.stopPropagation()">📞</a>`:''}</div></div>`}
+function vueOrga(P){const ans=[...new Set(P.map(r=>r.m.slice(0,4)))].sort();if(!orgAn||!ans.includes(orgAn))orgAn=ans[ans.length-1];
+  const M=membresOrg(P,orgAn),G={};M.forEach(m=>(G[m.g]=G[m.g]||[]).push(m));
+  const grp=(g,cls)=>G[g]&&G[g].length?`<div class="og-g ${cls||''} ${orgFerme[g]?'ferme':''}" data-g="${g}" style="--gc:${ORG_G[g][1]}"><div class="og-gt" data-tg="${g}">${ORG_G[g][0]} <span>(${G[g].length})</span> <b>${orgFerme[g]?'▸':'▾'}</b></div><div class="og-m">${G[g].map(carteOrg).join('')}</div></div>`:'';
+  const nbM=M.filter(m=>m.manque).length;
+  return `<div class="filtres" id="ogan">${ans.map(a=>`<button data-a="${a}" class="${a===orgAn?'on':''}">${a}</button>`).join('')}</div>
+   <div class="filtres"><button id="ogResp" class="${orgResp?'on':''}">Missions</button><button id="ogFit">${orgZoom?'Ajuster à l\'écran':'Taille réelle'}</button><button id="ogTout">Tout déplier</button></div>
+   <div class="carte og-wrap"><div class="og-titre">GRANDE PHARMACIE DU CENTRE SUD — ORGANIGRAMME ${orgAn}</div>
+   <div class="og-box" id="ogBox"><div class="og" id="og"><svg class="og-l" id="ogL"></svg>
+    <div class="og-row">${grp('dir')}</div>
+    <div class="og-row">${grp('pha')}</div>
+    <div class="og-row og-side">${grp('adm')}${grp('surf')}</div>
+    <div class="og-row">${grp('pre','large')}${grp('etu')}${grp('para')}${grp('ray')}</div>
+    <div class="og-row">${grp('app')}</div>
+   </div></div>
+   <div class="leg2 lig" style="font-size:12px;margin-top:8px">${Object.entries(ORG_G).map(([k,v])=>`<span><span class="pt" style="background:${v[1]}"></span>${v[0]}</span>`).join('')}</div>
+   <div class="sub w" style="margin-top:6px">Touchez une personne pour sa fiche (téléphone, emploi du temps, coût), un titre de groupe pour le replier. ${orgAn===ans[ans.length-1]?'Équipe actuelle : onglet ÉQUIPE du classeur, bulletins de paie et Sivan.':'Équipe de '+orgAn+' : toute personne payée au moins un mois cette année-là, avec sa fonction sur le bulletin.'} Missions : onglet ÉQUIPE${M.some(m=>m.respMars)?', complétées par l\'organigramme de mars 2026 quand elles n\'y sont pas':''}.</div></div>
+   ${nbM&&orgAn===ans[ans.length-1]?`<div class="carte al o"><b class="t">${nbM} collaborateur(s) sans mission définie</b><div class="sub w">${M.filter(m=>m.manque).map(m=>esc(m.prenom)).join(' · ')} — à compléter dans l'onglet ÉQUIPE du classeur (colonne Responsabilités).</div></div>`:''}`}
+/* liens de l'organigramme : direction → pharmaciens → tous les services ; préparateurs → apprentis */
+function liensOrg(){const og=document.getElementById('og'),svg=document.getElementById('ogL');if(!og||!svg)return;const R=og.getBoundingClientRect(),s=orgZoom?1:(+og.dataset.s||1);
+  const b=g=>{const e=og.querySelector(`.og-g[data-g="${g}"]`);if(!e)return null;const r=e.getBoundingClientRect();return {x:(r.left-R.left)/s,y:(r.top-R.top)/s,w:r.width/s,h:r.height/s}};
+  svg.setAttribute('width',og.scrollWidth);svg.setAttribute('height',og.scrollHeight);let p='';
+  const lien=(a,B,col)=>{const A=b(a);if(!A)return;B.map(b).filter(Boolean).forEach(c=>{const x1=A.x+A.w/2,y1=A.y+A.h,x2=c.x+c.w/2,y2=c.y,ym=c.y-10>y1?Math.max(y1+8,c.y-12):y1+8;p+=`<path d="M${x1} ${y1} V${ym} H${x2} V${y2}" fill="none" stroke="${col}" stroke-width="2"/>`})};
+  lien('dir',['pha'],'#C8A951');lien('pha',['adm','surf'],'#C8A951');lien('pha',['pre','etu','para','ray'],'#1565C0');lien('pre',['app'],'#37474F');
+  if(!b('pha'))lien('dir',['adm','surf','pre','etu','para','ray'],'#C8A951');
+  svg.innerHTML=p}
+function ajusterOrg(){const box=document.getElementById('ogBox'),og=document.getElementById('og');if(!box||!og)return;og.style.transform='';og.style.width='';
+  const nat=Math.max(og.scrollWidth,980);og.style.width=nat+'px';const s=orgZoom?1:Math.min(1,box.clientWidth/nat);og.dataset.s=s;og.style.transform=`scale(${s})`;og.style.transformOrigin='0 0';box.style.height=(og.scrollHeight*s+4)+'px';liensOrg()}
+function brancherOrga(rerendre){document.querySelectorAll('#ogan button').forEach(b=>b.onclick=()=>{orgAn=b.dataset.a;rerendre()});
+  const r=$('#ogResp');if(r)r.onclick=()=>{orgResp=!orgResp;rerendre()};const f=$('#ogFit');if(f)f.onclick=()=>{orgZoom=orgZoom?0:1;rerendre()};
+  const t=$('#ogTout');if(t)t.onclick=()=>{orgFerme={};rerendre()};
+  document.querySelectorAll('[data-tg]').forEach(x=>x.onclick=ev=>{ev.stopPropagation();const g=x.dataset.tg;orgFerme[g]=!orgFerme[g];rerendre()});
+  requestAnimationFrame(()=>{ajusterOrg();setTimeout(ajusterOrg,250)});
+  window.onresize=()=>{clearTimeout(window._ogT);window._ogT=setTimeout(ajusterOrg,150)}}
 
 /* ---------- Recherche globale ---------- */
 function rechercheGlobale(){const ov=document.createElement('div');ov.id='rg';ov.innerHTML=`<div class="rgb"><div style="display:flex;gap:8px"><input id="rgq" placeholder="Rechercher : laboratoire, pharmacie, action, collaborateur…" autocomplete="off"><button class="btn sec" id="rgx" style="width:auto;margin:0;padding:8px 14px">✕</button></div><div id="rgr" style="margin-top:10px"></div></div>`;
@@ -1753,7 +1812,8 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
   }
   $('#m').innerHTML=nav+h+`<button class="btn sec" id="lock" style="margin-top:6px">🔒 Verrouiller</button>`;bind();
   document.querySelectorAll('#fan button').forEach(b=>b.onclick=()=>{anneeCol=b.dataset.a;collaborateurs()});
-  document.querySelectorAll('.colf').forEach(b=>b.onclick=()=>{const c=b.dataset.c,{parC}=equipeAnnees(P);const k=parC[c]?c:Object.keys(parC).find(n=>sansAcc(n).split(' ')[0]===sansAcc(c).split(' ')[0]);if(!k){toast('Pas de bulletin pour '+c);return}sousColAvant=sousCol;ficheCol=k;sousCol='fiche';collaborateurs();scrollTo(0,0)});
+  document.querySelectorAll('.colf').forEach(b=>b.onclick=()=>{const c=b.dataset.c,{parC}=equipeAnnees(P);const k=parC[c]?c:Object.keys(parC).find(n=>sansAcc(n).split(' ')[0]===sansAcc(c).split(' ')[0]);const kk=k||((ficheRh(c)||resp(c))?c:null);if(!kk){toast('Aucune fiche pour '+c);return}sousColAvant=sousCol;ficheCol=kk;sousCol='fiche';collaborateurs();scrollTo(0,0)});
+  if(sousCol==='orga')brancherOrga(()=>{const y=scrollY;collaborateurs();scrollTo(0,y)});
   const rc=document.getElementById('retCol');if(rc)rc.onclick=()=>{sousCol=sousColAvant;collaborateurs();scrollTo(0,0)};
   const vm=document.getElementById('vMois');if(vm)vm.onclick=()=>equipe();
   $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;RHX=null;RHXtente=false;collaborateurs();toast('Détail RH verrouillé')};
