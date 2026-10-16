@@ -137,7 +137,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.0';
+const APP_V='4.1';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1072,45 +1072,58 @@ function stock(){$('#ht').textContent='Stock & commandes';fab(null);
 
 
 /* ---------- PLAN 2D DU MAGASIN : emplacements, coins chauds / froids, promos, écrans ---------- */
-let PLAN=null,blocSel='',modePlan='marge',zoomPlan=1;
-async function chargerPlan(){if(PLAN)return PLAN;try{PLAN=await (await fetch('plan.json')).json()}catch(e){PLAN=null}return PLAN}
+let PLAN=null,blocSel='',modePlan='zon',zoomPlan=1;
+let ZON=null;const COUCHES_DEF=['u','a'];let couches=(()=>{try{return JSON.parse(ls.get('pil_couches')||'null')||COUCHES_DEF}catch(e){return COUCHES_DEF}})();
+async function chargerPlan(){if(!ZON){try{ZON=await (await fetch('zoning.json')).json()}catch(e){ZON=null}}if(PLAN)return PLAN;try{PLAN=await (await fetch('plan.json')).json()}catch(e){PLAN=null}return PLAN}
+const labsZon=id=>ZON&&ZON.blocs[id]?ZON.blocs[id].l:[];
+let NB_LAB=null;function nbLab(l){if(!NB_LAB&&ZON){NB_LAB={};Object.values(ZON.blocs).forEach(b=>b.l.forEach(x=>{const k=x.toUpperCase();NB_LAB[k]=(NB_LAB[k]||0)+1}))}return NB_LAB&&NB_LAB[l.toUpperCase()]||1}
 const planEtat=()=>{try{return JSON.parse(ETAT.plan||'{}')}catch(e){return {}}};
 const aire=p=>Math.abs(p.reduce((s,a,i)=>{const b=p[(i+1)%p.length];return s+a[0]*b[1]-b[0]*a[1]},0)/2);
-function infosBloc(id,E){const e=E[id]||{};const labs=String(e.labos||'').split(',').map(x=>x.trim()).filter(Boolean);
-  const m=labs.reduce((t,l)=>{const x=(D.labos||[]).find(z=>String(z['Laboratoire']).toUpperCase().startsWith(l.toUpperCase()));return t+(x?(num(x['Marge € 12 mois'])||0):0)},0);
-  const pr=A&&A.pourquoi&&e.promo?A.pourquoi.promos.find(x=>x.nom===e.promo):null;return {e,labs,m,pr}}
+function infosBloc(id,E){const e=E[id]||{};const saisi=String(e.labos||'').split(',').map(x=>x.trim()).filter(Boolean);const zon=!saisi.length;const labs=zon?labsZon(id):saisi;
+  const norm=s=>String(s).toUpperCase().replace(/LA R POSAY/,'LA ROCHE POSAY').replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const m=labs.reduce((t,l)=>{const L=norm(l);if(L.length<3)return t;const x=(D.labos||[]).find(z=>norm(z['Laboratoire']).startsWith(L));return t+(x?(num(x['Marge € 12 mois'])||0)/(zon?nbLab(l):1):0)},0);
+  const pr=A&&A.pourquoi&&e.promo?A.pourquoi.promos.find(x=>x.nom===e.promo):null;return {e,labs,m,pr,zon}}
 async function planVue(){await chargerPlan();const P=PLAN;if(!P){$('#m').insertAdjacentHTML('beforeend','<p class="vide">Plan indisponible.</p>');return ''}
   const E=planEtat();const I={};P.blocs.forEach(b=>{const x=infosBloc(b.id,E);x.dens=x.m/Math.max(1,aire(b.p));I[b.id]=x});
   const dens=Object.values(I).filter(x=>x.m>0).map(x=>x.dens).sort((a,b)=>a-b);const q=f=>dens.length?dens[Math.floor((dens.length-1)*f)]:0;const q1=q(.33),q2=q(.66);
   const coul=id=>{const x=I[id];if(modePlan==='promo'){if(!x.pr)return '#cfd8dc';return {ok:'#43a047',mitige:'#fb8c00',ko:'#e53935'}[x.pr.verdict]}
     if(!x.m)return '#cfd8dc';return x.dens>=q2?'#e53935':x.dens>=q1?'#fb8c00':'#42a5f5'};
   const [x0,y0,x1,y1]=P.bbox;const ecr=(D.positions||[]).filter(p=>/cran/i.test(p['Type']||'')).map(p=>{const v=String(p['Position']).split(' ').map(parseFloat);return {c:p['Code'],x:v[0],y:v[2]}});
-  const actif=id=>{const x=I[id];return modePlan==='promo'?!!x.pr:!!x.m};
+  const actif=id=>{const x=I[id];return modePlan==='zon'?false:modePlan==='promo'?!!x.pr:!!x.m};
+  const C=new Set(couches);const T=(t,c,fs,col,rot,bold)=>`<text x="${c[0]}" y="${c[1]}" font-size="${fs}" ${bold?'font-weight="700"':''} text-anchor="middle" dominant-baseline="middle" fill="${col}" stroke="#fff" stroke-width="${fs*.28}" paint-order="stroke" ${rot?`transform="rotate(${rot>180?rot-360:rot} ${c[0]} ${c[1]})"`:''} style="pointer-events:none">${esc(t)}</text>`;
+  const coucheSVG=()=>!ZON?'':`<g style="pointer-events:none">${C.has('u')?ZON.U.map(u=>`<polygon points="${u[1].map(p=>p.join(',')).join(' ')}" fill="#${u[0]}" fill-opacity=".55" stroke="#${u[0]}" stroke-width=".05"/>`).join('')+ZON.UL.map(x=>T(x[0],x[1],C.has('a')?.55:.8,'#37474f',0,1)).join(''):''}
+    ${C.has('a')?ZON.A.map(x=>T(x[0].replace(/\s+Allée/,' · Allée'),x[1],.62,'#0d47a1',x[2],1)).join('')+ZON.TG.map(x=>T(x[0],x[1],.5,'#b71c1c',0,1)).join(''):''}
+    ${C.has('n')?ZON.N.map(x=>T(x[0],x[1],.42,'#4a148c',0,1)).join(''):''}
+    ${C.has('l')?ZON.L.map(x=>T(x[0],x[1],.42,'#1b5e20',x[2],1)).join(''):''}</g>`;
   const svg=`<svg viewBox="${x0} ${y0} ${x1-x0} ${y1-y0}" style="width:${100*zoomPlan}%;min-width:${Math.round(760*zoomPlan)}px;height:auto;background:#fff;border-radius:10px;display:block" role="img" aria-label="Plan de la surface de vente, vu de dessus depuis la maquette 3D">
    <image href="plan_dessus.jpg" x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" preserveAspectRatio="none"/>
    ${P.blocs.map(b=>{const on=actif(b.id),s=b.id===blocSel;return `<g class="bloc" data-id="${b.id}" style="cursor:pointer"><polygon points="${b.p.map(p=>p.join(',')).join(' ')}" fill="${on?coul(b.id):'#1e88e5'}" fill-opacity="${on?.55:.06}" stroke="${s?'#1b5e20':on?'#263238':'#1e88e5'}" stroke-width="${s?.4:on?.1:.08}" ${on||s?'':'stroke-dasharray=".35 .25"'}/>
-     <text x="${b.c[0]}" y="${b.c[1]+.3}" font-size="${I[b.id].e.nom?.75:.6}" font-weight="700" text-anchor="middle" fill="#102027" stroke="#fff" stroke-width=".22" paint-order="stroke" style="pointer-events:none">${I[b.id].e.nom?esc(String(I[b.id].e.nom).slice(0,16)):b.id}</text></g>`}).join('')}
+     <text x="${b.c[0]}" y="${b.c[1]+.3}" font-size="${I[b.id].e.nom?.75:.6}" font-weight="700" text-anchor="middle" fill="#102027" stroke="#fff" stroke-width=".22" paint-order="stroke" style="pointer-events:none">${I[b.id].e.nom?esc(String(I[b.id].e.nom).slice(0,16)):(modePlan==='zon'&&ZON?'':b.id)}</text></g>`}).join('')}
+   ${coucheSVG()}
    ${ecr.map(e=>`<text x="${e.x}" y="${e.y}" font-size="1.4" text-anchor="middle">📺</text>`).join('')}
 </svg>`;
   const rempli=P.blocs.filter(b=>I[b.id].labs.length||I[b.id].e.nom).length;
   // recommandations du plan
-  const R=[];P.blocs.forEach(b=>{const x=I[b.id];if(x.pr&&x.pr.verdict==='ko'&&x.m&&x.dens<q1)R.push(`${x.e.nom||b.id} : la promotion « ${x.pr.nom} » ne sort pas et l'emplacement est froid → la déplacer dans un coin chaud.`);
-    if(x.pr&&x.pr.verdict==='ko'&&x.dens>=q2)R.push(`${x.e.nom||b.id} : coin chaud mais la promotion « ${x.pr.nom} » ne sort pas → le problème est le produit ou le prix, pas l'emplacement.`)});
-  const chauds=P.blocs.filter(b=>I[b.id].m&&I[b.id].dens>=q2&&!I[b.id].pr).slice(0,3);if(chauds.length)R.push(`Coins chauds sans promotion : ${chauds.map(b=>I[b.id].e.nom||b.id).join(', ')} → y placer la prochaine promotion importante.`);
+  const nomB=id=>I[id].e.nom||(ZON&&ZON.blocs[id]&&(ZON.blocs[id].a[0]||ZON.blocs[id].tg[0]))||id;const R=[];P.blocs.forEach(b=>{const x=I[b.id];if(x.pr&&x.pr.verdict==='ko'&&x.m&&x.dens<q1)R.push(`${nomB(b.id)} : la promotion « ${x.pr.nom} » ne sort pas et l'emplacement est froid → la déplacer dans un coin chaud.`);
+    if(x.pr&&x.pr.verdict==='ko'&&x.dens>=q2)R.push(`${nomB(b.id)} : coin chaud mais la promotion « ${x.pr.nom} » ne sort pas → le problème est le produit ou le prix, pas l'emplacement.`)});
+  const chauds=P.blocs.filter(b=>I[b.id].m&&I[b.id].dens>=q2&&!I[b.id].pr).slice(0,3);if(chauds.length)R.push(`Coins chauds sans promotion : ${[...new Set(chauds.map(b=>nomB(b.id)))].join(', ')} → y placer la prochaine promotion importante.`);
   const sel=blocSel&&P.blocs.find(b=>b.id===blocSel),xs=sel?I[sel.id]:null;
   const promosOpt=A&&A.pourquoi?A.pourquoi.promos.map(x=>x.nom):[];
+  const zb=ZON&&sel?ZON.blocs[sel.id]:null;
   const panneau=sel?`<div class="carte"><b>Emplacement ${sel.id}</b> <span class="sub">(${aire(sel.p).toFixed(1).replace('.',',')} m² au sol)</span>
+    ${zb?`<div class="sub w" style="margin-top:6px;line-height:1.6">${zb.u.length?`🎨 <b style="color:var(--txt)">${zb.u.map(esc).join(', ')}</b><br>`:''}${zb.a.length?`📍 ${zb.a.map(esc).join(' · ')}<br>`:''}${zb.tg.length?`🔚 Têtes de gondole : ${zb.tg.map(esc).join(', ')}<br>`:''}${zb.n.length?`🔢 Éléments n° ${zb.n.length>3?zb.n[0]+' à '+zb.n[zb.n.length-1]:zb.n.join(', ')}<br>`:''}${zb.l.length?`🧪 Zoning : ${zb.l.map(esc).join(', ')}`:''}</div><div class="sub" style="font-size:11px">D'après le zoning Pierre Fabre (M. Grellier, février 2025), à confirmer en rayon.</div>`:''}
     <label>Nom (ex. « TG entrée Avène », « Linéaire solaires »)</label><input id="pn" value="${esc(xs.e.nom||'')}">
-    <label>Laboratoire(s) présentés, séparés par des virgules</label><input id="pl" list="dlLabs" value="${esc(xs.e.labos||'')}"><datalist id="dlLabs">${(D.labos||[]).slice(0,300).map(l=>`<option value="${esc(String(l['Laboratoire']).replace(/ T20\d\d.*$/,''))}">`).join('')}</datalist>
+    <label>Laboratoire(s) présentés, séparés par des virgules</label><input id="pl" list="dlLabs" value="${esc(xs.e.labos||'')}" placeholder="${esc(labsZon(sel.id).join(', ')||'')}"><datalist id="dlLabs">${(D.labos||[]).slice(0,300).map(l=>`<option value="${esc(String(l['Laboratoire']).replace(/ T20\d\d.*$/,''))}">`).join('')}</datalist>
     <label>Promotion en cours à cet endroit</label><select id="pp"><option value=""></option>${promosOpt.map(n=>`<option ${n===xs.e.promo?'selected':''}>${esc(n)}</option>`).join('')}</select>
     <label>Écran relais (code ou nom)</label><input id="pe" value="${esc(xs.e.ecran||'')}">
     <label>Note</label><input id="pc" value="${esc(xs.e.note||'')}">
     ${xs.m?`<div class="sub w" style="margin-top:8px">Marge 12 mois des labos présentés : <b style="color:var(--txt)">${eur(xs.m)}</b>${xs.pr?` · promotion : ${({ok:'✅ ça marche',mitige:'🟡 mitigé',ko:'❌ ne sort pas'})[xs.pr.verdict]} (${ent(xs.pr.q)} u en ${xs.pr.jours} j)`:''}</div>`:''}
     <button class="btn" id="psv">Enregistrer (visible sur tous vos appareils)</button></div>`:'<div class="carte"><div class="sub w">Touchez un emplacement du plan pour indiquer ce qu\'il présente (laboratoires, promotion, écran relais).</div></div>';
-  return `<div class="carte"><b>Plan de la surface de vente</b><div class="sub w" style="margin-top:4px">${P.blocs.length} emplacements repérés sur la maquette 3D, ${rempli} renseigné(s).</div>
-   <div class="filtres" id="pm" style="margin-top:8px">${[['marge','Coins chauds / froids'],['promo','Promotions placées']].map(o=>`<button data-k="${o[0]}" class="${o[0]===modePlan?'on':''}">${o[1]}</button>`).join('')}<button id="b3d2">Vue 3D</button><button id="pzm">➖</button><button id="pzp">➕</button></div>
-   <div class="sub w">Vue de dessus de la maquette 3D (meubles coupés à 2,2 m). Pointillés bleus : emplacement pas encore renseigné ; couleur : ${modePlan==='promo'?'vert = la promotion marche, orange = mitigé, rouge = ne sort pas':'rouge = coin chaud, orange = moyen, bleu = coin froid (marge des laboratoires présentés par m²)'}. Touchez un meuble pour le renseigner.</div></div>
-   <div class="splitplan"><div class="planbox">${svg}</div><div>${panneau}
+  return `<div class="carte"><b>Plan de la surface de vente</b><div class="sub w" style="margin-top:4px">${P.blocs.length} emplacements repérés sur la maquette 3D : ${P.blocs.filter(b=>I[b.id].labs.length&&!I[b.id].zon).length} renseignés par vous, ${P.blocs.filter(b=>I[b.id].zon&&I[b.id].labs.length).length} pré-remplis d'après le zoning de M. Grellier (février 2025).</div>
+   <div class="filtres" id="pm" style="margin-top:8px">${[['zon','Plan & zoning'],['marge','Coins chauds / froids'],['promo','Promotions placées']].map(o=>`<button data-k="${o[0]}" class="${o[0]===modePlan?'on':''}">${o[1]}</button>`).join('')}<button id="b3d2">Vue 3D</button></div>
+   <div class="filtres" id="pcz">${[['u','🎨 Univers'],['a','Allées & TG'],['n','N° éléments'],['l','Laboratoires']].map(o=>`<button data-c="${o[0]}" class="${couches.includes(o[0])?'on':''}">${o[1]}</button>`).join('')}<button id="pzm">➖</button><button id="pzp">➕</button></div>
+   <div class="sub w">Vue de dessus de la maquette 3D (meubles coupés à 2,2 m). Pointillés bleus : emplacement pas encore renseigné ; couleur : ${modePlan==='zon'?'univers du zoning de M. Grellier (rose beauté, bleu bébé, violet hygiène, jaune nutrition / phyto, orange promotions / saisonnier, vert libre accès, rouge premiers soins) ; boutons ci-dessous pour afficher allées, têtes de gondole, numéros d\'éléments et laboratoires':modePlan==='promo'?'vert = la promotion marche, orange = mitigé, rouge = ne sort pas':'rouge = coin chaud, orange = moyen, bleu = coin froid (marge des laboratoires présentés par m²)'}. Touchez un meuble pour le renseigner.</div></div>
+   <div class="planbox">${svg}</div><div class="chart2"><div>${panneau}</div><div>
    <div class="carte"><b>Recommandations du plan</b>${R.length?R.map(t=>`<div style="margin-top:6px;font-size:14px">→ ${esc(t)}</div>`).join(''):`<div class="sub w" style="margin-top:4px">Elles apparaîtront dès que les emplacements seront renseignés (laboratoires et promotions) : coins froids à réveiller, promotions mal placées, coins chauds libres.</div>`}
    <div class="sub w" style="margin-top:8px">Prochaine étape : le parcours client type (entrée → comptoir) tracé sur ce plan, et la mesure avant / après de chaque déplacement.</div></div></div></div>`}
 
@@ -1150,9 +1163,10 @@ function brancherMesures(){const b=$('#msv');if(b)b.onclick=async()=>{const n=x=
    const S=mesuresSaisies();S.push(m);b.disabled=true;b.textContent='Enregistrement…';const ok=await majEtat('evenements_mesures',JSON.stringify(S));toast(ok?'Mesure enregistrée':'Non enregistrée (réseau)');evenements()};
   document.querySelectorAll('.supm').forEach(x=>x.onclick=async()=>{const S=mesuresSaisies();S.splice(+x.dataset.i,1);await majEtat('evenements_mesures',JSON.stringify(S));toast('Mesure supprimée');evenements()})}
 async function vuePlan(nav,rejouer){$('#m').innerHTML=nav+'<p class="vide">Chargement du plan…</p>';const h=await planVue();$('#m').innerHTML=nav+h;fab(null);
-  document.querySelectorAll('.bloc').forEach(g=>g.onclick=()=>{blocSel=g.dataset.id;const y=scrollY;rejouer().then(()=>{if(innerWidth<1024){const c=document.querySelector('#pn');if(c)c.scrollIntoView({behavior:'smooth',block:'center'})}else scrollTo(0,y)})});
+  document.querySelectorAll('.bloc').forEach(g=>g.onclick=()=>{blocSel=g.dataset.id;const y=scrollY;rejouer().then(()=>{const c=document.querySelector('#pn');if(c)c.closest('.carte').scrollIntoView({behavior:'smooth',block:'start'})})});
   document.querySelectorAll('#pm button[data-k]').forEach(b=>b.onclick=()=>{modePlan=b.dataset.k;rejouer()});
   const b3=$('#b3d2');if(b3)b3.onclick=()=>{location.href='3d.html'};
+  document.querySelectorAll('#pcz button').forEach(b=>b.onclick=()=>{const c=b.dataset.c;couches=couches.includes(c)?couches.filter(x=>x!==c):couches.concat(c);ls.set('pil_couches',JSON.stringify(couches));rejouer()});
   const zm=$("#pzm"),zp=$("#pzp");if(zm)zm.onclick=()=>{zoomPlan=Math.max(1,zoomPlan/1.5);rejouer()};if(zp)zp.onclick=()=>{zoomPlan=Math.min(4,zoomPlan*1.5);rejouer()};
   const sv=$('#psv');if(sv)sv.onclick=async()=>{const E=planEtat();E[blocSel]={nom:$('#pn').value.trim(),labos:$('#pl').value.trim(),promo:$('#pp').value,ecran:$('#pe').value.trim(),note:$('#pc').value.trim()};
     if(!E[blocSel].nom&&!E[blocSel].labos&&!E[blocSel].promo&&!E[blocSel].ecran&&!E[blocSel].note)delete E[blocSel];
