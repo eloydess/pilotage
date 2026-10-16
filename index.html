@@ -100,6 +100,9 @@ table.t tr.tot td{font-weight:700;border-top:2px solid var(--ligne)}
 .panneau{background:var(--fond);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
 @media (min-width:1024px){.voile{align-items:center}.panneau{border-radius:16px}}
 #bMsg{position:relative}#bMsg .bn{position:absolute;top:-5px;right:-6px;background:var(--orange);color:#fff;font-style:normal;font-size:10px;font-weight:700;border-radius:9px;padding:1px 5px}
+.jauge{margin:12px 0 4px}.jg-b{position:relative;height:18px;border-radius:9px;background:var(--fond);border:1px solid var(--ligne);overflow:visible}
+.jg-r{position:absolute;left:0;top:0;bottom:0;background:var(--vert2);border-radius:9px 0 0 9px}.jg-p{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,rgba(46,125,50,.45) 0 5px,transparent 5px 9px)}
+.jg-m{position:absolute;top:-5px;bottom:-5px;border-left:3px solid}.jg-l{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;margin-top:8px}
 /* --- Version ordinateur (même adresse, mêmes données) --- */
 @media (min-width:1024px){
 body{padding:0 0 30px 236px}
@@ -134,8 +137,8 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='3.7';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','📈','Mois & équipe','Mois']];
+const APP_V='3.8';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -487,7 +490,7 @@ const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
 const eurS=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.round(Math.abs(v)).toLocaleString('fr-FR')+' €');
 const sousNav=(id,opts,cur)=>`<div class="filtres" id="${id}">${opts.map(o=>`<button data-k="${o[0]}" class="${o[0]===cur?'on':''}">${o[1]}</button>`).join('')}</div>`;
 const lienV=(t,v)=>`<span class="lien" data-go="${v}">${t}</span>`;
-function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1];if(vue==='ecr')sousEcr=p[1]}rendre();scrollTo(0,0)})}
+function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1];if(vue==='ecr')sousEcr=p[1];if(vue==='mois')sousMois=p[1]}rendre();scrollTo(0,0)})}
 const pasAudit=()=>`<div class="carte al o"><b class="t">Analyses du 15/10 non chargées</b><div class="sub w">${esc(auditErr||'Chargement…')} Les données du serveur restent affichées.</div></div>`;
 
 /* ---------- État partagé (serveur, onglet ETAT_APPLI) : téléphone et ordinateur voient la même chose ---------- */
@@ -676,6 +679,68 @@ function vueRemarques(){const R=retours(),F={'À traiter':r=>r.st!=='faite'&&r.s
    <div class="filtres" id="fmsg">${Object.keys(F).map(k=>`<button data-f="${k}" class="${k===filtreMsg?'on':''}">${k} (${R.filter(F[k]).length})</button>`).join('')}</div>
    ${L.map(r=>carteRetour(r,true)).join('')||'<div class="carte sub">Aucune remarque dans ce filtre. Touchez 💬 en haut de n\'importe quel onglet pour en laisser une.</div>'}`}
 
+/* ---------- OBJECTIFS DU MOIS : minimum / objectif / très bien, pharmacie et équipe ---------- */
+let sousMois='obj',moisObj='';
+const objCfg=()=>{let c={};try{c=JSON.parse(ETAT.obj_cfg||'{}')}catch(e){}return {o:num(c.o)??3,tb:num(c.tb)??6,valide:!!c.valide}};
+function paques(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),j=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,j,12)}
+function feries(y){const p=paques(y),dj=n=>{const d=new Date(p);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};return new Set([y+'-01-01',y+'-05-01',y+'-05-08',y+'-07-14',y+'-08-15',y+'-11-01',y+'-11-11',y+'-12-25',dj(1),dj(39),dj(50)])}
+function joursOuv(m,depuis){const y=+m.slice(0,4),mo=+m.slice(5,7),F=feries(y);let n=0;for(let d=new Date(y,mo-1,1,12);d.getMonth()===mo-1;d.setDate(d.getDate()+1)){const s=d.toISOString().slice(0,10);if(depuis&&s<depuis)continue;if(d.getDay()!==0&&!F.has(s))n++}return n}
+const moisPlus=(m,k)=>{const d=new Date(+m.slice(0,4),+m.slice(5,7)-1+k,15);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01'};
+/* Références N-1 et réalisé N d'un mois, toutes sources confondues */
+function refMois(m){const m1=moisPlus(m,-12),P=D.perf||[],row=x=>P.find(p=>isoMois(p['Mois'])===x)||{};const r=row(m),r1=row(m1),MM=(A&&A.margeMensuelle)||[],mm=x=>MM.find(z=>z.m===x)||{};
+  let mg1=num(r['Marge € N-1'])??num(r1['Marge € N'])??num(mm(m1).mg),ca1=num(r['CA HT N-1'])??num(r1['CA HT N'])??num(mm(m1).ca),cl1=num(r['Fréquentation réelle N-1'])??num(r1['Fréquentation réelle N']);
+  if(mg1===null&&A&&m1==='2025-10-01')mg1=A.octobre.octobre2025;
+  const mg=num(r['Marge € N'])??num(mm(m).mg),ca=num(r['CA HT N'])??num(mm(m).ca),cl=num(r['Fréquentation réelle N']);
+  return {m,mg1,ca1,cl1,mg,ca,cl}}
+function paliers(R){const c=objCfg(),k=v=>v===null?null:[v,v*(1+c.o/100),v*(1+c.tb/100)];return {mg:k(R.mg1),ca:k(R.ca1),cl:k(R.cl1)}}
+const PAL=['Minimum','Objectif','Très bien'],PALC=['var(--orange)','var(--vert2)','var(--bleu)'];
+function niveau(v,p){if(v===null||!p)return null;return v>=p[2]?3:v>=p[1]?2:v>=p[0]?1:0}
+const NIV=[['Sous le minimum','var(--rouge)','🔻'],['Minimum atteint','var(--orange)','🟠'],['Objectif atteint','var(--vert2)','✅'],['Très bien','var(--bleu)','🏆']];
+function jauge(val,proj,p,fmt){const mx=Math.max(p[2]*1.08,proj||0,val||0),x=v=>Math.min(100,v/mx*100);
+  return `<div class="jauge"><div class="jg-b"><i class="jg-r" style="width:${x(val||0)}%"></i>${proj?`<i class="jg-p" style="left:${x(val||0)}%;width:${Math.max(0,x(proj)-x(val||0))}%"></i>`:''}${p.map((v,i)=>`<span class="jg-m" style="left:${x(v)}%;border-color:${PALC[i]}"></span>`).join('')}</div>
+   <div class="jg-l">${p.map((v,i)=>`<span style="color:${PALC[i]}">▍${PAL[i]} <b>${fmt(v)}</b></span>`).join('')}</div></div>`}
+function grapheObj(L){const W=360,H=190,g=34,d=6,hb=28,ht=10,mx=Math.max(...L.flatMap(R=>[R.mg||0,(paliers(R).mg||[0,0,0])[2]]))*1.08;if(!mx)return '';
+  const bw=(W-g-d)/L.length,Y=v=>ht+(H-ht-hb)*(1-v/mx),k=v=>Math.round(v/1000)+' k';
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;max-height:320px" role="img" aria-label="Marge par mois face aux paliers">
+   ${[0,.25,.5,.75,1].map(t=>`<line x1="${g}" x2="${W-d}" y1="${Y(mx*t)}" y2="${Y(mx*t)}" stroke="var(--ligne)"/><text x="${g-4}" y="${Y(mx*t)+3}" font-size="8.5" text-anchor="end" fill="var(--doux)">${k(mx*t)}</text>`).join('')}
+   ${L.map((R,i)=>{const p=paliers(R).mg,x0=g+i*bw,n=niveau(R.mg,p),c=n===null?'#cfd8dc':NIV[n][1];const encours=R.m===auj().slice(0,7)+'-01';
+     return `<g><title>${moisFr(R.m)} — marge ${R.mg!==null?eur(R.mg):'à venir'}${p?' · minimum '+eur(p[0])+' · objectif '+eur(p[1])+' · très bien '+eur(p[2]):''}</title>
+     ${R.mg!==null?`<rect x="${x0+bw*.18}" y="${Y(R.mg)}" width="${bw*.64}" height="${H-hb-Y(R.mg)}" rx="2" fill="${c}" ${encours?'opacity=".55"':''}/>`:''}
+     ${p?p.map((v,j)=>`<line x1="${x0+bw*.08}" x2="${x0+bw*.92}" y1="${Y(v)}" y2="${Y(v)}" stroke="${PALC[j]}" stroke-width="${j===1?2:1.4}" ${j===0?'stroke-dasharray="3 2"':''}/>`).join(''):''}
+     <text x="${x0+bw/2}" y="${H-14}" font-size="8.5" text-anchor="middle" fill="var(--doux)">${['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'][+R.m.slice(5,7)-1]}</text>${R.m.slice(5,7)==='01'||i===0?`<text x="${x0+bw/2}" y="${H-3}" font-size="8" text-anchor="middle" fill="var(--doux)">${R.m.slice(0,4)}</text>`:''}</g>`}).join('')}</svg>
+   ${legende([['Minimum = même mois l\'an dernier','var(--orange)'],['Objectif','var(--vert2)'],['Très bien','var(--bleu)'],['Barre : marge réalisée (couleur = palier atteint)','#90a4ae']])}`}
+function vueObjectifs(){if(!A)return pasAudit();const c=objCfg(),cur=auj().slice(0,7)+'-01';if(!moisObj)moisObj=cur;
+  const exo0=+cur.slice(5,7)>=4?cur.slice(0,4)+'-04-01':(+cur.slice(0,4)-1)+'-04-01';const L=[...Array(12)].map((_,i)=>refMois(moisPlus(exo0,i)));
+  const R=refMois(moisObj),p=paliers(R),jo=joursOuv(moisObj),enC=moisObj===cur,o=A.octobre;
+  const real=enC&&moisObj==='2026-10-01'?o.m:R.mg,proj=enC&&moisObj==='2026-10-01'?o.projection:null,rest=enC?joursOuv(moisObj,moisObj==='2026-10-01'?ajJ(o.au,1):auj()):jo;
+  const parts=A.vendeurs?A.vendeurs.periodes[0].total:null,partLibre=parts?parts.margeLibre/parts.marge:null;
+  const atteints=L.filter(x=>x.mg!==null&&x.m<cur).map(x=>niveau(x.mg,paliers(x).mg)).filter(n=>n!==null);
+  const lev=toutes().filter(a=>!actFaite(a.id)&&['Stock & commandes','Prix & promotions','Événements & écrans','Réseaux sociaux','Merchandising'].includes(a.theme)).sort((a,b)=>String(a.quand).localeCompare(String(b.quand))).slice(0,8);
+  const ms=L.map(x=>x.m);
+  return `<div class="carte"><b>Objectifs du mois : pharmacie et équipe</b><div class="sub w">Trois paliers par mois, en marge et en clients (le chiffre d'affaires est donné pour information). <b>Minimum</b> = faire au moins autant que le même mois de l'an dernier ; <b>Objectif</b> = +${String(c.o).replace('.',',')} % ; <b>Très bien</b> = +${String(c.tb).replace('.',',')} %. ${c.valide?'<b class="pos">Paliers validés par le titulaire.</b>':'<b style="color:var(--orange)">Pourcentages proposés, à valider par le titulaire</b> (bouton en bas).'}</div></div>
+   <div class="carte" style="display:flex;align-items:center;gap:8px;padding:8px 10px"><select id="moSel" style="flex:1;margin:0">${ms.map(m=>`<option value="${m}" ${m===moisObj?'selected':''}>${moisFr(m)}${m===cur?' (en cours)':''}</option>`).join('')}</select></div>
+   ${p.mg?`<div class="carte"><b style="text-transform:capitalize">${moisFr(moisObj)} — marge</b>${real!==null?` <span class="badge" style="background:${NIV[niveau(proj??real,p.mg)][1]};color:#fff">${enC?'Au rythme actuel : ':''}${NIV[niveau(proj??real,p.mg)][0]}</span>`:''}
+     ${jauge(real,proj,p.mg,eur)}
+     <div class="sub w">${real!==null?(enC?`Fait au ${dfr(o.au)} : <b style="color:var(--txt)">${eur(real)}</b>${proj?` · au rythme actuel ≈ <b style="color:var(--txt)">${eur(proj)}</b> (partie hachurée)`:''}.`:`Réalisé : <b style="color:var(--txt)">${eur(real)}</b>.`):'Mois à venir.'} ${jo} jours d'ouverture dans le mois (lundi–samedi hors jours fériés, à confirmer)${enC?`, dont ${rest} restants${moisObj==='2026-10-01'?' après le '+dfr(o.au):''}`:''}.</div>
+     <div class="tw" style="margin-top:8px"><table class="t"><tr><th></th>${PAL.map((x,i)=>`<th class="n" style="color:${PALC[i]}">${x}</th>`).join('')}</tr>
+      <tr><td>Marge du mois</td>${p.mg.map(v=>`<td class="n"><b>${eur(v)}</b></td>`).join('')}</tr>
+      <tr><td>Marge par jour d'ouverture</td>${p.mg.map(v=>`<td class="n">${eur(v/jo)}</td>`).join('')}</tr>
+      ${enC&&real!==null?`<tr><td>Il faut faire par jour restant</td>${p.mg.map(v=>`<td class="n ${v-real>0?'neg':'pos'}">${v-real>0?eur((v-real)/(rest||1)):'atteint ✓'}</td>`).join('')}</tr>`:''}
+      ${partLibre?`<tr><td>dont sans ordonnance (équipe : conseil, para.) <span class="sub">${pct(partLibre)} de la marge sur 12 mois</span></td>${p.mg.map(v=>`<td class="n">${eur(v*partLibre)}</td>`).join('')}</tr>`:''}
+      ${p.cl?`<tr><td>Clients réels</td>${p.cl.map(v=>`<td class="n">${ent(v)}</td>`).join('')}</tr><tr><td>Clients par jour d'ouverture</td>${p.cl.map(v=>`<td class="n">${ent(v/jo)}</td>`).join('')}</tr>`:`<tr><td>Clients réels</td><td class="n sub" colspan="3">[MANQUANT] fréquentation du même mois l'an dernier non chargée</td></tr>`}
+      ${p.ca?`<tr><td class="sub">CA HT (pour information)</td>${p.ca.map(v=>`<td class="n sub">${eur(v)}</td>`).join('')}</tr>`:''}
+     </table></div></div>`:`<div class="carte al o"><b class="t">${moisFr(moisObj)} : référence de l'an dernier manquante</b><div class="sub w">La marge du même mois l'an dernier n'est pas chargée : [MANQUANT].</div></div>`}
+   <div class="carte"><b>L'exercice ${exo0.slice(0,4)}/${+exo0.slice(0,4)+1}, mois par mois</b>${atteints.length?`<div class="sub">Mois terminés : ${[3,2,1,0].map(n=>`${NIV[n][2]} ${atteints.filter(x=>x===n).length} ${NIV[n][0].toLowerCase()}`).join(' · ')}</div>`:''}${grapheObj(L)}</div>
+   <div class="carte"><b>Que faire pour atteindre l'objectif</b><div class="sub w">Le recul vient surtout du nombre de clients, pas du prix (effet fréquentation ${eurS(o.effetFreq)} sur 1–14 octobre, effet marge par client ${eurS(o.effetPanier)}). Les leviers ci-dessous sont les actions encore ouvertes du plan qui font revenir des clients ou vendre plus : touchez pour les suivre.</div>
+     ${lev.map(a=>`<div class="ba-l" data-ouvre="${esc(a.id)}"><span class="pt" style="background:${ST[statutA(a)][1]}"></span><span class="grow"><b>${esc(a.id)}</b> ${esc(a.titre)}<span class="sub"> · 🎯 ${esc(a.enjeu)} · ${dfr(a.quand)}</span></span></div>`).join('')}</div>
+   <div class="carte"><b>Régler les paliers</b><div class="sub w">Pourcentages au-dessus du même mois de l'an dernier. Ils s'appliquent à tous les mois et sont partagés sur tous les appareils.</div>
+     <div class="g2"><div><label>Objectif : + … %</label><input id="ocO" type="number" step="0.5" value="${c.o}"></div><div><label>Très bien : + … %</label><input id="ocTb" type="number" step="0.5" value="${c.tb}"></div></div>
+     <button class="btn" id="ocOk">${c.valide?'Enregistrer':'Valider ces paliers'}</button></div>`}
+function brancherObjectifs(){const s=$('#moSel');if(s)s.onchange=e=>{moisObj=e.target.value;mois()};
+  document.querySelectorAll('#m [data-ouvre]').forEach(e=>e.onclick=()=>ouvrirAction(e.dataset.ouvre));
+  const b=$('#ocOk');if(b)b.onclick=async()=>{const o=num($('#ocO').value),tb=num($('#ocTb').value);if(o===null||tb===null||tb<o){toast('« Très bien » doit être supérieur ou égal à « Objectif »');return}
+    if(await majEtat('obj_cfg',JSON.stringify({o,tb,valide:true,le:auj()}))){toast('Paliers enregistrés');const y=scrollY;mois();scrollTo(0,y)}}}
+
 /* ---------- ACCUEIL ---------- */
 function alertes(){const L=[];
   if(A){const c=A.cerp,t=c.lignes.reduce((s,x)=>s+x[2],0),r=c.lignes.reduce((s,x)=>s+x[4],0);
@@ -699,7 +764,7 @@ function carteEnCours(){if(!A)return pasAudit();const o=A.octobre,e=ev(o.m,o.m1)
   <div class="carte diag">Le recul vient de la fréquentation, pas du prix : priorité à faire revenir des clients (promotions en caisse, écrans, événements, ruptures comblées), pas à baisser encore les prix.</div>
   <div class="carte"><b>Objectif d'octobre : égaler 2025 (${eur2(o.octobre2025)} de marge)</b>
    <div class="barre"><i style="width:${Math.min(100,Math.round(o.m/o.octobre2025*100))}%"></i></div>
-   <div class="sub w">Fait au 14/10 : ${eur(o.m)} (${Math.round(o.m/o.octobre2025*100)} %). Au rythme actuel : ≈ ${eur(o.projection)}. Il manque ≈ ${eur(o.manque)}, soit <b style="color:var(--txt)">≈ ${eur(o.parJour)} de marge en plus par jour</b> d'ouverture restant.</div>
+   <div class="sub w">Fait au 14/10 : ${eur(o.m)} (${Math.round(o.m/o.octobre2025*100)} %). Au rythme actuel : ≈ ${eur(o.projection)}. Il manque ≈ ${eur(o.manque)}, soit <b style="color:var(--txt)">≈ ${eur(o.parJour)} de marge en plus par jour</b> d'ouverture restant. ${lienV('Objectifs du mois : minimum, objectif, très bien','mois:obj')}</div>
    <div class="ligne" style="margin-top:6px"><span>Novembre : cible = novembre 2025</span><b>${eur2(A.novembre.cible)} · ${ent(A.novembre.clients)} clients</b></div></div>`}
 function carteMarche(){if(!A)return '';return `<div class="carte"><b>Nous face au marché (GERS, pharmacies uniquement, en volume)</b>
   <div class="tw"><table class="t"><tr><th>Indicateur</th><th class="n">Marché</th><th class="n">Nous</th><th class="n">Écart</th></tr>
@@ -1187,6 +1252,8 @@ function blocRef(){const r=D.rhRef;if(!r||!r[1]||num(r[1][1])===null||num(r[1][2
     ${num(h[1])!==null?`<div class="ligne"><span>Heures payées / mois</span><b>${ent(h[2])} <span style="color:var(--doux);font-weight:400">vs ${ent(h[1])}</span></b></div>`:''}
     ${num(ec[1])!==null?`<div class="ligne"><span>Économie cumulée</span><b class="${ec[1]>0?'pos':'neg'}">${eur(ec[1])}</b></div>`:''}${grapheMasse()}</div>`;}
 function mois(){
+  const navM=sousNav('smo',[['obj','🎯 Objectifs du mois'],['hist','Mois & équipe']],sousMois);const bindM=()=>document.querySelectorAll('#smo button').forEach(b=>b.onclick=()=>{sousMois=b.dataset.k;mois();scrollTo(0,0)});
+  if(sousMois==='obj'){$('#ht').textContent='Objectifs';fab(null);$('#m').innerHTML=navM+vueObjectifs();bindM();brancherObjectifs();return}
   $('#ht').textContent='Mois & équipe';
   const rh=D.perf.filter(p=>num(p['Masse salariale chargée N'])!==null).slice(-1)[0];
   const carteRh=rh?`<div class="carte"><div class="ligne"><span><b>Équipe — ${moisFr(rh['Mois'])}</b></span><span></span></div>
@@ -1196,10 +1263,10 @@ function mois(){
     ${blocRef()}
     <button class="btn sec" id="bRh">🔒 Détail par collaborateur</button></div>`
     :`<div class="carte"><b>Équipe</b><div class="sub" style="font-size:13px;color:var(--doux)">Les indicateurs de masse salariale apparaîtront dès que l'onglet PAIE sera rempli.</div><button class="btn sec" id="bRh">🔒 Détail par collaborateur</button></div>`;
-  $('#m').innerHTML=carteRh+blocOrga()+`<p class="titre">Fréquentation réelle = Ventes − 2 × recyclage</p>`+D.perf.map((p,i)=>`<div class="carte item" data-i="${i}">
+  $('#m').innerHTML=navM+carteRh+blocOrga()+`<p class="titre">Fréquentation réelle = Ventes − 2 × recyclage</p>`+D.perf.map((p,i)=>`<div class="carte item" data-i="${i}">
    <div class="grow"><b style="text-transform:capitalize">${moisFr(p['Mois'])}</b><div class="sub">Marge ${eur(p['Marge € N'])} vs ${eur(p['Marge € N-1'])} · clients ${ent(p['Fréquentation réelle N'])} vs ${ent(p['Fréquentation réelle N-1'])}${num(p['Masse salariale / marge N'])!==null?' · salaires '+pct(p['Masse salariale / marge N'])+' de la marge':''}</div></div>
    <b class="${cls(p['Écart marge €'])}">${pct(p['Écart marge %'],1)}</b></div>`).join('');
-  document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire('PERFORMANCE',D.perf[+e.dataset.i]));
+  bindM();document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire('PERFORMANCE',D.perf[+e.dataset.i]));
   $('#bRh').onclick=()=>{const nb=document.querySelector('nav button[data-v="col"]');if(nb)nb.click();else equipe()};
   fab(null);
 }
