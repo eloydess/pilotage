@@ -154,7 +154,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.9';
+const APP_V='5.0';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -715,7 +715,9 @@ function vueRemarques(){const R=retours(),F={'À traiter':r=>r.st!=='faite'&&r.s
 
 /* ---------- OBJECTIFS DU MOIS : minimum / objectif / très bien, pharmacie et équipe ---------- */
 let sousMois='obj',moisObj='';
-const objCfg=()=>{let c={};try{c=JSON.parse(ETAT.obj_cfg||'{}')}catch(e){}return {o:num(c.o)??3,tb:num(c.tb)??6,valide:!!c.valide}};
+const PRES0={NASSABIA:'parti',GADJI:'sam'};
+const objCfg=()=>{let c={};try{c=JSON.parse(ETAT.obj_cfg||'{}')}catch(e){}return {o:num(c.o)??3,tb:num(c.tb)??6,valide:!!c.valide,le:c.le,pres:{...PRES0,...(c.pres||{})},pot:num(c.pot)??10,potOk:!!c.potOk}};
+const sauverCfg=async m=>{const c=objCfg();return majEtat('obj_cfg',JSON.stringify({...c,...m}))};
 function paques(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),j=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,j,12)}
 function feries(y){const p=paques(y),dj=n=>{const d=new Date(p);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};return new Set([y+'-01-01',y+'-05-01',y+'-05-08',y+'-07-14',y+'-08-15',y+'-11-01',y+'-11-11',y+'-12-25',dj(1),dj(39),dj(50)])}
 function joursOuv(m,depuis){const y=+m.slice(0,4),mo=+m.slice(5,7),F=feries(y);let n=0;for(let d=new Date(y,mo-1,1,12);d.getMonth()===mo-1;d.setDate(d.getDate()+1)){const s=d.toISOString().slice(0,10);if(depuis&&s<depuis)continue;if(d.getDay()!==0&&!F.has(s))n++}return n}
@@ -752,7 +754,7 @@ function vueObjectifs(){if(!A)return pasAudit();const c=objCfg(),cur=auj().slice
   const lev=toutes().filter(a=>!actFaite(a.id)&&['Stock & commandes','Prix & promotions','Événements & écrans','Réseaux sociaux','Merchandising'].includes(a.theme)).sort((a,b)=>String(a.quand).localeCompare(String(b.quand))).slice(0,8);
   const ms=L.map(x=>x.m);
   return `<div class="carte"><b>Objectifs du mois : pharmacie et équipe</b><div class="sub w">Trois paliers par mois, en marge et en clients (le chiffre d'affaires est donné pour information). <b>Minimum</b> = faire au moins autant que le même mois de l'an dernier ; <b>Objectif</b> = +${String(c.o).replace('.',',')} % ; <b>Très bien</b> = +${String(c.tb).replace('.',',')} %. ${c.valide?'<b class="pos">Paliers validés par le titulaire.</b>':'<b style="color:var(--orange)">Pourcentages proposés, à valider par le titulaire</b> (bouton en bas).'}</div></div>
-   <div class="carte" style="display:flex;align-items:center;gap:8px;padding:8px 10px"><select id="moSel" style="flex:1;margin:0">${ms.map(m=>`<option value="${m}" ${m===moisObj?'selected':''}>${moisFr(m)}${m===cur?' (en cours)':''}</option>`).join('')}</select></div>
+   <div class="carte no-print" style="display:flex;align-items:center;gap:8px;padding:8px 10px;flex-wrap:wrap"><select id="moSel" style="flex:1;min-width:180px;margin:0">${ms.map(m=>`<option value="${m}" ${m===moisObj?'selected':''}>${moisFr(m)}${m===cur?' (en cours)':''}</option>`).join('')}</select><button class="mini" id="bPrint">🖨️ Imprimer / PDF pour la réunion</button></div>
    ${p.mg?`<div class="carte"><b style="text-transform:capitalize">${moisFr(moisObj)} — marge</b>${real!==null?` <span class="badge" style="background:${NIV[niveau(proj??real,p.mg)][1]};color:#fff">${enC?'Au rythme actuel : ':''}${NIV[niveau(proj??real,p.mg)][0]}</span>`:''}
      ${jauge(real,proj,p.mg,eur)}
      <div class="sub w">${real!==null?(enC?`Fait au ${dfr(o.au)} : <b style="color:var(--txt)">${eur(real)}</b>${proj?` · au rythme actuel ≈ <b style="color:var(--txt)">${eur(proj)}</b> (partie hachurée)`:''}.`:`Réalisé : <b style="color:var(--txt)">${eur(real)}</b>.`):'Mois à venir.'} ${jo} jours d'ouverture dans le mois (lundi–samedi hors jours fériés, à confirmer)${enC?`, dont ${rest} restants${moisObj==='2026-10-01'?' après le '+dfr(o.au):''}`:''}.</div>
@@ -765,10 +767,12 @@ function vueObjectifs(){if(!A)return pasAudit();const c=objCfg(),cur=auj().slice
       ${p.ca?`<tr><td class="sub">CA HT (pour information)</td>${p.ca.map(v=>`<td class="n sub">${eur(v)}</td>`).join('')}</tr>`:''}
      </table></div></div>`:`<div class="carte al o"><b class="t">${moisFr(moisObj)} : référence de l'an dernier manquante</b><div class="sub w">La marge du même mois l'an dernier n'est pas chargée : [MANQUANT].</div></div>`}
    ${planMois(moisObj,R,p,jo)}
-   <div class="carte"><b>L'exercice ${exo0.slice(0,4)}/${+exo0.slice(0,4)+1}, mois par mois</b>${atteints.length?`<div class="sub">Mois terminés : ${[3,2,1,0].map(n=>`${NIV[n][2]} ${atteints.filter(x=>x===n).length} ${NIV[n][0].toLowerCase()}`).join(' · ')}</div>`:''}${grapheObj(L)}</div>
-   <div class="carte"><b>Que faire pour atteindre l'objectif</b><div class="sub w">Le recul vient surtout du nombre de clients, pas du prix (effet fréquentation ${eurS(o.effetFreq)} sur 1–14 octobre, effet marge par client ${eurS(o.effetPanier)}). Les leviers ci-dessous sont les actions encore ouvertes du plan qui font revenir des clients ou vendre plus : touchez pour les suivre.</div>
+   <div class="carte no-print"><b>L'exercice ${exo0.slice(0,4)}/${+exo0.slice(0,4)+1}, mois par mois</b>${atteints.length?`<div class="sub">Mois terminés : ${[3,2,1,0].map(n=>`${NIV[n][2]} ${atteints.filter(x=>x===n).length} ${NIV[n][0].toLowerCase()}`).join(' · ')}</div>`:''}${grapheObj(L)}</div>
+   <div class="carte no-print"><b>Que faire pour atteindre l'objectif</b><div class="sub w">Le recul vient surtout du nombre de clients, pas du prix (effet fréquentation ${eurS(o.effetFreq)} sur 1–14 octobre, effet marge par client ${eurS(o.effetPanier)}). Les leviers ci-dessous sont les actions encore ouvertes du plan qui font revenir des clients ou vendre plus : touchez pour les suivre.</div>
      ${lev.map(a=>`<div class="ba-l" data-ouvre="${esc(a.id)}"><span class="pt" style="background:${ST[statutA(a)][1]}"></span><span class="grow"><b>${esc(a.id)}</b> ${esc(a.titre)}<span class="sub"> · 🎯 ${esc(a.enjeu)} · ${dfr(a.quand)}</span></span></div>`).join('')}</div>
-   <div class="carte"><b>Régler les paliers</b><div class="sub w">Pourcentages au-dessus du même mois de l'an dernier. Ils s'appliquent à tous les mois et sont partagés sur tous les appareils.</div>
+   ${A.vendeurs?(()=>{const E=equipeObj(A.vendeurs.periodes[0],moisObj),c=objCfg();const O=[['plein','Tous les jours'],['sam','Samedis seulement'],['partiel','Présence partielle'],['parti','Ne fait plus partie de l\'équipe']];
+     return `<div class="carte no-print"><b>Équipe prise en compte</b><div class="sub w">Qui reçoit un objectif. Changez la présence d'un collaborateur : c'est enregistré pour tous les appareils.</div>${E.vus.map(x=>`<div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:6px 0;border-bottom:1px solid var(--ligne)"><span style="flex:1;min-width:140px">${esc(x.qui)}</span><select class="selPres" data-k="${esc(x.k)}" style="width:auto;max-width:100%;margin:0">${O.map(o=>`<option value="${o[0]}" ${(c.pres[x.k]||'plein')===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></div>`).join('')}<div class="sub w" style="margin-top:4px">Les nouveaux arrivés sans historique dans Vindilis n'apparaissent pas encore : ils prennent le panier minimum de l'équipe.</div></div>`})():''}
+   <div class="carte no-print"><b>Régler les paliers</b><div class="sub w">Pourcentages au-dessus du même mois de l'an dernier. Ils s'appliquent à tous les mois et sont partagés sur tous les appareils.</div>
      <div class="g2"><div><label>Objectif : + … %</label><input id="ocO" type="number" step="0.5" value="${c.o}"></div><div><label>Très bien : + … %</label><input id="ocTb" type="number" step="0.5" value="${c.tb}"></div></div>
      <button class="btn" id="ocOk">${c.valide?'Enregistrer':'Valider ces paliers'}</button></div>`}
 /* ---------- PLAN DE VENTE DU MOIS : quantités, collaborateurs, laboratoires, conseil associé, animations, services ---------- */
@@ -794,19 +798,17 @@ function planMois(moisObj,R,p,jo){const V=A&&A.vendeurs&&A.vendeurs.periodes[0];
      ${partLibre?`<tr><td>Marge conseil (équipe)</td>${p.mg.map(v=>`<td class="n">${eur(v*partLibre)}</td>`).join('')}</tr>`:''}
      ${cl?`<tr><td>Marge par client à tenir</td>${p.mg.map((v,i)=>`<td class="n">${eur2(v/cl[i])}</td>`).join('')}</tr>`:''}</table></div>
      <div class="sub w" style="margin-top:6px">Ventes conseil : moyenne des 12 derniers mois (Vindilis › Statistiques › Vendeurs), ajustée à la saison (${MOIS_LIB[mo-1]} pèse ${pct(fs)} d'un mois moyen d'après l'an dernier).</div></div>`}
-  // 2. Par collaborateur
-  if(V&&p.mg){const eq=(D.equipe||[]).map(e=>sansAcc(e['Collaborateur']).split(/\s+/)[0]);
-    const L=V.lignes.filter(x=>x.ventes>=300).map(x=>{const pr=sansAcc(x.nom).split(/\s+/).slice(1).join(' ')||sansAcc(x.nom);const ok=eq.some(n=>pr.split(/\s+/).includes(n)||sansAcc(x.nom).split(/\s+/).includes(n));return {...x,ok}});
-    const act=L.filter(x=>x.ok),totL=act.reduce((s,x)=>s+x.margeLibre,0);
-    const mv=act.map(x=>x.ventesLibre?x.margeLibre/x.ventesLibre:0).filter(Boolean).sort((a,b)=>a-b),med=mv.length?mv[Math.floor(mv.length/2)]:0;
-    const cible=p.mg[1]*(V.total.margeLibre/V.total.marge);
-    const rows=act.sort((a,b)=>b.margeLibre-a.margeLibre).map(x=>{const part=x.margeLibre/totL,ob=cible*part,vt=x.ventesLibre/12*fs*(1+c.o/100),mvx=x.ventesLibre?x.margeLibre/x.ventesLibre:0,gain=mvx<med?x.ventesLibre/12*fs*(med-mvx):0;
-      return `<tr><td><b>${esc(nomCollab(x.nom))}</b></td><td class="n">${ent(vt)}</td><td class="n">${ent(vt/jo)}</td><td class="n"><b>${eur(ob)}</b></td><td class="n ${mvx<med?'neg':'pos'}">${eur2(mvx)}</td><td class="n">${gain>0?'+'+eur(gain):'—'}</td></tr>`}).join('');
-    const gainTot=act.reduce((s,x)=>{const mvx=x.ventesLibre?x.margeLibre/x.ventesLibre:0;return s+(mvx<med?x.ventesLibre/12*fs*(med-mvx):0)},0);
-    h+=`<div class="carte"><b>Objectif conseil par collaborateur (palier « Objectif »)</b><div class="sub w">Répartition selon le poids de chacun dans la marge sans ordonnance des 12 derniers mois. Ventes conseil à faire, marge conseil à atteindre, et marge moyenne par vente conseil comparée à la médiane de l'équipe (${eur2(med)}).</div>
-     <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Collaborateur</th><th class="n">Ventes conseil / mois</th><th class="n">par jour d'ouverture</th><th class="n">Marge conseil à faire</th><th class="n">Marge / vente conseil</th><th class="n">Gain si médiane atteinte</th></tr>${rows}</table></div>
-     <div class="sub w" style="margin-top:6px">Si chaque collaborateur sous la médiane monte sa marge par vente conseil au niveau de l'équipe (un produit conseillé de plus, ou un produit mieux margé), la pharmacie gagne <b style="color:var(--txt)">≈ ${eur(gainTot)} de marge par mois</b>. « Par jour d'ouverture » : à rapporter aux jours de présence de chacun (planning). Collaborateurs de l'équipe actuelle uniquement ; les ventes des personnes parties sont exclues.</div></div>`;
-    var gainConseil=gainTot,plus1=act.filter(x=>x.ventesLibre/12>=150).length*jo*med,nbAct=act.filter(x=>x.ventesLibre/12>=150).length}
+  // 2. Par collaborateur : une fiche chacun (ventes conseil, panier minimum, marge)
+  if(V&&p.mg){const E=equipeObj(V,moisObj),c2=objCfg();const totL=E.act.reduce((s,x)=>s+x.margeLibre,0),cible=p.mg[1]*(V.total.margeLibre/V.total.marge),med=E.mvMed;
+    const fiche=x=>{const vt=x.ventesLibre/12*fs*(1+c.o/100),pc=x.ventesLibre?x.caLibre/x.ventesLibre:0,mvx=x.ventesLibre?x.margeLibre/x.ventesLibre:0,pmin=Math.max(pc,E.panMed),ob=cible*x.margeLibre/totL,gain=mvx<med?x.ventesLibre/12*fs*(med-mvx):0,sam=x.pres==='sam',nj=sam?samedis(moisObj).length:jo;
+      return `<div class="carte demi fiche-c"><b style="font-size:16px">${esc(x.qui)}</b>${sam?' <span class="badge">samedis seulement</span>':''}
+       <div class="kpis" style="margin-top:8px;grid-template-columns:1fr 1fr"><div><div class="sub">Ventes conseil du mois</div><div class="gros" style="font-size:24px">${ent(vt)}</div><div class="sub">≈ ${ent(vt/nj)} par ${sam?'samedi ('+nj+' samedis)':'jour de présence'}</div></div>
+        <div><div class="sub">Panier conseil minimum</div><div class="gros" style="font-size:24px">${eur2(pmin)}</div><div class="sub">aujourd'hui ${eur2(pc)} · objectif ${eur2(pmin*1.05)}</div></div></div>
+       <div class="ligne"><span>Marge conseil à faire dans le mois</span><b>${eur(ob)}</b></div><div class="ligne"><span>Marge par vente conseil</span><b class="${mvx<med?'neg':'pos'}">${eur2(mvx)} <span class="sub">(équipe ${eur2(med)})</span></b></div>${gain>0?`<div class="ligne"><span>Si au niveau de l'équipe</span><b class="pos">+${eur(gain)} / mois</b></div>`:''}</div>`};
+    const gainTot=E.act.reduce((s,x)=>{const mvx=x.ventesLibre?x.margeLibre/x.ventesLibre:0;return s+(mvx<med?x.ventesLibre/12*fs*(med-mvx):0)},0);
+    h+=`<div class="titre">Objectif de chaque collaborateur (palier « Objectif »)</div>${E.act.map(fiche).join('')}
+     <div class="carte"><div class="sub w">Ventes conseil = ventes sans ordonnance, d'après les 12 derniers mois de chacun (Vindilis › Statistiques › Vendeurs), ajustées à la saison et augmentées de ${String(c.o).replace('.',',')} %. Le nombre par jour suppose une présence tous les jours d'ouverture : à rapporter au planning de chacun. <b style="color:var(--txt)">Panier minimum</b> = jamais moins que le panier conseil médian de l'équipe (${eur2(E.panMed)}) ; objectif +5 %. Si chacun monte sa marge par vente conseil au niveau de l'équipe : <b style="color:var(--txt)">≈ ${eur(gainTot)} de marge par mois</b>.${E.occ.length?` Présence partielle : ${E.occ.map(x=>esc(x.qui)+' ('+ent(x.ventesLibre/12*fs*(1+c.o/100))+' ventes conseil)').join(', ')}.`:''} Le titulaire n'a pas d'objectif individuel. Qui compte : réglage « Équipe prise en compte » plus bas.</div></div>`;
+    var gainConseil=gainTot,nbAct=E.act.filter(x=>x.pres!=='sam').length,nbSam=E.act.filter(x=>x.pres==='sam').length,plus1=(nbAct*jo+nbSam*samedis(moisObj).length)*med}
   // 3. Laboratoires du mois
   const d0=moisObj,d1=moisObj.slice(0,8)+String(joursMois(moisObj)).padStart(2,'0');
   const ops=(D.operations||[]).filter(o=>CLIENT.test(o['Type']||'')&&String(o['Début'])<=d1&&String(o['Fin'])>=d0);
@@ -821,69 +823,44 @@ function planMois(moisObj,R,p,jo){const V=A&&A.vendeurs&&A.vendeurs.periodes[0];
   const sam=samedis(moisObj),bil=8;
   h+=`<div class="chart2"><div class="carte"><b>Animations du mois</b><div class="sub w" style="margin-top:4px">Thème conseillé : <b style="color:var(--txt)">${esc(ANIM[mo])}</b>.</div>
      <div style="margin-top:6px;font-size:14px">Rythme : <b>une animation chaque samedi</b> (${sam.join(', ')}) avec un laboratoire du mois, et une grande journée par mois (diagnostic de peau, journée senior…). Chaque animation est mesurée dans Événements › Mesures : on garde celles qui rapportent plus que le samedi habituel.</div></div>
-    <div class="carte"><b>Services à développer</b><div style="margin-top:6px;font-size:14px">• <b>Bilans de prévention</b> : 30 € par bilan, pris en charge à 100 % par l'Assurance Maladie, pour les 18-25, 45-50, 60-65 et 70-75 ans (environ 30 à 45 minutes, espace de confidentialité). Objectif proposé : ${bil} par mois (2 par semaine) = <b>${eur(bil*30)}</b> d'honoraires, sans achat de marchandise.<br>• <b>Vaccination</b> pendant la campagne grippe : proposer à chaque client concerné, et le bilan de prévention dans la foulée.<br>• Profiter de chaque bilan pour le conseil associé (le bilan peut identifier un besoin).</div><div class="sub w" style="margin-top:4px">Source : ameli.fr, page « Mon bilan prévention par les pharmaciens ».</div></div></div>`;
+    <div class="carte"><b>Services à développer</b><div style="margin-top:6px;font-size:14px">• <b>Bilans de prévention</b> : 30 € par bilan, pris en charge à 100 % par l'Assurance Maladie, pour les 18-25, 45-50, 60-65 et 70-75 ans (environ 30 à 45 minutes, espace de confidentialité). Objectif proposé : ${bil} par mois (2 par semaine) = <b>${eur(bil*30)}</b> d'honoraires, sans achat de marchandise.<br>• <b>Vaccination</b> pendant la campagne grippe : proposer à chaque client concerné, et le bilan de prévention dans la foulée.<br>• <b>Tests angine et cystite</b> (pharmaciens formés) : honoraires de 10 € sans délivrance d'antibiotique, 15 € avec. À proposer à chaque client concerné.<br>• Profiter de chaque bilan pour le conseil associé (le bilan peut identifier un besoin).</div><div class="sub w" style="margin-top:4px">Sources : ameli.fr (« Mon bilan prévention ») ; Vidal (tests angine / cystite, mise à jour du 16/12/2024, montants à revérifier).</div></div></div>`;
   // 6. Comment combler l'écart
   if(p.mg){const proj=moisObj==='2026-10-01'&&A.octobre?A.octobre.projection:R.mg1;const ecart=p.mg[1]-(proj||0);
     const rupt=A.stock?A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.margePerdue,0):0;
-    const lev=[[`Une vente conseil de plus par jour pour chacun des ${typeof nbAct==='number'?nbAct:'—'} collaborateurs au comptoir`,typeof plus1==='number'?plus1:0],['Conseil : chaque collaborateur à la marge par vente médiane',typeof gainConseil==='number'?gainConseil:0],['Ruptures comblées (laboratoires à commander)',rupt],['Bilans de prévention (8 par mois)',bil*30]];
+    const lev=[[`Une vente conseil de plus par jour de présence pour chacun des ${typeof nbAct==='number'?nbAct+(nbSam?' (+ '+nbSam+' le samedi)':''):'—'} collaborateurs au comptoir`,typeof plus1==='number'?plus1:0],['Conseil : chaque collaborateur à la marge par vente médiane',typeof gainConseil==='number'?gainConseil:0],['Ruptures comblées (laboratoires à commander)',rupt],['Bilans de prévention (8 par mois)',bil*30]];
     const tot=lev.reduce((s,x)=>s+x[1],0);
     h+=`<div class="carte al v"><b class="t">Comment passer au-dessus du minimum</b><div class="sub w">${moisObj==='2026-10-01'?`Au rythme actuel, octobre finirait à ≈ ${eur(proj)}, soit ${eur(Math.abs(ecart))} ${ecart>0?'sous':'au-dessus de'} l'objectif.`:`Écart entre l'objectif et le même mois de l'an dernier : ${eur(ecart)}.`} Leviers chiffrés :</div>
      ${barresH(lev.map(x=>[x[0],[[x[1],'var(--vert2)']],'',eur(x[1])]))}<div class="sub w" style="margin-top:6px">Total des leviers chiffrés : <b style="color:var(--txt)">≈ ${eur(tot)} de marge par mois</b>${ecart>0?` (${Math.round(tot/ecart*100)} % de l'écart à combler)`:''}. Les animations et les laboratoires du mois s'ajoutent, à mesurer au cas par cas.</div></div>`}
+  h+=`<div class="carte"><b>Les 8 règles de l'équipe ce mois-ci</b><div style="font-size:14px;line-height:1.6;margin-top:4px">
+    1. <b>Une vente conseil de plus par jour</b> et par personne au comptoir.<br>2. <b>En caisse rapide</b> : un petit produit proposé à chaque client (lèvres, mains, format voyage, bacs soldeurs).<br>3. <b>Challenge du mois</b> sur le laboratoire n° 1, après sa formation (règle formation → challenge).<br>4. <b>Zéro rupture</b> sur les produits du top : signaler chaque matin ce qui manque.<br>5. <b>Promotions</b> en caisse dès le premier jour, visibles en tête de gondole et à l'écran.<br>6. <b>Une animation chaque samedi</b> (${sam.join(', ')}).<br>7. <b>Cure complète</b> (3 mois pour un complément) plutôt qu'une boîte.<br>8. <b>Point de 10 minutes chaque lundi</b> : où en est-on par rapport à l'objectif.</div></div>`;
+  h+=recompense(moisObj,R,p);
   return h}
+function recompense(m,R,p){if(!p.mg)return '';const c=objCfg(),t=c.pot/100,ex=k=>Math.max(0,k-p.mg[0])*t;
+  const enC=m===auj().slice(0,7)+'-01',proj=m==='2026-10-01'&&A.octobre?A.octobre.projection:null,base=proj??R.mg,cag=base!==null&&base>=p.mg[1]?ex(base):0;
+  return `<div class="carte" style="border-left:6px solid var(--bleu)"><b>🎁 Récompenser l'équipe quand l'objectif est atteint</b> ${c.potOk?'<span class="badge" style="background:var(--vert2);color:#fff">validé</span>':'<span class="badge" style="background:var(--orange);color:#fff">proposition à valider</span>'}
+    <div class="sub w" style="margin-top:4px">Une <b style="color:var(--txt)">cagnotte d'équipe</b> : si le mois atteint l'« Objectif », ${c.pot} % de la marge faite au-dessus du minimum va à l'équipe. Elle ne coûte rien si le minimum n'est pas dépassé : elle est payée par la marge en plus.</div>
+    <div class="kpis" style="margin-top:8px;grid-template-columns:repeat(3,1fr)"><div><div class="sub" style="color:var(--orange);font-weight:700">Minimum</div><b>0 €</b></div><div><div class="sub" style="color:var(--vert2);font-weight:700">Objectif</div><b>${eur(ex(p.mg[1]))}</b></div><div><div class="sub" style="color:var(--bleu);font-weight:700">Très bien</div><b>${eur(ex(p.mg[2]))}</b></div></div>
+    ${base!==null?`<div class="sub w" style="margin-top:6px">${enC?'Au rythme actuel':'Réalisé'} (${eur(base)}) : cagnotte <b style="color:var(--txt)">${eur(cag)}</b>.</div>`:''}
+    <div style="font-size:14px;line-height:1.55;margin-top:6px">• <b>Collective</b>, répartie selon le temps de présence : tout le monde y gagne, comptoir, caisse rapide, rayon, merchandising ; pas de concurrence entre collègues au comptoir.<br>• Versée <b>chaque trimestre</b> sous forme de prime de partage de la valeur (au plus une par trimestre, deux par an).<br>• <b>En plus, sans coût</b> : le vendeur du mois affiché, les dotations des challenges laboratoires, le choix d'un samedi libre ou d'une formation pour le meilleur progrès.<br>• Les objectifs portent sur le conseil, la parapharmacie et les services, jamais sur la quantité de médicaments délivrés.</div>
+    <div class="sub w" style="margin-top:6px">Avant de l'annoncer : accord de l'administrateur judiciaire (nouvel engagement de rémunération pendant le redressement) et de l'expert-comptable (forme et exonérations).</div>
+    <div class="g2 no-print" style="margin-top:8px"><div><label>Part de la marge au-dessus du minimum (%)</label><input id="ocPot" type="number" step="1" min="0" max="50" value="${c.pot}"></div><div style="display:flex;align-items:flex-end"><button class="btn" id="ocPotOk" style="margin:0">${c.potOk?'Enregistrer':'Valider la cagnotte'}</button></div></div></div>`}
+function equipeObj(V,m){const c=objCfg(),EQ=D.equipe||[];
+  const L=V.lignes.filter(x=>x.ventes>=300).map(x=>{const t=sansAcc(x.nom).split(/\s+/);const e=EQ.find(e=>t.includes(sansAcc(e['Collaborateur']).split(/\s+/)[0]));if(!e)return null;const k=sansAcc(e['Collaborateur']).split(/\s+/)[0].toUpperCase();
+    return {...x,k,qui:nomCollab(x.nom),tit:/titulaire/i.test(e['Titre']||''),pres:c.pres[k]||'plein'}}).filter(Boolean);
+  const vus=L.filter(x=>!x.tit);const act=vus.filter(x=>x.pres!=='parti'&&x.pres!=='partiel'&&(x.ventesLibre/12>=150||x.pres==='sam')).sort((a,b)=>b.margeLibre-a.margeLibre);
+  const occ=vus.filter(x=>x.pres==='partiel'||(x.pres==='plein'&&x.ventesLibre/12<150));
+  const md=a=>{a=a.sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:0},ref=act.filter(x=>x.ventesLibre>=150);
+  return {act,occ,vus,panMed:md(ref.map(x=>x.caLibre/x.ventesLibre)),mvMed:md(ref.map(x=>x.margeLibre/x.ventesLibre))}}
 function nomCollab(n){const t=sansAcc(n).split(/\s+/);const e=(D.equipe||[]).find(e=>t.includes(sansAcc(e['Collaborateur']).split(/\s+/)[0]));return e?e['Collaborateur'].split(/\s+/)[0]+(e['Titre']?' ('+e['Titre'].split(' —')[0].toLowerCase()+')':''):n}
 const joursMois=m=>new Date(+m.slice(0,4),+m.slice(5,7),0).getDate();
 
-/* ---------- RÉUNION D'ÉQUIPE : fiche du mois à présenter et imprimer ---------- */
-function vueReunion(){if(!A||!A.vendeurs)return pasAudit();const cur=auj().slice(0,7)+'-01';if(!moisObj)moisObj=cur;
-  const R=refMois(moisObj),p=paliers(R),jo=joursOuv(moisObj),mo=+moisObj.slice(5,7),c=objCfg(),V=A.vendeurs.periodes[0];
-  const MM=A.margeMensuelle||[],l12=MM.slice(-12),moy=l12.length?l12.reduce((s,x)=>s+x.mg,0)/l12.length:null,fs=R.mg1&&moy?R.mg1/moy:1;
-  const eq=(D.equipe||[]).map(e=>sansAcc(e['Collaborateur']).split(/\s+/)[0]);
-  const tit=(D.equipe||[]).filter(e=>/titulaire/i.test(e['Titre']||'')).map(e=>sansAcc(e['Collaborateur']).split(/\s+/)[0]);
-  const act0=V.lignes.filter(x=>x.ventes>=300&&eq.some(n=>sansAcc(x.nom).split(/\s+/).includes(n))&&!tit.some(n=>sansAcc(x.nom).split(/\s+/).includes(n)));
-  const act=act0.filter(x=>x.ventesLibre/12>=150),occ=act0.filter(x=>x.ventesLibre/12<150);
-  const pan=act.filter(x=>x.ventesLibre>=150).map(x=>x.caLibre/x.ventesLibre).sort((a,b)=>a-b),panMed=pan.length?pan[Math.floor(pan.length/2)]:0;
-  const mvs=act.filter(x=>x.ventesLibre>=150).map(x=>x.margeLibre/x.ventesLibre).sort((a,b)=>a-b),mvMed=mvs.length?mvs[Math.floor(mvs.length/2)]:0;
-  const totL=act.reduce((s,x)=>s+x.margeLibre,0),cible=p.mg?p.mg[1]*(V.total.margeLibre/V.total.marge):null;
-  const d0=moisObj,d1=moisObj.slice(0,8)+String(joursMois(moisObj)).padStart(2,'0');
-  const ops=(D.operations||[]).filter(o=>CLIENT.test(o['Type']||'')&&String(o['Début'])<=d1&&String(o['Fin'])>=d0);const labM={};ops.forEach(o=>{(labM[o['Laboratoire']]=labM[o['Laboratoire']]||[]).push(o['Opération'])});
-  const LB=Object.keys(labM).map(k=>{const l=(D.labos||[]).find(z=>z['Laboratoire']===k);return {nom:String(k).replace(/ T20\d\d.*$/,''),m:l?num(l['Marge € 12 mois'])||0:0,op:labM[k][0]}}).sort((a,b)=>b.m-a.m).slice(0,6);
-  const Q=A.prioritaires,PR=Q?Q.conseil.filter(r=>!/DOLIPRANE|DAFALGAN|EFFERALGAN|PARACETAMOL|IBUPROFENE|NUROFEN|ADVIL/i.test(r[0])).slice(0,6):[];
-  const sai=SAISON[mo],AS=ASSOC[sai].slice(0,4),vlib=V.lignes.reduce((s,x)=>s+(x.ventesLibre||0),0)/12*fs;
-  const nomC=n=>nomCollab(n);
-  const fiche=x=>{const vt=x.ventesLibre/12*fs*(1+c.o/100),pc=x.ventesLibre?x.caLibre/x.ventesLibre:0,mv=x.ventesLibre?x.margeLibre/x.ventesLibre:0,pmin=Math.max(pc,panMed),pobj=pmin*1.05,ob=cible?cible*x.margeLibre/totL:null;
-    return `<div class="carte demi fiche-c"><b style="font-size:16px">${esc(nomC(x.nom))}</b>
-     <div class="kpis" style="margin-top:8px;grid-template-columns:1fr 1fr"><div><div class="sub">Ventes conseil du mois</div><div class="gros" style="font-size:24px">${ent(vt)}</div><div class="sub">≈ ${ent(vt/jo)} par jour d'ouverture</div></div>
-      <div><div class="sub">Panier conseil minimum</div><div class="gros" style="font-size:24px">${eur2(pmin)}</div><div class="sub">aujourd'hui ${eur2(pc)} · objectif ${eur2(pobj)}</div></div></div>
-     ${ob?`<div class="ligne"><span>Marge conseil à faire dans le mois</span><b>${eur(ob)}</b></div>`:''}<div class="ligne"><span>Marge par vente conseil</span><b class="${mv<mvMed?'neg':'pos'}">${eur2(mv)} <span class="sub">(équipe ${eur2(mvMed)})</span></b></div></div>`};
-  const hd=`<div class="carte no-print"><b>Réunion d'équipe — fiche du mois</b><div class="sub w">À présenter en réunion et à afficher en salle de pause. Choisissez le mois, puis « Imprimer / PDF ».</div>
-    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><select id="moSel2" style="flex:1;min-width:180px;margin:0">${[0,1,2].map(k=>moisPlus(cur,k)).map(m=>`<option value="${m}" ${m===moisObj?'selected':''}>${moisFr(m)}</option>`).join('')}</select><button class="btn" id="bPrint" style="width:auto;margin:0;padding:10px 18px">🖨️ Imprimer / PDF</button></div></div>`;
-  return hd+`<div class="impr"><div class="carte" style="border-left:6px solid var(--vert2)"><div class="gros">Objectifs — ${moisFr(moisObj)}</div>
-    ${p.mg?`<div class="kpis" style="margin-top:10px;grid-template-columns:repeat(3,1fr)">${PAL.map((n,i)=>`<div><div class="sub" style="color:${PALC[i]};font-weight:700">${n}</div><b style="font-size:20px">${eur(p.mg[i])}</b><div class="sub">de marge · ${ent(vlib*(1+[0,c.o,c.tb][i]/100))} ventes conseil</div></div>`).join('')}</div>`:''}
-    <div class="sub w" style="margin-top:8px">Minimum = faire au moins comme ${moisFr(moisPlus(moisObj,-12))}. ${jo} jours d'ouverture. Ensemble, c'est ≈ <b style="color:var(--txt)">${ent(vlib*(1+c.o/100)/jo)} ventes conseil par jour</b> pour l'objectif.</div></div>
-   <div class="titre">Chacun son objectif</div>${act.sort((a,b)=>b.margeLibre-a.margeLibre).map(fiche).join('')}
-   ${occ.length?`<div class="carte"><b>Présence partielle</b><div class="sub w">${occ.map(x=>esc(nomC(x.nom))+' : '+ent(x.ventesLibre/12*fs*(1+c.o/100))+' ventes conseil').join(' · ')} — même panier minimum que l'équipe (${eur2(panMed)}).</div></div>`:''}<div class="carte"><div class="sub w">Ventes conseil = ventes sans ordonnance (Vindilis › Vendeurs, 12 derniers mois, ajusté à la saison, palier « Objectif » +${String(c.o).replace('.',',')} %). Par jour d'ouverture : à rapporter aux jours de présence de chacun. Panier minimum = au moins le panier conseil médian de l'équipe (${eur2(panMed)}).</div></div>
-   <div class="chart2"><div class="carte"><b>Laboratoires à conseiller en priorité</b>${LB.map((l,i)=>`<div class="ligne"><span>${i+1}. <b>${esc(l.nom)}</b><div class="sub">${esc(l.op)}</div></span></div>`).join('')||'<div class="sub">Opérations du mois non chargées.</div>'}</div>
-    <div class="carte"><b>Produits à proposer</b>${PR.map((r,i)=>`<div class="ligne"><span>${i+1}. ${esc(r[0])}</span></div>`).join('')}</div></div>
-   <div class="carte"><b>Conseil associé (${sai})</b>${AS.map(r=>`<div class="ligne"><span>${esc(r[0])}</span><b style="font-weight:600">→ ${esc(r[1])}</b></div>`).join('')}<div class="sub w" style="margin-top:4px">Objectif : un produit associé sur au moins une ordonnance sur trois.</div></div>
-   <div class="carte"><b>Services : objectifs du mois</b>
-    <div class="ligne"><span>Bilans de prévention (18-25, 45-50, 60-65, 70-75 ans) — 30 € l'acte</span><b>8 dans le mois</b></div>
-    <div class="ligne"><span>Tests angine / cystite (pharmaciens formés) — honoraires de 10 à 15 € selon le résultat</span><b>proposer à chaque client concerné</b></div>
-    ${mo>=10||mo<=1?`<div class="ligne"><span>Vaccination grippe</span><b>proposer à chaque client éligible</b></div>`:''}</div>
-   <div class="carte al v"><b class="t">Ce qu'on fait tous ensemble pour dépasser le minimum</b><div style="font-size:14px;line-height:1.6">
-    1. <b>Une vente conseil de plus par jour et par personne au comptoir</b> : ≈ ${eur(act.length*jo*mvMed)} de marge en plus dans le mois.<br>
-    2. <b>En caisse rapide</b> : un petit produit proposé à chaque client (lèvres, mains, format voyage, bacs soldeurs).<br>
-    3. <b>Challenge du mois</b> sur le laboratoire n° 1 de la liste, après la formation du laboratoire (règle formation → challenge).<br>
-    4. <b>Zéro rupture</b> sur les produits du top : signaler chaque matin ce qui manque.<br>
-    5. <b>Promotions</b> en caisse dès le premier jour, visibles en tête de gondole et à l'écran.<br>
-    6. <b>Une animation chaque samedi</b> (${samedis(moisObj).join(', ')}) — thème : ${esc(ANIM[mo])}.<br>
-    7. <b>Cure et renouvellement</b> : proposer la cure complète (3 mois pour un complément) plutôt qu'une boîte.<br>
-    8. <b>Point de 10 minutes chaque lundi</b> : où en est-on par rapport à l'objectif (application, onglet Objectifs).</div></div></div>
-   <div class="carte no-print"><div class="sub w">Montants des tests angine / cystite : 10 € sans délivrance d'antibiotique, 15 € avec (source Vidal, mise à jour du 16/12/2024, à revérifier). Bilan de prévention : 30 € (ameli.fr).</div></div>`}
-
 function brancherObjectifs(){const s=$('#moSel');if(s)s.onchange=e=>{moisObj=e.target.value;mois()};
   document.querySelectorAll('#m [data-ouvre]').forEach(e=>e.onclick=()=>ouvrirAction(e.dataset.ouvre));
+  const bp=$('#bPrint');if(bp)bp.onclick=()=>window.print();
+  document.querySelectorAll('.selPres').forEach(s=>s.onchange=async()=>{const c=objCfg();const pr={...c.pres,[s.dataset.k]:s.value};if(await sauverCfg({pres:pr})){toast('Équipe mise à jour');const y=scrollY;mois();scrollTo(0,y)}});
+  const bq=$('#ocPotOk');if(bq)bq.onclick=async()=>{const v=num($('#ocPot').value);if(v===null||v<0||v>50){toast('Entre 0 et 50 %');return}if(await sauverCfg({pot:v,potOk:true})){toast('Cagnotte enregistrée');const y=scrollY;mois();scrollTo(0,y)}};
   const b=$('#ocOk');if(b)b.onclick=async()=>{const o=num($('#ocO').value),tb=num($('#ocTb').value);if(o===null||tb===null||tb<o){toast('« Très bien » doit être supérieur ou égal à « Objectif »');return}
-    if(await majEtat('obj_cfg',JSON.stringify({o,tb,valide:true,le:auj()}))){toast('Paliers enregistrés');const y=scrollY;mois();scrollTo(0,y)}}}
+    if(await sauverCfg({o,tb,valide:true,le:auj()})){toast('Paliers enregistrés');const y=scrollY;mois();scrollTo(0,y)}}}
 
 /* ---------- ACCUEIL ---------- */
 function alertes(){const L=[];
@@ -1811,8 +1788,7 @@ function blocRef(){const r=D.rhRef;if(!r||!r[1]||num(r[1][1])===null||num(r[1][2
     ${num(h[1])!==null?`<div class="ligne"><span>Heures payées / mois</span><b>${ent(h[2])} <span style="color:var(--doux);font-weight:400">vs ${ent(h[1])}</span></b></div>`:''}
     ${num(ec[1])!==null?`<div class="ligne"><span>Économie cumulée</span><b class="${ec[1]>0?'pos':'neg'}">${eur(ec[1])}</b></div>`:''}${grapheMasse()}</div>`;}
 function mois(){
-  const navM=sousNav('smo',[['obj','🎯 Objectifs du mois'],['reu','📋 Réunion d\'équipe'],['hist','Mois & équipe']],sousMois);const bindM=()=>document.querySelectorAll('#smo button').forEach(b=>b.onclick=()=>{sousMois=b.dataset.k;mois();scrollTo(0,0)});
-  if(sousMois==='reu'){$('#ht').textContent='Réunion d\'équipe';fab(null);$('#m').innerHTML=navM+vueReunion();bindM();const s=$('#moSel2');if(s)s.onchange=e=>{moisObj=e.target.value;mois()};const bp=$('#bPrint');if(bp)bp.onclick=()=>window.print();return}
+  const navM=sousNav('smo',[['obj','🎯 Objectifs du mois'],['hist','Mois & équipe']],sousMois);const bindM=()=>document.querySelectorAll('#smo button').forEach(b=>b.onclick=()=>{sousMois=b.dataset.k;mois();scrollTo(0,0)});
   if(sousMois==='obj'){$('#ht').textContent='Objectifs';fab(null);$('#m').innerHTML=navM+vueObjectifs();bindM();brancherObjectifs();return}
   $('#ht').textContent='Mois & équipe';
   const rh=D.perf.filter(p=>num(p['Masse salariale chargée N'])!==null).slice(-1)[0];
