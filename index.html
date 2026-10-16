@@ -137,9 +137,9 @@ nav button em{font-style:normal}
 .pst.nv{background:var(--rouge)}.incid{border-left:5px solid var(--rouge)}.incid.calme{border-left-color:var(--vert2)}.incb{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.incid .inc{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ligne);font-size:14px}.incid .inc:last-of-type{border:0}.incid .inc .pt{margin-top:5px;flex:none}.incid .grow{flex:1}.nouv{color:var(--rouge);font-size:11px}
 .og-wrap{padding:10px}.og-titre{background:#1B2A4A;color:#C8A951;font-weight:800;text-align:center;border-radius:10px;padding:10px;letter-spacing:.03em;border-bottom:3px solid #C8A951;margin-bottom:10px;font-size:14px}
 .og-box{overflow:hidden;position:relative}.og{position:relative;padding:4px 0}.og-l{position:absolute;left:0;top:0;pointer-events:none;z-index:0}
-.og-row{display:flex;justify-content:center;align-items:flex-start;gap:22px;margin:0 0 30px;position:relative;z-index:1}.og-row:empty{display:none}.og-side{justify-content:space-between;padding:0 6%}
+.og-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:22px 22px;margin:0 0 30px;position:relative;z-index:1}.og-row:empty{display:none}.og-side{justify-content:space-between;padding:0 6%}
 .og-g{background:var(--carte);border-radius:10px}.og-gt{background:var(--gc);color:#fff;font-size:11px;font-weight:800;text-transform:uppercase;text-align:center;border-radius:7px;padding:5px 10px;cursor:pointer;letter-spacing:.04em}.og-gt span{opacity:.8;font-weight:600}.og-gt b{float:right}
-.og-m{display:flex;gap:8px;margin-top:6px;justify-content:center;flex-wrap:nowrap}.og-g.ferme .og-m{display:none}
+.og-m{display:flex;gap:8px;margin-top:6px;justify-content:center;flex-wrap:wrap}.og-g.large .og-m{max-width:704px}.og-g{max-width:100%}.og-g.ferme .og-m{display:none}
 .og-c{width:168px;background:var(--gc);color:#fff;border-radius:8px;border-top:5px solid #C8A951;padding:7px 8px 6px;box-shadow:3px 3px 0 rgba(0,0,0,.35);cursor:pointer;transition:transform .12s}.og-c:hover{transform:translateY(-2px)}
 .og-h{display:flex;align-items:center;gap:6px}.og-a{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex:none}.og-n{font-weight:800;font-size:13px;line-height:1.15}
 .og-t{font-size:11px;color:#f3e3b0;margin-top:3px;line-height:1.2}.og-r{font-size:10.5px;color:#e8d9a8;margin-top:4px;line-height:1.25}.og-r.manq{color:#ffcc80;font-style:italic}.og-r i{opacity:.75}
@@ -1062,7 +1062,7 @@ function vueNuage(){if(!NUAGE)NUAGE=calculNuage();const N=NUAGE,P=PLAN,[x0,y0,x1
 async function chargerRhx(code2){if(RHX)return RHX;try{const r=await fetch('rh.enc.json?t='+Date.now());if(!r.ok)return null;RHX=await dechiffrer(await r.json(),code2)}catch(e){RHX=null}return RHX}
 function equipeAnnees(P){const parC={};P.forEach(r=>{const x=parC[r.c]=parC[r.c]||{c:r.c,mois:new Set(),f:'',ct:'',k:{}};x.mois.add(r.m);x.f=r.f||x.f;x.ct=r.ct||x.ct;const a=r.m.slice(0,4);x.k[a]=(x.k[a]||0)+r.k});
   const der=P.reduce((s,r)=>r.m>s?r.m:s,'');Object.values(parC).forEach(x=>{const m=[...x.mois].sort();x.entree=m[0];x.sortie=m[m.length-1]<der?m[m.length-1]:null});return {parC,der}}
-const ficheRh=n=>{if(!RHX||!RHX.fiches)return null;const t=sansAcc(n),w=t.split(/\s+/);return RHX.fiches.find(f=>sansAcc((f.prenom||'')+' '+(f.nom||''))===t)||RHX.fiches.find(f=>sansAcc(f.prenom||'')===w[0]&&(w.length<2||sansAcc(f.nom||'').startsWith(w[1].slice(0,3))))||null};
+const ficheRh=n=>{if(!RHX||!RHX.fiches)return null;const t=sansAcc(n),w=t.split(/\s+/);return RHX.fiches.find(f=>sansAcc((f.prenom||'')+' '+(f.nom||''))===t)||RHX.fiches.find(f=>sansAcc(f.prenom||'')===w[0]&&(w.length<2||sansAcc(f.nom||'').startsWith(w[1].slice(0,3))))||(RHX.fiches.filter(f=>sansAcc(f.prenom||'')===w[0]).length===1?RHX.fiches.find(f=>sansAcc(f.prenom||'')===w[0]):null)};
 function vueAnnee(P){const {parC,der}=equipeAnnees(P),ans=[...new Set(P.map(r=>r.m.slice(0,4)))].sort();
   if(!anneeCol||!ans.includes(anneeCol))anneeCol=ans[ans.length-1];const a=anneeCol;
   const pres=Object.values(parC).filter(x=>[...x.mois].some(m=>m.startsWith(a))).sort((x,y)=>(y.k[a]||0)-(x.k[a]||0));
@@ -1104,9 +1104,9 @@ const ORGA_MARS={aline:'Entretiens · Onco · TROD · Grossiste · Stup.',christ
 let orgAn='',orgResp=true,orgFerme={},orgZoom=0;
 function classeOrg(t){t=sansAcc(t);if(/titulaire|directrice|gerant/.test(t))return 'dir';if(/pharmacien/.test(t))return 'pha';if(/etudiant/.test(t))return 'etu';if(/esth|mecp|parapharm|conseill/.test(t))return 'para';if(/apprenti|jeune preparant|eleve/.test(t))return 'app';if(/preparat/.test(t))return 'pre';if(/rayonn|magasin|recept|condition/.test(t))return 'ray';if(/administ|rejet|secret/.test(t))return 'adm';return 'surf'}
 function membresOrg(P,an){const {parC,der}=equipeAnnees(P),dern=der.slice(0,4),M=[],vu=new Set();const prem=n=>sansAcc(n).split(' ')[0];
-  const ajoute=(nom,titre,src,extra)=>{const k=prem(nom);if(vu.has(k))return;vu.add(k);const f=ficheRh(nom),q=resp(nom);
+  const FAM={pierre:'GOUIN',emmanuella:'GOUIN'};const ajoute=(nom,titre,src,extra)=>{const k=prem(nom);if(vu.has(k))return;vu.add(k);const f=ficheRh(nom),q=resp(nom);
     let r=q&&q['Responsabilités']&&!/MANQUANT/.test(q['Responsabilités'])?q['Responsabilités']:null,rM=false;if(!r&&ORGA_MARS[k]){r=ORGA_MARS[k];rM=true}
-    M.push(Object.assign({nom,prenom:f?f.prenom:nom.split(' ')[0],famille:f?f.nom:'',titre,g:classeOrg(titre),resp:r,respMars:rM,manque:!r,tel:f&&f.tel,src,cle:parC[nom]?nom:(Object.keys(parC).find(n=>prem(n)===k)||nom)},extra||{}))};
+    M.push(Object.assign({nom,prenom:f?f.prenom:nom.split(' ')[0],famille:f?f.nom:(FAM[k]||''),titre,g:classeOrg(titre),resp:r,respMars:rM,manque:!r,tel:f&&f.tel,src,cle:parC[nom]?nom:(Object.keys(parC).find(n=>prem(n)===k)||nom)},extra||{}))};
   if(an===dern){(D.equipe||[]).forEach(e=>{const t=e['Titre']||'',x=Object.values(parC).find(p=>prem(p.c)===prem(e['Collaborateur']));
       if(/titulaire/i.test(t)||(x&&!x.sortie))ajoute(e['Collaborateur'],t,'ÉQUIPE')});
     Object.values(parC).filter(x=>!x.sortie).forEach(x=>ajoute(x.c,x.f||'','paie'));
@@ -1146,7 +1146,7 @@ function liensOrg(){const og=document.getElementById('og'),svg=document.getEleme
   if(!b('pha'))lien('dir',['adm','surf','pre','etu','para','ray'],'#C8A951');
   svg.innerHTML=p}
 function ajusterOrg(){const box=document.getElementById('ogBox'),og=document.getElementById('og');if(!box||!og)return;og.style.transform='';og.style.width='';
-  const nat=Math.max(og.scrollWidth,980);og.style.width=nat+'px';const s=orgZoom?1:Math.min(1,box.clientWidth/nat);og.dataset.s=s;og.style.transform=`scale(${s})`;og.style.transformOrigin='0 0';box.style.height=(og.scrollHeight*s+4)+'px';liensOrg()}
+  const nat=orgZoom?Math.max(1100,box.clientWidth):Math.max(box.clientWidth,720);og.style.width=nat+'px';box.style.overflowX=orgZoom?'auto':'hidden';const s=orgZoom?1:Math.min(1,box.clientWidth/nat);og.dataset.s=s;og.style.transform=`scale(${s})`;og.style.transformOrigin='0 0';box.style.height=(og.scrollHeight*s+4)+'px';liensOrg()}
 function brancherOrga(rerendre){document.querySelectorAll('#ogan button').forEach(b=>b.onclick=()=>{orgAn=b.dataset.a;rerendre()});
   const r=$('#ogResp');if(r)r.onclick=()=>{orgResp=!orgResp;rerendre()};const f=$('#ogFit');if(f)f.onclick=()=>{orgZoom=orgZoom?0:1;rerendre()};
   const t=$('#ogTout');if(t)t.onclick=()=>{orgFerme={};rerendre()};
