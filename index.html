@@ -96,6 +96,10 @@ table.t tr.tot td{font-weight:700;border-top:2px solid var(--ligne)}
 .ba-btn{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .semaine{display:grid;grid-template-columns:1fr;gap:0;align-items:start}
 .flash{animation:fl 1.6s ease-out}@keyframes fl{0%{box-shadow:0 0 0 4px var(--vert2)}100%{box-shadow:0 0 0 0 transparent}}
+.voile{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.panneau{background:var(--fond);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+@media (min-width:1024px){.voile{align-items:center}.panneau{border-radius:16px}}
+#bMsg{position:relative}#bMsg .bn{position:absolute;top:-5px;right:-6px;background:var(--orange);color:#fff;font-style:normal;font-size:10px;font-weight:700;border-radius:9px;padding:1px 5px}
 /* --- Version ordinateur (même adresse, mêmes données) --- */
 @media (min-width:1024px){
 body{padding:0 0 30px 236px}
@@ -124,13 +128,13 @@ nav button em{font-style:normal}
 </style>
 </head>
 <body>
-<header><h1 id="ht">Pilotage</h1><span id="maj"></span><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
+<header><h1 id="ht">Pilotage</h1><span id="maj"></span><button id="bMsg" aria-label="Laisser une remarque ou une idée" onclick="panneauMsg()">💬</button><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
 <main id="m"></main>
 <nav id="nav"></nav>
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='3.6';
+const APP_V='3.7';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','📈','Mois & équipe','Mois']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -209,7 +213,7 @@ function navig(){
 /* Opérations Opeaz : on ne garde que les laboratoires que la pharmacie travaille (présents avec des ventes sur 12 mois) */
 function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;const ok={};(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>0)ok[l['Laboratoire']]=1});
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
-function rendre(){navig(); filtrerOps(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
+function rendre(){navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
   ({acc:accueil,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
@@ -492,7 +496,7 @@ async function chargerEtat(){const c=cfg();if(!c.code)return;try{const r=await f
   ETAT=j.etat||{};
   // reprise des cases cochées sur cet appareil avant la synchronisation
   if(A)for(const a of A.actions){const k='act_'+a.id;if(ls.get('pil_act_'+a.id)==='1'&&!(k in ETAT)){ETAT[k]='1';poster({action:'etat_set',cle:k,valeur:'1'})}}
-  ls.set('pil_etat',JSON.stringify(ETAT));if(D&&(vue==='act'||vue==='acc'))rendre();else{const b=document.getElementById('blocAct');if(b){const o=b.open;b.remove();injecterBloc();const n=document.getElementById('blocAct');if(n)n.open=o}}}catch(e){}}
+  ls.set('pil_etat',JSON.stringify(ETAT));majBadgeMsg();if(D&&(vue==='act'||vue==='acc'))rendre();else{const b=document.getElementById('blocAct');if(b){const o=b.open;b.remove();injecterBloc();const n=document.getElementById('blocAct');if(n)n.open=o}}}catch(e){}}
 async function majEtat(k,v){const av=ETAT[k];ETAT[k]=v;ls.set('pil_etat',JSON.stringify(ETAT));
   if(!(await poster({action:'etat_set',cle:k,valeur:v}))){if(av===undefined)delete ETAT[k];else ETAT[k]=av;ls.set('pil_etat',JSON.stringify(ETAT));return false}return true}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chargerEtat()});
@@ -621,6 +625,56 @@ function carteSemaine(){if(!A)return '';const L=toutes(),re=L.filter(a=>statutA(
    ${re.length?`<div class="titre" style="margin:8px 0 2px;color:var(--rouge)">En retard (${re.length})</div>${re.slice(0,6).map(a=>lig(a,'prévu le '+dfr(a.quand),ST.retard[1])).join('')}${re.length>6?`<div class="sub">… et ${re.length-6} autre(s)</div>`:''}`:''}
    <div class="titre" style="margin:8px 0 2px">À faire d'ici 7 jours (${se.length})</div>${se.slice(0,8).map(a=>lig(a,dfr(a.quand),statutA(a)==='encours'?ST.encours[1]:'var(--vert2)')).join('')||'<div class="sub">Rien d\'autre cette semaine.</div>'}${se.length>8?`<div class="sub" style="margin-top:4px">… et ${se.length-8} autre(s) : <span class="lien" data-go="act:dix">tout voir dans le plan</span></div>`:''}
    <div class="titre" style="margin:8px 0 2px;color:var(--orange)">Mesures avant / après à faire (${me.length})</div>${me.map(a=>lig(a,'mesure prévue le '+dfr(dateMesure(a)),'var(--orange)')).join('')||'<div class="sub">Aucune mesure en attente.</div>'}</div></div>`}
+
+/* ---------- REMARQUES & IDÉES : par onglet, écrites ou dictées, enregistrées sur le serveur (ETAT) ---------- */
+const RT_TYPES=['Amélioration','Correction','Idée','Donnée à mettre à jour','Question'];
+const RT_ST={nouvelle:['Nouvelle','var(--orange)'],prise:['Prise en compte','var(--bleu)'],faite:['Faite','var(--vert2)'],classee:['Classée','#90a4ae']};
+const retours=()=>Object.keys(ETAT).filter(k=>k.startsWith('retour_')).map(k=>{try{return Object.assign({k},JSON.parse(ETAT[k]))}catch(e){return null}}).filter(Boolean).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+const sousCourant=()=>({lab:sousLab,pro:sousPro,stk:sousStk,eve:sousEve,ecr:sousEcr,con:sousCon,col:sousCol,act:sousAct}[vue]||'');
+const libSous=()=>{const b=document.querySelector('#m .filtres button.on');return b?b.textContent.replace(/\s*\(\d+\)$/,'').trim():''};
+function majBadgeMsg(){const b=$('#bMsg');if(!b)return;const n=retours().filter(r=>r.st==='nouvelle'||!r.st).length;b.innerHTML='💬'+(n?`<i class="bn">${n}</i>`:'')}
+function carteRetour(r,admin){const s=RT_ST[r.st]||RT_ST.nouvelle;return `<div class="carte demi" style="border-left:5px solid ${s[1]}"><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="badge" style="background:${s[1]};color:#fff">${s[0]}</span><span class="badge">${esc(r.type||'Remarque')}</span><span class="sub">${esc(NOM_ONG[r.ong]||r.ong||'')}${r.sous?' › '+esc(r.sous):''} · ${esc(r.qui||'')} · ${esc(String(r.date||'').replace('T',' à ').slice(0,18))}</span></div>
+  <div style="margin-top:6px;white-space:pre-wrap">${esc(r.txt)}</div>${r.lien?`<div class="sub w" style="margin-top:4px">📎 <a href="${esc(r.lien)}" target="_blank" rel="noopener">${esc(r.lien.replace(/^https?:\/\/(www\.)?/,'').slice(0,60))}</a></div>`:''}
+  ${r.rep?`<div class="sig" style="background:var(--vcl)"><span>↪ <b>Réponse :</b> ${esc(r.rep)}</span></div>`:''}
+  ${admin?`<div class="statuts" data-rk="${esc(r.k)}">${Object.entries(RT_ST).map(([k,v])=>`<button data-rst="${k}" class="${(r.st||'nouvelle')===k?'on':''}">${v[0]}</button>`).join('')}</div>`:''}</div>`}
+function brancherRetours(maj){document.querySelectorAll('[data-rk] button').forEach(b=>b.onclick=async()=>{const k=b.parentElement.dataset.rk;let r={};try{r=JSON.parse(ETAT[k])}catch(e){}r.st=b.dataset.rst;if(await majEtat(k,JSON.stringify(r))){toast('Statut mis à jour');majBadgeMsg();maj()}})}
+let dictee=null;
+function panneauMsg(){const og=vue==='cfg'?'acc':vue,ss=libSous();const P=document.createElement('div');P.className='voile';P.id='voile';
+  const L=retours().filter(r=>r.ong===og);
+  P.innerHTML=`<div class="panneau" role="dialog" aria-label="Remarque"><div style="display:flex;align-items:center;gap:8px"><b style="flex:1;font-size:17px">💬 Remarque sur « ${esc(NOM_ONG[og]||og)}${ss?' › '+esc(ss):''} »</b><button class="mini" id="pmX">Fermer ✕</button></div>
+   <div class="sub w" style="margin-top:4px">Une amélioration, une erreur, une donnée à mettre à jour, une idée : écrivez-la ou dictez-la. Elle est enregistrée sur le serveur ; Claude la lit et la traite à la prochaine mise à jour de l'application.</div>
+   <label>Type</label><div class="statuts" id="pmT">${RT_TYPES.map((t,i)=>`<button data-t="${esc(t)}" class="${i===0?'on':''}">${esc(t)}</button>`).join('')}</div>
+   <label>Votre message</label><textarea id="pmTxt" rows="5" placeholder="Ex. : dans cet onglet, il faudrait voir aussi…"></textarea>
+   <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><button class="mini" id="pmMic" style="font-size:15px;padding:7px 14px">🎤 Dicter</button><span class="sub" id="pmMicSt"></span></div>
+   <div class="g2"><div><label>De la part de</label><input id="pmQui" value="${esc(ls.get('pil_qui')||'Titulaire')}"></div><div><label>Lien vers un document (facultatif)</label><input id="pmLien" placeholder="Lien Google Drive, photo partagée…"></div></div>
+   <button class="btn" id="pmOk">Envoyer la remarque</button>
+   ${L.length?`<div class="titre">Remarques déjà envoyées sur cet onglet (${L.length})</div>${L.slice(0,8).map(r=>carteRetour(r,false)).join('')}`:''}
+   <button class="lien" id="pmTout" style="background:none;border:0;padding:6px 0;font-size:14px">Voir toutes les remarques de l'application ›</button></div>`;
+  document.body.appendChild(P);document.body.style.overflow='hidden';
+  const fermer=()=>{if(dictee){try{dictee.stop()}catch(e){}dictee=null}P.remove();document.body.style.overflow=''};
+  P.onclick=e=>{if(e.target===P)fermer()};$('#pmX').onclick=fermer;
+  P.querySelectorAll('#pmT button').forEach(b=>b.onclick=()=>{P.querySelectorAll('#pmT button').forEach(x=>x.classList.remove('on'));b.classList.add('on')});
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition,st=$('#pmMicSt'),ta=$('#pmTxt');
+  $('#pmMic').onclick=()=>{if(!SR){st.textContent='Dictée non disponible ici : touchez le 🎤 du clavier de votre téléphone dans la zone de texte.';ta.focus();return}
+    if(dictee){dictee.stop();return}
+    const base=ta.value?ta.value.replace(/\s*$/,' '):'';let fin='';dictee=new SR();dictee.lang='fr-FR';dictee.continuous=true;dictee.interimResults=true;
+    dictee.onresult=e=>{let tmp='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t+' ';else tmp+=t}ta.value=base+fin+tmp};
+    dictee.onerror=e=>{st.textContent=e.error==='not-allowed'?'Micro refusé : autorisez le micro pour ce site, ou utilisez le 🎤 du clavier.':'Dictée interrompue ('+e.error+').'};
+    dictee.onend=()=>{dictee=null;$('#pmMic').textContent='🎤 Dicter';if(!/refusé|interrompue/.test(st.textContent))st.textContent='Dictée terminée : relisez et corrigez si besoin.'};
+    try{dictee.start();$('#pmMic').textContent='⏹ Arrêter';st.textContent='Je vous écoute… parlez normalement.'}catch(e){st.textContent='Impossible de démarrer la dictée : utilisez le 🎤 du clavier.';dictee=null}};
+  $('#pmTout').onclick=()=>{fermer();sousAct='msg';vue='act';rendre();scrollTo(0,0)};
+  $('#pmOk').onclick=async()=>{const txt=ta.value.trim();if(!txt){toast('Écrivez ou dictez votre remarque');return}if(dictee)dictee.stop();
+    const qui=$('#pmQui').value.trim()||'—';ls.set('pil_qui',qui);const d=new Date(),date=auj()+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+    const r={ong:og,sous:ss,type:(P.querySelector('#pmT button.on')||{}).dataset?.t||'Remarque',txt,qui,lien:$('#pmLien').value.trim(),date,st:'nouvelle',v:APP_V};
+    $('#pmOk').disabled=true;$('#pmOk').textContent='Envoi…';
+    if(await majEtat('retour_'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),JSON.stringify(r))){toast('Remarque enregistrée — merci');fermer();majBadgeMsg();if(vue==='act'&&sousAct==='msg')rendre()}else{$('#pmOk').disabled=false;$('#pmOk').textContent='Envoyer la remarque'}}}
+let filtreMsg='À traiter';
+function vueRemarques(){const R=retours(),F={'À traiter':r=>r.st!=='faite'&&r.st!=='classee','Nouvelles':r=>!r.st||r.st==='nouvelle','Prises en compte':r=>r.st==='prise','Faites':r=>r.st==='faite','Toutes':()=>true};
+  const og={};R.forEach(r=>{og[r.ong]=(og[r.ong]||0)+1});const L=R.filter(F[filtreMsg]);
+  return `<div class="carte"><b>Remarques & idées envoyées depuis l'application</b><div class="sub w">Chaque onglet a son bouton 💬 en haut à droite : on écrit ou on dicte une amélioration, une erreur, une donnée à mettre à jour. Claude les lit à chaque mise à jour de l'application, les passe « Prise en compte » puis « Faite », avec une réponse.</div><div class="ba-btn"><button class="mini" id="rmNew">💬 Nouvelle remarque</button></div></div>
+   ${R.length?`<div class="chart2"><div class="carte"><b>Où en sont les remarques</b>${donut(Object.entries(RT_ST).map(([k,v])=>[v[0],R.filter(r=>(r.st||'nouvelle')===k).length,v[1]]),String(R.length),'remarques')}</div><div class="carte"><b>Par onglet</b>${barresH(Object.entries(og).sort((a,b)=>b[1]-a[1]).map(([k,n])=>[NOM_ONG[k]||k,[[n,'var(--vert2)']],'',String(n)]))}</div></div>`:''}
+   <div class="filtres" id="fmsg">${Object.keys(F).map(k=>`<button data-f="${k}" class="${k===filtreMsg?'on':''}">${k} (${R.filter(F[k]).length})</button>`).join('')}</div>
+   ${L.map(r=>carteRetour(r,true)).join('')||'<div class="carte sub">Aucune remarque dans ce filtre. Touchez 💬 en haut de n\'importe quel onglet pour en laisser une.</div>'}`}
 
 /* ---------- ACCUEIL ---------- */
 function alertes(){const L=[];
@@ -761,13 +815,15 @@ function bindCon(){document.querySelectorAll('#scn button').forEach(b=>b.onclick
 let filtreTh='Tous',filtreSt='À faire';
 function actions(){fab(null);
   const navA=()=>{document.querySelectorAll('#sa button').forEach(b=>b.onclick=()=>{sousAct=b.dataset.k;if(sousAct==='cls')filtre='Classement';if(sousAct==='rec')filtre='Ouvertes';actions();scrollTo(0,0)})};
-  if(sousAct==='av'&&A){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+avantApres();navA();
+  if(sousAct==='av'&&A){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+avantApres();navA();
     document.querySelectorAll('#fav button').forEach(b=>b.onclick=()=>{filtreAv=b.dataset.f;const y=scrollY;actions();scrollTo(0,y)});return}
-  if(sousAct!=='dix'&&sousAct!=='av'){sousAct=filtre==='Classement'?'cls':'rec';actionsServeur();
-    $('#ht').textContent='Actions';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct));
+  if(sousAct==='msg'){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+vueRemarques();navA();
+    document.querySelectorAll('#fmsg button').forEach(b=>b.onclick=()=>{filtreMsg=b.dataset.f;actions()});$('#rmNew').onclick=panneauMsg;brancherRetours(()=>{const y=scrollY;actions();scrollTo(0,y)});return}
+  if(sousAct!=='dix'&&sousAct!=='av'&&sousAct!=='msg'){sousAct=filtre==='Classement'?'cls':'rec';actionsServeur();
+    $('#ht').textContent='Actions';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct));
     navA();return}
   $('#ht').textContent='Actions';
-  if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto']],sousAct)+pasAudit();navA();return}
+  if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto']],sousAct)+pasAudit();navA();return}
   const TOUT=toutes(),TH=[...new Set(THEMES_DEF.concat(TOUT.map(a=>a.theme||'Autres')))].filter(t=>TOUT.some(a=>(a.theme||'Autres')===t));
   const FST={'À faire':a=>statutA(a)!=='faite','En cours':a=>statutA(a)==='encours','En retard':a=>statutA(a)==='retard','À mesurer':aMesurer,'Faites':a=>actFaite(a.id),'Garder':a=>suivi(a.id).verdict==='garder','Corriger':a=>suivi(a.id).verdict==='corriger','Arrêter':a=>suivi(a.id).verdict==='arreter','Toutes':()=>true};
   if(!FST[filtreSt])filtreSt='À faire';
@@ -783,7 +839,7 @@ function actions(){fab(null);
     ${blocSuivi(a)}</div></div></div>`};
   const groupes=filtreTh==='Tous'?TH.map(t=>[t,L.filter(a=>(a.theme||'Autres')===t)]).filter(g=>g[1].length):[[filtreTh,L]];
   const nc=k=>TOUT.filter(FST[k]).length;
-  $('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+
+  $('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+
    `<div class="carte"><b>Plan d'action global : toutes les actions de tous les onglets</b><div class="sub w">Chaque action a un responsable, une échéance, la façon de faire et sa mesure avant / après. Ouvrez « Suivi et mesure » pour noter la mise en place, les chiffres avant / après et le verdict : c'est enregistré sur le serveur, visible sur le téléphone comme sur l'ordinateur.</div><div class="ba-btn"><button class="mini" id="paAdd">+ Ajouter une action</button></div></div>
    ${tableauPlan(TOUT)}
    <div class="filtres" id="fst">${Object.keys(FST).map(k=>`<button data-f="${k}" class="${k===filtreSt?'on':''}">${k} (${nc(k)})</button>`).join('')}</div>
