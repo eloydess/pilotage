@@ -1155,8 +1155,9 @@ function incidences(){if(!D)return [];const I=[],add=(id,src,to,sev,txt,go)=>I.p
       const s=stk.find(x=>{const n=debutNom(x.nom);return n.length>=3&&cle.includes(n)});if(s)(prR[s.nom]=prR[s.nom]||{s,p:[]}).p.push(p.nom)});
     Object.values(prR).forEach(({s,p})=>add('pro-rupt|'+s.nom+'|'+p.length,'stk',['pro','stk'],'rouge',`${s.nom} : ${s.nRupt} référence(s) en rupture (commande ${s.decision==='bloque'?'bloquée':'à passer'}) alors que ${p.length} promotion(s) sont en cours : ${p.slice(0,4).map(x=>'« '+x.trim()+' »').join(', ')}${p.length>4?'…':''}. Une promotion sans stock ne vend pas : débloquer la commande en priorité.`,'stk'));
     /* Stock → Labos : prix revus mais rupture, la mesure avant / après sera faussée */
-    stk.forEach(s=>{const n=debutNom(s.nom);const L=(D.labos||[]).find(l=>debutNom(l['Laboratoire']).startsWith(n));if(!L)return;const dr=L['Date repricing'];const j=dr?jours(String(dr).slice(0,10)):null;
-      if(j!==null&&j>=0&&j<=60)add('lab-rupt|'+s.nom,'stk',['lab','stk'],'orange',`${L['Laboratoire']} : prix revus le ${dfr(String(dr).slice(0,10))} mais ${s.nRupt} référence(s) en rupture. Tant que le stock n'est pas rétabli, la mesure avant / après des nouveaux prix est faussée.`,'stk')});
+    const LR=[];stk.forEach(s=>{const n=debutNom(s.nom);const L=(D.labos||[]).find(l=>debutNom(l['Laboratoire']).startsWith(n));if(!L)return;const dr=L['Date repricing'];const j=dr?jours(String(dr).slice(0,10)):null;
+      if(j!==null&&j>=0&&j<=60)LR.push(L['Laboratoire'].replace(/ T20\d\d.*$/,'')+' ('+s.nRupt+' en rupture, prix du '+dfr(String(dr).slice(0,10))+')')});
+    if(LR.length)add('lab-rupt|'+LR.length,'stk',['lab','stk'],'orange',`${LR.length} laboratoire(s) aux prix revus récemment ont des ruptures : ${LR.join(' ; ')}. Tant que le stock n'est pas rétabli, la mesure avant / après des nouveaux prix est faussée.`,'stk');
     /* Promos → Plan et Médias : promotion qui ne sort pas, sans écran ni emplacement */
     const E2=plan2(),placees=new Set(Object.values(E2).map(x=>x.promo).filter(Boolean));
     const inv=(A.pourquoi&&A.pourquoi.promos||[]).filter(p=>{const fin=dIso(p.fin);return !(fin&&fin<today)&&p.verdict==='ko'&&!p.ecran&&!placees.has(p.nom)});
