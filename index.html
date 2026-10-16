@@ -154,7 +154,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='5.0';
+const APP_V='5.1';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -835,15 +835,24 @@ function planMois(moisObj,R,p,jo){const V=A&&A.vendeurs&&A.vendeurs.periodes[0];
     1. <b>Une vente conseil de plus par jour</b> et par personne au comptoir.<br>2. <b>En caisse rapide</b> : un petit produit proposé à chaque client (lèvres, mains, format voyage, bacs soldeurs).<br>3. <b>Challenge du mois</b> sur le laboratoire n° 1, après sa formation (règle formation → challenge).<br>4. <b>Zéro rupture</b> sur les produits du top : signaler chaque matin ce qui manque.<br>5. <b>Promotions</b> en caisse dès le premier jour, visibles en tête de gondole et à l'écran.<br>6. <b>Une animation chaque samedi</b> (${sam.join(', ')}).<br>7. <b>Cure complète</b> (3 mois pour un complément) plutôt qu'une boîte.<br>8. <b>Point de 10 minutes chaque lundi</b> : où en est-on par rapport à l'objectif.</div></div>`;
   h+=recompense(moisObj,R,p);
   return h}
-function recompense(m,R,p){if(!p.mg)return '';const c=objCfg(),t=c.pot/100,ex=k=>Math.max(0,k-p.mg[0])*t;
-  const enC=m===auj().slice(0,7)+'-01',proj=m==='2026-10-01'&&A.octobre?A.octobre.projection:null,base=proj??R.mg,cag=base!==null&&base>=p.mg[1]?ex(base):0;
-  return `<div class="carte" style="border-left:6px solid var(--bleu)"><b>🎁 Récompenser l'équipe quand l'objectif est atteint</b> ${c.potOk?'<span class="badge" style="background:var(--vert2);color:#fff">validé</span>':'<span class="badge" style="background:var(--orange);color:#fff">proposition à valider</span>'}
-    <div class="sub w" style="margin-top:4px">Une <b style="color:var(--txt)">cagnotte d'équipe</b> : si le mois atteint l'« Objectif », ${c.pot} % de la marge faite au-dessus du minimum va à l'équipe. Elle ne coûte rien si le minimum n'est pas dépassé : elle est payée par la marge en plus.</div>
-    <div class="kpis" style="margin-top:8px;grid-template-columns:repeat(3,1fr)"><div><div class="sub" style="color:var(--orange);font-weight:700">Minimum</div><b>0 €</b></div><div><div class="sub" style="color:var(--vert2);font-weight:700">Objectif</div><b>${eur(ex(p.mg[1]))}</b></div><div><div class="sub" style="color:var(--bleu);font-weight:700">Très bien</div><b>${eur(ex(p.mg[2]))}</b></div></div>
-    ${base!==null?`<div class="sub w" style="margin-top:6px">${enC?'Au rythme actuel':'Réalisé'} (${eur(base)}) : cagnotte <b style="color:var(--txt)">${eur(cag)}</b>.</div>`:''}
-    <div style="font-size:14px;line-height:1.55;margin-top:6px">• <b>Collective</b>, répartie selon le temps de présence : tout le monde y gagne, comptoir, caisse rapide, rayon, merchandising ; pas de concurrence entre collègues au comptoir.<br>• Versée <b>chaque trimestre</b> sous forme de prime de partage de la valeur (au plus une par trimestre, deux par an).<br>• <b>En plus, sans coût</b> : le vendeur du mois affiché, les dotations des challenges laboratoires, le choix d'un samedi libre ou d'une formation pour le meilleur progrès.<br>• Les objectifs portent sur le conseil, la parapharmacie et les services, jamais sur la quantité de médicaments délivrés.</div>
-    <div class="sub w" style="margin-top:6px">Avant de l'annoncer : accord de l'administrateur judiciaire (nouvel engagement de rémunération pendant le redressement) et de l'expert-comptable (forme et exonérations).</div>
-    <div class="g2 no-print" style="margin-top:8px"><div><label>Part de la marge au-dessus du minimum (%)</label><input id="ocPot" type="number" step="1" min="0" max="50" value="${c.pot}"></div><div style="display:flex;align-items:flex-end"><button class="btn" id="ocPotOk" style="margin:0">${c.potOk?'Enregistrer':'Valider la cagnotte'}</button></div></div></div>`}
+const jsonE=k=>{try{return JSON.parse(ETAT[k]||'{}')}catch(e){return {}}};
+const RECOMP=[['⭐','1 étoile','Mis à l\'honneur : « vendeur du mois » affiché en salle de pause et annoncé en réunion','0 €'],
+  ['⭐⭐','2 étoiles','Choisir son samedi libre ou ses horaires d\'une semaine (selon le planning)','0 €'],
+  ['⭐⭐⭐','3 étoiles','Une formation au choix (laboratoire, ou organisme pris en charge par l\'OPCO à vérifier)','0 € à faible'],
+  ['🎁','À chaque challenge laboratoire','Le lot offert par le laboratoire au gagnant (dermocosmétique, parapharmacie)','payé par le laboratoire'],
+  ['🌟','6 étoiles sur l\'exercice','Son « rêve » : le grand cadeau qu\'il a choisi (par exemple des billets de parc d\'attractions pour 2 ou 3 personnes)','à faire doter par un laboratoire, sinon payé par la pharmacie'],
+  ['👥','L\'équipe à l\'objectif 3 mois de suite','Petit-déjeuner ou repas d\'équipe','faible']];
+function recompense(m,R,p){if(!A||!A.vendeurs)return '';const E=equipeObj(A.vendeurs.periodes[0],m),C=jsonE('chal'),RV=jsonE('reve'),mk=m.slice(0,7);
+  const exo0=+m.slice(5,7)>=4?m.slice(0,4)+'-04':(+m.slice(0,4)-1)+'-04',exo1=(+exo0.slice(0,4)+1)+'-03';
+  const etoiles=k=>Object.entries(C).filter(([mm])=>mm>=exo0&&mm<=exo1).reduce((s,[,v])=>s+(+v[k]||0),0);
+  const O=[['0','pas atteint'],['1','⭐ objectif'],['2','⭐⭐ très bien']];
+  return `<div class="carte" style="border-left:6px solid var(--bleu)"><b>🏆 Challenge de l'équipe : étoiles et récompenses</b>
+    <div class="sub w" style="margin-top:4px">Chaque mois : <b style="color:var(--txt)">1 étoile</b> si le collaborateur atteint son objectif de ventes conseil avec un panier au moins égal au minimum, <b style="color:var(--txt)">2 étoiles</b> au palier « très bien ». Les étoiles se cumulent sur l'exercice (avril à mars) et donnent droit aux récompenses ci-dessous. Le titulaire valide les étoiles en fin de mois.</div>
+    <div class="tw" style="margin-top:8px"><table class="t"><tr><th>Collaborateur</th><th>${MOIS_LIB[+m.slice(5,7)-1]}</th><th class="n">Étoiles de l'exercice</th></tr>
+     ${E.act.map(x=>`<tr><td><b>${esc(x.qui)}</b><div class="sub no-print">Son rêve : <input class="inReve" data-k="${esc(x.k)}" value="${esc(RV[x.k]||'')}" placeholder="à lui demander" style="margin:2px 0 0;padding:4px 6px;font-size:13px;max-width:100%"></div></td>
+       <td><select class="selChal" data-k="${esc(x.k)}" style="width:auto;margin:0">${O.map(o=>`<option value="${o[0]}" ${String((C[mk]||{})[x.k]||0)===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></td><td class="n"><b>${'⭐'.repeat(Math.min(etoiles(x.k),12))||'—'}</b> ${etoiles(x.k)}</td></tr>`).join('')}</table></div>
+    <div style="margin-top:10px"><b>Les récompenses</b></div><div class="tw"><table class="t"><tr><th></th><th>Quand</th><th>Récompense</th><th>Coût pour la pharmacie</th></tr>${RECOMP.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="sub">${r[3]}</td></tr>`).join('')}</table></div>
+    <div class="sub w" style="margin-top:8px">Un cadeau payé par la pharmacie pour récompenser un résultat est un complément de salaire : il passe sur la fiche de paie, avec cotisations, même sous forme de bon d'achat ou de billets. D'où l'intérêt de faire doter les gros lots par les laboratoires, dans les challenges dermocosmétique et parapharmacie : le laboratoire déclare et paie la contribution. Challenges sur la parapharmacie et le conseil, jamais sur la quantité de médicaments. À valider avec l'expert-comptable avant de lancer.</div></div>`}
 function equipeObj(V,m){const c=objCfg(),EQ=D.equipe||[];
   const L=V.lignes.filter(x=>x.ventes>=300).map(x=>{const t=sansAcc(x.nom).split(/\s+/);const e=EQ.find(e=>t.includes(sansAcc(e['Collaborateur']).split(/\s+/)[0]));if(!e)return null;const k=sansAcc(e['Collaborateur']).split(/\s+/)[0].toUpperCase();
     return {...x,k,qui:nomCollab(x.nom),tit:/titulaire/i.test(e['Titre']||''),pres:c.pres[k]||'plein'}}).filter(Boolean);
@@ -858,7 +867,8 @@ function brancherObjectifs(){const s=$('#moSel');if(s)s.onchange=e=>{moisObj=e.t
   document.querySelectorAll('#m [data-ouvre]').forEach(e=>e.onclick=()=>ouvrirAction(e.dataset.ouvre));
   const bp=$('#bPrint');if(bp)bp.onclick=()=>window.print();
   document.querySelectorAll('.selPres').forEach(s=>s.onchange=async()=>{const c=objCfg();const pr={...c.pres,[s.dataset.k]:s.value};if(await sauverCfg({pres:pr})){toast('Équipe mise à jour');const y=scrollY;mois();scrollTo(0,y)}});
-  const bq=$('#ocPotOk');if(bq)bq.onclick=async()=>{const v=num($('#ocPot').value);if(v===null||v<0||v>50){toast('Entre 0 et 50 %');return}if(await sauverCfg({pot:v,potOk:true})){toast('Cagnotte enregistrée');const y=scrollY;mois();scrollTo(0,y)}};
+  document.querySelectorAll('.selChal').forEach(s=>s.onchange=async()=>{const C=jsonE('chal'),mk=moisObj.slice(0,7);C[mk]={...(C[mk]||{}),[s.dataset.k]:+s.value};if(await majEtat('chal',JSON.stringify(C))){toast('Étoiles enregistrées');const y=scrollY;mois();scrollTo(0,y)}});
+  document.querySelectorAll('.inReve').forEach(s=>s.onchange=async()=>{const R=jsonE('reve');R[s.dataset.k]=s.value.trim();if(await majEtat('reve',JSON.stringify(R)))toast('Enregistré')});
   const b=$('#ocOk');if(b)b.onclick=async()=>{const o=num($('#ocO').value),tb=num($('#ocTb').value);if(o===null||tb===null||tb<o){toast('« Très bien » doit être supérieur ou égal à « Objectif »');return}
     if(await sauverCfg({o,tb,valide:true,le:auj()})){toast('Paliers enregistrés');const y=scrollY;mois();scrollTo(0,y)}}}
 
