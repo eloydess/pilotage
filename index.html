@@ -221,7 +221,8 @@ function navig(){
 /* Opérations Opeaz : on ne garde que les laboratoires que la pharmacie travaille (présents avec des ventes sur 12 mois) */
 function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;const ok={};(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>0)ok[l['Laboratoire']]=1});
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
-function rendre(){navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
+function libererCarte(){if(typeof MAPC!=='undefined'&&MAPC){try{MAPC.stop();MAPC.remove()}catch(e){}MAPC=null}}
+function rendre(){libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
   ({acc:accueil,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
@@ -825,7 +826,7 @@ let sousAct='dix';
 let sousCon='carte',rayonCon=3,filtreCon='3';
 const NIVC=n=>/^Élevée/.test(n)?'var(--rouge)':/élevée|^Moyenne$/.test(n)?'var(--orange)':/Moyenne|Faible à/.test(n)?'#c9a227':'var(--doux)';
 const ouiNon=v=>v===true?'oui':v===false?'non':'<span class="sub">?</span>';
-function concurrence(){fab(null);$('#ht').textContent='Concurrence';
+function concurrence(){libererCarte();fab(null);$('#ht').textContent='Concurrence';
   const nav=sousNav('scn',[['carte','🗺️ Carte'],['cls','Classement'],['tous','Toutes les officines'],['cli','Clientèle du quartier'],['opp','Constats & actions']],sousCon);
   if(!A||!A.concurrence){$('#m').innerHTML=nav+pasAudit();bindCon();return}
   const C=A.concurrence,S=C.stat,O=C.officines.filter(o=>o.statut==='ouverte'),F=C.officines.filter(o=>o.statut==='fermée');
