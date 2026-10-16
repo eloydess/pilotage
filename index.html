@@ -912,7 +912,6 @@ function analyseDe(o){if(o.analyse)return Object.assign({auto:false},o.analyse);
   const dr=cp.res.slice(-1)[0];if(dr&&dr[1]>=150000)F.push(`rentable (résultat net ${kEur(dr[1])} en ${dr[0]})`);
   if(o.pauseMidi===true)W.push('fermée à l\'heure du déjeuner');
   if(o.samediAprem===false)W.push('fermée le samedi après-midi');
-  if(!(o.services||[]).length)W.push('aucun service mis en avant en ligne');
   if(dr&&dr[1]<0)W.push(`résultat net négatif (${kEur(dr[1])} en ${dr[0]})`);
   if(g&&(g.tranche==='01'))W.push('petite équipe (1 ou 2 salariés)');
   if(o.dist>3)W.push(`éloignée de vous (${kmFr(o.dist)} km) : elle sert surtout son propre quartier`);
@@ -922,7 +921,7 @@ function analyseDe(o){if(o.analyse)return Object.assign({auto:false},o.analyse);
   if(o.dist>3&&!R.length)R.push('concurrent lointain : pas d\'action dédiée, surveiller seulement');
   if(!R.length)R.push('jouer vos atouts : amplitude 9 h – 20 h, parking et flux Carrefour, choix en parapharmacie');
   const niv=o.dist<=1?'Moyenne':o.dist<=3?'Faible à moyenne':'Faible';
-  return {auto:true,niveau:niv,rang:null,forces:F.length?F.join(' ; ')+'.':'Aucune force particulière relevée dans les sources publiques.',faiblesses:W.length?W.join(' ; ')+'.':'Aucune faiblesse relevée dans les sources publiques.',menace:o.dist<=3?'Partage avec vous la clientèle des quartiers entre vous deux.':'Faible : clientèle surtout de son propre quartier.',riposte:R.map(x=>x[0].toUpperCase()+x.slice(1)).join('. ')+'.'}}
+  return {auto:true,niveau:niv,rang:null,forces:F.length?F.join(' ; ')+'.':'Aucune force particulière relevée dans les sources publiques.',faiblesses:W.length?W.join(' ; ')+'.':'Aucune relevée dans les sources publiques'+((o.services||[]).length||o.horaires?'.':' (horaires et services non relevés : à compléter par une visite).'),menace:o.dist<=3?'Peut capter les clients des quartiers situés entre elle et vous.':'Faible : clientèle surtout de son propre quartier.',riposte:R.map(x=>x[0].toUpperCase()+x.slice(1)).join('. ')+'.'}}
 const lienCarte=(o,g)=>g?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.nom.replace(/\s*\(.*\)/,'')+' '+(o.adresse||'')+' '+o.commune)}`:'#';
 async function vueCarteCon(O,F){await chargerGeo();
   if(!CGEO)return `<div class="carte al o"><b class="t">Positions indisponibles</b><div class="sub w">Le fichier des positions n'a pas pu être chargé (réseau).</div></div>`;
@@ -998,8 +997,14 @@ async function brancherFicheCon(){const r=$('#retCon');if(r)r.onclick=()=>{sousC
 let sousConAvant='carte';
 
 /* ---------- Nuage chaud / froid sur le plan : marge des laboratoires à l'endroit où ils sont rangés ---------- */
-function margeLabZon(nomZon){const norm=s=>String(s).toUpperCase().replace(/LA R POSAY/,'LA ROCHE POSAY').replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-  const L=norm(nomZon);if(L.length<3)return null;const x=(D.labos||[]).find(z=>norm(z['Laboratoire']).startsWith(L));return x?(num(x['Marge € 12 mois'])||0):null}
+const ALIAS_ZON={MUSTELA:'EXPANSCIENCE',DERCOS:'VICHY',ARKOGELULES:'ARKOPHARMA',AVENT:'PHILIPS AVENT',SCHOLL:'SCHOLL',GIBAUD:'GIBAUD'};
+const MOTS_VIDES=new Set(['BEBE','HYGIENE','INTIME','SOINS','SOIN','DIVERS','PROMOTION','SAISONNIER','SAISONNIERS','LIBRE','ACCES','BIO','LAIT','HOMME','FEMME','CORPORELLE','LAVANT','SAVON','SAVONS','BACS','SOLDEURS','FORMAT','VOYAGE','LEVRES','MAINS','NATUREL','DENTAIRE','ACCESSOIRES','GROS','VOLUME','MATERNITE','SERUM','TEST','PREMIERS','DENTS','NUTRI','DERMATO','DERMATOLOGIE','MAQUILLAGE','SOLAIRE','CHANGE','COUCHES','LINGETTES','STRESS','SOMMEIL','SPORT','PATCHS','TONUS','DIGESTION','AMPOULE','MINCEUR','DIETETIQUE','PANSEMENT','PILULIER','ORTHOPEDIE','CONTENTION','CHAUSSURES','INCONTINENCE','RENUTRITION','VETERINAIRE','PODOLOGIE','DENTIFRICES','DEODORANTS','CEREALES','TISANES','VRAC','ARTICULATION','CIRCU','MAGNESIUM','PHYTO','AROMA','HERBORISTERIE','ANTIGASPI','SKIN','GROSSESSES','ALLAITEMENT','PRESERVATIFS','SERVIETTE']);
+function margeLabZon(nomZon){const norm=s=>String(s).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/LA R POSAY/,'LA ROCHE POSAY').replace(/[^A-Z ]/g,' ').replace(/\s+/g,' ').trim();
+  const L=norm(nomZon);if(L.length<3)return null;const labs=(D.labos||[]).map(z=>({n:norm(z['Laboratoire']),m:num(z['Marge € 12 mois'])||0}));
+  const vus=new Map();const prendre=x=>{if(x&&!vus.has(x.n))vus.set(x.n,x.m)};
+  prendre(labs.find(z=>z.n.startsWith(L)));
+  if(!vus.size)L.split(' ').filter(w=>w.length>=4&&!MOTS_VIDES.has(w)).forEach(w=>{const a=ALIAS_ZON[w];if(a){prendre(labs.find(z=>z.n.startsWith(a)));return}prendre(labs.find(z=>z.n.startsWith(w+' ')||z.n===w)||labs.find(z=>(' '+z.n+' ').includes(' '+w+' ')))});
+  return vus.size?[...vus.values()].reduce((s,v)=>s+v,0):null}
 function calculNuage(){const P=PLAN,[x0,y0,x1,y1]=P.bbox,cnt={};ZON.L.forEach(x=>{const k=x[0].toUpperCase();cnt[k]=(cnt[k]||0)+1});
   const pts=ZON.L.map(x=>{const m=margeLabZon(x[0]);return {n:x[0],x:x[1][0],y:x[1][1],w:m===null?null:m/cnt[x[0].toUpperCase()]}}).filter(p=>p.w!==null);
   const res=4,W=Math.round((x1-x0)*res),H=Math.round((y1-y0)*res),s=2.2,s2=2*s*s;
