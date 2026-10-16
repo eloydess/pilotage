@@ -128,19 +128,24 @@ main>.item,main>.reco,main>.op,main>.demi{grid-column:auto}
 .chart2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
 }
 nav button em{font-style:normal}
+#rg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;justify-content:center;align-items:flex-start;padding:calc(12px + env(safe-area-inset-top)) 12px}
+#rg .rgb{background:var(--fond);border-radius:14px;padding:12px;width:100%;max-width:640px;max-height:85vh;overflow:auto}
+.rpt{cursor:pointer;display:block}.rpt::after{content:' ▾';color:var(--doux);font-weight:400}.rpf>.rpt::after{content:' ▸'}.rpf>*:not(.rpt){display:none!important}
+.leaflet-container{font:13px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 </style>
 </head>
 <body>
-<header><h1 id="ht">Pilotage</h1><span id="maj"></span><button id="bMsg" aria-label="Laisser une remarque ou une idée" onclick="panneauMsg()">💬</button><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
+<header><h1 id="ht">Pilotage</h1><span id="maj"></span><button id="bRech" aria-label="Rechercher" onclick="if(D)rechercheGlobale()">🔍</button><button id="bMsg" aria-label="Laisser une remarque ou une idée" onclick="panneauMsg()">💬</button><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
 <main id="m"></main>
 <nav id="nav"></nav>
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.3';
+const APP_V='4.4';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
+let _rpT=null;new MutationObserver(()=>{clearTimeout(_rpT);_rpT=setTimeout(()=>{if(!document.getElementById('retCon')&&!document.getElementById('retCol'))replier()},60)}).observe(document.getElementById('m')||document.body,{childList:true});
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const num=v=>(v===''||v===null||v===undefined||isNaN(+v))?null:+v;
@@ -817,11 +822,11 @@ function avantApres(){const L=A.avantApres,n=k=>L.filter(x=>x.verdict===k).lengt
 
 /* ---------- ACTIONS ---------- */
 let sousAct='dix';
-let sousCon='cls',rayonCon=3,filtreCon='3';
+let sousCon='carte',rayonCon=3,filtreCon='3';
 const NIVC=n=>/^Élevée/.test(n)?'var(--rouge)':/élevée|^Moyenne$/.test(n)?'var(--orange)':/Moyenne|Faible à/.test(n)?'#c9a227':'var(--doux)';
 const ouiNon=v=>v===true?'oui':v===false?'non':'<span class="sub">?</span>';
 function concurrence(){fab(null);$('#ht').textContent='Concurrence';
-  const nav=sousNav('scn',[['cls','Classement'],['carte','Carte'],['tous','Toutes les officines'],['cli','Clientèle du quartier'],['opp','Constats & actions']],sousCon);
+  const nav=sousNav('scn',[['carte','🗺️ Carte'],['cls','Classement'],['tous','Toutes les officines'],['cli','Clientèle du quartier'],['opp','Constats & actions']],sousCon);
   if(!A||!A.concurrence){$('#m').innerHTML=nav+pasAudit();bindCon();return}
   const C=A.concurrence,S=C.stat,O=C.officines.filter(o=>o.statut==='ouverte'),F=C.officines.filter(o=>o.statut==='fermée');
   const tete=`<div class="carte"><b>${S.n} officines actives à moins de 8 km</b> <span class="sub">(${S.nMans} au Mans)</span><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(4,1fr)"><div><div class="sub">À moins de 1 km</div><b>${S.n1}</b></div><div><div class="sub">À moins de 3 km</div><b>${S.n3}</b></div><div><div class="sub">Ouvertes le dimanche</div><b>${S.dimanche.length}</b></div><div><div class="sub">Fermées depuis 2023</div><b>${S.fermees.length}</b></div></div><div class="sub w" style="margin-top:6px">Relevé du ${dfr(C.releve)}. ${esc(C.source)}</div></div>`;
@@ -833,23 +838,13 @@ function concurrence(){fab(null);$('#ht').textContent='Concurrence';
       <div style="margin-top:6px;font-size:14px"><b class="pos">Forces</b> — ${esc(a.forces)}</div>
       <div style="margin-top:4px;font-size:14px"><b class="neg">Faiblesses</b> — ${esc(a.faiblesses)}</div>
       <div style="margin-top:4px;font-size:14px"><b>Ce qu'elle vous prend</b> — ${esc(a.menace)}</div>
-      <div style="margin-top:6px;font-size:14px"><b>→ ${esc(a.riposte)}</b></div>
+      <div style="margin-top:6px;font-size:14px"><b>→ ${esc(a.riposte)}</b></div><button class="lien vf" data-n="${esc(o.nom)}" style="background:none;border:0;padding:0;font-size:14px;margin-top:6px;color:var(--vert2);font-weight:600">Ouvrir la fiche et la carte ›</button>
       ${o.services.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Services affichés (${o.services.length}) et sources</summary><div class="sub w">${o.services.map(esc).join(' · ')}</div><div class="sub w" style="margin-top:4px">${esc(o.actualite||'')}</div><div class="sub w">${o.sources.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`).join(' · ')}</div></details>`:`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Sources</summary><div class="sub w">${esc(o.actualite||'')}</div><div class="sub w">${o.sources.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`).join(' · ')}</div></details>`}</div>`}).join('');
-  } else if(sousCon==='carte'){const R=rayonCon,W=340,c=W/2,k=(W/2-14)/R;
-    const pts=O.filter(o=>o.xy&&o.dist<=R),fer=F.filter(o=>o.xy);
-    const rings=[0.5,1,2,3,5,8].filter(r=>r<=R).map(r=>`<circle cx="${c}" cy="${c}" r="${r*k}" fill="none" stroke="var(--ligne)" stroke-dasharray="3 3"/><text x="${c+r*k*0.707+2}" y="${c-r*k*0.707-2}" font-size="9" fill="var(--doux)">${String(r).replace('.',',')} km</text>`).join('');
-    const dot=o=>{const x=c+o.xy[0]*k,y=c-o.xy[1]*k,a=o.analyse;return `<g><title>${esc(o.nom)} — ${String(o.dist).replace('.',',')} km${a?' — menace '+esc(a.niveau.toLowerCase()):''}</title><circle cx="${x}" cy="${y}" r="${a?7:4}" fill="${a?NIVC(a.niveau):'var(--doux)'}" ${o.dimanche?'stroke="var(--txt)" stroke-width="2"':''} opacity=".9"/>${a?`<text x="${x}" y="${y+3}" font-size="8.5" text-anchor="middle" fill="#fff" font-weight="700">${a.rang}</text>`:''}</g>`};
-    h=`<div class="filtres" id="rcn">${[1,2,3,5,8].map(r=>`<button data-r="${r}" class="${r===R?'on':''}">${r} km</button>`).join('')}</div>
-    <div class="carte"><svg viewBox="0 0 ${W} ${W}" style="width:100%;max-width:560px;display:block;margin:auto" role="img" aria-label="Carte des officines autour de la pharmacie">${rings}
-      ${fer.filter(o=>Math.hypot(o.xy[0],o.xy[1])<=R).map(o=>`<g><title>${esc(o.nom)} (fermée)</title><text x="${c+o.xy[0]*k}" y="${c-o.xy[1]*k+4}" font-size="12" text-anchor="middle" fill="var(--rouge)">✕</text></g>`).join('')}
-      ${pts.map(dot).join('')}<g><title>Grande Pharmacie du Centre Sud</title><circle cx="${c}" cy="${c}" r="9" fill="var(--vert2)"/><text x="${c}" y="${c+3.5}" font-size="10" text-anchor="middle" fill="#fff">★</text></g>
-      <text x="${W-6}" y="14" font-size="10" text-anchor="end" fill="var(--doux)">N ↑</text></svg>
-      <div class="sub w" style="margin-top:6px">★ vous · cercles numérotés = rang de menace (rouge élevée, orange moyenne, jaune faible à moyenne) · gris = autres officines · contour noir = ouverte le dimanche${fer.length?' · ✕ rouge = officine fermée (patients à accueillir)':''}. Distances à vol d'oiseau ; survolez ou touchez un point pour son nom.</div></div>
-    <div class="carte"><b>${pts.length} officines dans un rayon de ${R} km</b>${pts.map(o=>`<div class="ligne"><span>${o.analyse?`<b style="color:${NIVC(o.analyse.niveau)}">${o.analyse.rang}.</b> `:''}${esc(o.nom)} <span class="sub">${esc(o.commune.replace(/^\d+ /,''))}</span></span><b style="font-weight:400;white-space:nowrap">${String(o.dist).replace('.',',')} km</b></div>`).join('')}</div>`;
+  } else if(sousCon==='carte'||sousCon==='fiche'){h='<div id="cwrap"><p class="vide">Chargement de la carte…</p></div>';
   } else if(sousCon==='tous'){const lim={'1':1,'3':3,'Le Mans':99,'Toutes':99}[filtreCon];const L=O.filter(o=>o.dist<=lim&&(filtreCon!=='Le Mans'||/Le Mans/.test(o.commune)));
     h=`<div class="filtres" id="fcn">${['1','3','Le Mans','Toutes'].map(k=>`<button data-f="${k}" class="${k===filtreCon?'on':''}">${/^\d/.test(k)?'< '+k+' km':k}</button>`).join('')}</div>
-    <div class="carte"><div class="tw"><table class="t"><tr><th>Officine</th><th class="n">km</th><th>Enseigne</th><th>Dimanche</th><th>Pause midi</th><th>Samedi ap.-midi</th><th class="n">Services</th></tr>${L.map(o=>`<tr><td>${o.analyse?`<b style="color:${NIVC(o.analyse.niveau)}">${o.analyse.rang}.</b> `:''}${esc(o.nom)}<div class="sub">${esc(o.commune.replace(/^\d+ /,''))}${o.titulaire?' · '+esc(o.titulaire):''}</div></td><td class="n">${String(o.dist).replace('.',',')}</td><td>${esc(o.groupement||'—')}</td><td>${ouiNon(o.dimanche)}</td><td>${ouiNon(o.pauseMidi)}</td><td>${ouiNon(o.samediAprem)}</td><td class="n">${o.services.length||'—'}</td></tr>`).join('')}</table></div><div class="sub w" style="margin-top:6px">« ? » = information non trouvée dans les sources publiques (à compléter par la visite mystère, action A21).</div></div>
-    <div class="carte al"><b class="t">${F.length} officines fermées</b>${F.map(o=>`<div class="ligne"><span>${esc(o.nom)}<div class="sub">${esc(o.actualite||'')}</div></span></div>`).join('')}</div>`;
+    <div class="carte"><div class="tw"><table class="t"><tr><th>Officine</th><th class="n">km</th><th>Enseigne</th><th>Dimanche</th><th>Pause midi</th><th>Samedi ap.-midi</th><th class="n">Services</th></tr>${L.map(o=>`<tr class="vf" data-n="${esc(o.nom)}" style="cursor:pointer"><td>${o.analyse?`<b style="color:${NIVC(o.analyse.niveau)}">${o.analyse.rang}.</b> `:''}<span style="color:var(--vert2);font-weight:600">${esc(o.nom)}</span><div class="sub">${esc(o.commune.replace(/^\d+ /,''))}${o.titulaire?' · '+esc(o.titulaire):''}</div></td><td class="n">${String(o.dist).replace('.',',')}</td><td>${esc(o.groupement||'—')}</td><td>${ouiNon(o.dimanche)}</td><td>${ouiNon(o.pauseMidi)}</td><td>${ouiNon(o.samediAprem)}</td><td class="n">${o.services.length||'—'}</td></tr>`).join('')}</table></div><div class="sub w" style="margin-top:6px">« ? » = information non trouvée dans les sources publiques (à compléter par la visite mystère, action A21).</div></div>
+    <div class="carte al"><b class="t">${F.length} officines fermées</b>${F.map(o=>`<div class="ligne vf" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${esc(o.nom)}<div class="sub">${esc(o.actualite||'')}</div></span><span>›</span></div>`).join('')}</div>`;
   } else if(sousCon==='cli'&&C.clientele){const K=C.clientele,a=K.agg,f=K.france,n0=v=>v==null?'—':String(v).replace('.',','),pc=v=>v==null?'—':n0(v)+' %',e0=v=>v==null?'—':ent(v)+' €';
     const lig=(lib,k,fmt)=>`<tr><td>${lib}</td><td class="n"><b>${fmt(a.z1[k])}</b></td><td class="n">${fmt(a.z25[k])}</td><td class="n">${fmt(a.mans[k])}</td><td class="n">${f[k]!=null?fmt(f[k]):'—'}</td></tr>`;
     const PC={'Seniors':'#7a5cc4','Familles jeunes en grande précarité':'var(--rouge)','Quartier modeste':'var(--orange)','Familles':'#2b8bd6','Jeunes actifs / étudiants':'#1aa39a','Mixte':'var(--doux)'};
@@ -870,12 +865,225 @@ function concurrence(){fab(null);$('#ht').textContent='Concurrence';
      `<button class="lien" id="vers-plan" style="background:none;border:0;padding:0;font-size:15px;margin:6px 4px 12px">Voir toutes les actions « Concurrence & clients » dans le plan ›</button>
      <div class="carte al"><b class="t">Correction par rapport à l'étude précédente</b><div class="sub w">${esc(C.memoire)}</div></div>`;
   }
-  $('#m').innerHTML=nav+(sousCon==='cli'?'':tete)+h;bindCon();
+  $('#m').innerHTML=nav+(sousCon==='cli'||sousCon==='fiche'?'':tete)+h;bindCon();
+  if(sousCon==='carte')vueCarteCon(O,F).then(x=>{const w=$('#cwrap');if(w){w.innerHTML=x;brancherCarteCon(O,F)}});
+  if(sousCon==='fiche')vueFicheCon().then(x=>{const w=$('#cwrap');if(w){w.innerHTML=x;bindCon();brancherFicheCon()}});
 }
-function bindCon(){document.querySelectorAll('#scn button').forEach(b=>b.onclick=()=>{sousCon=b.dataset.k;concurrence();scrollTo(0,0)});
+function bindCon(){document.querySelectorAll('.vf').forEach(b=>b.onclick=()=>ouvrirFicheCon(b.dataset.n));document.querySelectorAll('#scn button').forEach(b=>b.onclick=()=>{sousCon=b.dataset.k;concurrence();scrollTo(0,0)});
   document.querySelectorAll('#rcn button').forEach(b=>b.onclick=()=>{rayonCon=+b.dataset.r;concurrence()});
   document.querySelectorAll('#fcn button').forEach(b=>b.onclick=()=>{filtreCon=b.dataset.f;concurrence()});
   const v=document.getElementById('vers-plan');if(v)v.onclick=()=>{sousAct='dix';filtreTh='Concurrence & clients';filtreSt='À faire';const nb=document.querySelector('nav button[data-v="act"]');if(nb)nb.click()};}
+
+
+/* =====================================================================
+   v4.4 — Vraie carte des concurrents, fiches concurrent, équipe par année,
+   fiches collaborateur (Sivan), nuage chaud/froid, recherche globale
+   ===================================================================== */
+let CGEO=null,ficheCon='',carteFond='plan',RHX=null,anneeCol='',ficheCol='';
+async function chargerGeo(){if(CGEO)return CGEO;try{CGEO=await (await fetch('concurrents_geo.json?t='+Date.now())).json()}catch(e){CGEO=null}return CGEO}
+let LEAF=null;
+function chargerLeaflet(){if(LEAF)return LEAF;LEAF=new Promise((ok,ko)=>{
+  const l=document.createElement('link');l.rel='stylesheet';l.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(l);
+  const s=document.createElement('script');s.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';s.onload=()=>ok(window.L);s.onerror=()=>{LEAF=null;ko(new Error('Carte indisponible (réseau)'))};document.head.appendChild(s)});return LEAF}
+const FONDS={
+  plan:['🗺️ Plan des rues','https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,subdomains:'abc',attribution:'© contributeurs OpenStreetMap'}],
+  photo:['🛰️ Vue satellite','https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:19,attribution:'Imagerie © Esri, Maxar, Earthstar Geographics'}]};
+const geoDe=o=>CGEO&&CGEO.off[o.nom]||null;
+const distKm=(a,b)=>{const R=6371,r=Math.PI/180,dl=(b.lat-a.lat)*r,dn=(b.lon-a.lon)*r,x=Math.sin(dl/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(x))};
+const kmFr=v=>String(v).replace('.',',');
+/* Ordre de grandeur du CA selon la tranche d'effectif salarié INSEE (étalonné sur les 5 officines voisines qui publient leur CA) */
+const TRANCHES={'00':['0 salarié',null],'01':['1 ou 2 salariés',[0.5,1.2]],'02':['3 à 5 salariés',[0.9,1.8]],'03':['6 à 9 salariés',[1.5,3]],'11':['10 à 19 salariés',[2.5,6]],'12':['20 à 49 salariés',[5,12]],'NN':['effectif non déclaré',null]};
+function comptes(g){const r={ca:null,anneeCa:null,res:[],estim:null,tranche:null};if(!g)return r;
+  if(g.fin)Object.keys(g.fin).sort().forEach(a=>{const f=g.fin[a];if(f.ca>0){r.ca=f.ca;r.anneeCa=a}if(f.resultat_net!=null)r.res.push([a,f.resultat_net])});
+  const t=TRANCHES[g.tranche];if(t){r.tranche=t[0];if(t[1]&&!r.ca)r.estim=t[1]}return r}
+const mEur=v=>(v/1e6).toLocaleString('fr-FR',{maximumFractionDigits:2})+' M€';
+const kEur=v=>(v<0?'−':'')+Math.round(Math.abs(v)/1000).toLocaleString('fr-FR')+' k€';
+/* Forces / faiblesses / riposte : celles de l'étude quand l'officine est classée, sinon calculées à partir des faits publics */
+function analyseDe(o){if(o.analyse)return Object.assign({auto:false},o.analyse);
+  const g=geoDe(o),cp=comptes(g),s=(o.services||[]).join(' ').toLowerCase(),F=[],W=[],R=[];
+  const num_=/click|ordonnance en ligne|livraison|réservation/.test(s);
+  if(o.dist<=1)F.push(`très proche de vous (${kmFr(o.dist)} km)`);
+  if(o.dimanche)F.push('ouverte le dimanche');
+  if(o.tard)F.push('ouverte tard le soir');
+  if((o.services||[]).length>=5)F.push(`${o.services.length} services affichés`);
+  if(num_)F.push('services numériques (ordonnance en ligne, click & collect ou livraison)');
+  if(o.groupement)F.push('enseigne / groupement : '+o.groupement);
+  if(g&&(g.tranche==='11'||g.tranche==='12'))F.push('équipe importante ('+TRANCHES[g.tranche][0]+')');
+  const dr=cp.res.slice(-1)[0];if(dr&&dr[1]>=150000)F.push(`rentable (résultat net ${kEur(dr[1])} en ${dr[0]})`);
+  if(o.pauseMidi===true)W.push('fermée à l\'heure du déjeuner');
+  if(o.samediAprem===false)W.push('fermée le samedi après-midi');
+  if(!(o.services||[]).length)W.push('aucun service mis en avant en ligne');
+  if(dr&&dr[1]<0)W.push(`résultat net négatif (${kEur(dr[1])} en ${dr[0]})`);
+  if(g&&(g.tranche==='01'))W.push('petite équipe (1 ou 2 salariés)');
+  if(o.dist>3)W.push(`éloignée de vous (${kmFr(o.dist)} km) : elle sert surtout son propre quartier`);
+  if(o.pauseMidi===true||o.samediAprem===false)R.push('faire savoir dans son quartier que vous êtes ouverts de 9 h à 20 h sans coupure, samedi après-midi compris');
+  if(o.dimanche)R.push('pas de riposte sur le dimanche : orienter vers elle les urgences du dimanche et récupérer le patient en semaine (renouvellements, conseil)');
+  if(num_)R.push('égaler ses services numériques (ordonnance en ligne, click & collect)');
+  if(o.dist>3&&!R.length)R.push('concurrent lointain : pas d\'action dédiée, surveiller seulement');
+  if(!R.length)R.push('jouer vos atouts : amplitude 9 h – 20 h, parking et flux Carrefour, choix en parapharmacie');
+  const niv=o.dist<=1?'Moyenne':o.dist<=3?'Faible à moyenne':'Faible';
+  return {auto:true,niveau:niv,rang:null,forces:F.length?F.join(' ; ')+'.':'Aucune force particulière relevée dans les sources publiques.',faiblesses:W.length?W.join(' ; ')+'.':'Aucune faiblesse relevée dans les sources publiques.',menace:o.dist<=3?'Partage avec vous la clientèle des quartiers entre vous deux.':'Faible : clientèle surtout de son propre quartier.',riposte:R.map(x=>x[0].toUpperCase()+x.slice(1)).join('. ')+'.'}}
+const lienCarte=(o,g)=>g?`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(o.nom.replace(/\s*\(.*\)/,'')+' '+(o.adresse||'')+' '+o.commune)}`:'#';
+async function vueCarteCon(O,F){await chargerGeo();
+  if(!CGEO)return `<div class="carte al o"><b class="t">Positions indisponibles</b><div class="sub w">Le fichier des positions n'a pas pu être chargé (réseau).</div></div>`;
+  const n=O.filter(o=>geoDe(o)).length;
+  return `<div class="filtres" id="cfond">${Object.entries(FONDS).map(([k,v])=>`<button data-f="${k}" class="${k===carteFond?'on':''}">${v[0]}</button>`).join('')}</div>
+   <div class="carte" style="padding:0;overflow:hidden"><div id="ccarte" style="height:min(70vh,620px);width:100%;background:#e8eee9"></div></div>
+   <div class="carte"><div class="leg2 lig" style="font-size:13px">${[['Vous','var(--vert2)'],['Menace élevée','var(--rouge)'],['Menace moyenne','var(--orange)'],['Faible à moyenne','#c9a227'],['Autre officine','#78909c'],['Fermée','#000']].map(x=>`<span><span class="pt" style="background:${x[1]}"></span>${x[0]}</span>`).join('')}</div>
+   <div class="sub w" style="margin-top:6px">${n} officines placées à leur adresse réelle. Pincez ou utilisez + / − pour zoomer jusqu'à la rue ; touchez un point puis « Ouvrir la fiche ». Les cercles pointillés marquent 0,5 – 1 – 2 – 3 – 5 km à vol d'oiseau. Positions : ${esc(CGEO.source.split('.')[0])}.</div></div>`}
+let MAPC=null;
+async function brancherCarteCon(O,F){const el=document.getElementById('ccarte');if(!el)return;let L;
+  try{L=await chargerLeaflet()}catch(e){el.innerHTML='<p class="vide">Carte indisponible : vérifiez la connexion internet.</p>';return}
+  if(MAPC){try{MAPC.remove()}catch(e){}MAPC=null}
+  const nous=[CGEO.nous.lat,CGEO.nous.lon];
+  const m=L.map(el,{zoomControl:true,attributionControl:true}).setView(nous,14);MAPC=m;
+  L.tileLayer(FONDS[carteFond][1],FONDS[carteFond][2]).addTo(m);
+  [0.5,1,2,3,5].forEach(r=>{L.circle(nous,{radius:r*1000,color:'#455a64',weight:1,dashArray:'4 6',fill:false,interactive:false}).addTo(m);
+    const p=L.latLng(nous[0]+r/111.2*0.707,nous[1]+r/(111.2*Math.cos(nous[0]*Math.PI/180))*0.707);
+    L.marker(p,{interactive:false,icon:L.divIcon({className:'',html:`<span style="font:11px sans-serif;color:#37474f;background:rgba(255,255,255,.8);padding:0 3px;border-radius:3px">${kmFr(r)} km</span>`})}).addTo(m)});
+  const col=o=>{if(o.statut==='fermée')return '#000';const a=o.analyse;return a?{'var(--rouge)':'#c62828','var(--orange)':'#e65100','#c9a227':'#c9a227'}[NIVC(a.niveau)]||'#78909c':'#78909c'};
+  const all=O.concat(F);
+  all.forEach(o=>{const g=geoDe(o);if(!g)return;const a=o.analyse,c=col(o),fer=o.statut==='fermée';
+    const html=fer?`<div style="width:18px;height:18px;line-height:18px;text-align:center;color:#fff;background:#000;border-radius:50%;font:700 12px sans-serif;border:2px solid #fff">✕</div>`
+      :`<div style="width:${a?26:16}px;height:${a?26:16}px;line-height:${a?22:12}px;text-align:center;color:#fff;background:${c};border-radius:50%;font:700 12px sans-serif;border:2px solid ${o.dimanche?'#000':'#fff'};box-shadow:0 1px 3px rgba(0,0,0,.4)">${a?a.rang:''}</div>`;
+    const sz=fer?22:a?30:20;
+    const mk=L.marker([g.lat,g.lon],{icon:L.divIcon({className:'',html,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]}),title:o.nom}).addTo(m);
+    const d=distKm(CGEO.nous,g);
+    mk.bindPopup(`<b>${esc(o.nom)}</b><br>${esc(o.adresse||'')}, ${esc(o.commune)}<br><span style="color:#555">${kmFr(d.toFixed(1))} km à vol d'oiseau${a?' · menace '+esc(a.niveau.toLowerCase()):''}${fer?' · fermée':''}</span><br><button class="ofiche" data-n="${esc(o.nom)}" style="margin-top:6px;border:0;background:#2e7d32;color:#fff;border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer">Ouvrir la fiche ›</button>`)});
+  L.marker(nous,{zIndexOffset:1000,icon:L.divIcon({className:'',html:`<div style="width:30px;height:30px;line-height:26px;text-align:center;color:#fff;background:#2e7d32;border-radius:50%;font-size:16px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.5)">★</div>`,iconSize:[30,30],iconAnchor:[15,15]}),title:'Grande Pharmacie du Centre Sud'}).addTo(m).bindPopup('<b>Grande Pharmacie du Centre Sud</b><br>309 avenue Georges Durand');
+  m.on('popupopen',e=>{const b=e.popup.getElement().querySelector('.ofiche');if(b)b.onclick=()=>ouvrirFicheCon(b.dataset.n)});
+  setTimeout(()=>m.invalidateSize(),200);
+  document.querySelectorAll('#cfond button').forEach(b=>b.onclick=()=>{carteFond=b.dataset.f;concurrence()});
+}
+function ouvrirFicheCon(nom){if(sousCon!=='fiche')sousConAvant=sousCon;ficheCon=nom;sousCon='fiche';if(vue!=='con'){vue='con';navig()}concurrence();scrollTo(0,0)}
+async function vueFicheCon(){await chargerGeo();const C=A.concurrence,o=C.officines.find(x=>x.nom===ficheCon);
+  if(!o)return '<p class="vide">Officine introuvable.</p>';
+  const g=geoDe(o),a=analyseDe(o),cp=comptes(g),fer=o.statut==='fermée',coul=NIVC(a.niveau);
+  const d=g&&CGEO?distKm(CGEO.nous,g):o.dist;
+  const ca=cp.ca?`<b>${mEur(cp.ca)}</b> <span class="sub">publié (exercice ${cp.anneeCa})</span>`:cp.estim?`<b>${kmFr(cp.estim[0])} à ${kmFr(cp.estim[1])} M€</b> <span class="sub">estimation (${esc(cp.tranche)})</span>`:'<b>non publié</b> <span class="sub">et effectif non déclaré : pas d\'estimation possible</span>';
+  return `<button class="btn sec" id="retCon" style="margin:0 0 10px">← Retour</button>
+  <div class="carte" style="border-left:6px solid ${fer?'#000':coul}"><div style="display:flex;gap:10px;align-items:baseline">${a.rang?`<b style="font-size:24px;color:${coul}">${a.rang}</b>`:''}<div style="flex:1"><b style="font-size:17px">${esc(o.nom)}</b>
+   <div class="sub w">${esc(o.adresse||'')}, ${esc(o.commune)}</div></div></div>
+   <div class="kpis" style="margin-top:10px;grid-template-columns:repeat(3,1fr)"><div><div class="sub">Distance</div><b>${kmFr((+d).toFixed(1))} km</b></div><div><div class="sub">Menace</div><b style="color:${fer?'#000':coul}">${fer?'fermée':esc(a.niveau)}</b></div><div><div class="sub">Groupement</div><b>${esc(o.groupement||'—')}</b></div></div>
+   <div class="filtres" style="margin-top:10px"><a class="lien" href="${lienCarte(o,g)}" target="_blank" rel="noopener" style="border:1px solid var(--ligne);border-radius:16px;padding:5px 12px;font-size:13px;text-decoration:none">📍 Ouvrir dans Google Maps</a>${o.site?`<a href="${esc(o.site)}" target="_blank" rel="noopener" style="border:1px solid var(--ligne);border-radius:16px;padding:5px 12px;font-size:13px;text-decoration:none">🌐 Site internet</a>`:''}${g&&g.siren?`<a href="https://www.pappers.fr/entreprise/${g.siren}" target="_blank" rel="noopener" style="border:1px solid var(--ligne);border-radius:16px;padding:5px 12px;font-size:13px;text-decoration:none">📄 Pappers</a>`:''}</div></div>
+  ${g?`<div class="filtres" id="ffond">${Object.entries(FONDS).map(([k,v])=>`<button data-f="${k}" class="${k===carteFond?'on':''}">${v[0]}</button>`).join('')}</div><div class="carte" style="padding:0;overflow:hidden"><div id="fcarte" style="height:280px"></div></div>`:''}
+  <div class="carte"><b>Chiffres</b>
+   <div class="ligne"><span>Chiffre d'affaires</span><span style="text-align:right">${ca}</span></div>
+   ${cp.res.map(r=>`<div class="ligne"><span>Résultat net ${r[0]}</span><b class="${r[1]<0?'neg':''}">${kEur(r[1])}</b></div>`).join('')||'<div class="ligne"><span>Résultat net</span><b>non publié</b></div>'}
+   <div class="ligne"><span>Effectif salarié (INSEE)</span><b>${esc(cp.tranche||'—')}</b></div>
+   <div class="ligne"><span>Titulaire</span><b style="font-weight:400">${esc(o.titulaire||'—')}</b></div>
+   <div class="sub w" style="margin-top:6px">Comptes publiés au registre national des entreprises (consultés via l'API recherche-entreprises, la même source que Pappers). La plupart des pharmacies déposent leur compte de résultat en confidentiel : seul le résultat net est alors public. L'estimation de CA est un <b>ordre de grandeur</b> tiré de la tranche d'effectif, étalonnée sur les 5 officines voisines qui publient leur CA (Jaurès 1,73 M€, Viaduc 2,36 M€, Isaure 2,60 M€, Grand Pin 3,18 M€, Médicis 5,36 M€) : ce n'est pas un chiffre réel.</div></div>
+  <div class="carte"><b>Horaires et services</b><div class="sub w" style="margin-top:4px">🕘 ${esc(o.horaires||'Horaires non trouvés')}</div>
+   <div class="ligne"><span>Dimanche</span><b>${ouiNon(o.dimanche)}</b></div><div class="ligne"><span>Pause de midi</span><b>${ouiNon(o.pauseMidi)}</b></div><div class="ligne"><span>Samedi après-midi</span><b>${ouiNon(o.samediAprem)}</b></div>
+   ${(o.services||[]).length?`<div class="sub w" style="margin-top:6px">${o.services.map(esc).join(' · ')}</div>`:''}</div>
+  ${fer?`<div class="carte al"><b class="t">Officine fermée</b><div class="sub w">${esc(o.actualite||'')}</div></div>`:
+  `<div class="carte" style="border-left:5px solid ${coul}"><b>Analyse</b>${a.auto?' <span class="badge">fiche calculée à partir des données publiques</span>':''}
+   <div style="margin-top:8px"><b class="pos">Forces</b> — ${esc(a.forces)}</div>
+   <div style="margin-top:6px"><b class="neg">Faiblesses</b> — ${esc(a.faiblesses)}</div>
+   <div style="margin-top:6px"><b>Ce qu'elle vous prend</b> — ${esc(a.menace)}</div>
+   <div class="al v" style="margin-top:10px;padding:10px;border-radius:8px"><b>Contre-attaque</b><div style="margin-top:4px">${esc(a.riposte)}</div></div>
+   <button class="lien" id="vers-plan" style="background:none;border:0;padding:0;font-size:14px;margin-top:8px">Voir les actions « Concurrence & clients » ›</button></div>`}
+  ${o.actualite&&!fer?`<div class="carte"><b>Actualité</b><div class="sub w" style="margin-top:4px">${esc(o.actualite)}</div></div>`:''}
+  ${o.incertitudes?`<div class="carte al o"><b class="t">Points à vérifier</b><div class="sub w">${esc(o.incertitudes)}</div></div>`:''}
+  <div class="sub w" style="margin:4px">Sources : ${(o.sources||[]).map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`).join(' · ')}${g?' · position '+esc(g.src):''}</div>`}
+async function brancherFicheCon(){const r=$('#retCon');if(r)r.onclick=()=>{sousCon=sousConAvant||'carte';concurrence();scrollTo(0,0)};
+  document.querySelectorAll('#ffond button').forEach(b=>b.onclick=()=>{carteFond=b.dataset.f;concurrence()});
+  const el=document.getElementById('fcarte');if(!el)return;const o=A.concurrence.officines.find(x=>x.nom===ficheCon),g=geoDe(o);let L;
+  try{L=await chargerLeaflet()}catch(e){el.innerHTML='<p class="vide">Carte indisponible.</p>';return}
+  if(MAPC){try{MAPC.remove()}catch(e){}MAPC=null}
+  const m=L.map(el).setView([g.lat,g.lon],17);MAPC=m;L.tileLayer(FONDS[carteFond][1],FONDS[carteFond][2]).addTo(m);
+  L.marker([g.lat,g.lon],{title:o.nom}).addTo(m).bindPopup(esc(o.nom)).openPopup();
+  L.marker([CGEO.nous.lat,CGEO.nous.lon],{icon:L.divIcon({className:'',html:'<div style="width:24px;height:24px;line-height:20px;text-align:center;color:#fff;background:#2e7d32;border-radius:50%;border:2px solid #fff">★</div>',iconSize:[24,24],iconAnchor:[12,12]})}).addTo(m);
+  setTimeout(()=>m.invalidateSize(),200)}
+let sousConAvant='carte';
+
+/* ---------- Nuage chaud / froid sur le plan : marge des laboratoires à l'endroit où ils sont rangés ---------- */
+function margeLabZon(nomZon){const norm=s=>String(s).toUpperCase().replace(/LA R POSAY/,'LA ROCHE POSAY').replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const L=norm(nomZon);if(L.length<3)return null;const x=(D.labos||[]).find(z=>norm(z['Laboratoire']).startsWith(L));return x?(num(x['Marge € 12 mois'])||0):null}
+function calculNuage(){const P=PLAN,[x0,y0,x1,y1]=P.bbox,cnt={};ZON.L.forEach(x=>{const k=x[0].toUpperCase();cnt[k]=(cnt[k]||0)+1});
+  const pts=ZON.L.map(x=>{const m=margeLabZon(x[0]);return {n:x[0],x:x[1][0],y:x[1][1],w:m===null?null:m/cnt[x[0].toUpperCase()]}}).filter(p=>p.w!==null);
+  const res=4,W=Math.round((x1-x0)*res),H=Math.round((y1-y0)*res),s=2.2,s2=2*s*s;
+  const f=new Float32Array(W*H),g=new Float32Array(W*H);
+  for(let j=0;j<H;j++)for(let i=0;i<W;i++){const X=x0+(i+.5)/res,Y=y0+(j+.5)/res;let a=0,b=0;
+    for(const p of pts){const dx=X-p.x,dy=Y-p.y,d=dx*dx+dy*dy;if(d>36)continue;const k=Math.exp(-d/s2);a+=k*p.w;b+=k}f[j*W+i]=a;g[j*W+i]=b}
+  const vals=pts.map(p=>{const i=Math.min(W-1,Math.max(0,Math.floor((p.x-x0)*res))),j=Math.min(H-1,Math.max(0,Math.floor((p.y-y0)*res)));return f[j*W+i]}).sort((a,b)=>a-b);
+  const hi=vals[Math.floor(vals.length*.9)]||1,lo=vals[Math.floor(vals.length*.1)]||0;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const cx=cv.getContext('2d'),im=cx.createImageData(W,H);
+  const ramp=t=>{const S=[[0,[33,102,172]],[.35,[103,169,207]],[.55,[254,224,139]],[.75,[244,109,67]],[1,[178,24,43]]];for(let i=1;i<S.length;i++)if(t<=S[i][0]){const u=(t-S[i-1][0])/(S[i][0]-S[i-1][0]),A_=S[i-1][1],B=S[i][1];return A_.map((v,k)=>Math.round(v+(B[k]-v)*u))}return S[S.length-1][1]};
+  for(let q=0;q<W*H;q++){const pres=Math.min(1,g[q]*1.4);if(pres<.04){im.data[q*4+3]=0;continue}const t=Math.max(0,Math.min(1,(f[q]-lo)/((hi-lo)||1)));const c=ramp(t);im.data[q*4]=c[0];im.data[q*4+1]=c[1];im.data[q*4+2]=c[2];im.data[q*4+3]=Math.round(170*Math.pow(pres,.7))}
+  cx.putImageData(im,0,0);
+  const parLab={};pts.forEach(p=>{const k=p.n.toUpperCase();parLab[k]=parLab[k]||{n:p.n,m:0,x:0,y:0,c:0};parLab[k].m+=p.w;parLab[k].x+=p.x;parLab[k].y+=p.y;parLab[k].c++});
+  const labs=Object.values(parLab).map(l=>({n:l.n,m:l.m,x:l.x/l.c,y:l.y/l.c})).sort((a,b)=>b.m-a.m);
+  return {url:cv.toDataURL(),labs,nb:pts.length,tot:ZON.L.length}}
+let NUAGE=null;
+function vueNuage(){if(!NUAGE)NUAGE=calculNuage();const N=NUAGE,P=PLAN,[x0,y0,x1,y1]=P.bbox,chauds=N.labs.slice(0,6),froids=N.labs.filter(l=>l.m>0).slice(-6).reverse();
+  const couche=`<image href="${N.url}" x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" preserveAspectRatio="none" style="filter:blur(.6px)"/>`;
+  const leg=`<div class="carte"><div style="height:12px;border-radius:6px;background:linear-gradient(90deg,#2166ac,#67a9cf,#fee08b,#f46d43,#b2182b)"></div><div style="display:flex;justify-content:space-between" class="sub"><span>❄️ Zone froide : peu de marge</span><span>Zone chaude : beaucoup de marge 🔥</span></div>
+   <div class="sub w" style="margin-top:6px">Chaque étiquette de laboratoire du plan (${N.nb} sur ${N.tot} rapprochées des ventes) diffuse la marge de son laboratoire sur 12 mois (Vindilis), partagée entre ses emplacements. Le nuage montre où se fait la marge dans le magasin. Les zones sans couleur n'ont pas de laboratoire repéré sur le plan.</div></div>
+   <div class="chart2"><div class="carte"><b>🔥 Les plus chauds</b>${chauds.map(l=>`<div class="ligne"><span>${esc(l.n)}</span><b>${eur(l.m)}</b></div>`).join('')}</div>
+   <div class="carte"><b>❄️ Les plus froids</b>${froids.map(l=>`<div class="ligne"><span>${esc(l.n)}</span><b>${eur(l.m)}</b></div>`).join('')}</div></div>
+   <div class="carte al v"><b class="t">Comment s'en servir</b><div class="sub w">Une zone froide sur le passage des clients (entrée, allée centrale, caisses) est un emplacement sous-exploité : c'est là qu'il faut mettre une tête de gondole ou un bac soldeur sur un laboratoire chaud, ou une promotion. Une zone chaude cachée au fond mérite d'être annoncée par un écran ou une signalétique. Mesurer avant / après dans Actions.</div></div>`;
+  return {couche,leg}}
+
+/* ---------- Collaborateurs : équipe par année, fiches, organigramme ---------- */
+async function chargerRhx(code2){if(RHX)return RHX;try{const r=await fetch('rh.enc.json?t='+Date.now());if(!r.ok)return null;RHX=await dechiffrer(await r.json(),code2)}catch(e){RHX=null}return RHX}
+function equipeAnnees(P){const parC={};P.forEach(r=>{const x=parC[r.c]=parC[r.c]||{c:r.c,mois:new Set(),f:'',ct:'',k:{}};x.mois.add(r.m);x.f=r.f||x.f;x.ct=r.ct||x.ct;const a=r.m.slice(0,4);x.k[a]=(x.k[a]||0)+r.k});
+  const der=P.reduce((s,r)=>r.m>s?r.m:s,'');Object.values(parC).forEach(x=>{const m=[...x.mois].sort();x.entree=m[0];x.sortie=m[m.length-1]<der?m[m.length-1]:null});return {parC,der}}
+const ficheRh=n=>{if(!RHX||!RHX.fiches)return null;const t=sansAcc(n),w=t.split(/\s+/);return RHX.fiches.find(f=>sansAcc((f.prenom||'')+' '+(f.nom||''))===t)||RHX.fiches.find(f=>sansAcc(f.prenom||'')===w[0]&&(w.length<2||sansAcc(f.nom||'').startsWith(w[1].slice(0,3))))||null};
+function vueAnnee(P){const {parC,der}=equipeAnnees(P),ans=[...new Set(P.map(r=>r.m.slice(0,4)))].sort();
+  if(!anneeCol||!ans.includes(anneeCol))anneeCol=ans[ans.length-1];const a=anneeCol;
+  const pres=Object.values(parC).filter(x=>[...x.mois].some(m=>m.startsWith(a))).sort((x,y)=>(y.k[a]||0)-(x.k[a]||0));
+  const ent_=pres.filter(x=>x.entree.startsWith(a)),sor=pres.filter(x=>x.sortie&&x.sortie.startsWith(a));
+  const carte=x=>{const q=resp(x.c),f=ficheRh(x.c),nbm=[...x.mois].filter(m=>m.startsWith(a)).length;
+    return `<div class="carte item colf" data-c="${esc(x.c)}"><div class="grow"><b>${esc(x.c)}</b>${q&&q['Titre']?' — '+esc(q['Titre']):''}<div class="sub">${esc([x.f,x.ct].filter(Boolean).join(' · '))}</div>
+     <div class="sub">Depuis ${moisFr(x.entree)}${x.sortie?' · parti(e) après '+moisFr(x.sortie):''} · ${nbm} mois payés en ${a}</div></div>
+     <div style="text-align:right">${x.entree.startsWith(a)?'<span class="badge A">Entrée</span>':''}${x.sortie&&x.sortie.startsWith(a)?' <span class="badge p1">Sortie</span>':''}<div class="sub">${eur(x.k[a]||0)}</div></div></div>`};
+  return `<div class="filtres" id="fan">${ans.map(y=>`<button data-a="${y}" class="${y===a?'on':''}">${y}</button>`).join('')}</div>
+   <div class="carte"><div class="kpis" style="grid-template-columns:repeat(4,1fr)"><div><div class="sub">Présents en ${a}</div><b>${pres.length}</b></div><div><div class="sub">Entrées</div><b class="pos">${ent_.length}</b></div><div><div class="sub">Sorties</div><b class="neg">${sor.length}</b></div><div><div class="sub">Coût employeur ${a}</div><b>${eur(pres.reduce((s,x)=>s+(x.k[a]||0),0))}</b></div></div>
+   <div class="sub w" style="margin-top:6px">Présence déduite des bulletins de paie : un collaborateur est présent une année s'il a au moins un bulletin cette année-là. Entrée = premier bulletin, sortie = dernier bulletin avant ${moisFr(der)}. Touchez un nom pour sa fiche.</div></div>
+   ${pres.map(carte).join('')||'<p class="vide">Aucun bulletin pour cette année.</p>'}`}
+function vueFicheCol(P){const {parC,der}=equipeAnnees(P),x=parC[ficheCol];if(!x)return '<p class="vide">Collaborateur introuvable.</p>';
+  const q=resp(x.c),f=ficheRh(x.c),ans=Object.keys(x.k).sort(),J=['Lun','Mar','Mer','Jeu','Ven','Sam'];
+  const tel=f&&f.tel?String(f.tel):'',telH=tel.replace(/[^\d+]/g,'').replace(/^0/,'+33');
+  const plan=f&&f.planning&&f.planning.length?`<div class="carte"><b>Emploi du temps type sur 4 semaines</b><div class="sub">Source : Sivan${RHX.releve?', relevé du '+dfr(RHX.releve):''}</div>
+    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Semaine</th>${J.map(j=>`<th>${j}</th>`).join('')}<th class="n">Heures</th></tr>
+    ${f.planning.map((s,i)=>`<tr><td><b>S${i+1}</b></td>${J.map((j,k)=>{const c=(s.jours||[])[k]||'';return `<td style="${c?'background:var(--vcl)':'color:var(--doux)'}">${esc(c||'repos')}</td>`}).join('')}<td class="n">${s.heures!=null?String(s.heures).replace('.',','):'—'}</td></tr>`).join('')}</table></div></div>`
+    :`<div class="carte al o"><b class="t">Emploi du temps</b><div class="sub w">${RHX?'Pas de planning Sivan rapproché pour ce collaborateur.':'Les fiches Sivan (identité, téléphone, planning sur 4 semaines) ne sont pas encore importées dans l\'application.'}</div></div>`;
+  return `<button class="btn sec" id="retCol" style="margin:0 0 10px">← Retour</button>
+   <div class="carte"><b style="font-size:17px">${esc(f?[f.prenom,f.nom].filter(Boolean).join(' '):x.c)}</b>${q&&q['Titre']?'<div>'+esc(q['Titre'])+'</div>':''}<div class="sub">${esc([x.f,x.ct].filter(Boolean).join(' · '))}</div>
+    ${tel?`<a href="tel:${esc(telH)}" class="btn" style="text-decoration:none;text-align:center">📞 Appeler ${esc(tel)}</a>`:''}
+    ${f&&f.email?`<a href="mailto:${esc(f.email)}" class="btn sec" style="text-decoration:none;text-align:center">✉️ ${esc(f.email)}</a>`:''}
+    <div class="ligne" style="margin-top:8px"><span>Date de naissance</span><b>${f&&f.naissance?dfr(f.naissance):'—'}</b></div>
+    <div class="ligne"><span>Entrée</span><b>${f&&f.entree?dfr(f.entree):moisFr(x.entree)+' <span class="sub">(1er bulletin)</span>'}</b></div>
+    <div class="ligne"><span>Sortie</span><b>${f&&f.sortie?dfr(f.sortie):x.sortie?moisFr(x.sortie)+' <span class="sub">(dernier bulletin)</span>':'en poste'}</b></div>
+    ${f&&f.contrat?`<div class="ligne"><span>Contrat (Sivan)</span><b>${esc(f.contrat)}</b></div>`:''}${f&&f.heuresHebdo?`<div class="ligne"><span>Heures hebdomadaires</span><b>${esc(f.heuresHebdo)}</b></div>`:''}
+    ${q&&q['Responsabilités']?`<div class="sub w" style="margin-top:6px">🎯 ${esc(q['Responsabilités'])}</div>`:''}${q&&q['Laboratoires référents']?`<div class="sub w">Labos référents : ${esc(q['Laboratoires référents'])}</div>`:''}</div>
+   ${plan}
+   <div class="carte"><b>Coût employeur par année</b>${ans.map(a=>`<div class="ligne"><span>${a}</span><b>${eur(x.k[a])}</b></div>`).join('')}</div>`}
+function vueOrga(P){const {parC}=equipeAnnees(P),e=D.equipe||[],act=new Set(Object.values(parC).filter(x=>!x.sortie).map(x=>sansAcc(x.c)));
+  const enPoste=e.filter(x=>!P.length||act.has(sansAcc(x['Collaborateur']))||[...act].some(c=>c.split(' ')[0]===sansAcc(x['Collaborateur']).split(' ')[0])),partis=e.filter(x=>!enPoste.includes(x));
+  const groupes={};enPoste.forEach(x=>{const t=String(x['Titre']||'Sans titre');const k=/titulaire|directrice|g[ée]rant/i.test(t)?'1 Direction':/pharmacien/i.test(t)?'2 Pharmaciens':/pr[ée]parat|apprenti/i.test(t)?'3 Préparateurs et apprentis':'4 Autres fonctions';(groupes[k]=groupes[k]||[]).push(x)});
+  return `<div class="carte"><b>Organigramme actuel</b><div class="sub w">Collaborateurs en poste (bulletin le dernier mois connu), avec le rôle défini dans l'onglet ÉQUIPE du classeur.</div></div>`+
+   Object.keys(groupes).sort().map(k=>`<div class="titre">${k.slice(2)} (${groupes[k].length})</div>${groupes[k].map(x=>`<div class="carte item colf" data-c="${esc(x['Collaborateur'])}"><div class="grow"><b>${esc(x['Collaborateur'])}</b> — ${esc(x['Titre']||'')}${x['Responsabilités']?`<div class="sub w">🎯 ${esc(x['Responsabilités'])}</div>`:''}</div></div>`).join('')}`).join('')+
+   (partis.length?`<div class="carte al o"><b class="t">Dans l'onglet ÉQUIPE mais sans bulletin le dernier mois</b><div class="sub w">${partis.map(x=>esc(x['Collaborateur'])).join(' · ')} — à retirer du classeur s'ils sont partis.</div></div>`:'')}
+
+/* ---------- Recherche globale ---------- */
+function rechercheGlobale(){const ov=document.createElement('div');ov.id='rg';ov.innerHTML=`<div class="rgb"><div style="display:flex;gap:8px"><input id="rgq" placeholder="Rechercher : laboratoire, pharmacie, action, collaborateur…" autocomplete="off"><button class="btn sec" id="rgx" style="width:auto;margin:0;padding:8px 14px">✕</button></div><div id="rgr" style="margin-top:10px"></div></div>`;
+  document.body.appendChild(ov);const q=$('#rgq');q.focus();$('#rgx').onclick=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)ov.remove()};
+  const idx=[];
+  (D.labos||[]).forEach(l=>idx.push(['🧪 Laboratoire',l['Laboratoire'],'Marge 12 mois '+eur(l['Marge € 12 mois']),()=>{vue='lab';navig();fiche(l['Laboratoire'],'syn')}]));
+  if(A){(A.actions||[]).forEach(x=>idx.push(['✅ Action '+x.id,x.titre,(x.qui||'')+(x.quand?' · '+dfr(x.quand):''),()=>ouvrirAction(x.id)]));
+    (A.concurrence&&A.concurrence.officines||[]).forEach(o=>idx.push(['🏥 Pharmacie',o.nom,(o.adresse||'')+', '+o.commune,()=>ouvrirFicheCon(o.nom)]));
+    (A.pourquoi&&A.pourquoi.promos||[]).forEach(p=>idx.push(['🏷️ Promotion',p.nom,'',()=>{vue='pro';rendre()}]))}
+  (D.equipe||[]).forEach(e=>idx.push(['👥 Collaborateur',e['Collaborateur'],e['Titre']||'',()=>{vue='col';sousCol='orga';rendre()}]));
+  const go=()=>{const t=sansAcc(q.value);if(t.length<2){$('#rgr').innerHTML='<p class="sub">Tapez au moins 2 lettres.</p>';return}
+    const T=t.split(/\s+/),R=idx.filter(x=>{const s=sansAcc(x[0]+' '+x[1]+' '+x[2]);return T.every(w=>s.includes(w))}).slice(0,40);
+    $('#rgr').innerHTML=R.length?R.map((x,i)=>`<div class="carte item rgi" data-i="${idx.indexOf(x)}" style="margin-bottom:6px"><div class="grow"><div class="sub">${esc(x[0])}</div><b>${esc(x[1])}</b><div class="sub">${esc(x[2])}</div></div><span>›</span></div>`).join(''):'<p class="vide">Aucun résultat.</p>';
+    document.querySelectorAll('.rgi').forEach(e=>e.onclick=()=>{ov.remove();idx[+e.dataset.i][3]();scrollTo(0,0)})};
+  q.oninput=go;go()}
+/* ---------- Cartes repliables : dans les listes longues, on n'ouvre que ce qu'on touche ---------- */
+function replier(){const m=$('#m');if(!m)return;const C=[...m.children].filter(c=>c.classList.contains('carte')&&!c.classList.contains('item')&&!c.classList.contains('nr')&&c.firstElementChild&&c.firstElementChild.tagName==='B'&&c.children.length>1&&!c.querySelector('svg,canvas,#ccarte,#fcarte,input,select,textarea'));
+  if(C.length<5)return;C.forEach((c,i)=>{if(c.dataset.rp)return;c.dataset.rp=1;const b=c.firstElementChild;b.classList.add('rpt');if(i>0)c.classList.add('rpf');b.onclick=()=>c.classList.toggle('rpf')})}
 
 let filtreTh='Tous',filtreSt='À faire';
 function actions(){fab(null);
@@ -1120,7 +1328,7 @@ function brancherMesures(){const b=$('#msv');if(b)b.onclick=async()=>{const n=x=
   document.querySelectorAll('.supm').forEach(x=>x.onclick=async()=>{const S=mesuresSaisies();S.splice(+x.dataset.i,1);await majEtat('evenements_mesures',JSON.stringify(S));toast('Mesure supprimée');evenements()})}
 /* ---------- PLANS DU MAGASIN : un plan par sujet (zoning, allées, TG, descentes, bacs soldeurs, écrans, laboratoires, coins chauds) ---------- */
 let carteSel=(()=>{try{return localStorage.getItem('pil_carte')||'zon'}catch(e){return 'zon'}})(),elSel='';
-const CARTES=[['zon','🎨 Zoning'],['all','🛤️ Allées'],['tg','🔚 Têtes de gondole'],['desc','🔢 Descentes'],['bac','🧺 Bacs soldeurs'],['ecr','📺 Écrans'],['lab','🧪 Laboratoires'],['chaud','🌡️ Coins chauds']];
+const CARTES=[['zon','🎨 Zoning'],['all','🛤️ Allées'],['tg','🔚 Têtes de gondole'],['desc','🔢 Descentes'],['bac','🧺 Bacs soldeurs'],['ecr','📺 Écrans'],['lab','🧪 Laboratoires'],['chaud','🌡️ Zones chaudes / froides']];
 const plan2=()=>{try{return JSON.parse(ETAT.plan2||'{}')}catch(e){return {}}};
 function elementsCarte(c){if(!ZON)return [];
   if(c==='all')return ZON.A.flatMap(x=>x[0].split(/\s+(?=Allée)/).map((t,i,a)=>({k:t.trim(),t:t.replace('Allée ','').trim(),c:a.length>1?[x[1][0]+(x[2]===270||x[2]===90?0:(i-.5)*2.2),x[1][1]+(x[2]===270||x[2]===90?(i-.5)*2.2:0)]:x[1],r:x[2]})));
@@ -1140,10 +1348,7 @@ async function planVue(){await chargerPlan();const P=PLAN;if(!P||!ZON)return '<p
     couche=ZON.U.map(u=>`<polygon points="${u[1].map(p=>p.join(',')).join(' ')}" fill="#${u[0]}" fill-opacity=".85" stroke="#${u[0]}" stroke-width=".06"/>`).join('')+ZON.UL.map(x=>`<text x="${x[1][0]}" y="${x[1][1]}" font-size=".85" font-weight="800" text-anchor="middle" dominant-baseline="middle" fill="#212121" stroke="#fff" stroke-width=".25" paint-order="stroke">${esc(x[0])}</text>`).join('');
     legende=`<div class="chart2"><div class="carte"><b>Les univers du zoning</b>${donut(Object.entries(ZON.couleurs).map(([f,n])=>[n,Math.round(ZON.surfU[n]||0),'#'+f,null,Math.round((ZON.surfU[n]||0)/tot*100)+' %']),Object.keys(ZON.couleurs).length+' univers','part du linéaire coloré')}</div>
      <div class="carte"><b>Faut-il changer les univers ?</b><div class="sub w" style="margin-top:4px">Le zoning suit la logique classique d'une grande pharmacie : beauté et promotions à l'entrée, bébé et hygiène au fond, nutrition au centre, premiers soins près des comptoirs. Avant de le modifier, il faut mesurer ce que rapporte chaque univers par mètre de linéaire : marge des laboratoires présents (onglet Labos › Produits prioritaires) rapportée à la place occupée. Je le calcule dès que les descentes sont confirmées en rayon (plan « Descentes »).</div></div></div>`}
-  else if(c==='chaud'){const E=planEtat(),I={};P.blocs.forEach(b=>{const x=infosBloc(b.id,E);x.dens=x.m/Math.max(1,aire(b.p));I[b.id]=x});
-    const dens=Object.values(I).filter(x=>x.m>0).map(x=>x.dens).sort((a,b)=>a-b),q=f=>dens.length?dens[Math.floor((dens.length-1)*f)]:0,q1=q(.33),q2=q(.66);
-    couche=P.blocs.map(b=>{const x=I[b.id];const col=!x.m?'#cfd8dc':x.dens>=q2?'#e53935':x.dens>=q1?'#fb8c00':'#42a5f5';return `<polygon points="${b.p.map(p=>p.join(',')).join(' ')}" fill="${col}" fill-opacity=".75" stroke="#263238" stroke-width=".06"><title>${esc((ZON.blocs[b.id]||{}).a?.[0]||'')} ${esc(x.labs.join(', '))}</title></polygon>`}).join('');
-    legende=`<div class="carte">${legendeHTML([['Coin chaud : beaucoup de marge au m²','#e53935'],['Moyen','#fb8c00'],['Coin froid','#42a5f5'],['Sans laboratoire connu','#cfd8dc']])}<div class="sub w" style="margin-top:6px">Marge sur 12 mois des laboratoires présents (d'après le zoning, ou ce que vous avez saisi), divisée par la surface du meuble. Un coin froid n'est pas forcément mal placé : c'est là qu'une tête de gondole ou un bac soldeur peut faire la différence.</div></div>`}
+  else if(c==='chaud'){const N=vueNuage();couche=N.couche;legende=N.leg}
   else{couche=EL.map(e=>pastille(e,c,e.k===elSel)).join('');
     const nb=EL.filter(e=>E2[e.k]&&Object.values(E2[e.k]).some(Boolean)).length;
     liste=`<div class="carte"><b>${EL.length} ${({all:'allées',tg:'têtes de gondole',desc:'descentes',bac:'bacs soldeurs et barres de charge',ecr:'écrans',lab:'étiquettes de laboratoires'})[c]}</b> · ${nb} annotée(s)<div class="sub w">Touchez une pastille sur le plan, ou une ligne ci-dessous, pour noter ce qu'il y a dessus.</div>
@@ -1157,7 +1362,7 @@ async function planVue(){await chargerPlan();const P=PLAN;if(!P||!ZON)return '<p
     <button class="btn" id="psv">Enregistrer (visible sur tous vos appareils)</button></div>`:'';
   const svg=`<svg viewBox="${x0} ${y0} ${x1-x0} ${y1-y0}" style="width:${100*zoomPlan}%;min-width:${Math.round(760*zoomPlan)}px;height:auto;background:#fff;border-radius:10px;display:block" role="img" aria-label="Plan du magasin">
    <image href="${c==='zon'||c==='chaud'?'plan_clair.jpg':'plan_clair.jpg'}" x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" preserveAspectRatio="none"/>${couche}</svg>`;
-  const titre={zon:'Zoning : les univers en couleur',all:'Les allées',tg:'Les têtes de gondole',desc:'Les descentes (numéros des éléments)',bac:'Bacs soldeurs et barres de charge',ecr:'Les écrans',lab:'Les laboratoires sur le plan',chaud:'Coins chauds / coins froids'}[c];
+  const titre={zon:'Zoning : les univers en couleur',all:'Les allées',tg:'Les têtes de gondole',desc:'Les descentes (numéros des éléments)',bac:'Bacs soldeurs et barres de charge',ecr:'Les écrans',lab:'Les laboratoires sur le plan',chaud:'Zones chaudes et zones froides (marge des laboratoires)'}[c];
   return `<div class="carte"><b>Plans du magasin</b><div class="sub w">Fond : vue de dessus de la maquette 3D. Repères : zoning Pierre Fabre de Michael Grellier (février 2025), recalé sur la 3D. Choisissez le plan :</div>
    <div class="filtres" id="pcart" style="margin-top:8px">${CARTES.map(o=>`<button data-c="${o[0]}" class="${o[0]===c?'on':''}">${o[1]}</button>`).join('')}</div>
    <div class="filtres"><button id="b3d2">Vue 3D</button><button id="pzm">➖ Dézoomer</button><button id="pzp">➕ Zoomer</button></div></div>
@@ -1349,9 +1554,9 @@ async function equipe(){
   $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;mois();toast('Détail RH verrouillé')};
 }
 /* ---------- Collaborateurs : coût, masse salariale / marge, ventes par vendeur (code RH) ---------- */
-let sousCol='cout';
+let sousCol='annee',sousColAvant='annee',RHXtente=false;
 function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
-  const nav=sousNav('scl',[['cout','Coût par collaborateur'],['masse','Masse salariale / marge'],['ventes','Ventes par collaborateur']],sousCol);
+  const nav=sousNav('scl',[['annee','📅 Équipe par année'],['orga','Organigramme'],['cout','Coût par collaborateur'],['masse','Masse salariale / marge'],['ventes','Ventes par collaborateur']],sousCol);
   const bind=()=>document.querySelectorAll('#scl button').forEach(b=>b.onclick=()=>{sousCol=b.dataset.k;collaborateurs();scrollTo(0,0)});
   const code2=ss.get('pil_code2');
   if(!code2||!PAIE){
@@ -1361,8 +1566,12 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
   const yr=m=>String(isoMois(m)||'').slice(0,4);
   const P=PAIE.map(r=>({m:isoMois(r['Mois']),c:r['Collaborateur'],f:r['Fonction'],ct:r['Contrat'],h:num(r['Heures payées'])||0,b:num(r['Salaire brut'])||0,k:num(r['Coût employeur'])||0})).filter(r=>r.m&&r.c);
   const ans=[...new Set(P.map(r=>r.m.slice(0,4)))].sort();
+  if(!RHX&&!RHXtente){RHXtente=true;chargerRhx(code2).then(r=>{if(r&&vue==='col')collaborateurs()})}
   let h='';
-  if(sousCol==='cout'){
+  if(sousCol==='annee')h=vueAnnee(P);
+  else if(sousCol==='orga')h=vueOrga(P);
+  else if(sousCol==='fiche')h=vueFicheCol(P);
+  else if(sousCol==='cout'){
     const noms=[...new Set(P.map(r=>r.c))];const S=(n,a,k)=>P.filter(r=>r.c===n&&r.m.startsWith(a)).reduce((s,r)=>s+r[k],0);
     const der=ans[ans.length-1];noms.sort((x,y)=>S(y,der,'k')-S(x,der,'k')||S(y,ans[0],'k')-S(x,ans[0],'k'));
     const nbM=(n,a)=>new Set(P.filter(r=>r.c===n&&r.m.startsWith(a)).map(r=>r.m)).size;
@@ -1404,8 +1613,11 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
        `<div class="carte al"><b class="t">Bien lire ces chiffres</b><div class="sub w">La marge d'une ordonnance dépend du médecin, pas du vendeur : on juge un collaborateur surtout sur le <b>sans ordonnance</b> (conseil, parapharmacie, panier) et sur la marge par vente. Les postes (caisse rapide, ordonnances, réception) ne sont pas comparables entre eux : comparer des personnes au même poste.</div></div>`}
   }
   $('#m').innerHTML=nav+h+`<button class="btn sec" id="lock" style="margin-top:6px">🔒 Verrouiller</button>`;bind();
+  document.querySelectorAll('#fan button').forEach(b=>b.onclick=()=>{anneeCol=b.dataset.a;collaborateurs()});
+  document.querySelectorAll('.colf').forEach(b=>b.onclick=()=>{const c=b.dataset.c,{parC}=equipeAnnees(P);const k=parC[c]?c:Object.keys(parC).find(n=>sansAcc(n).split(' ')[0]===sansAcc(c).split(' ')[0]);if(!k){toast('Pas de bulletin pour '+c);return}sousColAvant=sousCol;ficheCol=k;sousCol='fiche';collaborateurs();scrollTo(0,0)});
+  const rc=document.getElementById('retCol');if(rc)rc.onclick=()=>{sousCol=sousColAvant;collaborateurs();scrollTo(0,0)};
   const vm=document.getElementById('vMois');if(vm)vm.onclick=()=>equipe();
-  $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;collaborateurs();toast('Détail RH verrouillé')};
+  $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;RHX=null;RHXtente=false;collaborateurs();toast('Détail RH verrouillé')};
 }
 
 async function chargerPaie(code2){
