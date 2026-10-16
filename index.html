@@ -131,6 +131,7 @@ nav button em{font-style:normal}
 #rg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;justify-content:center;align-items:flex-start;padding:calc(12px + env(safe-area-inset-top)) 12px}
 #rg .rgb{background:var(--fond);border-radius:14px;padding:12px;width:100%;max-width:640px;max-height:85vh;overflow:auto}
 .rpt{cursor:pointer}.rpt::before{content:'▾ ';color:var(--doux)}.rpt.rpf::before{content:'▸ '}
+@media (max-width:420px){header{gap:5px}header button{padding:6px 7px}#maj{font-size:10px;max-width:84px;white-space:normal;line-height:1.15;text-align:right}}
 .leaflet-container{font:13px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 </style>
 </head>
@@ -141,7 +142,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.4';
+const APP_V='4.4.1';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
