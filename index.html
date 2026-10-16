@@ -1106,7 +1106,7 @@ function classeOrg(t){t=sansAcc(t);if(/titulaire|directrice|gerant/.test(t))retu
 function membresOrg(P,an){const {parC,der}=equipeAnnees(P),dern=der.slice(0,4),M=[],vu=new Set();const prem=n=>sansAcc(n).split(' ')[0];
   const FAM={pierre:'GOUIN',emmanuella:'GOUIN'};const ajoute=(nom,titre,src,extra)=>{const k=prem(nom);if(vu.has(k))return;vu.add(k);const f=ficheRh(nom),q=resp(nom);
     let r=q&&q['Responsabilités']&&!/MANQUANT/.test(q['Responsabilités'])?q['Responsabilités']:null,rM=false;if(!r&&ORGA_MARS[k]){r=ORGA_MARS[k];rM=true}const dirX=classeOrg(titre)==='dir';
-    M.push(Object.assign({nom,prenom:f?f.prenom:nom.split(' ')[0],famille:f?f.nom:(FAM[k]||''),titre,g:classeOrg(titre),resp:r,respMars:rM,manque:!r&&!dirX,tel:f&&f.tel,src,cle:parC[nom]?nom:(Object.keys(parC).find(n=>prem(n)===k&&(src!=='Sivan'||!parC[n].sortie))||(src==='Sivan'?'§'+nom:nom))},extra||{}))};
+    M.push(Object.assign({nom,prenom:f?f.prenom:nom.split(' ')[0],famille:f?f.nom:(FAM[k]||''),titre,g:classeOrg(titre),resp:r,respMars:rM,manque:!r&&!dirX,tel:f&&f.tel,src,cle:parC[nom]&&(src!=='Sivan'||!parC[nom].sortie)?nom:(Object.keys(parC).find(n=>prem(n)===k&&(src!=='Sivan'||!parC[n].sortie))||(src==='Sivan'?'§'+nom:nom))},extra||{}))};
   if(an===dern){(D.equipe||[]).forEach(e=>{const t=e['Titre']||'',x=Object.values(parC).find(p=>prem(p.c)===prem(e['Collaborateur']));
       if(/titulaire/i.test(t)||(x&&!x.sortie))ajoute(e['Collaborateur'],t,'ÉQUIPE')});
     Object.values(parC).filter(x=>!x.sortie).forEach(x=>ajoute(x.c,x.f||'','paie'));
