@@ -142,7 +142,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.4.1';
+const APP_V='4.4.2';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -227,16 +227,28 @@ function rendre(){libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if
   ({acc:accueil,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
+function allerReco(r){if(!r)return;const d=r['Domaine'],c=r['Cible'],labo=(D.labos||[]).some(l=>l['Laboratoire']===c);
+  const go=v=>{vue=v;navig()};
+  if((d==='Marché'||d==='Prix'||d==='Laboratoire')&&labo){go('lab');fiche(c,'syn')}
+  else if(d==='Stock'){go('stk');rendre()}
+  else if(d==='Promotions'){go('pro');rendre()}
+  else if(d==='Écrans'||d==='Visibilité'){go('ecr');rendre()}
+  else if(d==='Équipe'){go('col');rendre()}
+  else if(d==='Surface de vente'){go('eve');sousEve='plan';rendre()}
+  else if(labo){go('lab');fiche(c,'syn')}
+  else{go('mois');rendre()}
+  scrollTo(0,0)}
 function carteReco(r,i){
   const st=['Nouveau','En cours','Fait','Ignoré'];
   return `<div class="carte reco"><div><span class="badge p${r['Priorité']}">P${r['Priorité']}</span> <span class="badge">${esc(r['Domaine'])}</span></div>
   <div class="cible" style="margin-top:6px">${esc(r['Cible'])}</div><div class="meta">${esc(r['Constat'])}</div>
   <div class="act">→ ${esc(r['Action recommandée'])}</div>
   <div class="meta">${num(r['Impact € estimé /an'])!==null?'Impact estimé : <b>'+eur(r['Impact € estimé /an'])+'/an</b> · ':''}${r['Responsable']?'Responsable : '+esc(r['Responsable'])+' · ':''}détectée le ${dfr(r['Détectée le'])}</div>
-  <div class="statuts">${st.map(s=>`<button data-id="${esc(r['ID'])}" data-s="${s}" class="${r['Statut']===s?'on':''}">${s}</button>`).join('')}</div></div>`;
+  <div class="statuts">${st.map(s=>`<button data-id="${esc(r['ID'])}" data-s="${s}" class="${r['Statut']===s?'on':''}">${s}</button>`).join('')}<button class="voirReco" data-id="${esc(r['ID'])}" style="margin-left:auto;border-color:var(--vert2);color:var(--vert2)">Voir ›</button></div></div>`;
 }
 function brancherStatuts(){
-  document.querySelectorAll('.statuts button').forEach(b=>b.onclick=async()=>{
+  document.querySelectorAll('.voirReco').forEach(x=>x.onclick=e=>{e.stopPropagation();allerReco(D.recos.find(y=>y['ID']===x.dataset.id))});
+  document.querySelectorAll('.statuts button[data-s]').forEach(b=>b.onclick=async()=>{
     const r=D.recos.find(x=>x['ID']===b.dataset.id); if(!r)return;
     const ancien=r['Statut']; r['Statut']=b.dataset.s; rendre();
     if(!(await poster({action:'reco',id:r['ID'],statut:b.dataset.s}))){r['Statut']=ancien;rendre()} else toast('Statut : '+b.dataset.s);
@@ -329,8 +341,11 @@ function actionsServeur(){
   const doms=['Classement','Ouvertes','P1','Stock','Marché','Prix','Laboratoire','Visibilité','Surface de vente','Écrans','Promotions','Équipe','Suivi','Performance','Faites'];
   let l=D.recos.slice();
   if(filtre==='Faites')l=l.filter(r=>!ouverte(r)); else{l=l.filter(ouverte); if(filtre==='P1')l=l.filter(r=>+r['Priorité']===1); else if(filtre!=='Ouvertes')l=l.filter(r=>r['Domaine']===filtre)}
-  $('#m').innerHTML=`<div class="filtres">${doms.map(d=>`<button class="${d===filtre?'on':''}" data-f="${d}">${d}</button>`).join('')}</div>
-  <p class="titre">${l.length} action(s)</p>${l.map(carteReco).join('')||'<p class="vide">Rien ici.</p>'}`;
+  const nbF=d=>d==='Classement'?null:d==='Faites'?D.recos.filter(r=>!ouverte(r)).length:d==='Ouvertes'?D.recos.filter(ouverte).length:d==='P1'?D.recos.filter(r=>ouverte(r)&&+r['Priorité']===1).length:D.recos.filter(r=>ouverte(r)&&r['Domaine']===d).length;
+  const vis=doms.filter(d=>d===filtre||d==='Classement'||d==='Ouvertes'||d==='Faites'||nbF(d)>0);
+  $('#m').innerHTML=`<div class="carte al b"><b class="t">Recommandations automatiques</b><div class="sub w">Repérées chaque semaine dans vos données (Vindilis, GERS, stock, écrans, promotions). Ce sont des <b>signaux</b> : quand vous décidez d'agir, l'action passe dans <b>Plan d'action</b>, où on la suit et on la mesure avant / après. Seuls les domaines où un signal existe s'affichent ; « Faites » se remplit quand vous passez un signal à « Fait ». Touchez « Voir › » pour aller à l'onglet concerné.</div></div>
+  <div class="filtres">${vis.map(d=>{const n=nbF(d);return `<button class="${d===filtre?'on':''}" data-f="${d}">${d}${n===null?'':' ('+n+')'}</button>`}).join('')}</div>
+  <p class="titre">${l.length} signal(aux)</p>${l.map(carteReco).join('')||`<p class="vide">${filtre==='Faites'?'Aucun signal passé à « Fait » pour l\'instant.':'Aucun signal dans ce domaine.'}</p>`}`;
   document.querySelectorAll('.filtres button').forEach(b=>b.onclick=()=>{filtre=b.dataset.f;actions()});
   brancherStatuts();
 }
