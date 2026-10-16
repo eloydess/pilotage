@@ -137,8 +137,8 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.2';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
+const APP_V='4.3';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -1194,11 +1194,11 @@ function vueReseaux(){const R=A&&A.reseaux;if(!R)return pasAudit();const I=R.ins
   ${R.tiktok?`<div class="carte"><b>TikTok — @${esc(R.tiktok.compte)}</b><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(4,1fr)"><div><div class="sub">Abonnés</div><b>${ent(R.tiktok.abonnes)}</b></div><div><div class="sub">J'aime</div><b>${ent(R.tiktok.jaime)}</b></div><div><div class="sub">Vidéos</div><b>${R.tiktok.videos}</b></div><div><div class="sub">Vues médianes</div><b>${ent(R.tiktok.vuesMediane)}</b></div></div><div class="sub w" style="margin-top:6px">${esc(R.tiktok.lecture)}</div>${act('A23')}
    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Date</th><th class="n">Vues</th><th>Sujet</th></tr>${R.tiktok.videosListe.map(v=>`<tr><td>${dfr(v.date)}</td><td class="n"><b>${ent(v.vues)}</b></td><td>${esc(v.texte)}</td></tr>`).join('')}</table></div></div>`:`<div class="carte"><b>TikTok</b><div class="sub w">Pas encore analysé.</div>${act('A23')}</div>`}`}
 
-async function ecransMenu(){const nav=sousNav('sc',[['ecr','Écrans'],['res','Réseaux sociaux'],['plan','Plan du magasin'],['ray','Emplacements rayon']],sousEcr);$('#ht').textContent='Écrans & réseaux';
+async function ecransMenu(){const nav=sousNav('sc',[['ecr','Écrans'],['res','Réseaux sociaux'],['plan','Plan du magasin'],['ray','Emplacements rayon']],sousEcr);$('#ht').textContent='Médias';
   if(sousEcr==='res'){fab(null);$('#m').innerHTML=nav+vueReseaux();document.querySelectorAll('#sc button').forEach(b=>b.onclick=()=>{sousEcr=b.dataset.k;ecransMenu();scrollTo(0,0)});return}
   const bind=()=>document.querySelectorAll('#sc button').forEach(b=>b.onclick=()=>{sousEcr=b.dataset.k;ecransMenu();scrollTo(0,0)});
   if(sousEcr==='plan'){await vuePlan(nav,ecransMenu);bind();return}
-  if(sousEcr==='ray')rayon();else ecrans();$('#ht').textContent='Écrans';
+  if(sousEcr==='ray')rayon();else ecrans();$('#ht').textContent='Médias';
   const I=A&&A.ecransInventaire;const inv=I?`<div class="carte"><b>Ce qui passe à l'écran (relevé du ${esc(I.releve)})</b>
    <div class="sub w" style="margin-top:6px"><b style="color:var(--txt)">Cenareo</b> — ${I.cenareo.ecrans.map(esc).join(' · ')} — ${I.cenareo.campagnes} campagnes en cours. Marques : ${I.cenareo.marques.map(esc).join(', ')} (depuis le ${esc(I.cenareo.depuis)}). Publicités du réseau : ${I.cenareo.reseau.map(esc).join(', ')}.</div>
    <div class="sub w" style="margin-top:6px"><b style="color:var(--txt)">MagicInfo</b> — ${I.magicinfo.ecrans} écrans, listes : ${I.magicinfo.listes.map(esc).join(', ')} (mises à jour le ${esc(I.magicinfo.depuis)}).</div>
