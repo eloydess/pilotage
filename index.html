@@ -137,7 +137,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='3.8';
+const APP_V='3.9';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -525,7 +525,7 @@ const actsOnglet=t=>toutes().filter(a=>ongletA(a)===t||(t==='mois'&&ongletA(a)==
 function donut(parts,centre,sous,taille){taille=taille||150;const T=parts.reduce((s,p)=>s+p[1],0),r=52,C=2*Math.PI*r,v=parts.filter(p=>p[1]>0);let off=0;
   const gap=v.length>1?1.2:0;
   const segs=T?v.map(p=>{const l=p[1]/T*C;const s=`<circle r="${r}" cx="70" cy="70" fill="none" stroke="${p[2]}" stroke-width="22" stroke-dasharray="${Math.max(l-gap,0.5)} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 70 70)"><title>${esc(p[0])} : ${p[1]}</title></circle>`;off+=l;return s}).join(''):`<circle r="${r}" cx="70" cy="70" fill="none" stroke="var(--ligne)" stroke-width="22"/>`;
-  return `<div class="donut"><svg viewBox="0 0 140 140" width="${taille}" height="${taille}" role="img" aria-label="${esc(sous||'')}">${segs}<text x="70" y="72" text-anchor="middle" font-size="${String(centre).length>5?17:24}" font-weight="800" fill="var(--txt)">${esc(centre)}</text><text x="70" y="90" text-anchor="middle" font-size="10" fill="var(--doux)">${esc(sous||'')}</text></svg>
+  return `<div class="donut"><svg viewBox="0 0 140 140" width="${taille}" height="${taille}" role="img" aria-label="${esc(sous||'')}">${segs}<text x="70" y="72" text-anchor="middle" font-size="${String(centre).length>7?14:String(centre).length>5?17:24}" font-weight="800" fill="var(--txt)">${esc(centre)}</text><text x="70" y="90" text-anchor="middle" font-size="10" fill="var(--doux)">${esc(sous||'')}</text></svg>
    <div class="leg2">${parts.map(p=>`<div ${p[3]?`data-f2="${esc(p[3])}" class="clic"`:''}><span class="pt" style="background:${p[2]}"></span>${esc(p[0])} <b>${typeof p[4]==='string'?p[4]:p[1]}</b>${T&&p[4]===undefined?` <span class="sub">${Math.round(p[1]/T*100)} %</span>`:''}</div>`).join('')}</div></div>`}
 function barresH(rows,max){max=max||Math.max(1,...rows.map(r=>r[1].reduce((s,x)=>s+x[0],0)));
   return `<div class="bhs">${rows.map(r=>`<div class="bh ${r[2]?'clic':''}" ${r[2]?`data-th="${esc(r[2])}"`:''}><div class="bhl" title="${esc(r[0])}">${esc(r[0])}</div><div class="bhb">${r[1].map(x=>x[0]>0?`<i style="width:${(x[0]/max*100).toFixed(2)}%;background:${x[1]}" title="${esc(x[2]||'')}"></i>`:'').join('')}</div><div class="bhv">${r[3]??''}</div></div>`).join('')}</div>`}
@@ -923,7 +923,7 @@ function actions(){fab(null);
 
 /* ---------- LABOS & PRIX ---------- */
 let sousLab='prix';
-function labosV2(){fab(null);const nav=sousNav('sl',[['prix','Prix et fiches'],['mar','Face au marché'],['rep','Reprise après réassort']],sousLab);
+function labosV2(){fab(null);const nav=sousNav('sl',[['prix','Prix et fiches'],['prio','⭐ Produits prioritaires'],['mar','Face au marché'],['rep','Reprise après réassort']],sousLab);
   const bind=()=>document.querySelectorAll('#sl button').forEach(b=>b.onclick=()=>{sousLab=b.dataset.k;recherche='';labosV2();scrollTo(0,0)});
   if(sousLab==='prix'){labosListe();$('#ht').textContent='Labos & prix';
     const P=A&&A.prix;const fige=document.querySelector('.fige');
@@ -933,6 +933,7 @@ function labosV2(){fab(null);const nav=sousNav('sl',[['prix','Prix et fiches'],[
     bind();brancherLiens();fab(()=>formulaire('LABORATOIRES',null));return}
   $('#ht').textContent='Labos & prix';
   if(!A){$('#m').innerHTML=nav+pasAudit();bind();return}
+  if(sousLab==='prio'){$('#m').innerHTML=nav+vuePrio();bind();bindPrio();return}
   if(sousLab==='mar'){
     $('#m').innerHTML=nav+`<div class="carte"><b>Notre volume contre celui du marché, juillet–septembre 2026 vs 2025</b><div class="sub w">Unités vendues (Vindilis) contre unités du marché national (GERS, pharmacies uniquement). Tri : du plus gros retard au plus net gain. Touchez un labo pour sa fiche.</div></div>
     <div class="carte"><div class="tw"><table class="t"><tr><th>Laboratoire</th><th class="n">Nous</th><th class="n">Marché</th><th class="n">Écart</th><th class="n">Marge T3</th></tr>
@@ -947,6 +948,32 @@ function labosV2(){fab(null);const nav=sousNav('sl',[['prix','Prix et fiches'],[
     <div class="sub w" style="margin-top:6px">Unités 2026 / 2025, même mois (octobre : mêmes jours de semaine). Source : statistiques fournisseurs et liste des commandes Vindilis.</div></div>`;
   }
   bind();document.querySelectorAll('tr.lab').forEach(t=>t.onclick=()=>{const n=t.dataset.n.toLowerCase().split(/[ (]/)[0];const x=(D.labos||[]).find(l=>String(l['Laboratoire']).toLowerCase().startsWith(n));if(x)fiche(x['Laboratoire'],'syn');else toast('Fiche introuvable pour '+t.dataset.n)});brancherLiens();}
+
+/* ---------- PRODUITS PRIORITAIRES (A50 ordonnance, A51 conseil / parapharmacie) ---------- */
+let sousPrio='cons',filtrePrio='Tous';
+const UNIV={'Parapharmacie':'#2b8bd6','Conseil (médicament sans ordonnance)':'var(--vert2)','Diététique':'#7a5cc4','Accessoires':'var(--orange)'};
+const n1=v=>v==null?'—':String(v).replace('.',',');
+function vuePrio(){const Q=A&&A.prioritaires;if(!Q)return pasAudit();const T=Q.totaux;
+  const nav2=`<div class="filtres" id="spr">${[['cons','🛍️ Conseil & parapharmacie'],['ordo','💊 Ordonnance']].map(o=>`<button data-k="${o[0]}" class="${o[0]===sousPrio?'on':''}">${o[1]}</button>`).join('')}</div>`;
+  const tete=`<div class="carte"><b>Produits à vendre en priorité</b><div class="sub w">${esc(Q.periode)}. Classement sur la <b>marge en euros</b> sur 12 mois (pas sur le chiffre d'affaires). ${Q.notes.map(esc).join(' ')}</div></div>`;
+  if(sousPrio==='ordo'){
+    return nav2+tete+`<div class="chart2"><div class="carte"><b>Marge des ventes sur ordonnance</b>${donut([['Génériques (top 500)',Math.round(T.gen.mg),'var(--vert2)',null,eur(T.gen.mg)],['Autres médicaments sur ordonnance',Math.round(Math.max(0,T.ordo.mg-T.gen.mg)),'var(--bleu)',null,eur(Math.max(0,T.ordo.mg-T.gen.mg))]],eur(T.ordo.mg),'marge sur 12 mois')}<div class="sub w" style="margin-top:6px">${ent(T.ordo.n)} médicaments vendus sur ordonnance. Les génériques sont comptés sur toutes leurs ventes (avec et sans ordonnance) : ordre de grandeur.</div></div>
+     <div class="carte"><b>Génériques qui rapportent le plus</b>${barresH(Q.generiques.slice(0,12).map(r=>[r[0],[[r[3],'var(--vert2)']],'',eur(r[3])]))}</div></div>
+     <div class="carte al v"><b class="t">Ce qu'il faut faire au comptoir</b><div class="sub w">Sur ordonnance, le prix est fixé : la marge se gagne surtout par la <b>substitution par le générique</b> (marge de 50 à 60 % sur les génériques Zentiva du haut de la liste, contre souvent moins de 15 % sur les médicaments chers) et par le <b>conseil associé</b> (voir l'autre liste). Prochaine étape : repérer les princeps encore délivrés alors qu'un générique existe.</div></div>
+     <div class="carte"><b>Top 40 génériques (marge sur 12 mois)</b><div class="tw"><table class="t"><tr><th>#</th><th>Produit</th><th class="n">Ventes</th><th class="n">Marge €</th><th class="n">Marge / boîte</th><th class="n">Taux</th></tr>${Q.generiques.map((r,i)=>`<tr><td class="sub">${i+1}</td><td>${esc(r[0])}</td><td class="n">${ent(r[1])}</td><td class="n"><b>${eur(r[3])}</b></td><td class="n">${eur2(r[4])}</td><td class="n">${n1(r[5])} %</td></tr>`).join('')}</table></div></div>
+     <div class="carte"><b>Top 40 médicaments sur ordonnance (marge sur 12 mois)</b><div class="tw"><table class="t"><tr><th>#</th><th>Produit</th><th class="n">Ventes</th><th class="n">Marge €</th><th class="n">Marge / boîte</th><th class="n">Taux</th></tr>${Q.ordo.map((r,i)=>`<tr><td class="sub">${i+1}</td><td>${esc(r[0])}</td><td class="n">${ent(r[1])}</td><td class="n"><b>${eur(r[3])}</b></td><td class="n">${eur2(r[4])}</td><td class="n ${r[5]<15?'neg':''}">${n1(r[5])} %</td></tr>`).join('')}</table></div><div class="sub w" style="margin-top:6px">En rouge : taux de marge sous 15 % (médicaments chers) — beaucoup de chiffre d'affaires, peu de marge.</div></div>`}
+  const U=Object.keys(UNIV),L=filtrePrio==='Tous'?Q.conseil:Q.parUnivers[filtrePrio].map(r=>[r[0],filtrePrio,r[1],null,r[2],r[3],r[4]]);
+  const mgU={'Parapharmacie':T.para.mg,'Conseil (médicament sans ordonnance)':T.otc.mg,'Diététique':T.diet.mg,'Accessoires':T.acc.mg};
+  return nav2+tete+`<div class="chart2"><div class="carte"><b>Où se fait la marge sans ordonnance</b>${donut(U.map(u=>[u,Math.round(mgU[u]),UNIV[u],u,eur(mgU[u])]),eur(U.reduce((s,u)=>s+mgU[u],0)),'marge sur 12 mois')}<div class="sub w" style="margin-top:6px">Touchez un univers pour filtrer la liste. Parapharmacie, diététique et accessoires : produits qui font 80 % de la marge de leur famille.</div></div>
+    <div class="carte"><b>Marques qui rapportent le plus</b>${barresH(Q.marques.slice(0,14).map(m=>[m[0],[[m[1],'var(--vert2)']],'',eur(m[1])]))}<div class="sub">Regroupement par le premier mot du libellé (ordre de grandeur).</div></div></div>
+    <div class="filtres" id="fpr">${['Tous',...U].map(k=>`<button data-f="${esc(k)}" class="${k===filtrePrio?'on':''}">${k==='Tous'?'Top 60 tous univers':esc(k)}</button>`).join('')}</div>
+    <div class="carte"><b>${filtrePrio==='Tous'?'Les 60 produits à proposer en priorité':'Top 15 — '+esc(filtrePrio)}</b><div class="sub w">Produits vendus au moins 12 fois dans l'année, avec un taux de marge d'au moins 25 %, classés par marge en euros.</div>
+     <div class="tw"><table class="t"><tr><th>#</th><th>Produit</th>${filtrePrio==='Tous'?'<th>Univers</th>':''}<th class="n">Ventes / an</th><th class="n">Marge € / an</th><th class="n">Marge / unité</th><th class="n">Taux</th></tr>
+     ${L.map((r,i)=>`<tr><td class="sub">${i+1}</td><td>${esc(r[0])}</td>${filtrePrio==='Tous'?`<td><span class="pt" style="background:${UNIV[r[1]]}"></span><span class="sub">${esc(r[1].replace(' (médicament sans ordonnance)',''))}</span></td>`:''}<td class="n">${ent(r[2])}</td><td class="n"><b>${eur(r[4])}</b></td><td class="n">${eur2(r[5])}</td><td class="n">${n1(r[6])} %</td></tr>`).join('')}</table></div></div>
+    <div class="carte al o"><b class="t">Avant de mettre en avant</b><div class="sub w">Vérifier le stock (onglet Stock) : un produit en rupture ne se vend pas. Proposer un produit du top à chaque client concerné, et mesurer : ventes du produit 14 jours avant / après (action A51).</div></div>`}
+function bindPrio(){document.querySelectorAll('#spr button').forEach(b=>b.onclick=()=>{sousPrio=b.dataset.k;labosV2();scrollTo(0,0)});
+  document.querySelectorAll('#fpr button').forEach(b=>b.onclick=()=>{filtrePrio=b.dataset.f;const y=scrollY;labosV2();scrollTo(0,y)});
+  document.querySelectorAll('#m .donut [data-f2]').forEach(b=>b.onclick=()=>{filtrePrio=b.dataset.f2;const y=scrollY;labosV2();scrollTo(0,y)})}
 
 /* ---------- PROMOS ---------- */
 let sousPro='why';let filtreWhy='Tous';
