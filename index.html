@@ -137,7 +137,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='3.9';
+const APP_V='4.0';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📺','Écrans & réseaux','Écrans'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1072,7 +1072,7 @@ function stock(){$('#ht').textContent='Stock & commandes';fab(null);
 
 
 /* ---------- PLAN 2D DU MAGASIN : emplacements, coins chauds / froids, promos, écrans ---------- */
-let PLAN=null,blocSel='',modePlan='marge';
+let PLAN=null,blocSel='',modePlan='marge',zoomPlan=1;
 async function chargerPlan(){if(PLAN)return PLAN;try{PLAN=await (await fetch('plan.json')).json()}catch(e){PLAN=null}return PLAN}
 const planEtat=()=>{try{return JSON.parse(ETAT.plan||'{}')}catch(e){return {}}};
 const aire=p=>Math.abs(p.reduce((s,a,i)=>{const b=p[(i+1)%p.length];return s+a[0]*b[1]-b[0]*a[1]},0)/2);
@@ -1085,11 +1085,12 @@ async function planVue(){await chargerPlan();const P=PLAN;if(!P){$('#m').insertA
   const coul=id=>{const x=I[id];if(modePlan==='promo'){if(!x.pr)return '#cfd8dc';return {ok:'#43a047',mitige:'#fb8c00',ko:'#e53935'}[x.pr.verdict]}
     if(!x.m)return '#cfd8dc';return x.dens>=q2?'#e53935':x.dens>=q1?'#fb8c00':'#42a5f5'};
   const [x0,y0,x1,y1]=P.bbox;const ecr=(D.positions||[]).filter(p=>/cran/i.test(p['Type']||'')).map(p=>{const v=String(p['Position']).split(' ').map(parseFloat);return {c:p['Code'],x:v[0],y:v[2]}});
-  const svg=`<svg viewBox="${x0} ${y0} ${x1-x0} ${y1-y0}" style="width:100%;min-width:760px;height:auto;background:var(--carte);border-radius:10px" role="img" aria-label="Plan de la surface de vente">
-   ${P.murs.map(r=>`<polyline points="${r.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#78909c" stroke-width=".15"/>`).join('')}
-   ${P.blocs.map(b=>`<g class="bloc" data-id="${b.id}" style="cursor:pointer"><polygon points="${b.p.map(p=>p.join(',')).join(' ')}" fill="${coul(b.id)}" fill-opacity=".75" stroke="${b.id===blocSel?'#1b5e20':'#455a64'}" stroke-width="${b.id===blocSel?.35:.08}"/>
-     <text x="${b.c[0]}" y="${b.c[1]+.35}" font-size=".9" text-anchor="middle" fill="#263238" style="pointer-events:none">${I[b.id].e.nom?esc(String(I[b.id].e.nom).slice(0,14)):b.id}</text></g>`).join('')}
-   ${ecr.map(e=>`<text x="${e.x}" y="${e.y}" font-size="1.6" text-anchor="middle">📺</text>`).join('')}
+  const actif=id=>{const x=I[id];return modePlan==='promo'?!!x.pr:!!x.m};
+  const svg=`<svg viewBox="${x0} ${y0} ${x1-x0} ${y1-y0}" style="width:${100*zoomPlan}%;min-width:${Math.round(760*zoomPlan)}px;height:auto;background:#fff;border-radius:10px;display:block" role="img" aria-label="Plan de la surface de vente, vu de dessus depuis la maquette 3D">
+   <image href="plan_dessus.jpg" x="${x0}" y="${y0}" width="${x1-x0}" height="${y1-y0}" preserveAspectRatio="none"/>
+   ${P.blocs.map(b=>{const on=actif(b.id),s=b.id===blocSel;return `<g class="bloc" data-id="${b.id}" style="cursor:pointer"><polygon points="${b.p.map(p=>p.join(',')).join(' ')}" fill="${on?coul(b.id):'#1e88e5'}" fill-opacity="${on?.55:.06}" stroke="${s?'#1b5e20':on?'#263238':'#1e88e5'}" stroke-width="${s?.4:on?.1:.08}" ${on||s?'':'stroke-dasharray=".35 .25"'}/>
+     <text x="${b.c[0]}" y="${b.c[1]+.3}" font-size="${I[b.id].e.nom?.75:.6}" font-weight="700" text-anchor="middle" fill="#102027" stroke="#fff" stroke-width=".22" paint-order="stroke" style="pointer-events:none">${I[b.id].e.nom?esc(String(I[b.id].e.nom).slice(0,16)):b.id}</text></g>`}).join('')}
+   ${ecr.map(e=>`<text x="${e.x}" y="${e.y}" font-size="1.4" text-anchor="middle">📺</text>`).join('')}
 </svg>`;
   const rempli=P.blocs.filter(b=>I[b.id].labs.length||I[b.id].e.nom).length;
   // recommandations du plan
@@ -1106,8 +1107,9 @@ async function planVue(){await chargerPlan();const P=PLAN;if(!P){$('#m').insertA
     <label>Note</label><input id="pc" value="${esc(xs.e.note||'')}">
     ${xs.m?`<div class="sub w" style="margin-top:8px">Marge 12 mois des labos présentés : <b style="color:var(--txt)">${eur(xs.m)}</b>${xs.pr?` · promotion : ${({ok:'✅ ça marche',mitige:'🟡 mitigé',ko:'❌ ne sort pas'})[xs.pr.verdict]} (${ent(xs.pr.q)} u en ${xs.pr.jours} j)`:''}</div>`:''}
     <button class="btn" id="psv">Enregistrer (visible sur tous vos appareils)</button></div>`:'<div class="carte"><div class="sub w">Touchez un emplacement du plan pour indiquer ce qu\'il présente (laboratoires, promotion, écran relais).</div></div>';
-  return `<div class="carte"><b>Plan de la surface de vente</b><div class="sub w" style="margin-top:4px">Plan léger tiré de votre maquette 3D (69 emplacements). ${rempli} emplacement(s) renseigné(s). Couleur = ${modePlan==='promo'?'résultat de la promotion placée à cet endroit':'marge des laboratoires présentés par m² : rouge = coin chaud, orange = moyen, bleu = coin froid, gris = à renseigner'}.</div>
-   <div class="filtres" id="pm" style="margin-top:8px">${[['marge','Coins chauds / froids'],['promo','Promotions placées']].map(o=>`<button data-k="${o[0]}" class="${o[0]===modePlan?'on':''}">${o[1]}</button>`).join('')}<button id="b3d2">Vue 3D</button></div></div>
+  return `<div class="carte"><b>Plan de la surface de vente</b><div class="sub w" style="margin-top:4px">${P.blocs.length} emplacements repérés sur la maquette 3D, ${rempli} renseigné(s).</div>
+   <div class="filtres" id="pm" style="margin-top:8px">${[['marge','Coins chauds / froids'],['promo','Promotions placées']].map(o=>`<button data-k="${o[0]}" class="${o[0]===modePlan?'on':''}">${o[1]}</button>`).join('')}<button id="b3d2">Vue 3D</button><button id="pzm">➖</button><button id="pzp">➕</button></div>
+   <div class="sub w">Vue de dessus de la maquette 3D (meubles coupés à 2,2 m). Pointillés bleus : emplacement pas encore renseigné ; couleur : ${modePlan==='promo'?'vert = la promotion marche, orange = mitigé, rouge = ne sort pas':'rouge = coin chaud, orange = moyen, bleu = coin froid (marge des laboratoires présentés par m²)'}. Touchez un meuble pour le renseigner.</div></div>
    <div class="splitplan"><div class="planbox">${svg}</div><div>${panneau}
    <div class="carte"><b>Recommandations du plan</b>${R.length?R.map(t=>`<div style="margin-top:6px;font-size:14px">→ ${esc(t)}</div>`).join(''):`<div class="sub w" style="margin-top:4px">Elles apparaîtront dès que les emplacements seront renseignés (laboratoires et promotions) : coins froids à réveiller, promotions mal placées, coins chauds libres.</div>`}
    <div class="sub w" style="margin-top:8px">Prochaine étape : le parcours client type (entrée → comptoir) tracé sur ce plan, et la mesure avant / après de chaque déplacement.</div></div></div></div>`}
@@ -1151,6 +1153,7 @@ async function vuePlan(nav,rejouer){$('#m').innerHTML=nav+'<p class="vide">Charg
   document.querySelectorAll('.bloc').forEach(g=>g.onclick=()=>{blocSel=g.dataset.id;const y=scrollY;rejouer().then(()=>{if(innerWidth<1024){const c=document.querySelector('#pn');if(c)c.scrollIntoView({behavior:'smooth',block:'center'})}else scrollTo(0,y)})});
   document.querySelectorAll('#pm button[data-k]').forEach(b=>b.onclick=()=>{modePlan=b.dataset.k;rejouer()});
   const b3=$('#b3d2');if(b3)b3.onclick=()=>{location.href='3d.html'};
+  const zm=$("#pzm"),zp=$("#pzp");if(zm)zm.onclick=()=>{zoomPlan=Math.max(1,zoomPlan/1.5);rejouer()};if(zp)zp.onclick=()=>{zoomPlan=Math.min(4,zoomPlan*1.5);rejouer()};
   const sv=$('#psv');if(sv)sv.onclick=async()=>{const E=planEtat();E[blocSel]={nom:$('#pn').value.trim(),labos:$('#pl').value.trim(),promo:$('#pp').value,ecran:$('#pe').value.trim(),note:$('#pc').value.trim()};
     if(!E[blocSel].nom&&!E[blocSel].labos&&!E[blocSel].promo&&!E[blocSel].ecran&&!E[blocSel].note)delete E[blocSel];
     sv.disabled=true;sv.textContent='Enregistrement…';const ok=await majEtat('plan',JSON.stringify(E));toast(ok?'Emplacement enregistré':'Non enregistré (réseau)');rejouer()}}
