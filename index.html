@@ -134,7 +134,7 @@ nav button em{font-style:normal}
 @media (max-width:420px){header{gap:5px}header button{padding:6px 7px}#maj{font-size:10px;max-width:84px;white-space:normal;line-height:1.15;text-align:right}}
 .leaflet-container{font:13px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
 #nav .pst{position:absolute;top:2px;right:calc(50% - 22px);font-style:normal;font-size:10px;font-weight:700;border-radius:9px;padding:1px 5px;background:var(--doux);color:#fff;line-height:1.3}
-.pst.nv{background:var(--rouge)}.incid{border-left:5px solid var(--rouge)}.incid .inc{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ligne);font-size:14px}.incid .inc:last-of-type{border:0}.incid .inc .pt{margin-top:5px;flex:none}.incid .grow{flex:1}.nouv{color:var(--rouge);font-size:11px}
+.pst.nv{background:var(--rouge)}.incid{border-left:5px solid var(--rouge)}.incid.calme{border-left-color:var(--vert2)}.incb{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.incid .inc{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ligne);font-size:14px}.incid .inc:last-of-type{border:0}.incid .inc .pt{margin-top:5px;flex:none}.incid .grow{flex:1}.nouv{color:var(--rouge);font-size:11px}
 </style>
 </head>
 <body>
@@ -144,7 +144,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.5';
+const APP_V='4.6';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -524,7 +524,7 @@ async function chargerEtat(){const c=cfg();if(!c.code)return;try{const r=await f
   ETAT=j.etat||{};
   // reprise des cases cochées sur cet appareil avant la synchronisation
   if(A)for(const a of A.actions){const k='act_'+a.id;if(ls.get('pil_act_'+a.id)==='1'&&!(k in ETAT)){ETAT[k]='1';poster({action:'etat_set',cle:k,valeur:'1'})}}
-  ls.set('pil_etat',JSON.stringify(ETAT));majBadgeMsg();if(D&&(vue==='act'||vue==='acc'))rendre();else{const b=document.getElementById('blocAct');if(b){const o=b.open;b.remove();injecterBloc();const n=document.getElementById('blocAct');if(n)n.open=o}}}catch(e){}}
+  ls.set('pil_etat',JSON.stringify(ETAT));majBadgeMsg();pastilles();if(D&&(vue==='act'||vue==='acc'))rendre();else{const b=document.getElementById('blocAct');if(b){const o=b.open;b.remove();injecterBloc();const n=document.getElementById('blocAct');if(n)n.open=o}}}catch(e){}}
 async function majEtat(k,v){const av=ETAT[k];ETAT[k]=v;ls.set('pil_etat',JSON.stringify(ETAT));
   if(!(await poster({action:'etat_set',cle:k,valeur:v}))){if(av===undefined)delete ETAT[k];else ETAT[k]=av;ls.set('pil_etat',JSON.stringify(ETAT));return false}return true}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chargerEtat()});
@@ -1185,23 +1185,44 @@ function incidences(){if(!D)return [];const I=[],add=(id,src,to,sev,txt,go)=>I.p
 /* signaux automatiques du classeur, rangés dans l'onglet qu'ils concernent */
 const DOM_ONG={Stock:'stk','Marché':'lab',Prix:'lab',Laboratoire:'lab',Promotions:'pro','Écrans':'ecr','Visibilité':'ecr','Surface de vente':'eve','Équipe':'col',Suivi:'mois',Performance:'mois'};
 const recosOng=t=>(D&&D.recos||[]).filter(r=>ouverte(r)&&(DOM_ONG[r['Domaine']]||'mois')===t);
-const vusInc=()=>{try{return JSON.parse(ls.get('pil_inc_vus')||'{}')}catch(e){return {}}};
-function marquerVus(t){const V=vusInc();incidences().filter(i=>i.to.includes(t)).forEach(i=>V[i.id]=1);ls.set('pil_inc_vus',JSON.stringify(V));pastilles()}
-let _rhAuto=false;function pastilles(){if(!D)return;if(!_rhAuto&&ss.get('pil_code2')&&!PAIE){_rhAuto=true;const c2=ss.get('pil_code2');chargerPaie(c2).then(ok=>ok&&chargerRhx(c2)).then(()=>pastilles())}const I=incidences(),V=vusInc();document.querySelectorAll('#nav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(i=>!V[i.id]).length;let p=b.querySelector('.pst');if(p)p.remove();
-  if(L.length){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst ${nv?'nv':''}" title="${nv} nouvelle(s) incidence(s) sur ${L.length}">${nv||L.length}</i>`)}})}
-function blocIncidences(t){const I=incidences().filter(i=>i.to.includes(t)),R=recosOng(t),V=vusInc();if(!I.length&&!R.length)return '';
-  const ord=I.slice().sort((a,b)=>(a.sev==='rouge'?0:1)-(b.sev==='rouge'?0:1));
-  return `<div class="carte incid" id="blocInc"><b>🔗 Ce qui vient des autres onglets</b> <span class="sub">${I.length} incidence(s)${R.length?' · '+R.length+' signal(aux) automatique(s)':''}</span>
-   ${ord.map(i=>`<div class="inc ${i.sev}"><span class="pt" style="background:${i.sev==='rouge'?'var(--rouge)':'var(--orange)'}"></span><span class="grow">${!V[i.id]?'<b class="nouv">NOUVEAU</b> ':''}<span class="badge">${i.src===t?'Cet onglet':'Depuis '+esc((NOM_ONG[i.src]||i.src))}</span> ${esc(i.txt)}</span>${i.go&&i.go!==t?`<button class="mini" data-incgo="${i.go}">Voir ›</button>`:''}</div>`).join('')}
+/* Suivi des incidences, partagé entre téléphone et ordinateur : à traiter → vue → corrigée / action créée / ignorée */
+const incEtat=()=>{try{return JSON.parse(ETAT.inc||'{}')}catch(e){return {}}};
+const ST_INC={vu:['👁 Vue','var(--bleu)'],corr:['✅ Corrigée','var(--vert2)'],act:['📌 Action créée','var(--vert2)'],ign:['🚫 Ignorée','var(--doux)']};
+async function majInc(i,st){const E=incEtat();if(st)E[i.id]={st,le:auj(),txt:i.txt.slice(0,160),to:i.to,src:i.src};else delete E[i.id];
+  Object.keys(E).sort((a,b)=>String(E[b].le).localeCompare(String(E[a].le))).slice(120).forEach(k=>delete E[k]);/* garde les 120 derniers suivis (limite d'une cellule du classeur) */
+  const ok=await majEtat('inc',JSON.stringify(E));toast(ok?(st?ST_INC[st][0]:'Remise à traiter'):'Non enregistré (réseau)');pastilles();return ok}
+const aTraiter=i=>!incEtat()[i.id];
+const enCoursInc=i=>{const e=incEtat()[i.id];return !e||e.st==='vu'};
+let _rhAuto=false;function pastilles(){if(!D)return;if(!_rhAuto&&ss.get('pil_code2')&&!PAIE){_rhAuto=true;const c2=ss.get('pil_code2');chargerPaie(c2).then(ok=>ok&&chargerRhx(c2)).then(()=>pastilles())}
+  const I=incidences();document.querySelectorAll('#nav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(aTraiter).length,vu=L.filter(i=>(incEtat()[i.id]||{}).st==='vu').length;let p=b.querySelector('.pst');if(p)p.remove();
+   if(nv||vu){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst ${nv?'nv':''}" title="${nv} à traiter, ${vu} vue(s) non corrigée(s)">${nv||vu}</i>`)}})}
+function ligneInc(i,t){const e=incEtat()[i.id],s=e&&e.st;
+  return `<div class="inc ${i.sev}" data-iid="${esc(i.id)}"><span class="pt" style="background:${i.sev==='rouge'?'var(--rouge)':'var(--orange)'}"></span><span class="grow">${!s?'<b class="nouv">À TRAITER</b> ':`<b style="font-size:11px;color:${ST_INC[s][1]}">${ST_INC[s][0].toUpperCase()} le ${dfr(e.le)}</b> `}<span class="badge">${i.src===t?'Cet onglet':'Depuis '+esc(NOM_ONG[i.src]||i.src)}</span> ${esc(i.txt)}
+   <span class="incb">${!s?`<button class="mini" data-ist="vu">👁 Vu</button>`:''}<button class="mini" data-ist="corr">✅ Corrigé</button><button class="mini" data-ist="act">📌 En faire une action</button>${!s?`<button class="mini" data-ist="ign">🚫 Ignorer</button>`:`<button class="mini" data-ist="">↩ À traiter</button>`}${i.go&&i.go!==t?`<button class="mini" data-incgo="${i.go}">Voir la source ›</button>`:''}</span></span></div>`}
+function blocIncidences(t){const I=incidences().filter(i=>i.to.includes(t)),R=recosOng(t),E=incEtat();
+  const ouvertes=I.filter(enCoursInc).sort((a,b)=>(aTraiter(a)?0:1)-(aTraiter(b)?0:1)||(a.sev==='rouge'?0:1)-(b.sev==='rouge'?0:1));
+  const hist=Object.entries(E).filter(([k,v])=>(v.to||[]).includes(t)&&v.st!=='vu').sort((a,b)=>String(b[1].le).localeCompare(String(a[1].le)));
+  if(!ouvertes.length&&!R.length&&!hist.length)return '';const nv=ouvertes.filter(aTraiter).length;
+  return `<div class="carte incid ${nv?'':'calme'}" id="blocInc"><b>🔗 Ce qui vient des autres onglets</b> <span class="sub">${nv} à traiter · ${ouvertes.length-nv} vue(s) non corrigée(s)${R.length?' · '+R.length+' signal(aux) automatique(s)':''}</span>
+   <div class="sub w" style="margin:4px 0 2px">La pastille du menu reste tant qu'une incidence n'est pas traitée. « Vu » la garde ici jusqu'à correction ; « Corrigé », « En faire une action » ou « Ignorer » la range dans l'historique. Si la situation change, une nouvelle incidence apparaît.</div>
+   ${ouvertes.map(i=>ligneInc(i,t)).join('')||'<div class="sub" style="padding:6px 0">Rien à traiter dans cet onglet. ✅</div>'}
+   ${hist.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">🗂 Historique du suivi (${hist.length})</summary>${hist.slice(0,40).map(([k,v])=>`<div class="ligne"><span><b style="font-size:11px;color:${ST_INC[v.st][1]}">${ST_INC[v.st][0]} le ${dfr(v.le)}</b> <span class="sub w">${esc(v.txt)}</span>${I.some(i=>i.id===k)?' <span class="badge">toujours présente dans les données</span>':' <span class="badge A">résolue</span>'}</span>${I.some(i=>i.id===k)?`<button class="mini" data-rouvre="${esc(k)}">↩</button>`:''}</div>`).join('')}</details>`:''}
    ${R.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">📋 ${R.length} signal(aux) automatique(s) de la semaine (${[...new Set(R.map(r=>r['Domaine']))].join(', ')})</summary>${R.slice(0,30).map(carteReco).join('')}${R.length>30?`<div class="sub">… et ${R.length-30} autres, les moins prioritaires.</div>`:''}</details>`:''}</div>`}
 function injecterIncidences(){const m=$('#m');if(!m||!D||document.getElementById('blocInc')||document.getElementById('retCon')||document.getElementById('retCol')||document.getElementById('na_t'))return;
   if(!m.firstElementChild||/^Chargement/.test(m.textContent.trim()))return;if(vue==='act'||vue==='cfg')return;const html=vue==='acc'?vueIncidencesAccueil():blocIncidences(vue);if(!html)return;
   const ba=document.getElementById('blocAct'),f=m.firstElementChild;if(ba)ba.insertAdjacentHTML('afterend',html);else if(f&&f.classList.contains('filtres'))f.insertAdjacentHTML('afterend',html);else m.insertAdjacentHTML('afterbegin',html);
-  const b=document.getElementById('blocInc')||m.querySelector('.incid');if(!b)return;b.querySelectorAll('[data-incgo]').forEach(e=>e.onclick=()=>{vue=e.dataset.incgo;rendre();scrollTo(0,0)});brancherStatuts();
-  const t=vue;clearTimeout(window._vusT);window._vusT=setTimeout(()=>{if(vue===t)marquerVus(t)},4000)}
-function vueIncidencesAccueil(){const I=incidences();if(!I.length)return '';const V=vusInc(),par={};I.forEach(i=>i.to.forEach(t=>{(par[t]=par[t]||[]).push(i)}));
-  return `<div class="carte incid" id="blocInc"><b>🔗 Incidences entre onglets</b><div class="sub w">Quand une donnée change dans un onglet (rupture, promotion, équipe, opération Opeaz, événement), les onglets touchés sont prévenus : pastille rouge sur le menu, détail en haut de l'onglet.</div>
-   ${Object.keys(par).filter(t=>t!=='acc').map(t=>{const L=par[t],nv=L.filter(i=>!V[i.id]).length;return `<div class="ligne" data-incgo="${t}" style="cursor:pointer"><span>${esc((NOM_ONG[t]||t))}</span><b>${nv?`<span class="pst nv" style="position:static">${nv}</span> nouvelle(s) · `:''}${L.length} ›</b></div>`}).join('')}</div>`}
+  const b=document.getElementById('blocInc');if(!b)return;const t=vue,refaire=()=>{const y=scrollY,o=b.querySelector('details[open]')?1:0;b.remove();injecterIncidences();const n=document.getElementById('blocInc');if(n&&o){const d=n.querySelector('details');if(d)d.open=true}scrollTo(0,y)};
+  b.querySelectorAll('[data-incgo]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();vue=e.dataset.incgo;rendre();scrollTo(0,0)});brancherStatuts();
+  b.querySelectorAll('[data-ist]').forEach(x=>x.onclick=async ev=>{ev.stopPropagation();const id=x.closest('[data-iid]').dataset.iid,i=incidences().find(z=>z.id===id);if(!i)return;const st=x.dataset.ist;
+    if(st==='act'){const th={stk:'Stock & commandes',pro:'Prix & promotions',lab:'Prix & promotions',eve:'Événements & écrans',ecr:'Événements & écrans',col:'Équipe',con:'Concurrence & clients'}[t]||THEMES_DEF[0];
+      await majInc(i,'act');formAction({theme:th,titre:i.txt.split(/[.:] /)[0].slice(0,110),enjeu:i.txt.slice(0,240),mesure:'Situation avant / après correction (vérifiée par l\'application)',go:t},()=>{vue=t;rendre();scrollTo(0,0)});return}
+    await majInc(i,st||null);refaire()});
+  b.querySelectorAll('[data-rouvre]').forEach(x=>x.onclick=async ev=>{ev.stopPropagation();const i=incidences().find(z=>z.id===x.dataset.rouvre);if(i){await majInc(i,null);refaire()}})}
+function vueIncidencesAccueil(){const I=incidences();if(!I.length)return '';const par={};I.forEach(i=>i.to.forEach(t=>{(par[t]=par[t]||[]).push(i)}));
+  const tot=I.filter(aTraiter).length;
+  return `<div class="carte incid ${tot?'':'calme'}" id="blocInc"><b>🔗 Changements entre onglets</b> <span class="sub">${tot} à traiter</span><div class="sub w">Quand une donnée change dans un onglet (rupture, promotion, équipe, opération Opeaz, événement), les onglets touchés sont prévenus. Chaque incidence reste signalée jusqu'à ce que vous la marquiez vue, corrigée, transformée en action ou ignorée.</div>
+   ${Object.keys(par).filter(t=>t!=='acc').map(t=>{const L=par[t],nv=L.filter(aTraiter).length,vu=L.filter(i=>(incEtat()[i.id]||{}).st==='vu').length;return `<div class="ligne" data-incgo="${t}" style="cursor:pointer"><span>${esc(NOM_ONG[t]||t)}</span><b>${nv?`<span class="pst nv" style="position:static">${nv}</span> à traiter`:'✅'}${vu?' · '+vu+' vue(s)':''} ›</b></div>`}).join('')}
+   ${par.acc?par.acc.filter(enCoursInc).map(i=>ligneInc(i,'acc')).join(''):''}</div>`}
 
 let filtreTh='Tous',filtreSt='À faire';
 function actions(){fab(null);
