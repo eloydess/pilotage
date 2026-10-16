@@ -133,6 +133,8 @@ nav button em{font-style:normal}
 .rpt{cursor:pointer}.rpt::before{content:'▾ ';color:var(--doux)}.rpt.rpf::before{content:'▸ '}
 @media (max-width:420px){header{gap:5px}header button{padding:6px 7px}#maj{font-size:10px;max-width:84px;white-space:normal;line-height:1.15;text-align:right}}
 .leaflet-container{font:13px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+#nav .pst{position:absolute;top:2px;right:calc(50% - 22px);font-style:normal;font-size:10px;font-weight:700;border-radius:9px;padding:1px 5px;background:var(--doux);color:#fff;line-height:1.3}
+.pst.nv{background:var(--rouge)}.incid{border-left:5px solid var(--rouge)}.incid .inc{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--ligne);font-size:14px}.incid .inc:last-of-type{border:0}.incid .inc .pt{margin-top:5px;flex:none}.incid .grow{flex:1}.nouv{color:var(--rouge);font-size:11px}
 </style>
 </head>
 <body>
@@ -142,7 +144,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='4.4.2';
+const APP_V='4.5';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -218,6 +220,7 @@ function reglages(){
 function navig(){
   $('#nav').innerHTML=ONGLETS.map(o=>`<button data-v="${o[0]}" class="${o[0]===vue?'on':''}"><span>${o[1]}</span><em class="sc">${o[3]}</em><em class="lc">${o[2]}</em></button>`).join('');
   $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{const v=b.dataset.v; if(v==='3d'){location.href='3d.html';return} if(v==='cfg'){vue='cfg';navig();reglages();return} vue=v;recherche='';rendre();scrollTo(0,0)});
+  pastilles();
 }
 /* Opérations Opeaz : on ne garde que les laboratoires que la pharmacie travaille (présents avec des ventes sur 12 mois) */
 function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;const ok={};(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>0)ok[l['Laboratoire']]=1});
@@ -609,7 +612,6 @@ function signaux(t){if(!A)return [];const S=[];
     const bl=A.stock.filter(s=>s.decision==='bloque');if(bl.length)S.push({lie:'A3',txt:bl.length+' commande(s) bloquée(s) à débloquer ou réduire',pre:{theme:'Stock & commandes',titre:'Débloquer les commandes en attente : '+bl.map(s=>s.nom).slice(0,4).join(', '),mesure:'Montant en attente avant / après',go:'stk'}})}
   if(t==='pro'){if(A.opeazManquantes.length)S.push({lie:'A5',txt:A.opeazManquantes.length+' opération(s) Opeaz sans promotion dans Vindilis',pre:{theme:'Prix & promotions',titre:'Créer dans Vindilis les promotions Opeaz manquantes',mesure:'Ventes au prix promo 7 jours avant / après',go:'pro'}});
     const W=A.pourquoi;if(W&&W.zero&&W.zero.length)S.push({lie:'A12',txt:W.zero.length+' promotion(s) actives sans aucune vente',pre:{theme:'Prix & promotions',titre:'Rendre visibles en rayon les promotions sans vente',mesure:'Ventes au prix promo 7 jours avant / après la mise en avant',go:'pro'}})}
-  if(t==='lab'){const r=(D.recos||[]).filter(ouverte);if(r.length)S.push({txt:r.length+' recommandation(s) automatique(s) ouverte(s) sur les laboratoires',go:'act:rec'})}
   if(t==='ecr'&&A.reseaux&&A.reseaux.instagram){const p=A.reseaux.instagram.posts||[];const d=p.map(x=>x.date).filter(Boolean).sort().pop();const j=d?jours(String(d).slice(0,10)):null;if(j!==null&&j>7)S.push({lie:'A41',txt:'Dernière publication Instagram il y a '+j+' jours (objectif : 3 par semaine)',pre:{theme:'Réseaux sociaux',titre:'Programmer les 3 publications de la semaine',mesure:'Vues et ventes du produit montré 7 jours avant / après',go:'ecr'}})}
   return S}
 
@@ -639,7 +641,7 @@ function injecterBloc(){const m=$('#m');if(!m||!A||!BLOC_ONG.includes(vue)||docu
 function ouvrirAction(id){filtreOng='';filtreTh='Tous';filtreSt='Toutes';sousAct='dix';vue='act';focusAct=id;rendre();
   setTimeout(()=>{const e=document.getElementById('act-'+id);if(e){e.scrollIntoView({behavior:'smooth',block:'start'});e.classList.add('flash');const d=e.querySelector('details.suivi');if(d)d.open=true}focusAct=''},60)}
 let filtreOng='',focusAct='';
-new MutationObserver(()=>injecterBloc()).observe(document.getElementById('m'),{childList:true});
+new MutationObserver(()=>{injecterBloc();injecterIncidences()}).observe(document.getElementById('m'),{childList:true});
 
 /* Accueil : le plan en un coup d'œil + ce qui tombe cette semaine */
 function carteSemaine(){if(!A)return '';const L=toutes(),re=L.filter(a=>statutA(a)==='retard'),se=L.filter(a=>!actFaite(a.id)&&statutA(a)!=='retard'&&(jours(a.quand)??1)<=0&&(jours(a.quand)??0)>=-6),me=L.filter(aMesurer);
@@ -1125,18 +1127,94 @@ function replier(){const m=$('#m');if(!m||m.querySelector('#pfiltre'))return;con
     if(c.classList.contains('titre')){c.style.display='none';return}const s=sansAcc(c.textContent);c.style.display=W.every(w=>s.includes(w))?'':'none'});
     if(!W.length)titres.forEach((tt,k)=>{if(tt._corps){tt.classList.toggle('rpf',k>0);tt._corps.forEach(x=>x.style.display=k>0?'none':'')}})}}
 
+
+/* =====================================================================
+   v4.5 — Moteur d'incidences : un changement dans un onglet est signalé
+   dans les onglets qu'il touche (pastille rouge sur le menu)
+   ===================================================================== */
+
+const normL=s=>sansAcc(s).toUpperCase().replace(/LA R POSAY/,'LA ROCHE POSAY').replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+const debutNom=s=>normL(s).replace(/ T20\d\d.*$/,'').replace(/^LABORATOIRES? /,'').split(' ').slice(0,2).join(' ');
+const dIso=s=>{if(!s)return null;const m=String(s).match(/^(\d{2})\/(\d{2})\/(\d{4})/);return m?m[3]+'-'+m[2]+'-'+m[1]:String(s).slice(0,10)};
+const MIN_ORDO=2,MIN_CR=1;
+function couverture(){if(!RHX||!RHX.fiches)return null;const w=semCycle(),J=['lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  const slots=J.map(()=>Array.from({length:22},()=>({o:0,c:0})));// 9h00 → 20h00 par demi-heure
+  RHX.fiches.forEach(f=>{const s=(f.planning||[])[w];if(!s)return;(s.jours||[]).slice(0,6).forEach((txt,d)=>{String(txt||'').split(' + ').forEach(seg=>{const m=seg.match(/(\d{2})h(\d{2})–(\d{2})h(\d{2})\s*(.*)/);if(!m)return;
+    const a=(+m[1]+ +m[2]/60-9)*2,b=(+m[3]+ +m[4]/60-9)*2,lab=m[5].toUpperCase();for(let k=Math.max(0,Math.round(a));k<Math.min(22,Math.round(b));k++){if(/ORDO/.test(lab))slots[d][k].o++;if(/CAISSE/.test(lab))slots[d][k].c++}})})});
+  const hh=k=>{const t=9+k/2;return Math.floor(t)+'h'+(t%1?'30':'')};const trous=[];
+  slots.forEach((S,d)=>{let run=null;for(let k=0;k<=22;k++){const x=S[k],t=x?((x.o<MIN_ORDO?'o':'')+(x.c<MIN_CR?'c':'')):'';
+    if(t!==(run?run.t:'')){if(run)trous.push({j:J[d],de:hh(run.deb),a:hh(k),o:run.t.includes('o'),c:run.t.includes('c'),n:k-run.deb,min:Math.min(...S.slice(run.deb,k).map(y=>y.o))});run=t?{t,deb:k}:null}}});
+  return {sem:w+1,trous}}
+function incidences(){if(!D)return [];const I=[],add=(id,src,to,sev,txt,go)=>I.push({id,src,to,sev,txt,go});const today=auj();
+  /* Stock → Écrans : produit à l'écran (ou proposé) mais en rupture */
+  (D.produitsEcrans||[]).forEach(p=>{const st=num(p['Stock au relevé']);if(st!==null&&st<=0&&!/retir|arr[êe]t/i.test(p['Statut diffusion']||''))add('ecr-rupt|'+p['EAN'],'stk',['ecr','stk'],'rouge',`${p['Produit']} : prévu ou diffusé à l'écran mais en rupture (stock ${st}). Réassortir avant diffusion, sinon l'écran envoie les clients vers un rayon vide.`,'stk')});
+  if(A){
+    const stk=(A.stock||[]).filter(s=>s.nRupt>0&&(s.decision==='commander'||s.decision==='bloque'));
+    /* Stock → Promos : promotion en cours sur un laboratoire en rupture */
+    const prR={};(A.pourquoi&&A.pourquoi.promos||[]).forEach(p=>{const fin=dIso(p.fin);if(fin&&fin<today)return;const cle=normL(p.nom+' '+(p.labo&&p.labo.labo||''));
+      const s=stk.find(x=>{const n=debutNom(x.nom);return n.length>=3&&cle.includes(n)});if(s)(prR[s.nom]=prR[s.nom]||{s,p:[]}).p.push(p.nom)});
+    Object.values(prR).forEach(({s,p})=>add('pro-rupt|'+s.nom+'|'+p.length,'stk',['pro','stk'],'rouge',`${s.nom} : ${s.nRupt} référence(s) en rupture (commande ${s.decision==='bloque'?'bloquée':'à passer'}) alors que ${p.length} promotion(s) sont en cours : ${p.slice(0,4).map(x=>'« '+x.trim()+' »').join(', ')}${p.length>4?'…':''}. Une promotion sans stock ne vend pas : débloquer la commande en priorité.`,'stk'));
+    /* Stock → Labos : prix revus mais rupture, la mesure avant / après sera faussée */
+    const LR=[];stk.forEach(s=>{const n=debutNom(s.nom);const L=(D.labos||[]).find(l=>debutNom(l['Laboratoire']).startsWith(n));if(!L)return;const dr=L['Date repricing'];const j=dr?jours(String(dr).slice(0,10)):null;
+      if(j!==null&&j>=0&&j<=60)LR.push(L['Laboratoire'].replace(/ T20\d\d.*$/,'')+' ('+s.nRupt+' en rupture, prix du '+dfr(String(dr).slice(0,10))+')')});
+    if(LR.length)add('lab-rupt|'+LR.length,'stk',['lab','stk'],'orange',`${LR.length} laboratoire(s) aux prix revus récemment ont des ruptures : ${LR.join(' ; ')}. Tant que le stock n'est pas rétabli, la mesure avant / après des nouveaux prix est faussée.`,'stk');
+    /* Promos → Plan et Médias : promotion qui ne sort pas, sans écran ni emplacement */
+    const E2=plan2(),placees=new Set(Object.values(E2).map(x=>x.promo).filter(Boolean));
+    const inv=(A.pourquoi&&A.pourquoi.promos||[]).filter(p=>{const fin=dIso(p.fin);return !(fin&&fin<today)&&p.verdict==='ko'&&!p.ecran&&!placees.has(p.nom)});
+    if(inv.length)add('pro-vis|'+inv.length,'pro',['pro','eve','ecr'],'orange',`${inv.length} promotion(s) ne sortent pas et n'ont ni écran ni emplacement sur le plan : ${inv.slice(0,5).map(p=>'« '+p.nom.trim()+' »').join(', ')}${inv.length>5?'…':''}. Les placer en tête de gondole ou en bac soldeur (Événements › Plan) et les annoncer à l'écran.`,'pro');
+    /* Labos → Médias : laboratoire qui fait beaucoup de marge mais absent des écrans */
+    const cen=A.ecransInventaire&&A.ecransInventaire.cenareo||{};const marques=[...(cen.marques||[]),...(cen.reseau||[])].map(normL).join(' | ');
+    if(marques){(D.labos||[]).filter(l=>l['Politique prix']==='Libre'&&String(l['Univers']||'').trim()).sort((a,b)=>(num(b['Marge € 12 mois'])||0)-(num(a['Marge € 12 mois'])||0)).slice(0,10).forEach((l,i)=>{const n=debutNom(l['Laboratoire']).split(' ')[0];
+      if(n.length>=3&&!marques.includes(n))add('ecr-lab|'+l['Laboratoire'],'lab',['ecr','lab'],'orange',`${l['Laboratoire'].replace(/ T20\d\d.*$/,'')} : n° ${i+1} de votre marge en parapharmacie, compléments et conseil (${eur(l['Marge € 12 mois'])} sur 12 mois) et absent des écrans Cenareo.`,'lab')})}
+  }
+  /* Événements → Stock et Médias : événement en préparation */
+  (D.calendrier||[]).forEach(e=>{if(/pass/i.test(e['Statut']||''))return;const p=String(e['Préparer dès']||'').slice(0,10),f=String(e['Fin']||e['Début']||'').slice(0,10);if(!p||p>today||(f&&f<today))return;
+    add('eve-prep|'+e['Événement'],'eve',['eve','stk','ecr'],'orange',`${e['Événement']} (à partir du ${dfr(String(e['Début']).slice(0,10))}) : préparation en cours. Stock à prévoir : ${e['Catégories']||'—'}. Emplacements : ${e['Emplacements']||'à choisir'}. Écrans : ${e['Écrans']||'à choisir'}.`,'eve')});
+  /* Opeaz → Promos et Plan : opération qui se termine sans mise en place confirmée */
+  const OP=(D.operations||[]).filter(o=>{const j=num(o['Jours avant fin']);return o['Statut']==='En cours'&&j!==null&&j<=15&&!String(o['Mise en place']||'').trim()&&/gondole|vitrine|facing|photo|comptoir|descente/i.test((o['Type']||'')+' '+(o['Conditions']||'')+' '+(o['Opération']||''))}).sort((a,b)=>num(a['Jours avant fin'])-num(b['Jours avant fin']));
+  if(OP.length){const j7=OP.filter(o=>num(o['Jours avant fin'])<=7).length;add('ops|'+OP.length+'|'+j7,'eve',['pro','eve'],j7?'rouge':'orange',`${OP.length} opération(s) Opeaz avec mise en avant (tête de gondole, facings, photo) se terminent dans moins de 15 jours sans mise en place confirmée${j7?', dont '+j7+' dans moins de 7 jours':''}. Les plus proches : ${OP.slice(0,4).map(o=>o['Laboratoire'].replace(/ T20\d\d.*$/,'')+' « '+o['Opération']+' » ('+num(o['Jours avant fin'])+' j)').join(' ; ')}. Sans preuve, la compensation est perdue : une fois la photo envoyée, renseigner « Mise en place » sur l'opération (Événements › Agenda).`,'eve')}
+  /* Mois → Accueil : marge du dernier mois en recul */
+  const pf=(D.perf||[]).filter(p=>num(p['Écart marge %'])!==null).slice(-1)[0];if(pf&&+pf['Écart marge %']<0)add('mois-marge|'+pf['Mois'],'mois',['mois','acc'],'orange',`Marge de ${moisFr(pf['Mois'])} : ${pct(pf['Écart marge %'],1)} par rapport à l'an dernier.`,'mois');
+  /* Collaborateurs → planning : la règle du comptoir (2 à l'ordonnance, 1 à la caisse rapide) */
+  const cv=couverture();if(cv){const T=cv.trous.filter(t=>t.n>=1);if(T.length){const parJ={};T.forEach(t=>{(parJ[t.j]=parJ[t.j]||[]).push(`${t.de}–${t.a}${t.o?' (ordonnance : '+t.min+')':''}${t.c?' (pas de caisse rapide)':''}`)});
+    add('col-couv|S'+cv.sem+'|'+T.length,'col',['col','mois'],'rouge',`Semaine S${cv.sem} du cycle (cette semaine), d'après Sivan : la règle « 2 personnes à l'ordonnance et 1 à la caisse rapide » n'est pas tenue sur ${T.length} créneau(x). ${Object.entries(parJ).map(([j,l])=>j+' '+l.slice(0,3).join(', ')+(l.length>3?' …':'')).join(' ; ')}. Hors titulaire et Directrice Générale, qui ne sont pas dans Sivan.`,'col')}}
+  if(RHX&&RHX.fiches)RHX.fiches.filter(f=>!(f.planning||[]).length).forEach(f=>add('col-edt|'+f.prenom,'col',['col'],'orange',`${f.prenom} (${f.fonction}) est dans Sivan sans emploi du temps type : il ou elle n'est compté(e) dans aucun créneau du comptoir.`,'col'));
+  if(PAIE&&D.equipe){const P=PAIE.map(r=>({m:isoMois(r['Mois']),c:r['Collaborateur']})).filter(r=>r.m);const der=P.reduce((s,r)=>r.m>s?r.m:s,'');const act=new Set(P.filter(r=>r.m===der).map(r=>sansAcc(r.c).split(' ')[0]));
+    D.equipe.forEach(e=>{const n=sansAcc(e['Collaborateur']).split(' ')[0];if(/titulaire/i.test(e['Titre']||'')||act.has(n)||!e['Responsabilités'])return;add('col-resp|'+n,'col',['col','act'],'orange',`${e['Collaborateur']} n'a plus de bulletin en ${moisFr(der)} mais porte encore des responsabilités (« ${String(e['Responsabilités']).slice(0,80)} ») : à réattribuer dans l'onglet ÉQUIPE.`,'col')})}
+  return I}
+/* signaux automatiques du classeur, rangés dans l'onglet qu'ils concernent */
+const DOM_ONG={Stock:'stk','Marché':'lab',Prix:'lab',Laboratoire:'lab',Promotions:'pro','Écrans':'ecr','Visibilité':'ecr','Surface de vente':'eve','Équipe':'col',Suivi:'mois',Performance:'mois'};
+const recosOng=t=>(D&&D.recos||[]).filter(r=>ouverte(r)&&(DOM_ONG[r['Domaine']]||'mois')===t);
+const vusInc=()=>{try{return JSON.parse(ls.get('pil_inc_vus')||'{}')}catch(e){return {}}};
+function marquerVus(t){const V=vusInc();incidences().filter(i=>i.to.includes(t)).forEach(i=>V[i.id]=1);ls.set('pil_inc_vus',JSON.stringify(V));pastilles()}
+let _rhAuto=false;function pastilles(){if(!D)return;if(!_rhAuto&&ss.get('pil_code2')&&!PAIE){_rhAuto=true;const c2=ss.get('pil_code2');chargerPaie(c2).then(ok=>ok&&chargerRhx(c2)).then(()=>pastilles())}const I=incidences(),V=vusInc();document.querySelectorAll('#nav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(i=>!V[i.id]).length;let p=b.querySelector('.pst');if(p)p.remove();
+  if(L.length){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst ${nv?'nv':''}" title="${nv} nouvelle(s) incidence(s) sur ${L.length}">${nv||L.length}</i>`)}})}
+function blocIncidences(t){const I=incidences().filter(i=>i.to.includes(t)),R=recosOng(t),V=vusInc();if(!I.length&&!R.length)return '';
+  const ord=I.slice().sort((a,b)=>(a.sev==='rouge'?0:1)-(b.sev==='rouge'?0:1));
+  return `<div class="carte incid" id="blocInc"><b>🔗 Ce qui vient des autres onglets</b> <span class="sub">${I.length} incidence(s)${R.length?' · '+R.length+' signal(aux) automatique(s)':''}</span>
+   ${ord.map(i=>`<div class="inc ${i.sev}"><span class="pt" style="background:${i.sev==='rouge'?'var(--rouge)':'var(--orange)'}"></span><span class="grow">${!V[i.id]?'<b class="nouv">NOUVEAU</b> ':''}<span class="badge">${i.src===t?'Cet onglet':'Depuis '+esc((NOM_ONG[i.src]||i.src))}</span> ${esc(i.txt)}</span>${i.go&&i.go!==t?`<button class="mini" data-incgo="${i.go}">Voir ›</button>`:''}</div>`).join('')}
+   ${R.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">📋 ${R.length} signal(aux) automatique(s) de la semaine (${[...new Set(R.map(r=>r['Domaine']))].join(', ')})</summary>${R.slice(0,30).map(carteReco).join('')}${R.length>30?`<div class="sub">… et ${R.length-30} autres, les moins prioritaires.</div>`:''}</details>`:''}</div>`}
+function injecterIncidences(){const m=$('#m');if(!m||!D||document.getElementById('blocInc')||document.getElementById('retCon')||document.getElementById('retCol')||document.getElementById('na_t'))return;
+  if(!m.firstElementChild||/^Chargement/.test(m.textContent.trim()))return;if(vue==='act'||vue==='cfg')return;const html=vue==='acc'?vueIncidencesAccueil():blocIncidences(vue);if(!html)return;
+  const ba=document.getElementById('blocAct'),f=m.firstElementChild;if(ba)ba.insertAdjacentHTML('afterend',html);else if(f&&f.classList.contains('filtres'))f.insertAdjacentHTML('afterend',html);else m.insertAdjacentHTML('afterbegin',html);
+  const b=document.getElementById('blocInc')||m.querySelector('.incid');if(!b)return;b.querySelectorAll('[data-incgo]').forEach(e=>e.onclick=()=>{vue=e.dataset.incgo;rendre();scrollTo(0,0)});brancherStatuts();
+  const t=vue;clearTimeout(window._vusT);window._vusT=setTimeout(()=>{if(vue===t)marquerVus(t)},4000)}
+function vueIncidencesAccueil(){const I=incidences();if(!I.length)return '';const V=vusInc(),par={};I.forEach(i=>i.to.forEach(t=>{(par[t]=par[t]||[]).push(i)}));
+  return `<div class="carte incid" id="blocInc"><b>🔗 Incidences entre onglets</b><div class="sub w">Quand une donnée change dans un onglet (rupture, promotion, équipe, opération Opeaz, événement), les onglets touchés sont prévenus : pastille rouge sur le menu, détail en haut de l'onglet.</div>
+   ${Object.keys(par).filter(t=>t!=='acc').map(t=>{const L=par[t],nv=L.filter(i=>!V[i.id]).length;return `<div class="ligne" data-incgo="${t}" style="cursor:pointer"><span>${esc((NOM_ONG[t]||t))}</span><b>${nv?`<span class="pst nv" style="position:static">${nv}</span> nouvelle(s) · `:''}${L.length} ›</b></div>`}).join('')}</div>`}
+
 let filtreTh='Tous',filtreSt='À faire';
 function actions(){fab(null);
   const navA=()=>{document.querySelectorAll('#sa button').forEach(b=>b.onclick=()=>{sousAct=b.dataset.k;if(sousAct==='cls')filtre='Classement';if(sousAct==='rec')filtre='Ouvertes';actions();scrollTo(0,0)})};
-  if(sousAct==='av'&&A){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+avantApres();navA();
+  if(sousAct==='av'&&A){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+avantApres();navA();
     document.querySelectorAll('#fav button').forEach(b=>b.onclick=()=>{filtreAv=b.dataset.f;const y=scrollY;actions();scrollTo(0,y)});return}
-  if(sousAct==='msg'){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+vueRemarques();navA();
+  if(sousAct==='msg'){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+vueRemarques();navA();
     document.querySelectorAll('#fmsg button').forEach(b=>b.onclick=()=>{filtreMsg=b.dataset.f;actions()});$('#rmNew').onclick=panneauMsg;brancherRetours(()=>{const y=scrollY;actions();scrollTo(0,y)});return}
   if(sousAct!=='dix'&&sousAct!=='av'&&sousAct!=='msg'){sousAct=filtre==='Classement'?'cls':'rec';actionsServeur();
-    $('#ht').textContent='Actions';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct));
+    $('#ht').textContent='Actions';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct));
     navA();return}
   $('#ht').textContent='Actions';
-  if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto']],sousAct)+pasAudit();navA();return}
+  if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+pasAudit();navA();return}
   const TOUT=toutes(),TH=[...new Set(THEMES_DEF.concat(TOUT.map(a=>a.theme||'Autres')))].filter(t=>TOUT.some(a=>(a.theme||'Autres')===t));
   const FST={'À faire':a=>statutA(a)!=='faite','En cours':a=>statutA(a)==='encours','En retard':a=>statutA(a)==='retard','À mesurer':aMesurer,'Faites':a=>actFaite(a.id),'Garder':a=>suivi(a.id).verdict==='garder','Corriger':a=>suivi(a.id).verdict==='corriger','Arrêter':a=>suivi(a.id).verdict==='arreter','Toutes':()=>true};
   if(!FST[filtreSt])filtreSt='À faire';
@@ -1152,7 +1230,7 @@ function actions(){fab(null);
     ${blocSuivi(a)}</div></div></div>`};
   const groupes=filtreTh==='Tous'?TH.map(t=>[t,L.filter(a=>(a.theme||'Autres')===t)]).filter(g=>g[1].length):[[filtreTh,L]];
   const nc=k=>TOUT.filter(FST[k]).length;
-  $('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos'],['rec','Recommandations auto ('+D.recos.filter(ouverte).length+')']],sousAct)+
+  $('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+
    `<div class="carte"><b>Plan d'action global : toutes les actions de tous les onglets</b><div class="sub w">Chaque action a un responsable, une échéance, la façon de faire et sa mesure avant / après. Ouvrez « Suivi et mesure » pour noter la mise en place, les chiffres avant / après et le verdict : c'est enregistré sur le serveur, visible sur le téléphone comme sur l'ordinateur.</div><div class="ba-btn"><button class="mini" id="paAdd">+ Ajouter une action</button></div></div>
    ${tableauPlan(TOUT)}
    <div class="filtres" id="fst">${Object.keys(FST).map(k=>`<button data-f="${k}" class="${k===filtreSt?'on':''}">${k} (${nc(k)})</button>`).join('')}</div>
