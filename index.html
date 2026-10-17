@@ -154,7 +154,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='5.1';
+const APP_V='5.2';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -652,6 +652,17 @@ function ouvrirAction(id){filtreOng='';filtreTh='Tous';filtreSt='Toutes';sousAct
   setTimeout(()=>{const e=document.getElementById('act-'+id);if(e){e.scrollIntoView({behavior:'smooth',block:'start'});e.classList.add('flash');const d=e.querySelector('details.suivi');if(d)d.open=true}focusAct=''},60)}
 let filtreOng='',focusAct='';
 new MutationObserver(()=>{injecterBloc();injecterIncidences()}).observe(document.getElementById('m'),{childList:true});
+/* Sous-onglet touché : amener directement la page à son contenu (sans les blocs Actions / incidences / recherche placés au-dessus) */
+const SAUTE=e=>e&&(e.id==='blocAct'||e.id==='blocInc'||e.id==='pfiltre');
+function allerAuContenu(navId,essai){const nav=document.getElementById(navId);if(!nav){if((essai||0)<8)setTimeout(()=>allerAuContenu(navId,(essai||0)+1),120);return}
+  let t=nav.nextElementSibling;while(SAUTE(t))t=t.nextElementSibling;if(!t)return;
+  const hd=document.querySelector('header'),hh=hd?hd.offsetHeight:0,y=t.getBoundingClientRect().top+scrollY-hh-8;
+  scrollTo({top:Math.max(0,y),behavior:'smooth'})}
+document.getElementById('m').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const f=b.parentElement;
+  if(!f||!f.classList.contains('filtres')||!f.id||f.parentElement.id!=='m')return;
+  const avant=[...f.parentElement.children].slice(0,[...f.parentElement.children].indexOf(f)).filter(x=>!SAUTE(x));
+  if(avant.some(x=>!x.classList.contains('filtres')))return; /* filtre placé dans le contenu : on ne bouge pas */
+  const id=f.id;setTimeout(()=>allerAuContenu(id),260)},true);
 
 /* Accueil : le plan en un coup d'œil + ce qui tombe cette semaine */
 function carteSemaine(){if(!A)return '';const L=toutes(),re=L.filter(a=>statutA(a)==='retard'),se=L.filter(a=>!actFaite(a.id)&&statutA(a)!=='retard'&&(jours(a.quand)??1)<=0&&(jours(a.quand)??0)>=-6),me=L.filter(aMesurer);
