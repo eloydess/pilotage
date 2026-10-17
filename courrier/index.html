@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Courrier & paiements</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icone-180.png">
+<link rel="icon" type="image/png" href="icone-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tri & RJ">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#1f3a5f">
+<style>
+  :root{--fond:#f4f5f7;--carte:#fff;--txt:#1d2433;--doux:#667085;--bord:#e3e6eb;--bleu:#1f3a5f;--vert:#1e7b4f;--rouge:#b42318;--orange:#b54708;--jaune:#fef0c7;}
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--fond);color:var(--txt)}
+  header{position:sticky;top:0;z-index:5;background:var(--bleu);color:#fff;padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
+  header h1{font-size:16px;margin:0 0 8px}
+  .onglets{display:flex;gap:6px}
+  .onglets button{flex:1;border:0;border-radius:8px;padding:8px;background:rgba(255,255,255,.15);color:#fff;font-weight:600}
+  .onglets button.actif{background:#fff;color:var(--bleu)}
+  .bandeau{background:var(--jaune);color:#7a4a00;font-size:13px;padding:6px 14px}
+  main{padding:12px;max-width:760px;margin:0 auto}
+  @media (min-width:1100px){
+    main{max-width:1600px !important;padding:12px 20px}
+    header h1,.onglets{max-width:1600px !important}
+    #liste{display:grid !important;grid-template-columns:minmax(380px,34%) 1fr;gap:16px;align-items:start}
+    .maitre{position:sticky;top:8px;max-height:calc(100vh - 150px);display:flex;flex-direction:column;background:var(--carte);border:1px solid var(--bord);border-radius:12px;overflow:hidden}
+    .barrePC{padding:10px;border-bottom:1px solid var(--bord)}
+    .barrePC input{width:100%;box-sizing:border-box;padding:9px 12px;border:1px solid var(--bord);border-radius:8px;font-size:14px}
+    .raccourcis{font-size:12px;margin-top:6px} kbd{border:1px solid var(--bord);border-bottom-width:2px;border-radius:4px;padding:0 4px;font-size:11px;background:#f9fafb;margin-right:2px}
+    .lignes{overflow-y:auto}
+    .lignePC{padding:9px 12px;border-bottom:1px solid #eef0f3;cursor:pointer;border-left:4px solid transparent}
+    .lignePC:hover{background:#f5f8ff}
+    .lignePC.sel{background:#e8f0fe;border-left-color:var(--bleu)}
+    .lp1{display:flex;align-items:center;gap:4px}
+    .lp1 .tiers{font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .lp1 .montant{font-size:13px}
+    .corb{border:0;background:none;cursor:pointer;font-size:15px;padding:2px 4px;opacity:.6;line-height:1}
+    .corb:hover{opacity:1;background:#fde8e8;border-radius:6px}
+    .lignePC .meta{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .detail{position:sticky;top:8px;max-height:calc(100vh - 150px);overflow-y:auto}
+    .detail .carte{padding:18px 22px;font-size:15px}
+    .detail .tiers{font-size:20px}
+    .detail details{display:block} .detail details[open] summary{margin-bottom:4px}
+    #treso{display:grid;grid-template-columns:400px 1fr;gap:16px;align-items:start}
+    .rjResume{position:sticky;top:8px}
+    .rjListe{display:grid;grid-template-columns:1fr;gap:10px;align-content:start}
+    .rjListe .carte{margin-bottom:0}
+  }
+  @media (min-width:1500px){ .rjListe{grid-template-columns:1fr 1fr} }
+  @media (min-width:1000px) and (max-width:1099px){
+    main{max-width:1280px}
+    header h1,.onglets{max-width:1280px;margin-left:auto;margin-right:auto}
+    #liste{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+    #liste .carte{margin-bottom:0}
+    #vCR{display:grid;grid-template-columns:420px 1fr;gap:16px;align-items:start}
+    .modal .boite{max-width:900px;margin:0 auto}
+  }
+  .filtres{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
+  .filtres button{border:1px solid var(--bord);background:#fff;border-radius:16px;padding:6px 12px;white-space:nowrap}
+  .filtres button.actif{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+  .carte{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:12px;margin-bottom:10px}
+  .ligne1{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+  .tiers{font-weight:700;font-size:16px}
+  .montant{font-weight:700;white-space:nowrap}
+  .meta{color:var(--doux);font-size:13px;margin-top:2px}
+  .badge{display:inline-block;border-radius:6px;padding:1px 7px;font-size:12px;font-weight:600;margin-right:4px}
+  .p-Urgente{background:#fee4e2;color:var(--rouge)} .p-Haute{background:#fef0c7;color:var(--orange)}
+  .p-Moyenne{background:#e0eaff;color:#2948a3} .p-Basse{background:#eef0f3;color:var(--doux)}
+  .decision{margin:8px 0 4px;padding:8px;border-radius:8px;background:#f0f6ff;font-size:14px}
+  .decision b{color:var(--bleu)}
+  .note{font-size:14px;margin:6px 0}
+  .verif{font-size:13px;margin:6px 0;padding:8px;border-radius:8px;background:#ecfdf3;color:#05603a}
+  details{font-size:14px;color:#344054;margin-top:4px} summary{color:var(--bleu);cursor:pointer}
+  .incert{color:var(--orange);font-size:13px;margin-top:4px}
+  .actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .actions button,.btn{border:0;border-radius:8px;padding:9px 12px;font-weight:600;font-size:14px}
+  .b-voir{background:#eef0f3;color:var(--txt)} .b-ok{background:var(--vert);color:#fff;flex:1}
+  .b-corr{background:#e0eaff;color:#2948a3} .b-non{background:#fee4e2;color:var(--rouge)}
+  .statut{font-size:13px;font-weight:600;margin-top:6px}
+  .st-Validé,.st-Corrigé{color:var(--vert)} .st-Refusé{color:var(--rouge)}
+  .vide{text-align:center;color:var(--doux);padding:40px 0}
+  #connexion{max-width:320px;margin:80px auto;text-align:center}
+  #connexion input{font-size:24px;text-align:center;letter-spacing:8px;width:100%;padding:10px;border:1px solid var(--bord);border-radius:10px}
+  #connexion button{margin-top:12px;width:100%;background:var(--bleu);color:#fff;padding:12px}
+  .erreur{color:var(--rouge);margin-top:10px;font-size:14px}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:none}
+  .modal .boite{position:absolute;inset:4% 3%;background:#fff;border-radius:14px;display:flex;flex-direction:column;overflow:hidden}
+  .modal .tete{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--bord);gap:8px}
+  .modal .tete b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .modal .corps{overflow:auto;padding:12px;-webkit-overflow-scrolling:touch}
+  .msg{border-bottom:1px solid var(--bord);padding-bottom:12px;margin-bottom:12px}
+  .msg pre{white-space:pre-wrap;font:14px/1.45 inherit;font-family:inherit;margin:8px 0}
+  .pj{display:inline-block;margin:4px 6px 0 0;border:1px solid var(--bord);border-radius:8px;padding:6px 9px;background:#f8f9fb;font-size:13px}
+  canvas{width:100%;height:auto;border:1px solid var(--bord);margin-bottom:8px}
+  .champ{margin:10px 0} .champ label{display:block;font-size:13px;color:var(--doux);margin-bottom:4px}
+  .champ select,.champ input,.champ textarea{width:100%;padding:9px;border:1px solid var(--bord);border-radius:8px;font-size:15px}
+  .chargement{color:var(--doux);padding:20px;text-align:center}
+  .tot{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:14px}
+  .tot b{text-align:right}
+  .neg{color:var(--rouge)} .pos{color:var(--vert)}
+  .lv{display:flex;gap:10px;align-items:flex-start}
+  .lv input[type=checkbox]{width:24px;height:24px;margin-top:2px;flex:none}
+  .lv .corpsL{flex:1;min-width:0}
+  .opts{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .opts input,.opts select{padding:7px;border:1px solid var(--bord);border-radius:8px;font-size:15px}
+  .opts input{width:120px}
+  .etapes{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .et{font-size:12px;padding:3px 7px;border-radius:12px;background:#eef0f3;color:var(--doux)}
+  .et.fait{background:#e3f5ea;color:var(--vert);font-weight:600}
+  .com{white-space:pre-wrap;margin-top:4px}
+  .verse{color:#2948a3}
+  .prio{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--doux)}
+  .prio .pp{width:34px;height:30px;border:1px solid var(--bord);border-radius:8px;background:#fff;font-weight:700;font-size:15px}
+  .prio .pp.on{background:var(--rouge);color:#fff;border-color:var(--rouge)}
+  .pp-b{background:var(--rouge);color:#fff;margin-right:4px}
+  .pagecr{display:flex;align-items:center;gap:8px;margin:6px 0}
+  .pagecr img{width:64px;height:84px;object-fit:cover;border-radius:6px;border:1px solid var(--bord)}
+  .pdfcr{width:64px;height:84px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;border:1px solid var(--bord);border-radius:6px;overflow:hidden}
+  .choisi{border-color:var(--vert);box-shadow:0 0 0 1px var(--vert) inset}
+  table.rj{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+  table.rj td,table.rj th{border-bottom:1px solid var(--bord);padding:6px;text-align:left;vertical-align:top}
+.zonecolle{margin-top:8px;padding:14px;border:2px dashed #9aa5b1;border-radius:10px;text-align:center;color:#5f6b7a;font-size:14px;min-height:22px;outline:none;-webkit-user-select:text;user-select:text}
+.zonecolle:focus{border-color:#1a73e8;color:#1a73e8}
+.doublon{margin:8px 0;padding:8px 10px;border-radius:8px;background:#fdecea;color:#8a1c12;font-size:13px;line-height:1.45}
+.tpos{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.tpos th,.tpos td{border-bottom:1px solid var(--bord);padding:6px 4px;text-align:left;vertical-align:top}
+.lienfic{color:var(--bleu);text-decoration:underline;cursor:pointer;font-size:12px}
+.badgesP{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.bpc{font-size:12px;border-radius:12px;padding:2px 9px;border:1px solid var(--bord);cursor:pointer}
+.bpc:hover{filter:brightness(.95);text-decoration:underline}
+.bpc-ok{background:#ecfdf3;color:#05603a;border-color:#a6f4c5}
+.bpc-non{background:#f9fafb;color:#98a2b3}
+  body.embed header{display:none}
+  body.embed .bandeau{font-size:12px;padding:5px 12px}
+  body.embed main{padding-top:8px}
+</style>
+</head>
+<body>
+
+<div id="connexion">
+  <h2>🔒 Pharmacie — Tri & RJ</h2>
+  <p>Code d'accès</p>
+  <input id="code" type="password" inputmode="numeric" maxlength="12" autocomplete="off" onkeydown="if(event.key==='Enter')connexion()">
+  <label style="display:block;margin:6px 0;font-size:14px;cursor:pointer"><input type="checkbox" onchange="document.getElementById('code').type=this.checked?'text':'password'"> Afficher le code</label>
+  <button class="btn" onclick="connexion()">Entrer</button>
+  <div id="errConn" class="erreur"></div>
+</div>
+
+<div id="app" style="display:none">
+  <header>
+    <h1>Pharmacie — Tri boîte mail & Paiements RJ</h1>
+    <div class="onglets">
+      <button id="oMail" class="actif" onclick="vue('mail')">📬 Boîte mail</button>
+      <button id="oRJ" onclick="vue('rj')">💶 Paiements RJ</button>
+      <button id="oCR" onclick="vue('cr')">📮 Courrier / PDF</button>
+    </div>
+  </header>
+  <div class="bandeau">Gmail n'est modifié que lorsque vous rangez (🗂) ou supprimez (🗑) un mail, et automatiquement quand un dossier est payé (mail rangé et marqué comme lu). Rien n'est supprimé définitivement.</div>
+  <main>
+    <section id="vMail">
+      <div class="filtres" id="filtres"></div>
+      <div id="liste"><div class="chargement">Chargement…</div></div>
+    </section>
+    <section id="vRJ" style="display:none">
+      <div id="treso"><div class="chargement">Chargement…</div></div>
+    </section>
+    <section id="vCR" style="display:none">
+      <div class="carte">
+        <b>📮 Envoyer un courrier ou un document à Claude</b>
+        <p class="meta">Photo d'un courrier, PDF enregistré ou document copié dans une autre application. Claude le lit, prépare une fiche dans « Boîte mail » et, s'il y a un paiement, il s'ajoute au suivi RJ dès que vous validez.</p>
+        <div class="champ"><label>Note (facultatif)</label><input id="crNote" placeholder="ex. Facture Orkyn reçue ce matin"></div>
+        <label class="btn b-voir" style="display:block;text-align:center;cursor:pointer">📷 Prendre une photo<input type="file" accept="image/*" capture="environment" multiple style="display:none" onchange="ajouterPages(this)"></label>
+        <label class="btn b-voir" style="display:block;text-align:center;cursor:pointer;margin-top:8px">📄 Choisir un PDF ou une image enregistrés<input id="crFic" type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="ajouterPages(this)"></label>
+        <button class="btn b-voir" style="width:100%;margin-top:8px" onclick="collerBouton()">📋 Coller le document copié</button>
+        <div id="crColle" class="zonecolle" contenteditable="true" spellcheck="false" aria-label="Zone pour coller un document">… ou appuyez longuement ici, puis « Coller »</div>
+        <div id="crPages" style="margin-top:8px"></div>
+        <div id="crErr" class="erreur"></div>
+        <button id="crOk" class="btn b-ok" style="width:100%;margin-top:8px;display:none" onclick="envoyerCourrier()">Envoyer pour analyse</button>
+      </div>
+      <div id="crListe"></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="modal"><div class="boite">
+  <div class="tete"><b id="mTitre"></b><button class="btn b-voir" onclick="fermer()">Fermer</button></div>
+  <div class="corps" id="mCorps"></div>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+var JETON = null, FICHES = [], DECISIONS = [], FILTRE = 'À valider';
+var ORDRE = {Urgente:0, Haute:1, Moyenne:2, Basse:3};
+var EXPLI = {
+  'Suivi RJ': "Nouvelle pièce à payer : elle n'est pas encore dans le fichier RJ, je propose de l'y ajouter.",
+  'Déjà au suivi RJ': "Cette pièce est déjà dans le fichier RJ : rien à ajouter, il reste à suivre son paiement.",
+  'Créance antérieure': "Facture d'avant le 30/06 : ne pas payer, elle se déclare au mandataire.",
+  'À vérifier': "Je ne peux pas trancher seul : un point est à contrôler (pièce jointe, date) avant de décider.",
+  'Action à faire': "Il faut répondre, appeler ou signer quelque chose.",
+  'Prestataire à payer': "Facture d'un prestataire (abonnement, maintenance…), hors circuit laboratoire.",
+  'Information': "Rien à payer : simple information à ranger.",
+  'Doublon': "Même pièce qu'un autre mail : une seule ligne suffit.",
+  'Sans intérêt': "Publicité, code de connexion ou notification."
+};
+var LIB = {
+  'Suivi RJ': '💶 À payer — nouvelle ligne à ajouter au fichier RJ',
+  'Déjà au suivi RJ': '💶 À payer — déjà dans le fichier RJ',
+  'Créance antérieure': '⛔ Ne pas payer — facture d\'avant le jugement',
+  'À vérifier': '❓ Je ne peux pas trancher — à vérifier par vous',
+  'Action à faire': '✍️ À traiter : répondre, appeler ou signer',
+  'Prestataire à payer': '💶 À payer — prestataire (abonnement, maintenance…)',
+  'Information': 'ℹ️ Rien à faire — simple information',
+  'Doublon': '🔁 Doublon — rien à faire',
+  'Sans intérêt': '🗑️ Sans intérêt — publicité ou notification'
+};
+var FAIRE = {
+  'Suivi RJ': "Cette facture n'est pas encore dans votre fichier RJ. Si vous appuyez sur « D'accord », je la mets dans la liste « Paiements RJ » (onglet en haut) : c'est la liste des virements à faire valider par l'administrateur. Ensuite c'est vous qui faites le virement, puis vous envoyez la preuve avec « Répondre ».",
+  'Déjà au suivi RJ': "Cette facture est déjà dans votre fichier RJ : rien à ajouter. Il reste seulement à faire le virement prévu (si ce n'est pas fait), puis à envoyer la preuve.",
+  'Créance antérieure': "Ne pas payer. Cette facture date d'avant le jugement : elle se déclare au mandataire judiciaire. Vous pouvez répondre au fournisseur avec le texte rapide « Facture antérieure ».",
+  'À vérifier': "Il me manque une information (souvent dans la pièce jointe : date ou montant). Ouvrez « Voir le mail », regardez, puis choisissez la bonne décision avec « Changer / noter ».",
+  'Action à faire': "Il faut répondre ou agir. Utilisez « Répondre » (un texte est parfois déjà prêt).",
+  'Prestataire à payer': "Facture d'un prestataire à régler, hors laboratoires.",
+  'Information': "Rien à faire. Appuyez sur « D'accord » pour la classer.",
+  'Doublon': "Le même document est déjà dans une autre fiche. Appuyez sur « D'accord ».",
+  'Sans intérêt': "Rien à faire. Appuyez sur « D'accord »."
+};
+function lib(d){ return LIB[d] || d; }
+function rang(f){ var pp = Number(f['Priorité Pierre']); if (pp >= 1 && pp <= 3) return pp - 10; var r = ORDRE[f['Priorité']]; return r === undefined ? 9 : r; }
+
+try { var j = JSON.parse(localStorage.getItem('triRJ_jeton') || 'null'); if (j && j.exp > Date.now()) JETON = j.v; } catch(e) {}
+if (JETON) { demarrer(); }
+
+document.getElementById('code').addEventListener('keyup', function(e){ if (e.key === 'Enter') connexion(); });
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+var EMBED = (function(){ try { return window.self !== window.top; } catch(e) { return true; } })();
+if (EMBED) { document.body ? document.body.classList.add('embed') : document.addEventListener('DOMContentLoaded', function(){ document.body.classList.add('embed'); }); }
+/* Pilotage (fenêtre parente, même site) est prévenu à chaque mise à jour des fiches ou des paiements */
+function notifierParent(){ try { if (EMBED && window.parent && window.parent.crDepuisCadre) window.parent.crDepuisCadre({ fiches: FICHES, treso: TRESO }); } catch(e) {} }
+var API = 'https://script.google.com/macros/s/AKfycbxaL37ZTZwlNcn9G5Cf_BjdiQkJ4rgpxpskiJ3TkNgqfmWMcFzrLI-sSedImWCBj_E/exec';
+function appel(fn, args, ok, ko){
+  var echec = function(msg){
+    if (msg.indexOf('SESSION_EXPIREE') >= 0) { deconnexion('Session expirée : entrez à nouveau votre code.'); return; }
+    if (ko) ko(msg); else alert(msg);
+  };
+  var essai = function(n){
+    var ctrl = window.AbortController ? new AbortController() : null;
+    var minuterie = ctrl ? setTimeout(function(){ ctrl.abort(); }, 45000) : null;
+    fetch(API + '?t=' + Date.now(), { method: 'POST', cache: 'no-store', signal: ctrl ? ctrl.signal : undefined,
+        body: JSON.stringify({ fn: fn, args: args }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } })
+      .then(function(r){ return r.json(); })
+      .then(function(r){ clearTimeout(minuterie); if (r.ok) { if (ok) ok(r.data); } else echec(r.erreur || 'Erreur inconnue'); })
+      .catch(function(){ clearTimeout(minuterie); if (n < 1) essai(n + 1); else echec('Connexion impossible. Vérifiez le réseau puis réessayez.'); });
+  };
+  essai(0);
+}
+
+function connexion(){
+  // clavier AZERTY d'ordinateur : la rangée du haut sans Maj donne & é " ' ( - è _ ç à au lieu de 1 2 3 4 5 6 7 8 9 0
+  var azerty = { '&': '1', 'é': '2', '"': '3', "'": '4', '(': '5', '-': '6', 'è': '7', '_': '8', 'ç': '9', 'à': '0' };
+  var code = document.getElementById('code').value.replace(/\s/g, '').replace(/[&é"'(\-è_çà]/g, function(c){ return azerty[c]; });
+  document.getElementById('errConn').textContent = code ? 'Connexion…' : 'Tapez le code.';
+  if (!code) return;
+  appel('mob_connexion', [code], function(j){
+    JETON = j; try { localStorage.setItem('triRJ_jeton', JSON.stringify({ v: j, exp: Date.now() + 5.5*3600*1000 })); } catch(e) {}
+    demarrer();
+  }, function(m){ document.getElementById('errConn').textContent = m; });
+}
+
+function deconnexion(msg){
+  JETON = null; try { localStorage.removeItem('triRJ_jeton'); } catch(e) {}
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('connexion').style.display = 'block';
+  document.getElementById('errConn').textContent = msg || '';
+}
+
+function demarrer(){
+  document.getElementById('connexion').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  charger();
+}
+
+function charger(){
+  appel('mob_liste', [JETON], function(r){
+    FICHES = r.fiches; DECISIONS = r.decisions;
+    FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
+    afficher();
+    // le suivi RJ sert aussi à repérer les doublons (relance d'une facture déjà comptée)
+    if (!TRESO) appel('mob_tresorerie', [JETON], function(t){ TRESO = t; afficher(); }, function(){});
+  });
+}
+
+/* ---------- Doublons : une relance ou un renvoi d'une facture déjà comptée ---------- */
+function refsDe(texte){
+  var t = String(texte || '').toUpperCase().match(/[A-Z0-9][A-Z0-9-]{4,}/g) || [];
+  return t.filter(function(x){ return (x.match(/\d/g) || []).length >= 5; })
+    .map(function(x){ return x.replace(/^0+/, ''); })
+    .filter(function(x, i, a){ return x.length >= 5 && a.indexOf(x) === i; });
+}
+var CODES_ = null, CODES_N = -1;
+function codesClients(){
+  if (CODES_ && CODES_N === FICHES.length) return Object.assign({}, CODES_);
+  var c = {}, re = /(?:client|compte|code|cc)(?:[^A-Za-z0-9]{1,6}(?:client|compte|n°|no|numéro|num))*[^A-Za-z0-9]{0,8}([A-Z0-9][A-Z0-9-]{4,}(?:\s*[–\/-]\s*[A-Z0-9][A-Z0-9-]{4,})?)/gi, m;
+  var textes = FICHES.map(function(g){ return [g['Références'], g['Objet'], g['Résumé'], g['Note de Claude'], g['Tiers']].join(' \n '); });
+  ((TRESO && TRESO.lignes) || []).forEach(function(l){ textes.push(l.refs + ' \n ' + (l.commentaire || '')); });
+  textes.forEach(function(t){ while ((m = re.exec(t))) refsDe(m[1]).forEach(function(r){ c[r] = 1; }); });
+  CODES_ = c; CODES_N = FICHES.length;
+  return Object.assign({}, c);
+}
+function tiersProche(a, b){
+  var n = function(x){ return String(x || '').toUpperCase().normalize('NFD').replace(/[^A-Z]/g, ''); };
+  a = n(a); b = n(b);
+  return !!a && !!b && (a.indexOf(b.slice(0, 5)) >= 0 || b.indexOf(a.slice(0, 5)) >= 0);
+}
+function doublons(f){
+  var sources = [];
+  ((TRESO && TRESO.lignes) || []).forEach(function(l){
+    sources.push({ quoi: 'au suivi RJ : ' + l.tiers + ' — ' + l.refs + (l.montantTTC != null ? ' (' + eur(l.montantTTC) + ')' : ''), tiers: l.tiers, refs: l.refs, montant: l.montantTTC, suivi: true });
+  });
+  FICHES.forEach(function(g){
+    if (g === f) return;
+    if (String(g['Date mail']) > String(f['Date mail'])) return;   // la pièce la plus ancienne reste la référence ; la relance est le doublon
+    if (g['Statut'] !== 'À valider' && ['Suivi RJ', 'Déjà au suivi RJ'].indexOf(g['Décision finale']) < 0) return;   // fiche traitée sans inscription : rien de compté
+    sources.push({ quoi: 'fiche du ' + g['Date mail'] + ' : ' + g['Tiers'] + ' — ' + g['Type'] + (g['Statut'] !== 'À valider' ? ' (' + g['Statut'] + ')' : ''), tiers: g['Tiers'], refs: g['Références'] + ' ' + g['Objet'], montant: nb(g['Montant TTC']), suivi: false });
+  });
+  // un n° de client ou de compte est commun à toutes les factures d'un labo : il ne prouve rien
+  var codes = codesClients();
+  refsDe(f['Tiers']).forEach(function(r){ codes[r] = 1; });
+  var sansCodes = function(t){ return refsDe(t).filter(function(r){ return !codes[r]; }); };
+  var mesRefs = sansCodes(f['Références'] + ' ' + f['Objet']);
+  var monMontant = nb(f['Montant TTC']);
+  var res = [];
+  sources.forEach(function(s){
+    var leurs = sansCodes(s.refs).filter(function(r){ return refsDe(s.tiers).indexOf(r) < 0; });
+    var communes = leurs.filter(function(r){ return mesRefs.indexOf(r) >= 0; });
+    // deux pièces qui partagent un numéro mais ont chacune leur propre n° de facture : ce sont deux factures différentes
+    if (communes.length && mesRefs.some(function(r){ return communes.indexOf(r) < 0; }) && leurs.some(function(r){ return communes.indexOf(r) < 0; })) communes = [];
+    var memeMontant = monMontant != null && s.montant != null && monMontant === s.montant && tiersProche(f['Tiers'], s.tiers);
+    if (communes.length || memeMontant) res.push({ quoi: s.quoi, suivi: s.suivi, pourquoi: communes.length ? 'même référence ' + communes.join(', ') : 'même montant ' + eur(monMontant) });
+  });
+  return res;
+}
+
+function vue(v){
+  document.getElementById('vMail').style.display = v === 'mail' ? '' : 'none';
+  document.getElementById('vRJ').style.display = v === 'rj' ? '' : 'none';
+  document.getElementById('vCR').style.display = v === 'cr' ? '' : 'none';
+  document.getElementById('oCR').className = v === 'cr' ? 'actif' : '';
+  if (v === 'cr') chargerCourriers();
+  document.getElementById('oMail').className = v === 'mail' ? 'actif' : '';
+  document.getElementById('oRJ').className = v === 'rj' ? 'actif' : '';
+  if (v === 'rj') chargerTreso();
+}
+
+function afficher(){
+  var nb = function(s){ return FICHES.filter(function(f){ return s === 'Traités' ? f['Statut'] !== 'À valider' : f['Statut'] === s; }).length; };
+  var choix = ['À valider', 'Traités'];
+  document.getElementById('filtres').innerHTML = choix.map(function(c){
+    return '<button class="' + (c === FILTRE ? 'actif' : '') + '" onclick="FILTRE=\'' + c + '\';afficher()">' + c + ' (' + nb(c) + ')</button>';
+  }).join('');
+  var l = FICHES.filter(function(f){ return FILTRE === 'Traités' ? f['Statut'] !== 'À valider' : f['Statut'] === FILTRE; });
+  if (ECRAN_PC && RECHERCHE) {
+    var q = RECHERCHE.toLowerCase();
+    l = l.filter(function(f){ return [f['Tiers'], f['Références'], f['Objet'], f['Type'], f['Montant TTC'], f['Note de Claude']].join(' ').toLowerCase().indexOf(q) >= 0; });
+  }
+  VISIBLES = l; notifierParent();
+  if (!l.length) { document.getElementById('liste').innerHTML = (ECRAN_PC ? barrePC() : '') + '<div class="vide">' + (RECHERCHE ? 'Aucune fiche ne correspond à « ' + esc(RECHERCHE) + ' ».' : FILTRE === 'À valider' ? '✅ Tout est traité pour ce lot.' : 'Aucune fiche traitée.') + '</div>'; return; }
+  if (!ECRAN_PC) { document.getElementById('liste').innerHTML = l.map(carte).join(''); return; }
+  var pos = l.map(function(f){ return f['ID']; }).indexOf(SEL);
+  if (pos < 0) { pos = Math.min(POS_SEL, l.length - 1); SEL = l[pos]['ID']; }   // après une décision : la fiche suivante
+  POS_SEL = pos;
+  document.getElementById('liste').innerHTML = '<div class="maitre">' + barrePC() + '<div class="lignes">' + l.map(lignePC).join('') + '</div></div>' +
+    '<div class="detail" id="detail">' + carte(trouver(SEL)) + '</div>';
+  var actif = document.querySelector('.lignePC.sel'); if (actif && actif.scrollIntoViewIfNeeded) actif.scrollIntoViewIfNeeded(false);
+}
+
+/* ---------- Version ordinateur : liste à gauche, fiche à droite, raccourcis clavier ---------- */
+var ECRAN_PC = window.matchMedia('(min-width:1100px)').matches, SEL = null, POS_SEL = 0, RECHERCHE = '', VISIBLES = [];
+window.matchMedia('(min-width:1100px)').addEventListener('change', function(e){
+  ECRAN_PC = e.matches; document.body.classList.toggle('pc', ECRAN_PC);
+  if (FICHES) afficher(); if (TRESO && document.getElementById('vRJ').style.display !== 'none') afficherTreso();
+});
+document.addEventListener('DOMContentLoaded', function(){ document.body.classList.toggle('pc', ECRAN_PC); });
+document.body && document.body.classList.toggle('pc', ECRAN_PC);
+function barrePC(){
+  return '<div class="barrePC"><input id="recherche" type="search" placeholder="🔎 Rechercher (labo, n° de facture, montant…)" value="' + esc(RECHERCHE) + '" oninput="RECHERCHE=this.value;afficher();var r=document.getElementById(\'recherche\');r.focus();r.setSelectionRange(r.value.length,r.value.length)">' +
+    '<div class="meta raccourcis">Clavier : <kbd>↑</kbd><kbd>↓</kbd> naviguer · <kbd>A</kbd> d\'accord · <kbd>C</kbd> changer · <kbd>M</kbd> voir le mail · <kbd>R</kbd> répondre · <kbd>G</kbd> ranger · <kbd>S</kbd> supprimer · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> priorité</div></div>';
+}
+function lignePC(f){
+  var d = f['Statut'] === 'À valider' ? doublons(f) : [];
+  return '<div class="lignePC' + (f['ID'] === SEL ? ' sel' : '') + '" onclick="choisir(\'' + esc(f['ID']) + '\')">' +
+    '<div class="lp1">' + (f['Priorité Pierre'] ? '<span class="badge pp-b">N° ' + esc(f['Priorité Pierre']) + '</span>' : '') +
+      '<span class="badge p-' + esc(f['Priorité']) + '">' + esc(f['Priorité']) + '</span>' +
+      '<span class="tiers">' + esc(f['Tiers']) + '</span>' + (d.length ? ' <span title="Doublon possible">♊</span>' : '') +
+      '<span class="montant">' + esc(String(f['Montant TTC'] || '').replace(/\s*\[ILLISIBLE\]/, '').replace('(dans la pièce jointe)', '📎 PDF')) + '</span>' + boutonCorbeille(f) + '</div>' +
+    '<div class="meta">' + esc(f['Type']) + ' · ' + esc(f['Date mail']) + ' · ' + esc(lib(f['Décision proposée'] || '')).replace(/<[^>]+>/g, '') +
+      (f['Statut'] !== 'À valider' ? ' · <b>' + esc(f['Statut']) + '</b>' : '') + '</div></div>';
+}
+function choisir(id){ SEL = id; afficher(); }
+document.addEventListener('keydown', function(e){
+  if (!ECRAN_PC || document.getElementById('vMail').style.display === 'none') return;
+  if (document.getElementById('modal').style.display === 'block') { if (e.key === 'Escape') fermer(); return; }
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable || e.ctrlKey || e.metaKey || e.altKey) return;
+  var i = VISIBLES.map(function(f){ return f['ID']; }).indexOf(SEL), f = trouver(SEL), k = e.key.toLowerCase();
+  if (k === 'arrowdown' || k === 'j') { if (i < VISIBLES.length - 1) choisir(VISIBLES[i + 1]['ID']); e.preventDefault(); }
+  else if (k === 'arrowup' || k === 'k') { if (i > 0) choisir(VISIBLES[i - 1]['ID']); e.preventDefault(); }
+  else if (!f) return;
+  else if (k === 'a' && f['Statut'] === 'À valider') decider(SEL, 'Validé');
+  else if (k === 'c' && f['Statut'] === 'À valider') corriger(SEL);
+  else if (k === 'm') voirMail(SEL);
+  else if (k === 'r') repondre(SEL);
+  else if (k === 'g' && !/^C-/.test(SEL) && (!f['Date application'] || /^↩/.test(f['Date application']))) ranger(SEL);
+  else if ((k === 's' || e.key === 'Delete') && !/^C-/.test(SEL) && !/^🗑/.test(f['Date application'] || '')) supprimerMail(SEL);
+  else if (/^[123]$/.test(k) && f['Statut'] === 'À valider') priorite(SEL, k);
+  else if (k === '/') { var r = document.getElementById('recherche'); if (r) { r.focus(); e.preventDefault(); } }
+});
+
+function carte(f){
+  var id = esc(f['ID']);
+  var etiq = f['Étiquette actuelle'] && f['Étiquette actuelle'] !== '(aucune)' && f['Étiquette actuelle'] !== f['Étiquette proposée']
+    ? '<div class="meta">Étiquette actuelle : ' + esc(f['Étiquette actuelle']) + '</div>' : '';
+  var traite = f['Statut'] !== 'À valider';
+  return '<div class="carte">' +
+    '<div class="ligne1"><div>' + (f['Priorité Pierre'] ? '<span class="badge pp-b">N° ' + esc(f['Priorité Pierre']) + '</span>' : '') + '<span class="badge p-' + esc(f['Priorité']) + '">' + esc(f['Priorité']) + '</span><span class="tiers">' + esc(f['Tiers']) + '</span>' +
+      '<div class="meta">' + esc(f['Type']) + ' · reçu le ' + esc(f['Date mail']) + (f['Références'] ? ' · ' + esc(f['Références']) : '') + '</div></div>' +
+      '<div class="montant">' + esc(f['Montant TTC']) + boutonCorbeille(f) + '</div></div>' +
+    '<div class="decision">Ma proposition : <b>' + esc(lib(f['Décision proposée'])) + '</b>' +
+      (FAIRE[f['Décision proposée']] ? '<div class="meta">👉 ' + esc(FAIRE[f['Décision proposée']]) + '</div>' : '') +
+      '<div class="meta">Étiquette Gmail proposée : ' + esc(f['Étiquette proposée']) + '</div>' + etiq + '</div>' +
+    (f['Vérification'] ? '<div class="verif">🔎 <b>Déjà payé ?</b> ' + esc(f['Vérification']) + '</div>' : '') +
+    '<div class="note">' + esc(f['Note de Claude']) + '</div>' +
+    '<details><summary>Résumé du mail</summary><p>' + esc(f['Résumé']) + '</p>' +
+      (f['Déjà fait'] ? '<p><b>Déjà fait :</b> ' + esc(f['Déjà fait']) + '</p>' : '') +
+      '<p><b>Antériorité :</b> ' + esc(f['Antériorité']) + (f['Date pièce'] ? ' · pièce du ' + esc(f['Date pièce']) : '') + '</p></details>' +
+    (f['Incertitudes'] ? '<div class="incert">⚠️ ' + esc(f['Incertitudes']) + '</div>' : '') +
+    (!traite && (function(){ var d = doublons(f); return d.length ? '<div class="doublon">♊ <b>Doublon possible</b> — ' + (d.some(function(x){ return x.suivi; }) ? 'déjà compté au suivi RJ, ne pas l\'ajouter une 2e fois' : 'même pièce qu\'une autre fiche : n\'en valider qu\'une') + ' :<br>' +
+      d.slice(0, 4).map(function(x){ return '• ' + esc(x.quoi) + ' <span class="meta">(' + esc(x.pourquoi) + ')</span>'; }).join('<br>') + '</div>' : ''; })() || '') +
+    (f['Date application'] ? (/^↩/.test(f['Date application'])
+        ? '<div class="meta">' + esc(f['Date application']) + '</div>'
+        : /^🗑/.test(f['Date application'])
+        ? '<div class="meta">' + esc(f['Date application']) + ' (récupérable 30 jours) · <a href="#" onclick="restaurer(\'' + id + '\');return false">↩ restaurer</a></div>'
+        : '<div class="meta">🗂 Rangé dans « ' + esc(f['Étiquette finale']) + ' » le ' + esc(f['Date application']) + ' (sorti de la boîte de réception) · ' +
+          '<a href="#" onclick="desranger(\'' + id + '\');return false">↩ remettre en boîte de réception</a></div>') : '') +
+    (f['Réponse envoyée'] ? (/^⏰/.test(f['Réponse envoyée'])
+        ? '<div class="meta">' + esc(f['Réponse envoyée']) + ' <a href="#" onclick="annulerEnvoi(\'' + id + '\');return false">annuler l\'envoi</a></div>'
+        : '<div class="meta">✉️ Réponse : ' + esc(f['Réponse envoyée']) + '</div>') : '') +
+    (traite ? '<div class="statut st-' + esc(f['Statut']) + '">' + esc(f['Statut']) + (f['Décision finale'] ? ' → ' + esc(lib(f['Décision finale'])) : '') +
+      (f['Commentaire Pierre'] ? ' · « ' + esc(f['Commentaire Pierre']) + ' »' : '') + ' (' + esc(f['Date validation']) + ')</div>' : '') +
+    (traite ? '' : '<div class="prio">Ma priorité : ' + ['1', '2', '3'].map(function(n){
+        return '<button class="pp' + (f['Priorité Pierre'] === n ? ' on' : '') + '" onclick="priorite(\'' + id + '\',\'' + n + '\')">' + n + '</button>'; }).join('') +
+      (f['Priorité Pierre'] ? '<a href="#" onclick="priorite(\'' + id + '\',\'\');return false">retirer</a>' : '') + '</div>') +
+    '<div class="actions">' +
+      '<button class="b-voir" onclick="voirMail(\'' + id + '\')">' + (/^C-/.test(f['ID']) ? '📮 Voir le courrier' : '📄 Voir le mail') + '</button>' +
+      '<button class="b-voir" onclick="repondre(\'' + id + '\')">✉️ Répondre' + (f['Réponse proposée'] ? ' (texte prêt)' : '') + '</button>' +
+      (/^C-/.test(f['ID']) || (f['Date application'] && !/^↩/.test(f['Date application'])) ? '' : '<button class="b-voir" onclick="ranger(\'' + id + '\')">🗂 Ranger</button>') +
+      (/^C-/.test(f['ID']) || /^🗑/.test(f['Date application'] || '') ? '' : '<button class="b-voir" onclick="supprimerMail(\'' + id + '\')">🗑 Supprimer</button>') +
+      (traite
+        ? '<button class="b-corr" onclick="decider(\'' + id + '\',\'À valider\')">↩︎ Annuler ma décision</button>'
+        : '<button class="b-ok" onclick="decider(\'' + id + '\',\'Validé\')">✓ D\'accord</button>' +
+          '<button class="b-corr" onclick="corriger(\'' + id + '\')">✎ Changer / noter</button>') +
+    '</div></div>';
+}
+
+/* ---------- Ranger un mail dans l'étiquette de son laboratoire (sort de la boîte de réception, lu / non lu inchangé) ---------- */
+var ETIQUETTES = null;
+function ranger(id){
+  var f = trouver(id);
+  document.getElementById('mTitre').textContent = 'Ranger — ' + f['Tiers'];
+  document.getElementById('mCorps').innerHTML = '<div class="chargement">Recherche de l\'étiquette…</div>';
+  ouvrir();
+  var suite = function(prop){
+    document.getElementById('mCorps').innerHTML =
+      '<p class="meta">Le mail sera rangé dans cette étiquette et sortira de la boîte de réception. Son statut lu / non lu ne change pas. Rien n\'est supprimé.</p>' +
+      '<div class="champ"><label>Étiquette' + (prop ? ' (proposée)' : ' — aucune trouvée automatiquement, choisissez-la') + '</label>' +
+      '<input id="rgE" list="rgL" value="' + esc(prop || '') + '" placeholder="ex. LABORATOIRES/ABBVIE"><datalist id="rgL">' +
+      (ETIQUETTES || []).map(function(e){ return '<option value="' + esc(e) + '">'; }).join('') + '</datalist>' +
+      '<div class="meta">Tapez quelques lettres du laboratoire pour voir la liste. Une étiquette qui n\'existe pas sera créée.</div></div>' +
+      '<div id="rgErr" class="erreur"></div>' +
+      '<div class="actions"><button class="btn b-voir" onclick="fermer()">Annuler</button><button id="rgOk" class="btn b-ok" onclick="confirmerRanger(\'' + esc(id) + '\')">🗂 Ranger maintenant</button></div>';
+  };
+  var prop = null, fini = 0;
+  var etape = function(){ if (++fini === 2) suite(prop); };
+  appel('mob_etiquettePourFiche', [JETON, id], function(r){ prop = r.proposee; etape(); }, function(){ etape(); });
+  if (ETIQUETTES) etape(); else appel('mob_etiquettes', [JETON], function(l){ ETIQUETTES = l; etape(); }, function(m){ ETIQUETTES = []; etape(); });
+}
+function confirmerRanger(id){
+  var e = document.getElementById('rgE').value.trim(), b = document.getElementById('rgOk'), err = document.getElementById('rgErr');
+  if (!e) { err.textContent = 'Choisissez une étiquette.'; return; }
+  if (ETIQUETTES && ETIQUETTES.indexOf(e) < 0 && !confirm('L\'étiquette « ' + e + ' » n\'existe pas encore : la créer ?')) return;
+  b.disabled = true; b.textContent = 'Rangement…';
+  appel('mob_ranger', [JETON, id, e], function(r){
+    var f = trouver(id); f['Étiquette finale'] = r.etiquette; f['Date application'] = r.date;
+    if (ETIQUETTES && ETIQUETTES.indexOf(e) < 0) ETIQUETTES.push(e);
+    fermer(); afficher();
+  }, function(m){
+    err.textContent = /403|insufficient|scope|autoris/i.test(m) ? 'Le rangement n\'est pas encore autorisé par Google (autorisation à accepter dans l\'éditeur Apps Script).' : m;
+    b.disabled = false; b.textContent = '🗂 Réessayer';
+  });
+}
+
+function boutonCorbeille(f){
+  if (/^C-/.test(f['ID']) || /^🗑/.test(f['Date application'] || '')) return '';
+  return '<button class="corb" title="Supprimer ce mail (corbeille, récupérable 30 jours)" onclick="event.stopPropagation();supprimerMail(\'' + esc(f['ID']) + '\')">🗑</button>';
+}
+function supprimerMail(id){
+  var f = trouver(id);
+  if (!confirm('Mettre ce mail à la corbeille, sans étiquette ?\n« ' + (f['Objet'] || f['Tiers'] || '') + ' »\n\nIl reste récupérable 30 jours dans la Corbeille de Gmail (bouton « ↩ restaurer » sur la fiche).')) return;
+  appel('mob_corbeille', [JETON, id], function(r){ f['Date application'] = r.note; afficher(); }, function(m){ alert('Non effectué : ' + m); });
+}
+function restaurer(id){
+  var f = trouver(id);
+  appel('mob_restaurer', [JETON, id], function(r){ f['Date application'] = r.note; afficher(); }, function(m){ alert('Non effectué : ' + m); });
+}
+function desranger(id){
+  var f = trouver(id);
+  if (!confirm('Remettre ce mail dans la boîte de réception ?\nL\'étiquette « ' + (f['Étiquette finale'] || '') + ' » sera retirée ; son statut lu / non lu ne change pas. Il ne sera plus rangé automatiquement.')) return;
+  appel('mob_desranger', [JETON, id], function(r){ f['Date application'] = r.note; afficher(); }, function(m){ alert('Non effectué : ' + m); });
+}
+
+function priorite(id, n){
+  var f = trouver(id), avant = f['Priorité Pierre'] || '';
+  f['Priorité Pierre'] = (avant === n ? '' : n);
+  FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
+  afficher();
+  appel('mob_priorite', [JETON, id, f['Priorité Pierre']], function(){}, function(m){ f['Priorité Pierre'] = avant; afficher(); alert('Priorité non enregistrée : ' + m); });
+}
+function trouver(id){ return FICHES.filter(function(f){ return f['ID'] === id; })[0]; }
+
+function decider(id, statut, decision, etiquette, commentaire){
+  var fd = trouver(id);
+  if (fd && statut === 'Validé' && (decision || fd['Décision proposée']) === 'Suivi RJ') {
+    var dd = doublons(fd).filter(function(x){ return x.suivi; });
+    if (dd.length && !confirm('Attention : cette pièce semble déjà comptée ' + dd[0].quoi + ' (' + dd[0].pourquoi + ').\n\nL\'ajouter quand même au suivi RJ ?')) return;
+  }
+  appel('mob_decider', [JETON, id, statut, decision || '', etiquette || '', commentaire || ''], function(r){
+    var f = trouver(id);
+    f['Statut'] = r.statut; f['Décision finale'] = r.finale; f['Étiquette finale'] = r.etiquette;
+    f['Commentaire Pierre'] = commentaire || ''; f['Date validation'] = r.statut === 'À valider' ? '' : 'à l\'instant';
+    fermer(); afficher();
+  });
+}
+
+function refuser(id){
+  var f = trouver(id);
+  document.getElementById('mTitre').textContent = 'Refuser — ' + f['Tiers'];
+  document.getElementById('mCorps').innerHTML =
+    '<div class="champ"><label>Pourquoi ? (facultatif)</label><textarea id="rCom" rows="3"></textarea></div>' +
+    '<button class="btn b-non" style="width:100%" onclick="decider(\'' + esc(id) + '\',\'Refusé\',\'\',\'\',document.getElementById(\'rCom\').value)">Refuser la proposition</button>';
+  ouvrir();
+}
+
+function corriger(id){
+  var f = trouver(id);
+  document.getElementById('mTitre').textContent = 'Changer la décision ou ajouter une note — ' + f['Tiers'];
+  document.getElementById('mCorps').innerHTML =
+    '<p class="meta">Choisissez la bonne décision si ma proposition est fausse, et/ou écrivez une note. Rien n\'est envoyé ni modifié dans Gmail.</p><div class="champ"><label>Décision</label><select id="cDec">' + DECISIONS.map(function(d){
+      return '<option value="' + esc(d) + '"' + (d === f['Décision proposée'] ? ' selected' : '') + '>' + esc(lib(d)) + '</option>'; }).join('') + '</select></div>' +
+    '<div class="champ"><label>Étiquette Gmail</label><input id="cEtiq" value="' + esc(f['Étiquette proposée']) + '"></div>' +
+    '<div class="champ"><label>Votre note (ex. « déjà payé le 08/10 », montant à virer, consigne…)</label><textarea id="cCom" rows="3"></textarea></div>' +
+    '<button class="btn b-ok" style="width:100%" onclick="decider(\'' + esc(id) + '\',\'Corrigé\',document.getElementById(\'cDec\').value,document.getElementById(\'cEtiq\').value,document.getElementById(\'cCom\').value)">Enregistrer</button>';
+  ouvrir();
+}
+
+/* ---------- Répondre depuis le téléphone ---------- */
+var MODELES = {
+  'Preuve de virement': "Bonjour,\nci-joint la preuve de virement. Merci de libérer la commande s'il vous plaît.",
+  'Demande de RIB': "Bonjour,\npourriez-vous me transmettre votre RIB s'il vous plaît afin de régler cette facture.",
+  'Demande de relevé': "Bonjour,\npourriez-vous m'envoyer le relevé à jour de notre compte client, avec le détail des factures (numéro, date, montant) et des règlements déjà reçus, s'il vous plaît.",
+  'Facture antérieure': "Bonjour,\nla pharmacie est en redressement judiciaire. Les factures antérieures au jugement ne peuvent pas être réglées directement : elles doivent être déclarées auprès du mandataire judiciaire."
+};
+var REP = null;
+var MAX_PJ = 9 * 1024 * 1024;
+
+function repondre(id){
+  var f = trouver(id);
+  MAIL_ID = id;
+  document.getElementById('mTitre').textContent = 'Répondre — ' + f['Tiers'];
+  document.getElementById('mCorps').innerHTML = '<div class="chargement">Préparation de la réponse…</div>';
+  ouvrir();
+  appel('mob_brouillon', [JETON, id], function(b){
+    REP = { id: id, a: b.a, o: b.objet, t: b.proposition || '', pjs: [], de: b.de, date: b.date, prog: false, quand: '' };
+    afficherReponse();
+  }, function(m){ document.getElementById('mCorps').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
+
+function afficherReponse(){
+  var h = '<p class="meta">Réponse au message de ' + esc(REP.de) + ' du ' + esc(REP.date) + '.</p>' +
+    '<div class="champ"><label>À</label><input id="rA" value="' + esc(REP.a) + '"></div>' +
+    '<div class="champ"><label>Objet</label><input id="rO" value="' + esc(REP.o) + '"></div>' +
+    '<div class="champ"><label>Textes rapides (s\'ajoutent au message)</label><div>' +
+      Object.keys(MODELES).map(function(k){ return '<button class="pj" onclick="modele(\'' + k.replace(/'/g, "\\'") + '\')">' + esc(k) + '</button>'; }).join('') + '</div></div>' +
+    '<div class="champ"><label>Message' + (REP.t ? ' (texte préparé par Claude, à modifier si besoin)' : '') + '</label><textarea id="rT" rows="8">' + esc(REP.t) + '</textarea></div>' +
+    '<div class="champ"><label>Pièces jointes (PDF ou photo, 9 Mo maximum au total)</label>' +
+      '<input id="rF" type="file" multiple accept="application/pdf,image/*" onchange="ajouterPJ(this)"><div id="rL"></div></div>' +
+    '<div class="champ"><label>Quand l\'envoyer ?</label>' +
+      '<label style="display:block;color:inherit;font-size:15px"><input type="radio" name="rQ" value="0"' + (REP.prog ? '' : ' checked') + ' onchange="choixEnvoi(false)"> Tout de suite</label>' +
+      '<label style="display:block;color:inherit;font-size:15px"><input type="radio" name="rQ" value="1"' + (REP.prog ? ' checked' : '') + ' onchange="choixEnvoi(true)"> À une date et une heure précises</label>' +
+      '<div id="rProg" style="display:' + (REP.prog ? 'block' : 'none') + ';margin-top:6px">' +
+        '<input id="rD" type="datetime-local" value="' + esc(REP.quand) + '">' +
+        '<div style="margin-top:4px"><button class="pj" onclick="raccourci(1)">Demain 9h</button><button class="pj" onclick="raccourci(2)">Lundi 9h</button><button class="pj" onclick="raccourci(3)">Ce soir 18h</button></div>' +
+        '<p class="meta">Le mail est enregistré dans vos Brouillons Gmail et part automatiquement à l\'heure choisie (à 5 minutes près). Supprimer ce brouillon dans Gmail annule l\'envoi.</p>' +
+      '</div></div>' +
+    '<p class="meta">Votre signature est ajoutée automatiquement, avec le message d\'origine en dessous. Le mail reçu garde son état lu / non lu.</p>' +
+    '<div id="rErr" class="erreur"></div>' +
+    '<button class="btn b-ok" style="width:100%" onclick="verifierEnvoi()">Vérifier avant d\'envoyer</button>';
+  document.getElementById('mCorps').innerHTML = h;
+  listePJ();
+}
+
+function lireChamps(){
+  if (!document.getElementById('rA')) return;
+  REP.a = document.getElementById('rA').value.trim();
+  REP.o = document.getElementById('rO').value.trim();
+  REP.t = document.getElementById('rT').value;
+  REP.quand = document.getElementById('rD') ? document.getElementById('rD').value : '';
+}
+
+function choixEnvoi(prog){
+  REP.prog = prog;
+  document.getElementById('rProg').style.display = prog ? 'block' : 'none';
+  if (prog && !document.getElementById('rD').value) raccourci(1);
+}
+
+function deuxChiffres(n){ return (n < 10 ? '0' : '') + n; }
+function versChamp(d){ return d.getFullYear() + '-' + deuxChiffres(d.getMonth() + 1) + '-' + deuxChiffres(d.getDate()) + 'T' + deuxChiffres(d.getHours()) + ':' + deuxChiffres(d.getMinutes()); }
+function raccourci(k){
+  var d = new Date();
+  if (k === 1) { d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0); }
+  if (k === 2) { var j = (8 - d.getDay()) % 7 || 7; d.setDate(d.getDate() + j); d.setHours(9, 0, 0, 0); }
+  if (k === 3) { d.setHours(18, 0, 0, 0); if (d.getTime() < Date.now() + 5 * 60000) d.setDate(d.getDate() + 1); }
+  document.getElementById('rD').value = versChamp(d);
+}
+function lisible(v){ var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(v || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] + ' à ' + m[4] + 'h' + m[5] : v; }
+
+function modele(k){
+  var t = document.getElementById('rT');
+  t.value = t.value.trim() ? t.value.replace(/\s+$/, '') + '\n\n' + MODELES[k] : MODELES[k];
+}
+
+function poidsPJ(){ return REP.pjs.reduce(function(s, p){ return s + Math.floor(p.b64.length * 3 / 4); }, 0); }
+
+function ajouterPJ(input){
+  var fichiers = Array.prototype.slice.call(input.files || []);
+  var err = document.getElementById('rErr'); err.textContent = '';
+  fichiers.forEach(function(fi){
+    if (poidsPJ() + fi.size > MAX_PJ) { err.textContent = fi.name + ' : trop lourd (9 Mo maximum au total).'; return; }
+    var lect = new FileReader();
+    lect.onload = function(){
+      var url = String(lect.result);
+      REP.pjs.push({ nom: fi.name, type: fi.type || 'application/octet-stream', b64: url.slice(url.indexOf(',') + 1) });
+      listePJ();
+    };
+    lect.readAsDataURL(fi);
+  });
+  input.value = '';
+}
+
+function listePJ(){
+  var z = document.getElementById('rL'); if (!z) return;
+  z.innerHTML = REP.pjs.map(function(p, i){
+    return '<div class="meta">📎 ' + esc(p.nom) + ' (' + Math.ceil(p.b64.length * 3 / 4 / 1024) + ' Ko) <a href="#" onclick="REP.pjs.splice(' + i + ',1);listePJ();return false">retirer</a></div>';
+  }).join('');
+}
+
+function annulerEnvoi(id){
+  var f = trouver(id);
+  document.getElementById('mTitre').textContent = 'Annuler l\'envoi programmé — ' + f['Tiers'];
+  document.getElementById('mCorps').innerHTML = '<p>' + esc(f['Réponse envoyée']) + '</p><p>Le brouillon sera supprimé et le mail ne partira pas.</p><div id="rErr" class="erreur"></div>' +
+    '<div class="actions"><button class="btn b-voir" onclick="fermer()">Garder l\'envoi</button><button id="rAnn" class="btn b-non" onclick="confirmerAnnulation(\'' + esc(id) + '\')">Annuler l\'envoi</button></div>';
+  ouvrir();
+}
+function confirmerAnnulation(id){
+  var b = document.getElementById('rAnn'); b.disabled = true; b.textContent = 'Annulation…';
+  appel('mob_annulerEnvoi', [JETON, id], function(){
+    trouver(id)['Réponse envoyée'] = '';
+    fermer(); afficher();
+  }, function(m){ document.getElementById('rErr').textContent = m; b.disabled = false; b.textContent = 'Annuler l\'envoi'; });
+}
+
+function verifierEnvoi(){
+  lireChamps();
+  var err = document.getElementById('rErr');
+  if (!/^[^@\s,;]+@[^@\s,;]+\.[A-Za-z]{2,}([,;]\s*[^@\s,;]+@[^@\s,;]+\.[A-Za-z]{2,})*$/.test(REP.a)) { err.textContent = 'Adresse du destinataire invalide.'; return; }
+  if (!REP.t.trim()) { err.textContent = 'Le message est vide.'; return; }
+  if (REP.prog) {
+    var dt = new Date(REP.quand);
+    if (!REP.quand || isNaN(dt.getTime())) { err.textContent = 'Choisissez la date et l\'heure d\'envoi.'; return; }
+    if (dt.getTime() < Date.now() + 2 * 60000) { err.textContent = 'La date d\'envoi doit être dans le futur.'; return; }
+  }
+  document.getElementById('mCorps').innerHTML =
+    '<p><b>Vous allez envoyer ce mail :</b></p>' +
+    '<div class="meta">À : <b>' + esc(REP.a) + '</b></div>' +
+    '<div class="meta">Objet : ' + esc(REP.o) + '</div>' +
+    '<div class="meta">Envoi : <b>' + (REP.prog ? '⏰ le ' + esc(lisible(REP.quand)) : 'tout de suite') + '</b></div>' +
+    '<pre style="white-space:pre-wrap;font-family:inherit;background:#f8f9fb;padding:10px;border-radius:8px">' + esc(REP.t) + '\n\n--\nCordialement.\nMr Pierre GOUIN…</pre>' +
+    (REP.pjs.length ? REP.pjs.map(function(p){ return '<div class="meta">📎 ' + esc(p.nom) + '</div>'; }).join('') : '<div class="meta">Aucune pièce jointe.</div>') +
+    '<div id="rErr" class="erreur"></div>' +
+    '<div class="actions"><button class="btn b-voir" onclick="afficherReponse()">← Modifier</button>' +
+    '<button id="rEnv" class="btn b-ok" onclick="envoyerReponse()">' + (REP.prog ? '⏰ Programmer l\'envoi' : '✉️ Envoyer maintenant') + '</button></div>';
+}
+
+function envoyerReponse(){
+  var b = document.getElementById('rEnv'); b.disabled = true; b.textContent = REP.prog ? 'Programmation…' : 'Envoi en cours…';
+  appel('mob_repondre', [JETON, REP.id, REP.a, REP.o, REP.t, REP.pjs, REP.prog ? REP.quand : ''], function(r){
+    var f = trouver(REP.id);
+    if (r.programme) {
+      if (f) f['Réponse envoyée'] = '⏰ Programmé pour le ' + r.quand + ' à ' + r.a;
+      afficher();
+      document.getElementById('mCorps').innerHTML = '<p>⏰ Envoi programmé pour le <b>' + esc(r.quand) + '</b> à <b>' + esc(r.a) + '</b>.</p>' +
+        '<p class="meta">Le mail attend dans vos Brouillons Gmail et partira automatiquement (à 5 minutes près). Vous pouvez l\'annuler depuis la fiche.</p>' +
+        '<button class="btn b-voir" style="width:100%" onclick="fermer();afficher()">Fermer</button>';
+      return;
+    }
+    if (f) f['Réponse envoyée'] = r.quand + ' à ' + r.a;
+    afficher();
+    document.getElementById('mCorps').innerHTML = '<p>✅ Mail envoyé à <b>' + esc(r.a) + '</b> le ' + esc(r.quand) + '.</p>' +
+      '<p class="meta">Il apparaît dans les « Messages envoyés » de Gmail. Pensez à valider la fiche si c\'est terminé.</p>' +
+      '<button class="btn b-voir" style="width:100%" onclick="fermer();afficher()">Fermer</button>';
+  }, function(m){
+    document.getElementById('rErr').textContent = 'Non envoyé : ' + m;
+    b.disabled = false; b.textContent = REP.prog ? '⏰ Réessayer' : '✉️ Réessayer';
+  });
+}
+
+/* ---------- Lecture du mail et des pièces jointes ---------- */
+var MAIL_ID = null;
+function voirMail(id){
+  if (/^C-/.test(id)) { voirCourrier(id, 0); return; }
+  MAIL_ID = id;
+  var f = trouver(id);
+  document.getElementById('mTitre').textContent = f['Tiers'] + ' — ' + f['Objet'];
+  document.getElementById('mCorps').innerHTML = '<div class="chargement">Lecture du mail…</div>';
+  ouvrir();
+  appel('mob_mail', [JETON, id], function(r){
+    var h = r.messages.map(function(m){
+      return '<div class="msg"><div class="meta"><b>' + esc(m.de) + '</b> · ' + esc(m.date) + '</div>' +
+        '<div class="meta">À : ' + esc(m.a) + '</div>' +
+        (m.pjs.length ? '<div>' + m.pjs.map(function(p){
+          return '<button class="pj" onclick="voirPJ(' + p.mi + ',' + p.ai + ')">📎 ' + esc(p.nom) + ' (' + Math.ceil(p.taille/1024) + ' Ko)</button>'; }).join('') + '</div>' : '') +
+        '<pre>' + esc(m.corps) + '</pre></div>';
+    }).join('');
+    h += '<button class="btn b-ok" style="width:100%;margin-bottom:8px" onclick="repondre(MAIL_ID)">✉️ Répondre depuis l\'application</button>';
+    if (!/^🗑/.test(f['Date application'] || '')) h += '<button class="btn b-voir" style="width:100%;margin-bottom:8px" onclick="fermer();supprimerMail(MAIL_ID)">🗑 Supprimer ce mail (corbeille, récupérable 30 jours)</button>';
+    h += '<p style="font-size:13px;color:#667085">Ou <a href="#" onclick="ouvrirGmail();return false">ouvrir dans Gmail</a> (le mail sera alors marqué comme lu).</p>';
+    document.getElementById('mCorps').innerHTML = h;
+  }, function(m){ document.getElementById('mCorps').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
+
+function ouvrirGmail(){
+  var corps = document.getElementById('mCorps');
+  corps.innerHTML = '<p>⚠️ Ouvrir ce mail dans Gmail le marquera comme <b>lu</b>.</p>' +
+    '<a class="btn b-corr" style="display:inline-block;text-decoration:none" target="_blank" href="' + esc(trouver(MAIL_ID)['Lien Gmail']) + '">Ouvrir quand même dans Gmail</a> ' +
+    '<button class="btn b-voir" onclick="voirMail(MAIL_ID)">Annuler</button>';
+}
+
+function voirPJ(mi, ai){
+  var corps = document.getElementById('mCorps');
+  corps.innerHTML = '<button class="btn b-voir" onclick="voirMail(MAIL_ID)">← Retour au mail</button><div id="pjZone" class="chargement">Chargement de la pièce jointe…</div>';
+  appel('mob_pj', [JETON, MAIL_ID, mi, ai], function(p){
+    var zone = document.getElementById('pjZone');
+    zone.className = '';
+    var bin = atob(p.b64);
+    if (/pdf/i.test(p.type) || /\.pdf$/i.test(p.nom)) {
+      var octets = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) octets[i] = bin.charCodeAt(i);
+      afficherPDF(octets, zone);
+    } else if (/^image\//i.test(p.type)) {
+      zone.innerHTML = '<img style="max-width:100%" src="data:' + esc(p.type) + ';base64,' + p.b64 + '">';
+    } else {
+      zone.innerHTML = '<p>Aperçu impossible pour ce type de fichier (' + esc(p.type) + ').</p><a class="btn b-voir" download="' + esc(p.nom) + '" href="data:' + esc(p.type) + ';base64,' + p.b64 + '">Télécharger ' + esc(p.nom) + '</a>';
+    }
+  }, function(m){ document.getElementById('pjZone').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
+
+function afficherPDF(octets, zone){
+  if (!window.pdfjsLib) { zone.innerHTML = '<div class="erreur">Lecteur PDF indisponible.</div>'; return; }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  pdfjsLib.getDocument({data: octets}).promise.then(function(doc){
+    zone.innerHTML = '<div class="meta">' + doc.numPages + ' page(s)</div>';
+    var suite = Promise.resolve();
+    for (var n = 1; n <= doc.numPages; n++) (function(n){
+      suite = suite.then(function(){ return doc.getPage(n); }).then(function(page){
+        var vp = page.getViewport({scale: 1.6});
+        var c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+        zone.appendChild(c);
+        return page.render({canvasContext: c.getContext('2d'), viewport: vp}).promise;
+      });
+    })(n);
+  }).catch(function(e){ zone.innerHTML = '<div class="erreur">Lecture du PDF impossible : ' + esc(e.message) + '</div>'; });
+}
+
+/* ---------- Onglet Paiements RJ : plan de virements ---------- */
+var TRESO = null;
+var NOMS_BANQUE = { CEBPL: "Caisse d'Épargne", BPGO: 'BPGO' };
+function eur(n){ return n == null || isNaN(n) ? '—' : n.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; }
+function nb(v){ var s = String(v == null ? '' : v).replace(/\s/g, '').replace(/€/g, ''); if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(',', '.'); else s = s.replace(/,/g, ''); var n = parseFloat(s); return isNaN(n) ? null : Math.round(n * 100) / 100; }
+
+function chargerTreso(){
+  document.getElementById('treso').innerHTML = '<div class="chargement">Chargement…</div>';
+  appel('mob_tresorerie', [JETON], function(r){ TRESO = r; afficherTreso(); facturesManquantes(false); },
+    function(m){ document.getElementById('treso').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
+
+/* Les factures manquantes sont cherchées automatiquement dans les mails d'origine (une fois par ouverture de l'application). */
+var FACT_AUTO = { fait: false, enCours: false, msg: '' };
+function facturesManquantes(force){
+  if (!TRESO || FACT_AUTO.enCours || (FACT_AUTO.fait && !force)) return;
+  if (!TRESO.lignes.some(function(x){ return x.source === 'Fichier RJ' && !x.factures; })) { FACT_AUTO.fait = true; return; }
+  FACT_AUTO.fait = true; FACT_AUTO.enCours = true; FACT_AUTO.msg = '⏳ Recherche des factures manquantes dans les mails…'; afficherTreso();
+  appel('mob_facturesAuto', [JETON], function(r){
+    r = r || {}; r.trouvees = r.trouvees || []; r.sansFacture = r.sansFacture || [];
+    FACT_AUTO.enCours = false;
+    FACT_AUTO.msg = (r.trouvees.length ? '✅ ' + r.trouvees.length + ' facture(s) retrouvée(s) et rangée(s) dans les dossiers.' : 'Aucune nouvelle facture trouvée dans les mails.') +
+      (r.sansFacture.length ? ' Sans facture : ' + r.sansFacture.length + ' dossier(s) — ajoutez-la dans le dossier (＋ 🧾 Facture).' : '');
+    if (r.trouvees.length) appel('mob_tresorerie', [JETON], function(t){ TRESO = t; afficherTreso(); }); else afficherTreso();
+  }, function(m){ FACT_AUTO.enCours = false; FACT_AUTO.msg = 'Recherche des factures impossible : ' + m; afficherTreso(); });
+}
+function soldesActualises(){ return !!(TRESO && TRESO.soldes && Object.keys(TRESO.soldes).some(function(b){ return TRESO.soldes[b] && TRESO.soldes[b].actuel != null; })); }
+function soldeDe(b){ var s = TRESO.soldes[b]; if (!s) return null; return s.actuel != null ? s.actuel : s.montant; }
+function detailSolde(b){
+  var s = TRESO.soldes[b]; if (!s || s.actuel == null) return '';
+  var d = s.depuis || { total: 0, liste: [], sansMontant: [] };
+  if (!d.liste.length && !d.sansMontant.length) return '<div class="meta">Aucun virement depuis cette saisie.</div>';
+  return '<details class="meta"><summary>Saisi ' + eur(s.saisi) + ' − ' + d.liste.length + ' virement(s) depuis : ' + eur(d.total) + '</summary>' +
+    d.liste.map(function(v){ return '<div>• ' + esc(v.tiers) + ' — ' + eur(v.montant) + ' <span class="meta">(' + esc(v.origine) + ', ' + esc(String(v.quand).slice(0, 10)) + ')</span></div>'; }).join('') +
+    (d.sansMontant.length ? '<div class="neg">Montant inconnu, non déduit : ' + d.sansMontant.map(function(v){ return esc(v.tiers); }).join(', ') + '</div>' : '') +
+    '<div>Si un de ces virements était déjà débité au moment de la saisie, mettez le solde à jour.</div></details>';
+}
+function totauxTreso(){
+  var t = { du: 0, nDu: 0, sansMontant: 0, vir: 0, nVir: 0, parBanque: { CEBPL: 0, BPGO: 0 }, duDeduit: 0 };
+  TRESO.lignes.forEach(function(l){
+    if (soldesActualises() && l.du > 0 && (l.validation || l.preuve)) t.duDeduit += l.du;   // déjà sorti du compte
+    if (l.du != null) { t.du += l.du; t.nDu++; } else t.sansMontant++;
+    if (l.choisi) {
+      var m = l.montantVir || 0;
+      // Déjà déduit du solde actualisé (virement validé, preuve envoyée ou facture soldée) : ne pas le compter deux fois.
+      var dejaDeduit = soldesActualises() && (l.validation || l.preuve || (l.du != null && l.du <= 0));
+      if (dejaDeduit) m = 0;
+      t.vir += m; t.nVir++; t.parBanque[l.banqueVir] = (t.parBanque[l.banqueVir] || 0) + m;
+    }
+  });
+  return t;
+}
+
+function afficherTreso(){
+  var t = totauxTreso();
+  var h = '<div class="rjResume"><div class="carte"><b>🏦 Soldes disponibles</b>' +
+    ['CEBPL', 'BPGO'].map(function(b){
+      var s = TRESO.soldes[b], sd = soldeDe(b);
+      var reste = sd != null ? sd - (t.parBanque[b] || 0) : null;
+      return '<div style="margin-top:8px"><div class="ligne1"><span>' + NOMS_BANQUE[b] + (s && s.actuel != null ? ' <span class="meta">(estimé maintenant)</span>' : '') + '</span><b>' + (s ? eur(sd) : 'non saisi') + '</b></div>' +
+        '<div class="meta">' + (s ? 'saisi le ' + esc(s.date) : 'Saisissez le solde du jour') + ' · <a href="#" onclick="saisirSolde(\'' + b + '\');return false">mettre à jour</a></div>' +
+        (s ? detailSolde(b) : '') +
+        (t.parBanque[b] ? '<div class="meta">Après les virements choisis : <b class="' + (reste != null && reste < 0 ? 'neg' : 'pos') + '">' + (reste == null ? '—' : eur(reste)) + '</b></div>' : '') +
+        '</div>';
+    }).join('') + (function(){
+      var mc = soldeDe('CEBPL'), mb = soldeDe('BPGO');
+      if (mc == null && mb == null) return '';
+      var tot = (mc || 0) + (mb || 0), apres = tot - t.vir;
+      return '<div class="tot" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bord)">' +
+        '<span><b>Total des deux comptes</b>' + (mc == null || mb == null ? ' <span class="meta">(un solde manque)</span>' : '') + '</span><b>' + eur(tot) + '</b>' +
+        (t.vir ? '<span>Après les virements choisis</span><b class="' + (apres < 0 ? 'neg' : 'pos') + '">' + eur(apres) + '</b>' : '') +
+        '<span>Après paiement de tout le dû</span><b class="' + (tot - t.du + t.duDeduit < 0 ? 'neg' : 'pos') + '">' + eur(tot - t.du + t.duDeduit) + '</b></div>';
+    })() + '</div>';
+  h += '<div class="carte"><div class="tot">' +
+    '<span>Total dû (' + t.nDu + ' factures)</span><b>' + eur(t.du) + '</b>' +
+    (t.sansMontant ? '<span class="meta" style="grid-column:1/3">+ ' + t.sansMontant + ' sans montant connu (en attente de facture)</span>' : '') +
+    '<span>✅ Je vire maintenant (' + t.nVir + ')</span><b class="pos">' + eur(t.vir) + '</b>' +
+    '<span>Reste dû après ces virements</span><b>' + eur(t.du - t.vir) + '</b>' +
+    '</div>' + (t.nVir ? '<button class="btn b-ok" style="width:100%;margin-top:10px" onclick="positionAdmin()">📄 Position bancaire + mail à l\'administrateur</button>' : '') + '<p class="meta" style="margin-bottom:0">Cochez les factures que vous voulez virer maintenant ; vous pouvez changer le montant (virement partiel) et la banque. Rien n\'est viré par l\'application.</p></div>' +
+    blocGroupe() +
+    '<div class="carte"><div class="meta">' + esc(FACT_AUTO.msg || 'Les factures sont rangées automatiquement dans chaque dossier depuis le mail d\'origine.') + '</div>' +
+      '<button class="btn b-voir" style="width:100%;margin-top:6px"' + (FACT_AUTO.enCours ? ' disabled' : '') + ' onclick="facturesManquantes(true)">🔎 Rechercher les factures manquantes</button></div>' +
+    (ECRAN_PC ? '<p class="meta raccourcis">Astuce : cochez les factures à droite ; le total se met à jour ici.</p>' : '') + '</div><div class="rjListe">';
+  var ordre = { '1': 0, '2': 1, '3': 2, '': 3 };
+  var l = TRESO.lignes.slice().sort(function(a, b){ return (b.choisi - a.choisi) || (ordre[a.priorite] - ordre[b.priorite]) || ((b.du || 0) - (a.du || 0)); });
+  h += l.map(function(x){
+    var i = TRESO.lignes.indexOf(x);
+    return '<div class="carte' + (x.choisi ? ' choisi' : '') + '"><div class="lv">' +
+      '<input type="checkbox"' + (x.choisi ? ' checked' : '') + ' onchange="cocher(' + i + ', this.checked)">' +
+      '<div class="corpsL"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + eur(x.du) + '</span></div>' +
+      '<div class="meta">' + esc(x.refs) + (x.date ? ' · ' + esc(x.date) : '') + '</div>' +
+      (x.verse ? '<div class="meta verse">💶 Facture ' + eur(x.montantTTC) + ' · déjà versé ' + eur(x.verse) + ' (' + x.versements.length + ' fois) · <b>reste ' + eur(x.du) + '</b></div>' : '') +
+      '<div class="meta">' + esc(x.statut) + (x.source !== 'Fichier RJ' ? ' · 📬 ' + esc(x.source) : '') + '</div>' +
+      (x.source === 'Fichier RJ' ? '<div class="etapes">' + etape('📤 Demande', x.demande) + etape('✔ Validé', x.validation) + etape('📨 Preuve envoyée', x.preuve) + '</div>' +
+        badgesPieces(x) +
+        (x.commentaire ? '<div class="meta com">' + esc(x.commentaire) + '</div>' : '') +
+        '<div class="opts"><button class="pj" onclick="dossier(' + i + ')">✏️ Mettre à jour le dossier</button>' +
+        (x.lien ? '<button class="pj" onclick="window.open(\'' + esc(x.lien) + '\',\'_blank\')">📧 Mail d\'origine</button>' : '') + '</div>' : '') +
+      (x.choisi ? '<div class="opts"><input inputmode="decimal" value="' + esc(x.montantVir == null ? '' : x.montantVir.toFixed(2).replace('.', ',')) + '" onchange="changer(' + i + ', \'montantVir\', this.value)" aria-label="Montant à virer">' +
+        '<select onchange="changer(' + i + ', \'banqueVir\', this.value)">' + ['CEBPL', 'BPGO'].map(function(b){ return '<option value="' + b + '"' + (x.banqueVir === b ? ' selected' : '') + '>' + NOMS_BANQUE[b] + '</option>'; }).join('') + '</select>' +
+        '<select onchange="changer(' + i + ', \'priorite\', this.value)"><option value="">Priorité</option>' + [['1', '1 · Urgent'], ['2', '2 · Normal'], ['3', '3 · Plus tard']].map(function(p){ return '<option value="' + p[0] + '"' + (x.priorite === p[0] ? ' selected' : '') + '>' + p[1] + '</option>'; }).join('') + '</select></div>' : '') +
+      '</div></div></div>';
+  }).join('');
+  h += blocLivraison();
+  h += '<details class="carte" id="clotRec" ontoggle="if(this.open)chargerClotures()"><summary><b>↩ Clôturés récemment</b> <span class="meta">— rouvrir un dossier clôturé ou archivé par erreur</span></summary><div id="clotListe" class="meta">Chargement…</div></details>';
+  if (TRESO.clotures) h += '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="archiver()">📦 Ranger ' + TRESO.clotures + ' dossier(s) clôturé(s) dans les archives</button>';
+  h += '<p class="meta">Source : ' + esc(TRESO.source) + '. Mis à jour : ' + esc(TRESO.maj) + '.</p></div>';
+  document.getElementById('treso').innerHTML = h; notifierParent();
+}
+
+
+/* ---------- Position bancaire + mail à l'administrateur (après saisie des virements dans l'application de la banque) ---------- */
+var MODELE_POSITION = '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';
+var ADMIN = { a: 'c.beaussart@trajectoire.eu', cc: 'lemans@trajectoire.eu' };
+var NOMS_BANQUE_POS = { CEBPL: "CAISSE D'EPARGNE", BPGO: 'BPGO' };
+var POS = null;
+function lsGet(k, d){ try { var v = localStorage.getItem(k); return v == null ? d : v; } catch(e) { return d; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e) {} }
+function aujISO(){ var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+function frDate(iso){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : iso; }
+/* Montant du virement : celui saisi, sinon le dernier versement enregistré (facture déjà soldée), sinon le montant de la facture. */
+function montantPos(x){
+  if (x.montantVir > 0) return x.montantVir;
+  if (x.versements && x.versements.length) return x.versements[x.versements.length - 1].montant;
+  return x.du > 0 ? x.du : x.montantTTC;
+}
+function positionAdmin(cles){
+  var choisis = cles ? TRESO.lignes.filter(function(x){ return cles.indexOf(x.cle) >= 0; }).map(function(x){
+      return Object.assign({}, x, { montantVir: x.montantVir || (x.versements && x.versements.length ? x.versements[x.versements.length - 1].montant : null) || x.montantTTC || x.du, banqueVir: x.banqueVir || 'CEBPL' }); })
+    : TRESO.lignes.filter(function(x){ return x.choisi && montantPos(x) > 0; }).map(function(x){ return Object.assign({}, x, { montantVir: montantPos(x) }); });
+  if (!choisis.length) { alert('Cochez d\'abord les factures à virer.'); return; }
+  var banques = ['CEBPL', 'BPGO'].filter(function(b){ return choisis.some(function(x){ return (x.banqueVir || 'CEBPL') === b; }); });
+  var num = Number(lsGet('triRJ_posNum', '1')) + 1;
+  POS = { date: aujISO(), a: lsGet('triRJ_adminA', ADMIN.a), cc: lsGet('triRJ_adminCc', ADMIN.cc), comptes: banques.map(function(b, i){
+    var s = TRESO.soldes[b];
+    return { banque: b, num: num + i, solde: s && s.montant != null ? s.montant : null,
+      lignes: choisis.filter(function(x){ return (x.banqueVir || 'CEBPL') === b; }).map(function(x){
+        return { cle: x.cle, tiers: x.tiers, refs: x.refs, montant: x.montantVir, lien: x.lien, pieces: x.pieces || null, etat: 'chargement' }; }) };
+  }) };
+  dessinerPosition();
+  ouvrir();
+  chargerPiecesPosition();
+}
+function totalCompte(c){ return Math.round(c.lignes.reduce(function(s, l){ return s + l.montant; }, 0) * 100) / 100; }
+function intitule(l){ return (String(l.tiers).toUpperCase() + (l.refs ? ' — ' + l.refs : '')).replace(/\s+/g, ' ').slice(0, 70); }
+function texteMailAdmin(){
+  var morceaux = POS.comptes.map(function(c){
+    var tot = totalCompte(c);
+    return 'Position bancaire n° ' + c.num + ' — compte ' + NOMS_BANQUE[c.banque] + ' :\n' +
+      c.lignes.map(function(l){ return '- ' + intitule(l) + ' : ' + eur(l.montant); }).join('\n') +
+      '\nTotal des virements : ' + eur(tot) +
+      (c.solde != null ? '\nSolde avant virements : ' + eur(c.solde) + ' ; solde après virements : ' + eur(c.solde - tot) : '');
+  });
+  return 'Bonjour Maître,\n\n' +
+    'Veuillez trouver ci-joint ' + (POS.comptes.length > 1 ? 'les positions bancaires' : 'la position bancaire') + ' du ' + frDate(POS.date) +
+    ', accompagnée' + (POS.comptes.length > 1 ? 's' : '') + ', pour chaque virement, de l\'ordre de virement saisi dans l\'application de la banque et de la facture correspondante (ou du motif du règlement), afin que vous puissiez valider ces virements.\n\n' +
+    morceaux.join('\n\n') + '\n\n' +
+    'Il s\'agit de dépenses postérieures au jugement d\'ouverture du 30 juin 2026.\n\n' +
+    'Je reste à votre disposition pour tout complément d\'information.\n\n' +
+    'Bien cordialement,\n\nPierre GOUIN\nGrande Pharmacie du Centre Sud — SELARL Pharmacie Gouin\n309 avenue Georges Durand, 72100 Le Mans\n02 43 72 45 01';
+}
+function objetMailAdmin(){
+  return 'PHARMACIE GOUIN — Position bancaire n° ' + POS.comptes.map(function(c){ return c.num; }).join(' et ') + ' du ' + frDate(POS.date) + ' — validation des virements';
+}
+function dessinerPosition(){
+  document.getElementById('mTitre').textContent = 'Position bancaire pour l\'administrateur';
+  var h = '<p class="meta">À faire <b>après</b> avoir saisi les virements dans l\'application de la banque. Rien n\'est envoyé automatiquement.</p>' +
+    '<div class="champ"><label>Date de la position</label><input type="date" value="' + POS.date + '" onchange="POS.date=this.value;dessinerPosition()"></div>';
+  POS.comptes.forEach(function(c, ci){
+    var tot = totalCompte(c);
+    h += '<div class="carte"><b>🏦 ' + esc(NOMS_BANQUE[c.banque]) + '</b>' +
+      '<div class="opts"><label class="meta">N° de position <input style="width:70px" inputmode="numeric" value="' + c.num + '" onchange="POS.comptes[' + ci + '].num=Number(this.value)||1;dessinerPosition()"></label>' +
+      '<label class="meta">Solde avant virements <input style="width:120px" inputmode="decimal" value="' + (c.solde == null ? '' : String(c.solde).replace('.', ',')) + '" onchange="POS.comptes[' + ci + '].solde=nb(this.value);dessinerPosition()"></label></div>' +
+      '<table class="tpos"><tr><th>Virement</th><th>Montant</th><th>Pièces à joindre</th></tr>' +
+      c.lignes.map(function(l, li){
+        return '<tr><td>' + esc(intitule(l)) + '</td><td style="text-align:right;white-space:nowrap">' + eur(l.montant) + '</td><td class="meta">' +
+          cellulePieces(l, ci, li) + '</td></tr>';
+      }).join('') +
+      '<tr><td><b>Total</b></td><td style="text-align:right"><b>' + eur(tot) + '</b></td><td class="meta">' + (c.solde != null ? 'solde après : <b class="' + (c.solde - tot < 0 ? 'neg' : 'pos') + '">' + eur(c.solde - tot) + '</b>' : 'solde non saisi') + '</td></tr></table></div>';
+  });
+  h += '<button class="btn b-voir" style="width:100%" onclick="telechargerPositions()">⬇️ 1. (facultatif) Télécharger ' + (POS.comptes.length > 1 ? 'les positions bancaires' : 'la position bancaire') + ' (Excel, modèle de l\'administrateur)</button>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="dossierPDF()">⬇️ 2. (facultatif) Télécharger les justificatifs en un seul PDF (preuve + facture de chaque virement)</button>' +
+    '<div class="champ" style="margin-top:10px"><label>À</label><input id="pA" value="' + esc(POS.a) + '" onchange="POS.a=this.value;lsSet(\'triRJ_adminA\',this.value)"></div>' +
+    '<div class="champ"><label>Copie</label><input id="pCc" value="' + esc(POS.cc) + '" onchange="POS.cc=this.value;lsSet(\'triRJ_adminCc\',this.value)"></div>' +
+    '<div class="champ"><label>Objet</label><input id="pO" value="' + esc(POS.objet || objetMailAdmin()) + '" oninput="POS.objet=this.value"></div>' +
+    '<div class="champ"><label>Message (modifiable)</label><textarea id="pT" rows="14" oninput="POS.texte=this.value">' + esc(POS.texte || texteMailAdmin()) + '</textarea></div>' +
+    '<button id="pMail" class="btn b-ok" style="width:100%" onclick="preparerMailAdmin()">✉️ 3. Préparer le mail AVEC les pièces jointes (brouillon Gmail)</button>' +
+    '<p class="meta">La position bancaire (Excel) et le PDF des justificatifs sont joints automatiquement. Le mail n\'est pas envoyé : il vous attend dans les brouillons de Gmail pour relecture.</p>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="copierMailAdmin()">📋 Copier le texte du mail</button>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="noterDemande()">✅ 4. Mail envoyé : noter la demande de virement sur les dossiers</button>' +
+    '<div id="pErr" class="erreur"></div>';
+  document.getElementById('mCorps').innerHTML = h;
+}
+function piecesDe(l, g){ return (l.pieces || []).filter(function(p){ return p.genre === g; }); }
+function cellulePieces(l, ci, li){
+  if (l.etat === 'chargement') return '⏳ lecture des pièces du dossier…';
+  if (l.etat === 'recherche') return '⏳ recherche de la facture dans le mail…';
+  var ligne = function(g, libelle){
+    var ps = piecesDe(l, g);
+    return '<div>' + (ps.length ? '✅ ' + libelle + ' : ' + ps.map(function(p){ return '<a href="#" onclick="voirPiecePos(' + ci + ',' + li + ',\'' + esc(p.id) + '\');return false">👁 ' + esc(p.nom.replace(/^(PREUVE|FACTURE|DOCUMENT) \d{4}-\d{2}-\d{2} — /, '')) + '</a>'; }).join(', ')
+      : '<b style="color:var(--rouge)">✗ ' + libelle + ' manquante</b>') +
+      ' <label class="lienfic">ajouter<input type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="fichiersLigne(this,' + ci + ',' + li + ',\'' + g + '\')"></label></div>';
+  };
+  return ligne('preuve', 'preuve de virement') + ligne('facture', 'facture') +
+    (piecesDe(l, 'document').length ? ligne('document', 'document') : '<div><label class="lienfic">＋ autre document<input type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="fichiersLigne(this,' + ci + ',' + li + ',\'document\')"></label></div>');
+}
+function lireFichiers(liste, fin){
+  var res = [], tous = Array.prototype.slice.call(liste);
+  var suite = function(){
+    if (!tous.length) return fin(res);
+    var f = tous.shift();
+    if (/pdf/i.test(f.type) || /\.pdf$/i.test(f.name)) { var r = new FileReader(); r.onload = function(){ res.push({ nom: f.name, type: 'application/pdf', b64: String(r.result).split(',')[1] }); suite(); }; r.readAsDataURL(f); }
+    else if (/^image\//.test(f.type)) reduireImage(f, function(p){ res.push({ nom: f.name, type: p.type, b64: p.b64 }); suite(); });
+    else suite();
+  };
+  suite();
+}
+function ligneTreso(cle){ return ((TRESO && TRESO.lignes) || []).filter(function(y){ return y.cle === cle; })[0]; }
+function majLigne(l, r){ l.pieces = r.pieces; var x = ligneTreso(l.cle); if (x) majCompte(x, r); }
+/* Les pièces déjà rangées dans chaque dossier sont reprises ; la facture manquante est cherchée dans le mail d'origine. */
+function chargerPiecesPosition(){
+  var lignes = [];
+  POS.comptes.forEach(function(c){ c.lignes.forEach(function(l){ lignes.push(l); }); });
+  var suite = function(){
+    if (!lignes.length || !POS) return;
+    var l = lignes.shift();
+    var fin = function(){ l.etat = 'ok'; if (POS) dessinerPosition(); suite(); };
+    appel('mob_pieces', [JETON, l.cle], function(r){
+      majLigne(l, r);
+      if (r.compte.facture) return fin();
+      l.etat = 'recherche'; dessinerPosition();
+      appel('mob_facturesAuto', [JETON, l.cle], function(){
+        appel('mob_pieces', [JETON, l.cle], function(r2){ majLigne(l, r2); fin(); }, fin);
+      }, fin);
+    }, fin);
+  };
+  suite();
+}
+function fichiersLigne(input, ci, li, genre){
+  var l = POS.comptes[ci].lignes[li];
+  var fichiers = Array.prototype.slice.call(input.files || []); input.value = '';
+  lireFichiers(fichiers, function(fs){
+    var err = document.getElementById('pErr');
+    var suite = function(){
+      if (!fs.length) { l.etat = 'ok'; dessinerPosition(); return; }
+      if (err) err.textContent = 'Enregistrement du fichier dans le dossier…';
+      appel('mob_piece', [JETON, l.cle, genre, fs.shift()], function(r){ majLigne(l, r); suite(); }, function(m){ if (err) err.textContent = m; });
+    };
+    suite();
+  });
+}
+function voirPiecePos(ci, li, id){
+  var l = POS.comptes[ci].lignes[li], x = ligneTreso(l.cle);
+  if (x && !x.pieces) x.pieces = l.pieces;
+  voirPiece(id, l.cle, function(){ dessinerPosition(); });
+}
+function appelP(fn, args){ return new Promise(function(ok, ko){ appel(fn, args, ok, function(m){ ko(new Error(m)); }); }); }
+function chargerPdfLib(fin){
+  if (window.PDFLib) return fin();
+  var sc = document.createElement('script');
+  sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+  sc.onload = fin; sc.onerror = function(){ document.getElementById('pErr').textContent = 'Impossible de charger l\'outil PDF (réseau). Réessayez.'; };
+  document.head.appendChild(sc);
+}
+function octetsB64(b64){ var bin = atob(b64), o = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) o[i] = bin.charCodeAt(i); return o; }
+function sansAccents(t){ return String(t).replace(/€/g, 'EUR').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\x20-\x7E]/g, ' '); }
+function dossierPDF(){
+  var err = document.getElementById('pErr'); err.textContent = '';
+  var manque = [];
+  POS.comptes.forEach(function(c){ c.lignes.forEach(function(l){
+    if (!piecesDe(l, 'preuve').length) manque.push(intitule(l) + ' : preuve de virement');
+    if (!piecesDe(l, 'facture').length) manque.push(intitule(l) + ' : facture');
+  }); });
+  if (manque.length && !confirm('Il manque :\n- ' + manque.join('\n- ') + '\n\nCréer le PDF quand même ?')) return;
+  err.textContent = 'Assemblage du PDF…';
+  chargerPdfLib(function(){
+    construirePDF(err).then(function(r){
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([r.octets], { type: 'application/pdf' }));
+      a.download = nomPDF();
+      document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+      err.innerHTML = r.echecs.length ? 'PDF créé, mais ces fichiers n\'ont pas pu y être mis (à joindre séparément dans Gmail) : ' + esc(r.echecs.join(' ; ')) : '<span class="pos">✓ PDF des justificatifs téléchargé (' + r.pages + ' pages).</span>';
+    }).catch(function(e){ err.textContent = 'PDF non créé : ' + e.message; });
+  });
+}
+function manquesPos(){
+  var manque = [];
+  POS.comptes.forEach(function(c){ c.lignes.forEach(function(l){
+    if (!piecesDe(l, 'preuve').length) manque.push(intitule(l) + ' : preuve de virement');
+    if (!piecesDe(l, 'facture').length) manque.push(intitule(l) + ' : facture');
+  }); });
+  return manque;
+}
+function nomPDF(){ return 'Justificatifs_virements_' + frDate(POS.date).replace(/\//g, '.') + '_position_' + POS.comptes.map(function(c){ return c.num; }).join('-') + '.pdf'; }
+function nomXLSX(c){ return 'Position_bancaire_' + frDate(POS.date).replace(/\//g, '.') + '_n' + c.num + (POS.comptes.length > 1 ? '_' + c.banque : '') + '.xlsx'; }
+function construirePDF(err){
+    return (async function(){
+      var P = PDFLib, doc = await P.PDFDocument.create(), police = await doc.embedFont(P.StandardFonts.Helvetica), gras = await doc.embedFont(P.StandardFonts.HelveticaBold);
+      var echecs = [], k = 0;
+      var ajouter = async function(f, titre){
+        try {
+          if (/pdf/i.test(f.type)) {
+            var src = await P.PDFDocument.load(octetsB64(f.b64), { ignoreEncryption: true });
+            (await doc.copyPages(src, src.getPageIndices())).forEach(function(pg){ doc.addPage(pg); });
+          } else {
+            var img = /png/i.test(f.type) ? await doc.embedPng(octetsB64(f.b64)) : await doc.embedJpg(octetsB64(f.b64));
+            var W = 595, H = 842, r = Math.min((W - 40) / img.width, (H - 40) / img.height, 1);
+            var pg = doc.addPage([W, H]); pg.drawImage(img, { x: (W - img.width * r) / 2, y: (H - img.height * r) / 2, width: img.width * r, height: img.height * r });
+          }
+        } catch (e) { echecs.push(titre + ' (' + f.nom + ')'); }
+      };
+      for (var c of POS.comptes) for (var l of c.lignes) {
+        for (var g of ['preuve', 'facture', 'document']) for (var p of piecesDe(l, g)) {
+          err.textContent = 'Assemblage du PDF… (' + l.tiers + ')';
+          try { await ajouter(await appelP('mob_fichier', [JETON, l.cle, p.id]), intitule(l) + ' - ' + g); } catch (e) { echecs.push(intitule(l) + ' - ' + g + ' (' + e.message + ')'); }
+        }
+      }
+      var octets = await doc.save();
+      return { octets: octets, pages: doc.getPageCount(), echecs: echecs };
+    })();
+}
+function b64Octets(o){
+  var u = o instanceof Uint8Array ? o : new Uint8Array(o), s = '';
+  for (var i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000));
+  return btoa(s);
+}
+/* Prépare un BROUILLON Gmail avec la position bancaire (Excel) et le PDF des justificatifs déjà joints. Rien n'est envoyé. */
+function preparerMailAdmin(){
+  var err = document.getElementById('pErr'), b = document.getElementById('pMail');
+  var manque = manquesPos();
+  if (manque.length && !confirm('Il manque :\n- ' + manque.join('\n- ') + '\n\nPréparer le mail quand même ?')) return;
+  if (POS.comptes.some(function(c){ return c.lignes.length > 23; })) { err.textContent = 'Plus de 23 virements sur un compte : le modèle n\'a que 23 lignes. Faites deux envois.'; return; }
+  b.disabled = true; b.textContent = 'Préparation des pièces jointes…';
+  var fin = function(m){ b.disabled = false; b.textContent = '✉️ 3. Préparer le mail AVEC les pièces jointes (brouillon Gmail)'; if (m) err.textContent = m; };
+  chargerExcelJS(function(){ chargerPdfLib(function(){
+    (async function(){
+      var pjs = [];
+      for (var c of POS.comptes) { err.textContent = 'Position bancaire n° ' + c.num + '…'; pjs.push({ nom: nomXLSX(c), type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', b64: b64Octets(await remplirPosition(c)) }); }
+      var r = await construirePDF(err);
+      pjs.push({ nom: nomPDF(), type: 'application/pdf', b64: b64Octets(r.octets) });
+      err.textContent = 'Création du brouillon dans Gmail…';
+      var d = await appelP('mob_brouillonAdmin', [JETON, document.getElementById('pA').value, document.getElementById('pCc').value, document.getElementById('pO').value, document.getElementById('pT').value, pjs]);
+      POS.brouillon = d.url;
+      fin();
+      err.innerHTML = '<span class="pos">✓ Brouillon prêt dans Gmail avec ' + pjs.length + ' pièce(s) jointe(s) (position bancaire + justificatifs, ' + r.pages + ' pages).</span>' +
+        (r.echecs.length ? '<br>⚠️ Non inclus dans le PDF (à joindre à la main) : ' + esc(r.echecs.join(' ; ')) : '') +
+        '<br><a class="btn b-ok" style="display:inline-block;margin-top:6px;text-decoration:none" target="_blank" href="' + esc(d.url) + '">📂 Ouvrir le brouillon dans Gmail</a> <span class="meta">Relisez-le puis cliquez sur « Envoyer » dans Gmail. Ensuite : bouton 4 ci-dessous.</span>';
+      try { window.open(d.url, '_blank'); } catch (e) {}
+    })().catch(function(e){ fin('Brouillon non créé : ' + e.message); });
+  }); });
+}
+function chargerExcelJS(fin){
+  if (window.ExcelJS) return fin();
+  var sc = document.createElement('script');
+  sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js';
+  sc.onload = fin; sc.onerror = function(){ document.getElementById('pErr').textContent = 'Impossible de charger l\'outil Excel (réseau). Réessayez.'; };
+  document.head.appendChild(sc);
+}
+function remplirPosition(c){
+  var bin = atob(MODELE_POSITION), o = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) o[i] = bin.charCodeAt(i);
+  var wb = new ExcelJS.Workbook();
+  return wb.xlsx.load(o.buffer).then(function(){
+    var ws = wb.worksheets[0];
+    ws.getCell('G1').value = c.num;
+    ws.getCell('C4').value = NOMS_BANQUE_POS[c.banque];
+    ws.getCell('B8').value = 'Solde ' + NOMS_BANQUE_POS[c.banque];
+    ws.getCell('G8').value = c.solde == null ? null : c.solde;
+    for (var r = 9; r <= 31; r++) { ['A', 'B', 'E', 'F'].forEach(function(col){ ws.getCell(col + r).value = null; }); ws.getCell('G' + r).value = { formula: 'G' + (r - 1) + '+E' + r + '-F' + r }; }
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(POS.date);
+    var d = m ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])) : new Date();
+    c.lignes.slice(0, 23).forEach(function(l, k){
+      var r = 9 + k;
+      ws.getCell('A' + r).value = d; ws.getCell('A' + r).numFmt = 'dd/mm/yyyy';
+      ws.getCell('B' + r).value = intitule(l);
+      ws.getCell('F' + r).value = l.montant;
+    });
+    ws.getCell('C41').value = frDate(POS.date);
+    return wb.xlsx.writeBuffer();
+  });
+}
+function telechargerPositions(){
+  var err = document.getElementById('pErr'); err.textContent = '';
+  if (POS.comptes.some(function(c){ return c.lignes.length > 23; })) { err.textContent = 'Plus de 23 virements sur un compte : le modèle n\'a que 23 lignes. Faites deux envois.'; return; }
+  chargerExcelJS(function(){
+    var suite = function(i){
+      if (i >= POS.comptes.length) { err.innerHTML = '<span class="pos">✓ Fichier(s) téléchargé(s) : vous les trouverez dans « Téléchargements ».</span>'; return; }
+      var c = POS.comptes[i];
+      remplirPosition(c).then(function(buf){
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }));
+        a.download = 'Position_bancaire_' + frDate(POS.date).replace(/\//g, '.') + '_n' + c.num + (POS.comptes.length > 1 ? '_' + c.banque : '') + '.xlsx';
+        document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+        setTimeout(function(){ suite(i + 1); }, 400);
+      }).catch(function(e){ err.textContent = 'Fichier non créé : ' + e.message; });
+    };
+    suite(0);
+  });
+}
+function ouvrirGmailAdmin(){
+  var u = 'https://mail.google.com/mail/?authuser=pharmaciecsudachat@gmail.com&view=cm&fs=1' +
+    '&to=' + encodeURIComponent(document.getElementById('pA').value) + '&cc=' + encodeURIComponent(document.getElementById('pCc').value) +
+    '&su=' + encodeURIComponent(document.getElementById('pO').value) + '&body=' + encodeURIComponent(document.getElementById('pT').value);
+  window.open(u, '_blank');
+}
+function copierMailAdmin(){
+  var t = document.getElementById('pT').value;
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ document.getElementById('pErr').innerHTML = '<span class="pos">✓ Texte copié.</span>'; }, function(){ prompt('Copiez ce texte :', t); });
+  else prompt('Copiez ce texte :', t);
+}
+function noterDemande(){
+  var cles = [];
+  POS.comptes.forEach(function(c){ c.lignes.forEach(function(l){ cles.push(l.cle); }); });
+  if (!confirm('Noter la date de demande de virement (' + frDate(POS.date) + ') sur ' + cles.length + ' dossier(s) ?\nÀ faire seulement une fois le mail envoyé à l\'administrateur.')) return;
+  lsSet('triRJ_posNum', String(Math.max.apply(null, POS.comptes.map(function(c){ return c.num; }))));
+  var err = document.getElementById('pErr');
+  var suite = function(){
+    if (!cles.length) { fermer(); chargerTreso(); return; }
+    appel('mob_majDossier', [JETON, cles.shift(), 'demande', POS.date], suite, function(m){ err.textContent = 'Non enregistré : ' + m; });
+  };
+  suite();
+}
+
+/* ---------- Actions groupées sur les dossiers cochés : demande envoyée, validation, envoi des preuves ---------- */
+function cochesRJ(){ return ((TRESO && TRESO.lignes) || []).filter(function(x){ return x.choisi && x.source === 'Fichier RJ'; }); }
+function blocGroupe(){
+  var l = cochesRJ();
+  if (!l.length) return '';
+  return '<div class="carte"><b>👥 Les ' + l.length + ' dossier(s) cochés, en une fois</b>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:8px" onclick="groupeDate(\'demande\')">📤 Demande envoyée à l\'administrateur</button>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="groupeDate(\'validation\')">✔ Validé par l\'administrateur</button>' +
+    '<button class="btn b-ok" style="width:100%;margin-top:6px" onclick="groupePreuves()">📨 Envoyer les preuves aux laboratoires</button>' +
+    '<p class="meta" style="margin-bottom:0">Vous choisissez ensuite, dans la liste, les dossiers concernés.</p></div>';
+}
+var GROUPE = null;
+var NOMS_ETAPE = { demande: '📤 Demande de virement envoyée à l\'administrateur', validation: '✔ Validation de l\'administrateur' };
+function ligneChoix(x, coche, extra){
+  return '<div class="carte" style="margin:6px 0;padding:8px"><label style="display:flex;gap:8px;align-items:flex-start">' +
+    '<input type="checkbox" class="gChoix" value="' + esc(x.cle) + '"' + (coche ? ' checked' : '') + '>' +
+    '<span style="flex:1"><b>' + esc(x.tiers) + '</b> · ' + eur(montantPos(x)) + '<div class="meta">' + esc(x.refs) + '</div></span></label>' + (extra || '') + '</div>';
+}
+function clesChoisies(){ return Array.prototype.slice.call(document.querySelectorAll('.gChoix:checked')).map(function(c){ return c.value; }); }
+function groupeDate(champ){
+  var l = cochesRJ();
+  document.getElementById('mTitre').textContent = NOMS_ETAPE[champ];
+  document.getElementById('mCorps').innerHTML =
+    '<div class="champ"><label>Date</label><input id="gD" type="date" value="' + aujourdhui() + '"></div>' +
+    '<p class="meta">Dossiers concernés (décochez ceux qui ne le sont pas) :</p>' +
+    l.map(function(x){
+      var deja = x[champ];
+      return ligneChoix(x, !deja, deja ? '<div class="meta">Déjà noté le ' + esc(deja) + '</div>' : '');
+    }).join('') +
+    '<div id="gErr" class="erreur"></div>' +
+    '<button id="gOk" class="btn b-ok" style="width:100%" onclick="enregistrerGroupe(\'' + champ + '\')">Enregistrer pour les dossiers cochés</button>';
+  ouvrir();
+}
+function enregistrerGroupe(champ){
+  var cles = clesChoisies(), d = document.getElementById('gD').value, err = document.getElementById('gErr'), b = document.getElementById('gOk');
+  if (!d) { err.textContent = 'Choisissez la date.'; return; }
+  if (!cles.length) { err.textContent = 'Cochez au moins un dossier.'; return; }
+  b.disabled = true;
+  var total = cles.length, faits = 0;
+  var suite = function(){
+    b.textContent = 'Enregistrement… ' + faits + ' / ' + total;
+    if (!cles.length) { fermer(); chargerTreso(); return; }
+    appel('mob_majDossier', [JETON, cles.shift(), champ, d], function(){ faits++; suite(); },
+      function(m){ err.textContent = 'Arrêté après ' + faits + ' dossier(s) : ' + m; b.disabled = false; b.textContent = 'Réessayer pour les dossiers restants'; });
+  };
+  suite();
+}
+
+/* Envoi groupé des preuves : 1) vérifier que chaque dossier a sa preuve (capture de l'application de la banque),
+   2) relire les mails préparés, 3) envoyer un mail par dossier, un par un. Rien ne part sans votre clic final. */
+function groupePreuves(){
+  var l = cochesRJ();
+  GROUPE = { lignes: l };
+  document.getElementById('mTitre').textContent = '📨 Envoyer les preuves de virement';
+  document.getElementById('mCorps').innerHTML =
+    '<p class="meta">Étape 1 sur 3 — Chaque laboratoire reçoit SA preuve (la capture du virement faite dans l\'application de la banque), dans un mail séparé. ' +
+    'Ajoutez la capture là où elle manque, puis cochez les dossiers à envoyer maintenant.</p>' +
+    l.map(function(x, k){
+      var ok = x.preuves > 0;
+      return ligneChoix(x, ok, ok
+        ? '<div class="meta pos">📨 Preuve prête' + (x.preuves > 1 ? ' (la plus récente sera jointe)' : '') + ' · <a href="#" onclick="event.preventDefault();voirPiecesGroupe(\'' + esc(x.cle) + '\')">voir</a></div>'
+        : '<div class="meta neg">Pas encore de preuve.</div><label class="pj" style="display:inline-block;margin-top:4px">＋ Ajouter la capture du virement<input type="file" accept="image/*,application/pdf" style="display:none" onchange="preuveGroupe(this,' + k + ')"></label>' +
+          '<div class="meta" id="gP' + k + '"></div>');
+    }).join('') +
+    '<div id="gErr" class="erreur"></div>' +
+    '<button id="gOk" class="btn b-ok" style="width:100%" onclick="preparerGroupe()">Étape 2 : préparer les mails →</button>';
+  ouvrir();
+}
+function voirPiecesGroupe(cle){
+  var x = ligneTreso(cle);
+  var montrer = function(){
+    var p = (x.pieces || []).filter(function(q){ return q.genre === 'preuve'; }).pop();
+    if (!p) { alert('Preuve introuvable.'); return; }
+    voirPiece(p.id, cle, function(){ groupePreuves(); });
+  };
+  if (x.pieces) montrer(); else appel('mob_pieces', [JETON, cle], function(r){ majCompte(x, r); montrer(); }, function(m){ alert(m); });
+}
+function preuveGroupe(input, k){
+  var x = ligneTreso(GROUPE.lignes[k].cle) || GROUPE.lignes[k], zone = document.getElementById('gP' + k);
+  if (!input.files.length) return;
+  zone.textContent = 'Enregistrement de la capture…';
+  lireFichiers(input.files, function(fs){
+    if (!fs.length) { zone.textContent = 'Format non pris en charge (photo ou PDF).'; return; }
+    appel('mob_piece', [JETON, x.cle, 'preuve', fs[0]], function(r){
+      majCompte(x, r);
+      zone.innerHTML = '<span class="pos">✓ Preuve enregistrée dans le dossier.</span>';
+      var c = document.querySelector('.gChoix[value="' + x.cle.replace(/"/g, '\\"') + '"]'); if (c) c.checked = true;
+    }, function(m){ zone.textContent = m; });
+  });
+}
+function preparerGroupe(){
+  var cles = clesChoisies(), err = document.getElementById('gErr');
+  if (!cles.length) { err.textContent = 'Cochez au moins un dossier.'; return; }
+  var sans = cles.map(ligneTreso).filter(function(x){ return !(x.preuves > 0); });
+  if (sans.length) { err.textContent = 'Pas de preuve pour : ' + sans.map(function(x){ return x.tiers; }).join(', ') + '. Ajoutez la capture ou décochez.'; return; }
+  var b = document.getElementById('gOk'); b.disabled = true;
+  GROUPE.mails = []; var reste = cles.slice();
+  var suite = function(){
+    b.textContent = 'Préparation… ' + GROUPE.mails.length + ' / ' + cles.length;
+    if (!reste.length) return relireGroupe();
+    var cle = reste.shift();
+    appel('mob_infosEnvoi', [JETON, cle, 'preuve'], function(r){
+      GROUPE.mails.push({ cle: cle, a: r.a || '', o: r.objet || '', t: r.texte || '' }); suite();
+    }, function(m){ err.textContent = ligneTreso(cle).tiers + ' : ' + m; b.disabled = false; b.textContent = 'Réessayer'; });
+  };
+  suite();
+}
+function relireGroupe(){
+  document.getElementById('mCorps').innerHTML =
+    '<p class="meta">Étape 2 sur 3 — Relisez chaque mail. La preuve est jointe automatiquement et votre signature ajoutée. ' +
+    'S\'il ne reste rien à payer sur un dossier, il sera clôturé.</p>' +
+    GROUPE.mails.map(function(m, k){
+      var x = ligneTreso(m.cle);
+      return '<div class="carte" style="margin:8px 0;padding:10px"><b>' + esc(x.tiers) + '</b> · ' + eur(montantPos(x)) + ' <span class="meta">' + esc(x.refs) + '</span>' +
+        '<div class="champ"><label>À</label><input id="gA' + k + '" value="' + esc(m.a) + '" placeholder="adresse du laboratoire"></div>' +
+        (m.a ? '' : '<div class="meta neg">Aucune adresse connue pour ce laboratoire : saisissez-la.</div>') +
+        '<details><summary class="meta">Voir / modifier l\'objet et le message</summary>' +
+        '<div class="champ"><label>Objet</label><input id="gO' + k + '" value="' + esc(m.o) + '"></div>' +
+        '<div class="champ"><label>Message</label><textarea id="gT' + k + '" rows="7">' + esc(m.t) + '</textarea></div></details>' +
+        '<div class="meta" id="gR' + k + '"></div></div>';
+    }).join('') +
+    '<div id="gErr" class="erreur"></div>' +
+    '<div class="actions"><button class="btn b-voir" onclick="groupePreuves()">← Retour</button>' +
+    '<button id="gOk" class="btn b-ok" onclick="envoyerGroupe()">Étape 3 : ✉️ Envoyer les ' + GROUPE.mails.length + ' mails</button></div>';
+}
+function envoyerGroupe(){
+  var err = document.getElementById('gErr'), b = document.getElementById('gOk');
+  GROUPE.mails.forEach(function(m, k){
+    if (m.fait) return;
+    m.a = document.getElementById('gA' + k).value.trim(); m.o = document.getElementById('gO' + k).value; m.t = document.getElementById('gT' + k).value;
+  });
+  var mauvais = GROUPE.mails.filter(function(m){ return !m.fait && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m.a.split(/[;,]/)[0].trim()); });
+  if (mauvais.length) { err.textContent = 'Adresse manquante ou invalide pour : ' + mauvais.map(function(m){ return ligneTreso(m.cle).tiers; }).join(', ') + '.'; return; }
+  var aEnvoyer = GROUPE.mails.filter(function(m){ return !m.fait; });
+  if (!confirm('Envoyer maintenant ' + aEnvoyer.length + ' mail(s), chacun avec sa preuve de virement ?\n\n' +
+    aEnvoyer.map(function(m){ return '• ' + ligneTreso(m.cle).tiers + ' → ' + m.a; }).join('\n'))) return;
+  b.disabled = true; err.textContent = '';
+  var k = 0, envoyes = 0, echecs = 0;
+  var suite = function(){
+    while (k < GROUPE.mails.length && GROUPE.mails[k].fait) k++;
+    if (k >= GROUPE.mails.length) {
+      b.textContent = echecs ? 'Réessayer les ' + echecs + ' mail(s) non envoyés' : '✅ Terminé';
+      b.disabled = !echecs;
+      if (echecs) b.onclick = function(){ envoyerGroupe(); }; 
+      err.innerHTML = '<span class="pos">' + envoyes + ' mail(s) envoyé(s).</span>' + (echecs ? ' ' + echecs + ' en échec (voir ci-dessus).' : '') +
+        ' <button class="btn b-voir" style="width:100%;margin-top:8px" onclick="fermer();chargerTreso()">Fermer</button>';
+      return;
+    }
+    var m = GROUPE.mails[k], z = document.getElementById('gR' + k), i = k;
+    b.textContent = 'Envoi… ' + (envoyes + 1) + ' / ' + aEnvoyer.length;
+    z.textContent = 'Envoi en cours…';
+    appel('mob_envoiDossier', [JETON, m.cle, 'preuve', m.a, m.o, m.t, true], function(r){
+      m.fait = true; envoyes++;
+      z.innerHTML = '<span class="pos">✅ Envoyé' + (r && r.cloture ? ' — dossier clôturé' : '') + '</span>';
+      k = i + 1; suite();
+    }, function(msg){ echecs++; z.innerHTML = '<span class="neg">Non envoyé : ' + esc(msg) + '</span>'; k = i + 1; suite(); });
+  };
+  suite();
+}
+
+/* ---------- Payés et clôturés, en attente de livraison : leurs mails restent dans la boîte de réception ---------- */
+function blocLivraison(){
+  var l = TRESO.attenteLivraison || [];
+  if (!l.length) return '';
+  return '<h3 style="margin:16px 0 4px">📦 Payés — livraison à confirmer (' + l.length + ')</h3>' +
+    '<p class="meta">Virement fait et preuve envoyée : leurs mails sont rangés dans l\'étiquette du laboratoire (hors boîte de réception). Le dossier, lui, reste ici tant que la livraison n\'est pas confirmée ; dès « Livrée en totalité » ou « Sans livraison », il peut être archivé.</p>' +
+    l.map(function(x, k){
+      return '<div class="carte"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + (x.montant != null ? eur(x.montant) : '') + '</span></div>' +
+        '<div class="meta">' + esc(x.refs) + (x.preuve ? ' · 📨 preuve envoyée le ' + esc(x.preuve) : '') + '</div>' +
+        '<div class="meta">' + esc(x.livraison || 'Livraison non renseignée') + '</div>' +
+        '<div class="opts" id="lv' + k + '"><button class="pj" onclick="livrer(' + k + ',\'🟢 Livrée en totalité\')">🟢 Livrée en totalité</button>' +
+        '<button class="pj" onclick="livrer(' + k + ',\'🟠 Livrée partiellement\')">🟠 Partiellement</button>' +
+        '<button class="pj" onclick="livrer(' + k + ',\'⚪ Sans livraison attendue\')">⚪ Sans livraison</button>' +
+        (x.lien ? '<button class="pj" onclick="window.open(\'' + esc(x.lien) + '\',\'_blank\')">📧 Mail d\'origine</button>' : '') + '</div></div>';
+    }).join('');
+}
+var CLOT = [];
+function chargerClotures(){
+  var z = document.getElementById('clotListe'); if (!z) return;
+  z.innerHTML = 'Chargement…';
+  appel('mob_clotures', [JETON], function(l){
+    CLOT = l || [];
+    z.className = '';
+    z.innerHTML = CLOT.length ? CLOT.map(function(x, k){
+      return '<div style="border-top:1px solid var(--bord);padding:8px 0"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + (x.montant != null ? eur(x.montant) : '') + '</span></div>' +
+        '<div class="meta">' + esc(x.refs) + '</div>' +
+        '<div class="meta">' + (x.preuve ? '📨 preuve envoyée le ' + esc(x.preuve) : 'clôturé') + ' · ' + esc(x.livraison || 'livraison non renseignée') + (x.ou === 'archives' ? ' · 📦 archivé le ' + esc(x.archive) : '') + '</div>' +
+        '<div class="opts" id="clo' + k + '"><button class="pj" onclick="rouvrir(' + k + ',\'livraison\')">↩ Pas encore livré</button>' +
+        '<button class="pj" onclick="rouvrir(' + k + ',\'paiement\')">↩ Rouvrir le paiement</button></div></div>';
+    }).join('') : 'Aucun dossier clôturé récemment.';
+  }, function(m){ z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
+}
+function rouvrir(k, mode){
+  var x = CLOT[k];
+  var quoi = mode === 'livraison'
+    ? 'Remettre « ' + x.tiers + ' » en attente de livraison ?\nLe dossier reste payé et réapparaît dans « 📦 Payés — livraison à confirmer ».'
+    : 'Rouvrir le paiement de « ' + x.tiers + ' » ?\nLa date de renvoi de la preuve est effacée : le dossier revient dans la liste des paiements.';
+  if (!confirm(quoi + (x.ou === 'archives' ? '\n\nIl sera d\'abord ressorti des archives.' : ''))) return;
+  var z = document.getElementById('clo' + k); z.innerHTML = '<span class="meta">Enregistrement…</span>';
+  appel('mob_rouvrir', [JETON, x.ou, x.cle, x.ligne || 0, mode], function(){ chargerTreso(); },
+    function(m){ z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
+}
+function livrer(k, valeur){
+  var x = TRESO.attenteLivraison[k], z = document.getElementById('lv' + k);
+  z.innerHTML = '<span class="meta">Enregistrement…</span>';
+  appel('mob_majDossier', [JETON, x.cle, 'livraison', valeur], function(){ chargerTreso(); },
+    function(m){ z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
+}
+
+function sauverLigne(x){
+  appel('mob_majVirement', [JETON, x.cle, x.choisi, x.montantVir, x.banqueVir, x.priorite, x.note], function(){},
+    function(m){ alert('Non enregistré : ' + m); });
+}
+function cocher(i, v){ var x = TRESO.lignes[i]; x.choisi = v; if (v && !(x.montantVir > 0)) x.montantVir = montantPos(x); sauverLigne(x); afficherTreso(); }
+function changer(i, champ, v){
+  var x = TRESO.lignes[i];
+  if (champ === 'montantVir') { var n = nb(v); if (n == null || n < 0) { afficherTreso(); return; } x.montantVir = n; } else x[champ] = v;
+  sauverLigne(x); afficherTreso();
+}
+
+function etape(nom, date){ return '<span class="et' + (date ? ' fait' : '') + '">' + nom + (date ? ' ' + esc(date.slice(0, 5)) : '') + '</span>'; }
+function versISO(d){ var m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(d || ''); return m ? m[3] + '-' + m[2] + '-' + m[1] : ''; }
+function aujourdhui(){ var d = new Date(); return d.getFullYear() + '-' + deuxChiffres(d.getMonth() + 1) + '-' + deuxChiffres(d.getDate()); }
+var DOSSIER = null;
+function dossier(i){
+  var x = TRESO.lignes[i]; DOSSIER = i;
+  var champDate = function(id, label, val, aide){
+    return '<div class="champ"><label>' + label + '</label><div style="display:flex;gap:6px"><input id="' + id + '" type="date" value="' + versISO(val) + '" style="flex:1">' +
+      '<button class="pj" onclick="document.getElementById(\'' + id + '\').value=aujourdhui()">Aujourd\'hui</button>' +
+      '<button class="pj" onclick="document.getElementById(\'' + id + '\').value=\'\'">Effacer</button></div>' + (aide ? '<div class="meta">' + aide + '</div>' : '') + '</div>';
+  };
+  document.getElementById('mTitre').textContent = x.tiers + ' — ' + (x.refs || 'dossier');
+  document.getElementById('mCorps').innerHTML =
+    '<p class="meta">' + esc(x.statut) + '</p>' +
+    '<div class="champ"><label>Montant TTC (€)</label><input id="dM" inputmode="decimal" value="' + esc((x.montantTTC !== undefined ? x.montantTTC : x.du) == null ? '' : (x.montantTTC !== undefined ? x.montantTTC : x.du).toFixed(2).replace('.', ',')) + '"></div>' +
+    champDate('dF', 'Date de la facture / réception', x.dateFacture, '') +
+    champDate('dI', '📤 Demande de virement envoyée à l\'administrateur', x.demande, '') +
+    champDate('dJ', '✔ Validation de l\'administrateur', x.validation, '') +
+    champDate('dK', '📨 Preuve de virement renvoyée au laboratoire', x.preuve, 'Une fois cette date remplie, le dossier est clôturé.') +
+    '<div class="champ"><label>Livraison</label><select id="dN"><option value=""></option>' +
+      ['⚪ Sans livraison attendue', '🔴 En attente de livraison', '🟠 Livrée partiellement', '🟢 Livrée en totalité'].map(function(o){ return '<option' + (x.livraison === o ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></div>' +
+    '<div class="champ"><label>Commentaires</label><textarea id="dC" rows="4">' + esc(x.commentaire) + '</textarea></div>' +
+    (x.contacts ? '<div class="meta" style="white-space:pre-wrap">' + esc(x.contacts) + '</div>' : '') +
+    '<div id="dErr" class="erreur"></div>' +
+    (x.versements ? blocVersements(x) : '') +
+    (x.preuves !== undefined ? blocPreuve(x) : '') +
+    '<button id="dOk" class="btn b-ok" style="width:100%;margin-top:8px" onclick="enregistrerDossier()">Enregistrer</button>';
+  ouvrir();
+  if (x.source === 'Fichier RJ') { if (x.pieces) afficherPieces(x); chargerPieces(x); }
+}
+function recapVersements(x){
+  var t = x.tiers + ' — ' + (x.refs || 'dossier') + ' : montant ' + eur(x.montantTTC) + '.';
+  x.versements.forEach(function(v){ t += '\nVersé ' + eur(v.montant) + ' le ' + v.date + '.'; });
+  t += '\nReste dû : ' + eur(x.du) + '.';
+  return t;
+}
+function blocVersements(x){
+  return '<div class="carte" style="margin-top:12px;background:#f8f9fb"><b>💶 Paiement en plusieurs fois</b>' +
+    '<div class="meta">Montant du dossier : ' + eur(x.montantTTC) + ' · déjà versé : ' + eur(x.verse) + ' · <b>reste dû : ' + eur(x.du) + '</b></div>' +
+    (x.versements.length ? x.versements.map(function(v){
+      return '<div class="ligne1" style="margin-top:6px"><span>' + esc(String(v.date).replace(/\s+\d{1,2}:\d{2}(:\d{2})?$/, '')) + ' — ' + eur(v.montant) + (v.banque ? ' <span class="meta">(' + esc(v.banque.split(' ')[0]) + ')</span>' : '') +
+        (v.note ? '<div class="meta">' + esc(v.note) + '</div>' : '') + '</span>' +
+        '<a href="#" onclick="supprimerVersement(' + v.ligne + ');return false">supprimer</a></div>';
+    }).join('') : '<div class="meta" style="margin-top:6px">Aucun versement enregistré.</div>') +
+    (x.du != null && x.du <= 0 && x.versements.length
+      ? '<div class="verif" style="margin-top:8px">✅ <b>Facture payée en totalité</b> : le virement est déjà enregistré, il n\'y a rien à ajouter ici. Étape suivante : joignez la preuve de virement ci-dessous, puis « Envoyer la preuve ».</div>'
+      : '<div class="opts" style="margin-top:8px"><input id="vD" type="date" value="' + aujourdhui() + '" style="width:150px">' +
+      '<input id="vM" inputmode="decimal" placeholder="Montant €" value="' + esc(x.du == null ? '' : x.du.toFixed(2).replace('.', ',')) + '">' +
+      '<select id="vB">' + ["CEBPL (Caisse d'Épargne)", 'BPGO (Banque Populaire)'].map(function(b){ return '<option' + (b.indexOf(x.banqueVir === 'BPGO' ? 'BPGO' : 'CEBPL') === 0 ? ' selected' : '') + '>' + b + '</option>'; }).join('') + '</select></div>' +
+    '<div class="champ" style="margin:6px 0"><input id="vN" placeholder="Note (ex. 2e échéance sur 4)"></div>' +
+    '<div id="vErr" class="erreur"></div>' +
+    '<button id="vOk" class="btn b-ok" style="width:100%" onclick="ajouterVersement()">➕ Enregistrer ce versement</button>') +
+    (x.versements.length ? '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="copierRecap()">📋 Copier le récapitulatif (pour un mail)</button>' : '') +
+    '</div>';
+}
+/* ---------- Pièces du dossier : preuve de virement, facture, autres documents (rangées dans Drive) ---------- */
+var GENRES_PIECE = { preuve: '📨 Preuve de virement', facture: '🧾 Facture', document: '📄 Document' };
+function badgesPieces(x){
+  var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
+  var b = function(n, ok, txt, genre){
+    return '<span class="bpc ' + (ok ? 'bpc-ok' : 'bpc-non') + '"' + (i >= 0 ? ' onclick="event.stopPropagation();ouvrirPieces(' + i + ',\'' + genre + '\')" title="' + (ok ? 'Voir le document' : 'Ajouter le document') + '"' : '') + '>' +
+      txt + (ok ? ' ✓' + (n > 1 ? ' ×' + n : '') : ' —') + '</span>'; };
+  return '<div class="badgesP">' + b(x.preuves || 0, x.preuves > 0, '📨 Preuve', 'preuve') + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') +
+    (x.documents ? b(x.documents, true, '📄 Document', 'document') : '') + '</div>';
+}
+/* Clic sur une pastille : affiche directement le document (ou ouvre le dossier pour l'ajouter s'il manque). */
+function ouvrirPieces(i, genre, n){
+  var x = TRESO.lignes[i]; DOSSIER = i;
+  var nb = { preuve: x.preuves, facture: x.factures, document: x.documents }[genre] || 0;
+  if (!nb) { dossier(i); return; }
+  var montrer = function(){
+    var ps = (x.pieces || []).filter(function(p){ return p.genre === genre; });
+    if (!ps.length) { dossier(i); return; }
+    var k = Math.max(0, Math.min(n || 0, ps.length - 1));
+    voirPiece(ps[k].id, x.cle, function(){ fermer(); });
+    var nav = document.createElement('span');
+    nav.innerHTML = (ps.length > 1 ? ' <b>' + (k + 1) + ' / ' + ps.length + '</b> ' +
+        (k > 0 ? '<button class="pj" onclick="ouvrirPieces(' + i + ',\'' + genre + '\',' + (k - 1) + ')">← Précédent</button> ' : '') +
+        (k < ps.length - 1 ? '<button class="pj" onclick="ouvrirPieces(' + i + ',\'' + genre + '\',' + (k + 1) + ')">Suivant →</button> ' : '') : '') +
+      ' <button class="pj" onclick="dossier(' + i + ')">📂 Ouvrir le dossier</button>';
+    var corps = document.getElementById('mCorps'); corps.insertBefore(nav, corps.children[2] || null);
+  };
+  if (x.pieces) return montrer();
+  document.getElementById('mTitre').textContent = x.tiers; document.getElementById('mCorps').innerHTML = '<div class="chargement">Chargement…</div>'; ouvrir();
+  appel('mob_pieces', [JETON, x.cle], function(r){ majCompte(x, r); montrer(); }, function(m){ document.getElementById('mCorps').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
+function blocPreuve(x){
+  return '<div class="carte" style="margin-top:12px;background:#f8f9fb"><b>📎 Pièces du dossier</b>' +
+    '<div id="pcListe" class="meta">Chargement des pièces…</div>' +
+    '<div class="opts" style="margin-top:8px">' + ['preuve', 'facture', 'document'].map(function(g){
+      return '<label class="btn b-voir" style="flex:1;text-align:center;cursor:pointer;min-width:150px">＋ ' + GENRES_PIECE[g] +
+        '<input type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="joindrePiece(this,\'' + g + '\')"></label>'; }).join('') + '</div>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="factureAuto()">🔎 Retrouver la facture dans le mail d\'origine</button>' +
+    '<div id="pErr" class="erreur"></div>' +
+    '<div class="opts"><button class="btn b-ok" style="flex:1" onclick="preparerEnvoi(\'preuve\')">📨 Envoyer la preuve au laboratoire</button>' +
+    '<button class="btn b-corr" style="flex:1" onclick="preparerEnvoi(\'relance\')">🔔 Relancer (non reçu)</button></div>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="positionAdmin([TRESO.lignes[DOSSIER].cle])">🏛 Pour l\'administrateur : position bancaire + preuve + facture</button></div>';
+}
+function majCompte(x, r){ if (!r || !r.compte) return; x.preuves = r.compte.preuve; x.factures = r.compte.facture; x.documents = r.compte.document; x.pieces = r.pieces; }
+function afficherPieces(x){
+  var z = document.getElementById('pcListe'); if (!z) return;
+  var l = x.pieces || [];
+  z.innerHTML = badgesPieces(x) + (l.length ? l.map(function(p){
+    return '<div class="ligne1" style="margin-top:6px;align-items:center"><span>' + GENRES_PIECE[p.genre] + ' · <span class="meta">' + esc(p.nom) + '</span></span>' +
+      '<span style="white-space:nowrap"><button class="pj" onclick="voirPiece(\'' + esc(p.id) + '\')">👁 Voir</button> ' +
+      '<a href="#" onclick="retirerPiece(\'' + esc(p.id) + '\');return false">retirer</a></span></div>';
+  }).join('') : '<div class="meta" style="margin-top:6px">Aucune pièce pour l\'instant.</div>');
+}
+function chargerPieces(x){
+  appel('mob_pieces', [JETON, x.cle], function(r){ majCompte(x, r); afficherPieces(x); },
+    function(m){ var z = document.getElementById('pcListe'); if (z) z.textContent = 'Pièces non chargées : ' + m; });
+}
+function joindrePiece(input, genre){
+  var x = TRESO.lignes[DOSSIER], err = document.getElementById('pErr');
+  var fichiers = Array.prototype.slice.call(input.files || []); input.value = '';
+  if (!fichiers.length) return;
+  err.textContent = 'Envoi du fichier…';
+  lireFichiers(fichiers, function(fs){
+    var suite = function(){
+      if (!fs.length) { err.innerHTML = '<span class="pos">✓ Enregistré dans le dossier.</span>'; return; }
+      appel('mob_piece', [JETON, x.cle, genre, fs.shift()], function(r){ majCompte(x, r); afficherPieces(x); suite(); }, function(m){ err.textContent = m; });
+    };
+    suite();
+  });
+}
+function joindrePreuve(input){ joindrePiece(input, 'preuve'); }
+function retirerPiece(id){
+  if (!confirm('Retirer ce fichier du dossier ? (il reste conservé dans Google Drive)')) return;
+  var x = TRESO.lignes[DOSSIER];
+  appel('mob_retirerPiece', [JETON, x.cle, id], function(r){ majCompte(x, r); afficherPieces(x); }, function(m){ alert(m); });
+}
+function factureAuto(){
+  var x = TRESO.lignes[DOSSIER], err = document.getElementById('pErr'); err.textContent = 'Recherche de la facture…';
+  appel('mob_facturesAuto', [JETON, x.cle], function(r){
+    r = r || {}; r.trouvees = r.trouvees || [];
+    err.innerHTML = r.trouvees.length ? '<span class="pos">✓ Facture retrouvée et rangée dans le dossier.</span>'
+      : (x.factures ? 'Ce dossier a déjà une facture.' : 'Pas de facture trouvée dans le mail d\'origine : ajoutez-la avec « ＋ 🧾 Facture ».');
+    chargerPieces(x);
+  }, function(m){ err.textContent = m; });
+}
+/* Visionneuse : affiche une pièce en grand pour vérifier son contenu. */
+var RETOUR_PIECE = null;
+function voirPiece(id, cle, retour){
+  var x = cle ? TRESO.lignes.filter(function(y){ return y.cle === cle; })[0] : TRESO.lignes[DOSSIER];
+  RETOUR_PIECE = retour || function(){ dossier(TRESO.lignes.indexOf(x)); };
+  var p = (x.pieces || []).filter(function(q){ return q.id === id; })[0] || { nom: '', genre: 'document' };
+  document.getElementById('mTitre').textContent = GENRES_PIECE[p.genre] + ' — ' + x.tiers;
+  document.getElementById('mCorps').innerHTML = '<button class="btn b-voir" onclick="RETOUR_PIECE()">← Retour</button> <span class="meta">' + esc(p.nom) + '</span><div id="pjZone" class="chargement">Chargement du document…</div>';
+  ouvrir();
+  appel('mob_fichier', [JETON, x.cle, id], function(f){
+    var zone = document.getElementById('pjZone'); zone.className = '';
+    if (/pdf/i.test(f.type)) afficherPDF(octetsB64(f.b64), zone);
+    else zone.innerHTML = '<img style="max-width:100%;border:1px solid var(--bord)" src="data:' + esc(f.type) + ';base64,' + f.b64 + '">';
+  }, function(m){ document.getElementById('pjZone').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
+var ENVOI = null;
+function preparerEnvoi(type){
+  var x = TRESO.lignes[DOSSIER];
+  document.getElementById('mCorps').innerHTML = '<div class="chargement">Préparation du mail…</div>';
+  appel('mob_infosEnvoi', [JETON, x.cle, type], function(r){
+    ENVOI = { type: type, a: r.a, o: r.objet, t: r.texte, pj: r.preuves > 0 };
+    document.getElementById('mTitre').textContent = (type === 'preuve' ? 'Preuve de virement — ' : 'Relance — ') + x.tiers;
+    document.getElementById('mCorps').innerHTML =
+      '<div class="champ"><label>À</label><input id="eA" value="' + esc(r.a) + '" placeholder="adresse du laboratoire"></div>' +
+      (r.a ? '' : '<div class="meta">Aucune adresse dans la fiche « Notes laboratoires » de ce tiers : saisissez-la.</div>') +
+      '<div class="champ"><label>Objet</label><input id="eO" value="' + esc(r.objet) + '"></div>' +
+      '<div class="champ"><label>Message</label><textarea id="eT" rows="9">' + esc(r.texte) + '</textarea></div>' +
+      '<label style="display:block;margin:6px 0"><input type="checkbox" id="eP"' + (r.preuves ? ' checked' : ' disabled') + '> Joindre la preuve de virement' + (r.preuves ? '' : ' (aucune jointe)') + '</label>' +
+      '<p class="meta">Votre signature est ajoutée automatiquement.' + (type === 'preuve' ? ' S\'il ne reste rien à payer, le dossier sera clôturé.' : ' La relance sera notée dans les commentaires du dossier.') + '</p>' +
+      '<div id="eErr" class="erreur"></div>' +
+      '<div class="actions"><button class="btn b-voir" onclick="dossier(DOSSIER)">← Retour</button><button class="btn b-ok" onclick="verifierEnvoiDossier()">Vérifier avant d\'envoyer</button></div>';
+  }, function(m){ document.getElementById('mCorps').innerHTML = '<div class="erreur">' + esc(m) + '</div><button class="btn b-voir" onclick="dossier(DOSSIER)">← Retour</button>'; });
+}
+function verifierEnvoiDossier(){
+  ENVOI.a = document.getElementById('eA').value.trim(); ENVOI.o = document.getElementById('eO').value; ENVOI.t = document.getElementById('eT').value; ENVOI.pj = document.getElementById('eP').checked;
+  var err = document.getElementById('eErr');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ENVOI.a.split(/[;,]/)[0].trim())) { err.textContent = 'Adresse du destinataire invalide.'; return; }
+  if (!ENVOI.t.trim()) { err.textContent = 'Le message est vide.'; return; }
+  document.getElementById('mCorps').innerHTML =
+    '<div class="meta">À : <b>' + esc(ENVOI.a) + '</b></div><div class="meta">Objet : ' + esc(ENVOI.o) + '</div>' +
+    '<div class="meta">Pièce jointe : <b>' + (ENVOI.pj ? 'preuve de virement' : 'aucune') + '</b></div>' +
+    '<pre style="white-space:pre-wrap;background:#f8f9fb;padding:10px;border-radius:8px">' + esc(ENVOI.t) + '</pre>' +
+    '<div id="eErr" class="erreur"></div>' +
+    '<div class="actions"><button class="btn b-voir" onclick="preparerEnvoi(ENVOI.type)">✎ Modifier</button><button id="eOk" class="btn b-ok" onclick="envoyerDossier()">✉️ Envoyer maintenant</button></div>';
+}
+function envoyerDossier(){
+  var x = TRESO.lignes[DOSSIER], b = document.getElementById('eOk'); b.disabled = true; b.textContent = 'Envoi…';
+  appel('mob_envoiDossier', [JETON, x.cle, ENVOI.type, ENVOI.a, ENVOI.o, ENVOI.t, ENVOI.pj], function(r){
+    document.getElementById('mCorps').innerHTML = '<p>✅ ' + esc(r.note) + '.</p>' + (r.cloture ? '<p>Le dossier est clôturé (rien ne reste à payer).</p>' : '') +
+      '<button class="btn b-voir" style="width:100%" onclick="fermer();chargerTreso()">Fermer</button>';
+  }, function(m){ document.getElementById('eErr').textContent = m; b.disabled = false; b.textContent = '✉️ Réessayer'; });
+}
+
+function ajouterVersement(){
+  var x = TRESO.lignes[DOSSIER], err = document.getElementById('vErr'), b = document.getElementById('vOk');
+  var m = nb(document.getElementById('vM').value), d = document.getElementById('vD').value;
+  if (m == null || m <= 0) { err.textContent = 'Montant invalide.'; return; }
+  if (!d) { err.textContent = 'Choisissez la date du versement.'; return; }
+  b.disabled = true; b.textContent = 'Enregistrement…';
+  appel('mob_versement', [JETON, x.cle, d, String(m), document.getElementById('vB').value, document.getElementById('vN').value], function(){
+    fermer(); chargerTreso();
+  }, function(msg){ err.textContent = msg; b.disabled = false; b.textContent = '➕ Enregistrer ce versement'; });
+}
+function supprimerVersement(ligne){
+  if (!confirm('Supprimer ce versement (saisie erronée) ?')) return;
+  var x = TRESO.lignes[DOSSIER];
+  appel('mob_supprimerVersement', [JETON, x.cle, ligne], function(){ fermer(); chargerTreso(); }, function(m){ alert(m); });
+}
+function copierRecap(){
+  var t = recapVersements(TRESO.lignes[DOSSIER]);
+  var ok = function(){ alert('Récapitulatif copié :\n\n' + t); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, function(){ prompt('Copiez ce texte :', t); });
+  else prompt('Copiez ce texte :', t);
+}
+
+function enregistrerDossier(){
+  var x = TRESO.lignes[DOSSIER], err = document.getElementById('dErr');
+  var m = document.getElementById('dM').value.trim();
+  if (m !== '' && (nb(m) == null || nb(m) < 0)) { err.textContent = 'Montant invalide.'; return; }
+  var mt = x.montantTTC !== undefined ? x.montantTTC : x.du;
+  var avant = { montant: mt == null ? '' : mt, facture: versISO(x.dateFacture), demande: versISO(x.demande), validation: versISO(x.validation),
+    preuve: versISO(x.preuve), livraison: x.livraison || '', commentaire: x.commentaire || '' };
+  var apres = { montant: m === '' ? '' : nb(m), facture: document.getElementById('dF').value, demande: document.getElementById('dI').value,
+    validation: document.getElementById('dJ').value, preuve: document.getElementById('dK').value,
+    livraison: document.getElementById('dN').value, commentaire: document.getElementById('dC').value };
+  var aFaire = Object.keys(apres).filter(function(k){ return String(apres[k]) !== String(avant[k]); });
+  if (!aFaire.length) { fermer(); return; }
+  var b = document.getElementById('dOk'); b.disabled = true; b.textContent = 'Enregistrement…';
+  var suite = function(){
+    if (!aFaire.length) { fermer(); chargerTreso(); return; }
+    var k = aFaire.shift();
+    appel('mob_majDossier', [JETON, x.cle, k, k === 'montant' && apres[k] !== '' ? String(apres[k]) : apres[k]], suite,
+      function(msg){ err.textContent = 'Non enregistré (' + k + ') : ' + msg; b.disabled = false; b.textContent = 'Réessayer'; chargerTreso(); });
+  };
+  suite();
+}
+function archiver(){
+  if (!confirm('Ranger les dossiers clôturés (preuve renvoyée) dans l\'onglet Archives ?')) return;
+  appel('mob_archiver', [JETON], function(r){ alert(r.nb + ' dossier(s) rangé(s) dans les archives.'); chargerTreso(); }, function(m){ alert(m); });
+}
+
+function saisirSolde(b){
+  document.getElementById('mTitre').textContent = 'Solde disponible — ' + NOMS_BANQUE[b];
+  document.getElementById('mCorps').innerHTML =
+    '<div class="champ"><label>Solde disponible aujourd\'hui (€)</label><input id="sM" inputmode="decimal" placeholder="ex. 12 500,00"></div>' +
+    '<div class="champ"><label>Note (facultatif)</label><input id="sN" placeholder="ex. après remise CB"></div>' +
+    '<div id="sErr" class="erreur"></div>' +
+    '<button id="sOk" class="btn b-ok" style="width:100%" onclick="enregistrerSolde(\'' + b + '\')">Enregistrer</button>';
+  ouvrir();
+}
+function enregistrerSolde(b){
+  var n = nb(document.getElementById('sM').value);
+  if (n == null) { document.getElementById('sErr').textContent = 'Montant invalide.'; return; }
+  var bt = document.getElementById('sOk'); bt.disabled = true; bt.textContent = 'Enregistrement…';
+  appel('mob_solde', [JETON, b, String(n), document.getElementById('sN').value], function(r){
+    TRESO.soldes[b] = { montant: r.montant, date: r.date }; fermer(); afficherTreso();
+  }, function(m){ document.getElementById('sErr').textContent = m; bt.disabled = false; bt.textContent = 'Enregistrer'; });
+}
+
+/* ---------- Onglet Paiements RJ (tampon) ---------- */
+function chargerTampon(){
+  appel('mob_tampon', [JETON], function(l){
+    if (!l.length) { document.getElementById('tampon').innerHTML = '<div class="vide">Aucune ligne pour l\'instant. Validez des mails « Suivi RJ » dans l\'onglet Boîte mail.</div>'; return; }
+    document.getElementById('tampon').innerHTML = '<table class="rj"><tr><th>Tiers</th><th>Références</th><th>Montant</th><th>Transféré</th></tr>' +
+      l.map(function(r){ return '<tr><td><b>' + esc(r['Tiers']) + '</b><div class="meta">' + esc(r['Antériorité']) + '</div></td><td>' + esc(r['Références']) +
+        '</td><td>' + esc(r['Montant TTC (source)']) + '</td><td>' + esc(r['Transféré au suivi RJ']) + '</td></tr>'; }).join('') + '</table>';
+  });
+}
+
+/* ---------- Onglet Courrier : courriers postaux scannés ---------- */
+var PAGES = [];
+function poidsPages(){ return PAGES.reduce(function(s, p){ return s + Math.floor(p.b64.length * 3 / 4); }, 0); }
+function reduireImage(fichier, fin){
+  var lecteur = new FileReader();
+  lecteur.onload = function(){
+    var img = new Image();
+    img.onload = function(){
+      var max = 2200, r = Math.min(1, max / Math.max(img.width, img.height));
+      var c = document.createElement('canvas'); c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      var url = c.toDataURL('image/jpeg', 0.85);
+      fin({ nom: (fichier.name || 'page').replace(/\.[^.]+$/, '') + '.jpg', type: 'image/jpeg', b64: url.split(',')[1], apercu: url });
+    };
+    img.onerror = function(){ var u = String(lecteur.result); fin({ nom: fichier.name, type: fichier.type || 'image/jpeg', b64: u.split(',')[1], apercu: '' }); };
+    img.src = lecteur.result;
+  };
+  lecteur.readAsDataURL(fichier);
+}
+function ajouterPages(input){
+  var fichiers = Array.prototype.slice.call(input.files || []); input.value = '';
+  ajouterFichiers(fichiers);
+}
+var NB_COLLES = 0;
+function ajouterFichiers(fichiers){
+  var err = document.getElementById('crErr'); err.textContent = '';
+  var refuses = [];
+  var suite = function(){
+    if (!fichiers.length) {
+      if (refuses.length) err.textContent = 'Format non accepté (PDF ou image uniquement) : ' + refuses.join(', ');
+      afficherPages(); return;
+    }
+    var f = fichiers.shift();
+    if (PAGES.length >= 12) { err.textContent = '12 pages ou documents au maximum par envoi.'; afficherPages(); return; }
+    var nom = f.name || '';
+    if (/pdf/i.test(f.type) || /\.pdf$/i.test(nom)) {
+      if (!nom) nom = 'document colle ' + (++NB_COLLES) + '.pdf';
+      var l = new FileReader();
+      l.onload = function(){ PAGES.push({ nom: nom, type: 'application/pdf', b64: String(l.result).split(',')[1], apercu: '' }); suite(); };
+      l.readAsDataURL(f);
+    } else if (/^image\//i.test(f.type)) {
+      reduireImage(f, function(p){ if (!f.name) p.nom = 'image collee ' + (++NB_COLLES) + '.jpg'; PAGES.push(p); suite(); });
+    } else { refuses.push(nom || f.type || 'inconnu'); suite(); }
+  };
+  suite();
+}
+/* Coller : appui long dans la zone (ou n'importe où dans l'onglet Courrier) puis « Coller », ou bouton « Coller ». */
+function fichiersDuPressePapier(dt){
+  var res = [];
+  if (!dt) return res;
+  Array.prototype.forEach.call(dt.items || [], function(it){ if (it.kind === 'file') { var f = it.getAsFile(); if (f) res.push(f); } });
+  if (!res.length) Array.prototype.forEach.call(dt.files || [], function(f){ res.push(f); });
+  return res;
+}
+document.addEventListener('beforeinput', function(e){
+  if (e.target && e.target.id === 'crColle' && e.inputType !== 'insertFromPaste') e.preventDefault();
+});
+document.addEventListener('paste', function(e){
+  var vue = document.getElementById('vCR');
+  if (!vue || vue.style.display === 'none') return;
+  var cible = e.target;
+  var fichiers = fichiersDuPressePapier(e.clipboardData);
+  if (!fichiers.length && cible && /^(INPUT|TEXTAREA)$/.test(cible.tagName)) return;   // coller du texte dans la note : normal
+  e.preventDefault();
+  var zone = document.getElementById('crColle');
+  zone.textContent = '… ou appuyez longuement ici, puis « Coller »';
+  if (fichiers.length) { ajouterFichiers(fichiers); return; }
+  document.getElementById('crErr').textContent = 'Le presse-papiers ne contient pas de document (seulement du texte ou un lien). ' +
+    'Dans l\'application d\'origine, utilisez plutôt « Partager » → « Enregistrer dans Fichiers », puis « Choisir un PDF ».';
+});
+function collerBouton(){
+  var err = document.getElementById('crErr'); err.textContent = '';
+  if (!navigator.clipboard || !navigator.clipboard.read) {
+    err.textContent = 'Votre navigateur ne permet pas ce bouton : appuyez longuement dans la zone en pointillés, puis « Coller ».';
+    document.getElementById('crColle').focus(); return;
+  }
+  navigator.clipboard.read().then(function(elements){
+    var promesses = [];
+    elements.forEach(function(el){
+      var type = el.types.filter(function(t){ return t === 'application/pdf'; })[0] || el.types.filter(function(t){ return /^image\//.test(t); })[0];
+      if (type) promesses.push(el.getType(type).then(function(b){ return new File([b], '', { type: type }); }));
+    });
+    return Promise.all(promesses);
+  }).then(function(fichiers){
+    if (fichiers.length) ajouterFichiers(fichiers);
+    else { err.textContent = 'Aucun document dans le presse-papiers. Essayez l\'appui long dans la zone en pointillés, puis « Coller ».'; document.getElementById('crColle').focus(); }
+  }).catch(function(){
+    err.textContent = 'Accès au presse-papiers refusé : appuyez longuement dans la zone en pointillés, puis « Coller ».';
+    document.getElementById('crColle').focus();
+  });
+}
+function afficherPages(){
+  document.getElementById('crPages').innerHTML = PAGES.map(function(p, i){
+    return '<div class="pagecr">' + (p.apercu ? '<img src="' + p.apercu + '">' : '<div class="pdfcr">📄 ' + esc(p.nom) + '</div>') +
+      '<button class="pj" onclick="PAGES.splice(' + i + ',1);afficherPages()">✕ Retirer</button><span class="meta">' + (p.type === 'application/pdf' ? 'Document ' : 'Page ') + (i + 1) + '</span></div>';
+  }).join('') + (PAGES.length ? '<p class="meta">' + PAGES.length + ' élément(s) · ' + Math.ceil(poidsPages() / 1024) + ' Ko</p>' : '');
+  document.getElementById('crOk').style.display = PAGES.length ? 'block' : 'none';
+}
+function envoyerCourrier(){
+  var err = document.getElementById('crErr'), b = document.getElementById('crOk');
+  if (poidsPages() > 20 * 1024 * 1024) { err.textContent = 'Fichiers trop lourds (20 Mo au maximum par envoi).'; return; }
+  b.disabled = true; b.textContent = 'Envoi en cours…';
+  appel('mob_courrier', [JETON, PAGES.map(function(p){ return { nom: p.nom, type: p.type, b64: p.b64 }; }), document.getElementById('crNote').value], function(r){
+    PAGES = []; document.getElementById('crNote').value = ''; afficherPages();
+    b.disabled = false; b.textContent = 'Envoyer pour analyse';
+    err.innerHTML = '<span class="pos">✓ Envoyé (' + r.pages + ' élément(s)). Claude l\'analysera au prochain passage.</span>';
+    chargerCourriers();
+  }, function(m){ err.textContent = m; b.disabled = false; b.textContent = 'Réessayer'; });
+}
+function chargerCourriers(){
+  appel('mob_courriers', [JETON], function(l){
+    document.getElementById('crListe').innerHTML = l.length ? '<h3 style="margin:14px 4px 6px">Courriers envoyés</h3>' + l.map(function(c){
+      return '<div class="carte"><div class="ligne1"><span class="tiers">' + esc(c.note || 'Courrier sans note') + '</span><span class="badge ' + (c.statut === 'Analysé' ? 'p-Basse' : 'p-Moyenne') + '">' + esc(c.statut) + '</span></div>' +
+        '<div class="meta">' + esc(c.date) + ' · ' + esc(c.pages) + ' page(s)</div>' +
+        '<div class="opts"><button class="pj" onclick="voirCourrier(\'' + esc(c.id) + '\',0)">📮 Voir</button></div></div>';
+    }).join('') : '';
+  }, function(m){ document.getElementById('crListe').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
+function voirCourrier(id, page){
+  document.getElementById('mTitre').textContent = 'Courrier — page ' + (page + 1);
+  document.getElementById('mCorps').innerHTML = '<div id="pjZone" class="chargement">Chargement…</div>';
+  ouvrir();
+  appel('mob_scan', [JETON, id, page], function(p){
+    var zone = document.getElementById('pjZone'); zone.className = '';
+    var nav = '<div class="opts" style="margin-bottom:8px">' + (page > 0 ? '<button class="pj" onclick="voirCourrier(\'' + esc(id) + '\',' + (page - 1) + ')">← Page ' + page + '</button>' : '') +
+      (page < p.pages - 1 ? '<button class="pj" onclick="voirCourrier(\'' + esc(id) + '\',' + (page + 1) + ')">Page ' + (page + 2) + ' →</button>' : '') +
+      (trouver(id) ? '<button class="pj" onclick="repondre(\'' + esc(id) + '\')">✉️ Répondre</button>' : '') + '</div>';
+    if (/pdf/i.test(p.type)) {
+      zone.innerHTML = nav; var bin = atob(p.b64), o = new Uint8Array(bin.length);
+      for (var i = 0; i < bin.length; i++) o[i] = bin.charCodeAt(i);
+      var z2 = document.createElement('div'); zone.appendChild(z2); afficherPDF(o, z2);
+    } else zone.innerHTML = nav + '<img style="max-width:100%" src="data:' + esc(p.type) + ';base64,' + p.b64 + '">';
+  }, function(m){ document.getElementById('pjZone').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
+
+function ouvrir(){ document.getElementById('modal').style.display = 'block'; }
+function fermer(){ document.getElementById('modal').style.display = 'none'; if (TRESO && document.getElementById('vRJ').style.display !== 'none') afficherTreso(); }
+</script>
+</body>
+</html>
