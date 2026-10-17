@@ -155,7 +155,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.2';
+const APP_V='6.3';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['cou','📬','Courrier & paiements','Courrier'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -812,13 +812,20 @@ function planMois(moisObj,R,p,jo){const V=A&&A.vendeurs&&A.vendeurs.periodes[0];
      <div class="sub w" style="margin-top:6px">Ventes conseil : moyenne des 12 derniers mois (Vindilis › Statistiques › Vendeurs), ajustée à la saison (${MOIS_LIB[mo-1]} pèse ${pct(fs)} d'un mois moyen d'après l'an dernier).</div></div>`}
   // 2. Par collaborateur : une fiche chacun (ventes conseil, panier minimum, marge)
   if(V&&p.mg){const E=equipeObj(V,moisObj),c2=objCfg();const totL=E.act.reduce((s,x)=>s+x.margeLibre,0),cible=p.mg[1]*(V.total.margeLibre/V.total.marge),med=E.mvMed;
+    const ca=(x,nj)=>{if(!x.lignesLibre||!x.ventesLibre)return null;const vb=x.ventesLibre/12*fs,t=(x.lignesLibre-x.ventesLibre)/x.ventesLibre,tc=Math.max(t,E.caMed)*1.05,auj=vb*t,obj=vb*tc,plus=Math.ceil(obj-auj),mpl=x.margeLibre/x.lignesLibre;return {t,tc,auj:Math.round(auj),obj:Math.round(obj),plus,jour:plus/nj,vb,gain:plus*mpl}};
     const fiche=x=>{const vt=x.ventesLibre/12*fs*(1+c.o/100),pc=x.ventesLibre?x.caLibre/x.ventesLibre:0,mvx=x.ventesLibre?x.margeLibre/x.ventesLibre:0,pmin=Math.max(pc,E.panMed),ob=cible*x.margeLibre/totL,gain=mvx<med?x.ventesLibre/12*fs*(med-mvx):0,sam=x.pres==='sam',nj=sam?samedis(moisObj).length:jo;
+      const C=ca(x,nj),par=sam?'samedi':'jour de présence',f1=v=>v.toLocaleString('fr-FR',{maximumFractionDigits:1}),f2=v=>v.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2});
       return `<div class="carte demi fiche-c"><b style="font-size:16px">${esc(x.qui)}</b>${sam?' <span class="badge">samedis seulement</span>':''}
-       <div class="kpis" style="margin-top:8px;grid-template-columns:1fr 1fr"><div><div class="sub">Ventes conseil du mois</div><div class="gros" style="font-size:24px">${ent(vt)}</div><div class="sub">≈ ${ent(vt/nj)} par ${sam?'samedi ('+nj+' samedis)':'jour de présence'}</div></div>
+       ${C?`<div class="al v" style="border:1px solid var(--vert2);border-radius:10px;padding:8px 10px;margin-top:8px"><div class="sub">Conseils associés à faire EN PLUS ce mois-ci</div><div class="gros" style="font-size:30px">+${ent(C.plus)}</div><div class="sub w">soit environ <b style="color:var(--txt)">${f1(C.jour)} de plus par ${par}</b> (${nj} ${sam?'samedis':'jours'}) · marge gagnée ≈ ${eur(C.gain)}</div>
+        <div class="sub w" style="margin-top:4px">Aujourd'hui : ${ent(C.auj)} produits ajoutés par mois (${f2(C.t)} par vente conseil) → objectif ${ent(C.obj)} (${f2(C.tc)} par vente).</div></div>`:''}
+       <div class="kpis" style="margin-top:8px;grid-template-columns:1fr 1fr"><div><div class="sub">Ventes conseil du mois</div><div class="gros" style="font-size:24px">${ent(vt)}</div><div class="sub">≈ ${ent(vt/nj)} par ${par}</div></div>
         <div><div class="sub">Panier conseil minimum</div><div class="gros" style="font-size:24px">${eur2(pmin)}</div><div class="sub">aujourd'hui ${eur2(pc)} · objectif ${eur2(pmin*1.05)}</div></div></div>
        <div class="ligne"><span>Marge conseil à faire dans le mois</span><b>${eur(ob)}</b></div><div class="ligne"><span>Marge par vente conseil</span><b class="${mvx<med?'neg':'pos'}">${eur2(mvx)} <span class="sub">(équipe ${eur2(med)})</span></b></div>${gain>0?`<div class="ligne"><span>Si au niveau de l'équipe</span><b class="pos">+${eur(gain)} / mois</b></div>`:''}</div>`};
     const gainTot=E.act.reduce((s,x)=>{const mvx=x.ventesLibre?x.margeLibre/x.ventesLibre:0;return s+(mvx<med?x.ventesLibre/12*fs*(med-mvx):0)},0);
-    h+=`<div class="titre">Objectif de chaque collaborateur (palier « Objectif »)</div>${E.act.map(fiche).join('')}
+    const CA=E.act.map(x=>ca(x,x.pres==='sam'?samedis(moisObj).length:jo)).filter(Boolean),tPlus=CA.reduce((a,c)=>a+c.plus,0),tObj=CA.reduce((a,c)=>a+c.obj,0),tAuj=CA.reduce((a,c)=>a+c.auj,0),tGain=CA.reduce((a,c)=>a+c.gain,0);
+    h+=`<div class="titre">Conseils associés : l'objectif de l'équipe</div><div class="carte"><div class="kpis"><div class="kpi"><div class="l">Équipe : en plus ce mois-ci</div><div class="v pos">+${ent(tPlus)}</div></div><div class="kpi"><div class="l">Par jour d'ouverture</div><div class="v">${(tPlus/jo).toLocaleString('fr-FR',{maximumFractionDigits:1})}</div></div><div class="kpi"><div class="l">Total visé dans le mois</div><div class="v">${ent(tObj)}</div><div class="sub">aujourd'hui ${ent(tAuj)}</div></div><div class="kpi"><div class="l">Marge gagnée</div><div class="v pos">≈ ${eur(tGain)}</div></div></div>
+     <div class="sub w" style="margin-top:6px"><b style="color:var(--txt)">Conseil associé</b> = un produit de plus proposé et vendu dans une vente au comptoir (ex. un probiotique avec un antibiotique, une crème solaire avec un traitement photosensibilisant). Mesure : produits vendus au-delà du premier dans les ventes sans ordonnance (Vindilis › Statistiques › Vendeurs, colonne « Lignes » − « Ventes », 12 derniers mois). Règle : chacun atteint au moins le niveau médian de l'équipe (${(E.caMed||0).toLocaleString('fr-FR',{maximumFractionDigits:2})} produit ajouté par vente conseil), puis +5 %. Le chiffre de chaque fiche est ce qu'il faut faire <b style="color:var(--txt)">en plus</b> de l'habitude actuelle.</div></div>
+     <div class="titre">Objectif de chaque collaborateur (palier « Objectif »)</div>${E.act.map(fiche).join('')}
      <div class="carte"><div class="sub w">Ventes conseil = ventes sans ordonnance, d'après les 12 derniers mois de chacun (Vindilis › Statistiques › Vendeurs), ajustées à la saison et augmentées de ${String(c.o).replace('.',',')} %. Le nombre par jour suppose une présence tous les jours d'ouverture : à rapporter au planning de chacun. <b style="color:var(--txt)">Panier minimum</b> = jamais moins que le panier conseil médian de l'équipe (${eur2(E.panMed)}) ; objectif +5 %. Si chacun monte sa marge par vente conseil au niveau de l'équipe : <b style="color:var(--txt)">≈ ${eur(gainTot)} de marge par mois</b>.${E.occ.length?` Présence partielle : ${E.occ.map(x=>esc(x.qui)+' ('+ent(x.ventesLibre/12*fs*(1+c.o/100))+' ventes conseil)').join(', ')}.`:''} Le titulaire n'a pas d'objectif individuel. Qui compte : réglage « Équipe prise en compte » plus bas.</div></div>`;
     var gainConseil=gainTot,nbAct=E.act.filter(x=>x.pres!=='sam').length,nbSam=E.act.filter(x=>x.pres==='sam').length,plus1=(nbAct*jo+nbSam*samedis(moisObj).length)*med}
   // 3. Laboratoires du mois
@@ -871,7 +878,7 @@ function equipeObj(V,m){const c=objCfg(),EQ=D.equipe||[];
   const vus=L.filter(x=>!x.tit);const act=vus.filter(x=>x.pres!=='parti'&&x.pres!=='partiel'&&(x.ventesLibre/12>=150||x.pres==='sam')).sort((a,b)=>b.margeLibre-a.margeLibre);
   const occ=vus.filter(x=>x.pres==='partiel'||(x.pres==='plein'&&x.ventesLibre/12<150));
   const md=a=>{a=a.sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:0},ref=act.filter(x=>x.ventesLibre>=150);
-  return {act,occ,vus,panMed:md(ref.map(x=>x.caLibre/x.ventesLibre)),mvMed:md(ref.map(x=>x.margeLibre/x.ventesLibre))}}
+  return {act,occ,vus,panMed:md(ref.map(x=>x.caLibre/x.ventesLibre)),mvMed:md(ref.map(x=>x.margeLibre/x.ventesLibre)),caMed:md(ref.filter(x=>x.lignesLibre).map(x=>(x.lignesLibre-x.ventesLibre)/x.ventesLibre))}}
 function nomCollab(n){const t=sansAcc(n).split(/\s+/);const e=(D.equipe||[]).find(e=>t.includes(sansAcc(e['Collaborateur']).split(/\s+/)[0]));return e?e['Collaborateur'].split(/\s+/)[0]+(e['Titre']?' ('+e['Titre'].split(' —')[0].toLowerCase()+')':''):n}
 const joursMois=m=>new Date(+m.slice(0,4),+m.slice(5,7),0).getDate();
 
