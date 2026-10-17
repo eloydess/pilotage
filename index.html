@@ -159,7 +159,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.4';
+const APP_V='6.5';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['cou','📬','Courrier & paiements','Courrier'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -193,9 +193,13 @@ function etatPrix(x){const pol=x['Politique prix']||'',st=x['Statut prix']||'';
 const P=k=>D&&D.params?num(D.params[k]):null;
 const DIFF=()=>(A&&A.diffusion)||null;
 const nomEcr=s=>String(s||'').replace(/^\d+\s*[–-]\s*/,'').replace(/\s+/g,' ').trim().toUpperCase();
-function diffDe(nomPlateforme){const Df=DIFF();if(!Df||!nomPlateforme)return null;const k=nomEcr(nomPlateforme);const e=Object.entries(Df.cenareo||{}).find(([n])=>nomEcr(n)===k||k.includes(nomEcr(n))||nomEcr(n).includes(k));return e?e[1]:null}
-function blocDiff(nomPlateforme,plateforme){const L=diffDe(nomPlateforme),Df=DIFF();if(L)return `<div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Ce qui défile (${L.length} visuels, relevé Cenareo du ${dfr(Df.releve)})</b> : ${L.map(esc).join(' · ')}</div>`;
-  if(/magicinfo/i.test(plateforme||''))return '<div class="sub w" style="margin-top:4px">Ce qui défile : écran MagicInfo, relevé à faire (connexion MagicInfo requise dans Chrome).</div>';return ''}
+function diffInfo(nomPlateforme){const Df=DIFF();if(!Df||!nomPlateforme)return null;const k=nomEcr(nomPlateforme).normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const e=Object.entries(Df.cenareo||{}).find(([n])=>nomEcr(n)===k||k.includes(nomEcr(n))||nomEcr(n).includes(k));if(e)return {L:e[1],src:'Cenareo',rel:Df.releve};
+  let best=null,bl=0;Object.entries(Df.magicinfo||{}).forEach(([g,v])=>{[g,...(v.alias||[]),...(v.ecrans||[]).filter(x=>!/^QM43C_CSUDLEMANS$/.test(x))].forEach(a=>{const A=String(a).toUpperCase();if(A.length>bl&&k.includes(A)){best=[g,v];bl=A.length}})});
+  return best?{L:best[1].visuels,src:'MagicInfo',rel:Df.releveMagicinfo||Df.releve,boucle:best[1].boucle,groupe:best[0],nb:(best[1].ecrans||[]).length}:null}
+function diffDe(nomPlateforme){const i=diffInfo(nomPlateforme);return i?i.L:null}
+function blocDiff(nomPlateforme,plateforme){const i=diffInfo(nomPlateforme);if(i)return `<div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Ce qui défile (${i.L.length} visuels${i.boucle?', boucle de '+esc(i.boucle.replace(/^00:/,''))+' min':''}${i.nb>1?', '+i.nb+' écrans synchronisés':''}, relevé ${i.src} du ${dfr(i.rel)})</b> : ${i.L.map(esc).join(' · ')}</div>`;
+  if(/magicinfo/i.test(plateforme||''))return '<div class="sub w" style="margin-top:4px">Ce qui défile : nom d\'écran non reconnu. Indiquez dans « Nom plateforme » le groupe MagicInfo (ex. TG03 BIODERMA, ESPACE SANTE, MAQUILLAGE FRONT, INSTAGRAM, 75 PAYSAGE).</div>';return ''}
 const aide=t=>`<span class="aide" data-aide="${esc(t)}" role="button" tabindex="0" aria-label="Explication">?</span>`;
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('.aide');let b=document.getElementById('bulle');
   if(!a){if(b&&b.style.display==='block'&&!e.target.closest('#bulle'))b.style.display='none';return}
