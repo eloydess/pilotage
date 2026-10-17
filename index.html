@@ -155,7 +155,7 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.0';
+const APP_V='6.1';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1036,6 +1036,32 @@ function blocDemandesPerdues(){const L=jsonEt('perdus',[]);const c={};L.forEach(
 function brancherDemandesPerdues(){const b=$('#pdOk');if(!b)return;b.onclick=async()=>{const p=$('#pdP').value.trim();if(!p){toast('Indiquez le produit');return}
   const L=jsonEt('perdus',[]);L.push({p,motif:$('#pdM').value,d:auj()});if(L.length>500)L.splice(0,L.length-500);if(await majEtat('perdus',JSON.stringify(L))){toast('Demande notée');const y=scrollY;stock();scrollTo(0,y)}}}
 
+
+/* --- Commandes en attente : payer tout, une partie, ou rien ? --- */
+let cmdOuv='';
+function opsLab(lab){const k=sansAcc(lab).split(/[\s(&]/)[0].toUpperCase();return (D.operations||[]).filter(o=>sansAcc(o['Laboratoire']||'').toUpperCase().includes(k)&&String(o['Fin'])>=auj()&&(o['Achat lié (sell-in)']||o['Conditions']))}
+function gersLab(lab){const k=sansAcc(lab).split(/[\s(&]/)[0].toUpperCase();const t=(D.tendances||[]).find(x=>sansAcc(x['Laboratoire']||'').toUpperCase().includes(k));return t?num(t['Évolution nationale GERS %']):null}
+const DECC={'garder':'var(--vert2)','réduire':'var(--bleu)','retirer : stock suffisant':'var(--orange)','retirer : aucune vente':'var(--rouge)','à confirmer : aucune vente sur la période':'var(--doux)'};
+function vueCommandesAttente(){const V=V6();if(!V||!V.commandes)return pasAudit();const C=V.commandes;const O=C.commandes;
+  const tot=O.reduce((s,o)=>s+o.valeurRestante,0),kp=O.reduce((s,o)=>s+o.aGarder,0),conf=O.reduce((s,o)=>s+o.lignes.filter(l=>/confirmer/.test(l.dec)).reduce((a,l)=>a+l.val,0),0);
+  return `<div class="carte"><b>Commandes en attente : que payer ?</b><div class="sub w">Relevé Vindilis du ${dfr(C.date)} : ${O.length} commandes en attente de réception, ligne par ligne, croisées avec le stock et les ventes mensuelles de chaque produit (catalogues Vindilis du même jour). Règle : garder la quantité qui couvre 1 mois de ventes (1,25 mois pour les produits de 2 à 8 ventes par mois, au moins 1 boîte en rayon), au prix d'achat net.</div>
+    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Reste à recevoir</div><div class="v">${eur(tot)}</div></div><div class="kpi"><div class="l">Utile maintenant</div><div class="v pos">${eur(kp)}</div></div>
+     <div class="kpi"><div class="l">Peut attendre ou être retiré</div><div class="v">${eur(tot-kp-conf)}</div></div><div class="kpi"><div class="l">Nouveautés sans vente, à confirmer</div><div class="v">${eur(conf)}</div></div></div>
+    ${donut([['Utile maintenant',kp,'var(--vert2)'],['Peut attendre',tot-kp-conf,'var(--orange)'],['À confirmer',conf,'var(--doux)']],eur(kp),'à payer')}</div>
+   <div class="carte al o"><b class="t">Avant de réduire une commande</b><div class="sub w">Une commande directe est souvent dimensionnée pour un palier de remise, un franco de port ou une opération Opeaz (unités gratuites, tête de gondole). Réduire peut faire perdre ces conditions : demander au laboratoire la remise maintenue pour la quantité réduite. Les lignes « à confirmer » sont des produits jamais vendus chez nous (implantation, nouveauté) : à garder seulement si l'implantation est voulue. Rien n'est modifié dans Vindilis : c'est vous qui décidez, puis validation de l'administrateur avant tout paiement.</div></div>
+   ${O.map(o=>{const ops=opsLab(o.lab),g=gersLab(o.lab),ouv=cmdOuv===o.num;const p=o.valeurRestante?o.aGarder/o.valeurRestante:0;
+     const verdict=p>=.8?['Payer la commande','var(--vert2)']:p>=.3?['Payer une partie','var(--bleu)']:o.nRupt?['Réduire aux ruptures','var(--orange)']:['Peut attendre','var(--rouge)'];
+     return `<div class="carte" style="border-left:5px solid ${verdict[1]}"><div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1;min-width:200px"><b>${esc(o.lab)}</b> <span class="sub">n° ${o.num} · créée le ${esc(o.creation)}</span>
+       <div class="sub">Reste ${eur2(o.valeurRestante)} · ${o.nLignes} lignes · ${o.nRupt} en rupture (${eur(o.margeRuptureMois)} de marge / mois)${g!==null?` · marché GERS ${g>0?'+':''}${String(g).replace('.',',')} %`:''}</div></div>
+       <span class="badge" style="background:${verdict[1]};color:#fff">${verdict[0]}</span></div>
+      <div class="ligne"><span>Utile maintenant</span><b class="pos">${eur2(o.aGarder)}</b></div><div class="ligne"><span>Peut attendre</span><b>${eur2(o.aRetirer)}</b></div>
+      ${ops.length?`<div class="sub w" style="color:var(--orange)">⚠ ${ops.length} opération(s) Opeaz en cours avec conditions d'achat : ${esc(ops.slice(0,2).map(x=>x['Conditions']||x['Achat lié (sell-in)']).join(' · ').slice(0,180))}</div>`:''}
+      <button class="mini" data-cmd="${o.num}">${ouv?'Masquer les lignes':'Voir les lignes ('+o.nLignes+')'}</button>
+      ${ouv?`<div class="tw" style="margin-top:6px"><table class="t"><tr><th>Produit</th><th class="n">Cmdé</th><th class="n">Garder</th><th class="n">Stock</th><th class="n">Ventes / mois</th><th>Décision</th></tr>${o.lignes.map(l=>`<tr><td>${l.rupt?'<span class="pt" style="background:var(--rouge)" title="rupture"></span>':''}${esc(l.prod)}<div class="sub">${esc(l.cip)}</div></td><td class="n">${l.q}</td><td class="n"><b>${l.keep}</b></td><td class="n">${l.stock??'—'}</td><td class="n">${l.rot!=null?String(l.rot).replace('.',','):'—'}</td><td><span class="sub" style="color:${DECC[l.dec]||'var(--doux)'}">${esc(l.dec)}</span></td></tr>`).join('')}</table></div>`:''}</div>`}).join('')}
+   <div class="titre">Propositions de commande (besoins non couverts)</div>
+   <div class="carte"><div class="sub w">Produits vendus au moins une fois par mois, sous leur couverture cible, et absents des commandes en attente. Classés par marge perdue en rupture.</div>
+    ${C.propositions.slice(0,15).map(p=>`<details style="margin-top:6px"><summary><b>${esc(p.lab)}</b> · ${eur(p.val)} · ${p.n} réf. dont ${p.nRupt} en rupture (${eur(p.margeMois)} de marge / mois)</summary><div class="tw"><table class="t"><tr><th>Produit</th><th class="n">Stock</th><th class="n">Ventes / mois</th><th class="n">Qté</th><th class="n">Coût</th></tr>${p.lignes.map(l=>`<tr><td>${l.rupt?'<span class="pt" style="background:var(--rouge)"></span>':''}${esc(l.prod)}</td><td class="n">${l.stock}</td><td class="n">${String(l.rot).replace('.',',')}</td><td class="n"><b>${l.q}</b></td><td class="n">${eur2(l.val)}</td></tr>`).join('')}</table></div></details>`).join('')}</div>`}
+
 /* --- Bilan de la semaine (accueil) --- */
 function carteBilanSemaine(){if(!A)return '';const d7=ajJ(auj(),-7);const T=toutes();
   const faites=T.filter(a=>{const s=suivi(a.id);return actFaite(a.id)&&s.maj&&s.maj>=d7});
@@ -1709,12 +1735,13 @@ function promos(){$('#ht').textContent='Promos';fab(null);
 let sousStk='tre',labStk='';
 const DEC={commander:['Commander','var(--vert2)'],completer:['Clôturer l\'ancienne, puis compléter','var(--bleu)'],option:['Optionnel','var(--doux)'],bloque:['Ne pas recommander : débloquer l\'attente','var(--orange)']};
 function stock(){$('#ht').textContent='Stock & trésorerie';fab(null);
-  const nav=sousNav('sk',[['tre','💶 Trésorerie 13 semaines'],['eng','🧾 Engagements'],['rec','Recommandes'],['sur','📦 Surstocks & couverture'],['cerp','CERP'],['rup','Ruptures'],['proc','⚖️ Procédure']],sousStk);
+  const nav=sousNav('sk',[['tre','💶 Trésorerie 13 semaines'],['eng','🧾 Engagements'],['att','🛒 Commandes en attente'],['rec','Recommandes'],['sur','📦 Surstocks & couverture'],['cerp','CERP'],['rup','Ruptures'],['proc','⚖️ Procédure']],sousStk);
   const bind=()=>{document.querySelectorAll('#sk button').forEach(b=>b.onclick=()=>{sousStk=b.dataset.k;stock();scrollTo(0,0)});brancherLiens()};
   if(sousStk==='rup'){commandes();$('#ht').textContent='Stock & trésorerie';$('#m').insertAdjacentHTML('afterbegin',nav);$('#m').insertAdjacentHTML('beforeend',blocDemandesPerdues());brancherDemandesPerdues();bind();return}
   if(sousStk==='tre'){$('#m').innerHTML=nav+vueTresorerie();bind();brancherTresorerie();return}
   if(sousStk==='eng'){$('#m').innerHTML=nav+vueEngagements();bind();brancherEngagements();return}
   if(sousStk==='proc'){$('#m').innerHTML=nav+vueProcedure();bind();return}
+  if(sousStk==='att'){$('#m').innerHTML=nav+vueCommandesAttente();bind();document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{cmdOuv=cmdOuv===b.dataset.cmd?'':b.dataset.cmd;const y=scrollY;stock();scrollTo(0,y)});return}
   if(sousStk==='sur'){$('#m').innerHTML=nav+vueSurstocks();bind();document.querySelectorAll('#ssur button').forEach(b=>b.onclick=()=>{sousSur=b.dataset.k;const y=scrollY;stock();scrollTo(0,y)});return}
   if(!A){$('#m').innerHTML=nav+pasAudit();bind();return}
   const T=A.tresorerie,dispo=T.bpgo+T.cebpl-T.suiviRJ,cerpT=A.cerp.lignes.reduce((s,x)=>s+x[2],0);
