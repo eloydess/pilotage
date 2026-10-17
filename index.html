@@ -104,6 +104,7 @@ table.t tr.tot td{font-weight:700;border-top:2px solid var(--ligne)}
 .jg-r{position:absolute;left:0;top:0;bottom:0;background:var(--vert2);border-radius:9px 0 0 9px}.jg-p{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(45deg,rgba(46,125,50,.45) 0 5px,transparent 5px 9px)}
 .jg-m{position:absolute;top:-5px;bottom:-5px;border-left:3px solid}.jg-l{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12px;margin-top:8px}
 @media print{header,nav,.fab,#toast,.no-print,.filtres,#blocAct,.blocact,#blocInc,.incid{display:none!important}body{padding:0!important;background:#fff}main{display:block!important;max-width:none;padding:0}.carte{break-inside:avoid;border-color:#ccc}.fiche-c{break-inside:avoid}}
+.fraich{background:var(--carte,#fff);border:1px solid var(--ligne);border-radius:10px;padding:6px 10px;margin:0 0 10px;font-size:13px}.fraich.ko{border-left:4px solid var(--orange)}.fraich summary{cursor:pointer;color:var(--doux)}.fraich.ko summary{color:var(--orange);font-weight:600}
 /* --- Version ordinateur (même adresse, mêmes données) --- */
 @media (min-width:1024px){
 body{padding:0 0 30px 236px}
@@ -154,8 +155,8 @@ nav button em{font-style:normal}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='5.2';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & commandes','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
+const APP_V='6.0';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 let _rpT=null;new MutationObserver(()=>{clearTimeout(_rpT);_rpT=setTimeout(()=>{if(!document.getElementById('retCon')&&!document.getElementById('retCol'))replier()},60)}).observe(document.getElementById('m')||document.body,{childList:true});
@@ -220,10 +221,10 @@ function reglages(){
   <label>Code d'accès</label><input id="c" type="password" inputmode="numeric" value="${esc(c.code)}">
   <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>
   <div class="carte"><b>Analyses (Vindilis, GERS, recommandes, promotions)</b><div class="sub w" style="margin-top:4px">${A?'Arrêtées au '+esc(A.majLib)+'. Sources : '+esc(A.sources):esc(auditErr||'Non chargées.')} Ces données sont chiffrées avec votre code d'accès.</div><button class="btn sec" id="bAud">Recharger les analyses</button></div>
-  <div class="carte"><b>Maquette 3D de la pharmacie</b><div class="sub w" style="margin-top:4px">Sortie du menu principal tant que Rayon et Écrans ne sont pas remplis.</div><button class="btn sec" id="b3d">Ouvrir la 3D</button></div>`+(D&&D.fraicheur&&D.fraicheur.length?`<div class="titre">Mises à jour des données</div><div class="carte">${D.fraicheur.map(f=>`<div class="ligne"><span>${f.enRetard?'⚠':'✅'} ${esc(f.source)}<br><small style="color:var(--doux)">${esc(f.frequence)}${f.echec?' · dernier échec '+esc(f.echec):''}</small></span><b class="${f.enRetard?'neg':''}">${esc(f.dernier)}</b></div>`).join('')}</div>`:'');
+  ${blocDefinitions()}${blocSauvegarde()}<div class="carte"><b>Maquette 3D de la pharmacie</b><div class="sub w" style="margin-top:4px">Sortie du menu principal tant que Rayon et Écrans ne sont pas remplis.</div><button class="btn sec" id="b3d">Ouvrir la 3D</button></div>`+(D&&D.fraicheur&&D.fraicheur.length?`<div class="titre">Mises à jour des données</div><div class="carte">${D.fraicheur.map(f=>`<div class="ligne"><span>${f.enRetard?'⚠':'✅'} ${esc(f.source)}<br><small style="color:var(--doux)">${esc(f.frequence)}${f.echec?' · dernier échec '+esc(f.echec):''}</small></span><b class="${f.enRetard?'neg':''}">${esc(f.dernier)}</b></div>`).join('')}</div>`:'');
   $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim()||URL_DEF);$('#ok').textContent='Connexion…';ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='acc';A=null;charger()};
   $('#bAud').onclick=async()=>{toast('Chargement des analyses…');await chargerAudit();toast(A?'Analyses à jour':auditErr||'Échec');if(vue==='cfg')reglages()};
-  $('#b3d').onclick=()=>{location.href='3d.html'};
+  $('#b3d').onclick=()=>{location.href='3d.html'};brancherSauvegarde();
 }
 
 /* ---------- Rendu ---------- */
@@ -653,7 +654,7 @@ function ouvrirAction(id){filtreOng='';filtreTh='Tous';filtreSt='Toutes';sousAct
 let filtreOng='',focusAct='';
 new MutationObserver(()=>{injecterBloc();injecterIncidences()}).observe(document.getElementById('m'),{childList:true});
 /* Sous-onglet touché : amener directement la page à son contenu (sans les blocs Actions / incidences / recherche placés au-dessus) */
-const SAUTE=e=>e&&(e.id==='blocAct'||e.id==='blocInc'||e.id==='pfiltre');
+const SAUTE=e=>e&&(e.id==='blocAct'||e.id==='blocInc'||e.id==='pfiltre'||e.id==='fraich');
 function allerAuContenu(navId,essai){const nav=document.getElementById(navId);if(!nav){if((essai||0)<8)setTimeout(()=>allerAuContenu(navId,(essai||0)+1),120);return}
   let t=nav.nextElementSibling;while(SAUTE(t))t=t.nextElementSibling;if(!t)return;
   const hd=document.querySelector('header'),hh=hd?hd.offsetHeight:0,y=t.getBoundingClientRect().top+scrollY-hh-8;
@@ -883,6 +884,168 @@ function brancherObjectifs(){const s=$('#moSel');if(s)s.onchange=e=>{moisObj=e.t
   const b=$('#ocOk');if(b)b.onclick=async()=>{const o=num($('#ocO').value),tb=num($('#ocTb').value);if(o===null||tb===null||tb<o){toast('« Très bien » doit être supérieur ou égal à « Objectif »');return}
     if(await sauverCfg({o,tb,valide:true,le:auj()})){toast('Paliers enregistrés');const y=scrollY;mois();scrollTo(0,y)}}}
 
+/* ================= PILOTAGE 6.0 : fiabilité, trésorerie, engagements, procédure, surstocks, demandes perdues ================= */
+const V6=()=>(A&&A.v6)||null;
+const jsonEt=(k,def)=>{try{const v=JSON.parse(ETAT[k]||'null');return v===null?def:v}catch(e){return def}};
+/* --- Bandeau de fiabilité des données : on signale, on ne bloque pas --- */
+function bandeauFraicheur(){const L=[];const F=(D&&D.fraicheur)||[];
+  if(A&&A.majLib)L.push(['Analyses',A.majLib.replace(/^\w+ /,''),false]);
+  F.forEach(f=>{const vieux=f.enRetard||!!f.echec;L.push([f.source,f.dernier==='jamais'?'jamais chargé':(f.dernier||'—').slice(0,10)+(f.age!=null?' ('+f.age+' j)':''),vieux])});
+  const nOk=L.filter(x=>!x[2]).length,nKo=L.filter(x=>x[2]).length;
+  return `<details class="fraich ${nKo?'ko':''}" id="fraich"><summary>${nKo?'⚠ ':'✓ '}Données : ${nKo?nKo+' source(s) en retard':'à jour'} — touchez pour le détail</summary>
+   ${L.map(x=>`<div class="ligne"><span>${esc(x[0])}</span><b class="${x[2]?'neg':''}">${esc(x[1])}${x[2]?' ⚠':''}</b></div>`).join('')}
+   <div class="sub w">Un chiffre calculé sur une donnée en retard reste affiché, mais il est à vérifier dans Vindilis avant de décider. Détail dans ⚙ Réglages.</div></details>`}
+function injecterFraicheur(){const m=$('#m');if(!m||!D||document.getElementById('fraich')||vue==='cfg')return;if(!m.firstElementChild||/^Chargement/.test(m.textContent.trim()))return;
+  const F=(D.fraicheur||[]);if(!F.some(f=>f.enRetard||f.echec)&&vue!=='acc')return; /* discret quand tout va bien */
+  m.insertAdjacentHTML('afterbegin',bandeauFraicheur())}
+new MutationObserver(()=>injecterFraicheur()).observe(document.getElementById('m'),{childList:true});
+
+/* --- Définitions des indicateurs (Réglages) --- */
+const DEFS=[['Marge','Ventes HT − coût d\'achat des produits vendus (Vindilis). Base de toutes les décisions, avant le chiffre d\'affaires.'],
+ ['Taux de marge','Marge ÷ CA HT.'],['Tickets réels','Ventes Vindilis − 2 × recyclage (le recyclage compte deux fois dans la colonne Ventes). Ce sont des passages en caisse, pas des visiteurs.'],
+ ['Ventes conseil','Ventes sans ordonnance (Vindilis › Statistiques › Vendeurs).'],['Panier conseil','CA sans ordonnance ÷ nombre de ventes sans ordonnance.'],
+ ['Rupture','Référence vendue au moins une fois par mois, stock nul au dernier relevé.'],['Marge perdue en rupture','Ventes mensuelles × marge unitaire des références en rupture.'],
+ ['Couverture','Stock ÷ ventes mensuelles, en mois.'],['Surstock','Stock supérieur à 3 mois de ventes ; valeur = (stock − 3 mois) × prix d\'achat net.'],
+ ['Minimum / Objectif / Très bien','Minimum = même mois de l\'an dernier ; Objectif et Très bien = pourcentages réglés dans Objectifs.'],
+ ['Enveloppe marchandises','Solde prévu de la semaine − dépenses prioritaires − réserve de sécurité (Trésorerie 13 semaines).'],
+ ['Avant / après','Même durée avant et après l\'action, mêmes jours de semaine, comparée si possible à un témoin non concerné.']];
+function blocDefinitions(){return `<div class="carte"><details><summary><b>📖 Définitions des indicateurs</b></summary>${DEFS.map(d=>`<div class="ligne" style="display:block"><b>${esc(d[0])}</b><div class="sub w">${esc(d[1])}</div></div>`).join('')}</details></div>`}
+/* --- Sauvegarde : export de tout ce qui est saisi dans l'application --- */
+function blocSauvegarde(){return `<div class="carte"><b>💾 Sauvegarde</b><div class="sub w">Télécharge tout ce qui a été saisi dans l'application (suivis d'actions, remarques, réglages, engagements, trésorerie, plan, étoiles) dans un fichier à garder sur votre ordinateur.</div><button class="btn sec" id="bSauv">Télécharger la sauvegarde</button></div>`}
+function brancherSauvegarde(){const b=$('#bSauv');if(!b)return;b.onclick=()=>{const blob=new Blob([JSON.stringify({app:APP_V,le:new Date().toISOString(),etat:ETAT},null,1)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pilotage-sauvegarde-'+auj()+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('Sauvegarde téléchargée')}}
+
+/* --- Catégories de dépenses et ordre de priorité (à valider avec l'administrateur judiciaire) --- */
+const CATS=[['sal','Salaires et charges sociales',1],['imp','Impôts et taxes',2],['loy','Loyer et charges locatives',3],['det','Factures de la période d\'observation échues',4],
+ ['mes','Marchandises essentielles (ruptures rentables, meilleures ventes)',5],['mco','Marchandises complémentaires',6],['aut','Autres dépenses',7]];
+const catNom=k=>(CATS.find(c=>c[0]===k)||[k,k])[1];const PRIO=['sal','imp','loy','det'];
+const lundi=d=>{const x=new Date(d+'T12:00:00');const j=(x.getDay()+6)%7;x.setDate(x.getDate()-j);return x.toISOString().slice(0,10)};
+const trParam=()=>({bpgo:true,reserve:15000,scenario:0,enc:null,ach:null,tva:false,tvaSem:4,...jsonEt('tr_param',{})});
+
+function semainesTreso(){const V=V6();if(!V)return null;const P=trParam(),T=V.tresor,ch=jsonEt('tr_charges',[]),E=jsonEt('eng',{});
+  const sol=T.soldes.filter(s=>P.bpgo||!/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0);
+  const MM=(A.margeMensuelle||[]);const d0=lundi(auj());const W=[];
+  const ref=m=>MM.find(z=>z.m===moisPlus(m,-12))||MM[MM.length-1];const encDef=m=>{const mm=ref(m);return mm?mm.ca/4.33:0};const achDef=m=>{const mm=ref(m);return mm?(mm.ca-mm.mg)/4.33:0};
+  let s=sol;
+  for(let i=0;i<13;i++){const deb=ajJ(d0,7*i),fin=ajJ(deb,6),mois=deb.slice(0,7)+'-01';
+    const enc=(P.enc!=null&&P.enc!==''?+P.enc:encDef(mois))*(1+P.scenario/100)+(P.tva&&i===+P.tvaSem?25000:0);
+    const ach=(P.ach!=null&&P.ach!==''?+P.ach:achDef(mois))*(1+P.scenario/100);
+    let prio=0,march=ach,autres=0;const det=[['Achats de marchandises habituels',ach,'mes']];
+    ch.forEach(c=>{const jours=[];for(let k=0;k<7;k++){const d=ajJ(deb,k);if(+d.slice(8)===+c.jour)jours.push(d)}if(jours.length){const m=+c.montant||0;if(PRIO.includes(c.cat))prio+=m;else if(c.cat==='mes'||c.cat==='mco')march+=m;else autres+=m;det.push([c.lib,m,c.cat])}});
+    if(i===0){const ouv=T.dossiers.reduce((a,x)=>a+(x.ttc||0),0);prio+=ouv;det.push(['Dossiers ouverts du suivi RJ (au 15/10)',ouv,'det'])}
+    Object.values(E).forEach(e=>{if(!e||e.statut==='refuse'||e.statut==='paye')return;const d=e.echeance||e.date;if(d>=deb&&d<=fin||(i===0&&d<deb)){const m=+e.ttc||0;if(PRIO.includes(e.cat))prio+=m;else if(e.cat==='mes'||e.cat==='mco')march+=m;else autres+=m;det.push([e.tiers+' (engagement)',m,e.cat])}});
+    const debut=s;s=s+enc-prio-march-autres;const env=Math.max(0,debut+enc-prio-autres-P.reserve);
+    W.push({deb,fin,debut,enc,prio,march,autres,fin_:s,env,envReste:Math.max(0,env-march),det})}
+  return {sol,W,P}}
+
+function vueTresorerie(){const V=V6();if(!V)return pasAudit();const R=semainesTreso(),P=R.P,W=R.W,T=V.tresor,ch=jsonEt('tr_charges',[]);
+  const tension=W.find(w=>w.fin_<P.reserve);const mn=Math.min(...W.map(w=>w.fin_)),mx=Math.max(...W.map(w=>w.fin_),R.sol);
+  const Wd=360,H=170,g=40,Y=v=>12+(H-40)*(1-(v-Math.min(0,mn))/((mx-Math.min(0,mn))||1)),X=i=>g+(Wd-g-8)*i/12;
+  const svg=`<svg viewBox="0 0 ${Wd} ${H}" style="width:100%;height:auto;max-height:300px" role="img" aria-label="Solde prévu par semaine">
+    ${[0,.5,1].map(t=>{const v=Math.min(0,mn)+(mx-Math.min(0,mn))*t;return `<line x1="${g}" x2="${Wd-8}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--ligne)"/><text x="${g-4}" y="${Y(v)+3}" font-size="8.5" text-anchor="end" fill="var(--doux)">${Math.round(v/1000)} k</text>`}).join('')}
+    <line x1="${g}" x2="${Wd-8}" y1="${Y(P.reserve)}" y2="${Y(P.reserve)}" stroke="var(--orange)" stroke-dasharray="4 3"/><text x="${Wd-10}" y="${Y(P.reserve)-3}" font-size="8" text-anchor="end" fill="var(--orange)">réserve</text>
+    <polyline fill="none" stroke="var(--vert2)" stroke-width="2.2" points="${W.map((w,i)=>X(i)+','+Y(w.fin_)).join(' ')}"/>
+    ${W.map((w,i)=>`<circle cx="${X(i)}" cy="${Y(w.fin_)}" r="3" fill="${w.fin_<P.reserve?'var(--rouge)':'var(--vert2)'}"><title>Semaine du ${dfr(w.deb)} : ${eur(w.fin_)}</title></circle><text x="${X(i)}" y="${H-12}" font-size="7.5" text-anchor="middle" fill="var(--doux)">${w.deb.slice(8)}/${w.deb.slice(5,7)}</text>`).join('')}</svg>`;
+  return `${ch.length?'':`<div class="carte al o"><b class="t">Charges mensuelles non saisies : prévision surestimée</b><div class="sub w">Salaires, charges sociales, impôts, loyer et crédit-bail ne sont pas encore dans la prévision. Saisissez-les en bas de page, ou envoyez-moi vos relevés bancaires et je les remplis (action A56).</div></div>`}<div class="carte"><b>Trésorerie sur 13 semaines</b><div class="sub w">Point de départ : soldes du ${esc(T.soldes[0]?T.soldes[0].date.slice(0,10):'—')} (${esc(T.source)}). Encaissements estimés, charges que vous saisissez, factures du suivi RJ et engagements validés. Prévision indicative : elle ne remplace pas la position bancaire demandée par l'administrateur.</div>
+    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Solde de départ</div><div class="v">${eur(R.sol)}</div></div><div class="kpi"><div class="l">Solde dans 13 semaines</div><div class="v ${W[12].fin_<P.reserve?'neg':''}">${eur(W[12].fin_)}</div></div>
+     <div class="kpi"><div class="l">Point bas</div><div class="v ${mn<P.reserve?'neg':''}">${eur(mn)}</div></div><div class="kpi"><div class="l">Tension</div><div class="v ${tension?'neg':'pos'}" style="font-size:16px">${tension?'semaine du '+dfr(tension.deb):'aucune'}</div></div></div>${svg}</div>
+   <div class="carte"><b>Réglages de la prévision</b>
+    <div class="g2"><div><label>Encaissements par semaine (€)</label><input id="trEnc" type="number" step="100" value="${P.enc??''}" placeholder="estimation automatique"></div><div><label>Réserve de sécurité (€)</label><input id="trRes" type="number" step="500" value="${P.reserve}"></div><div><label>Achats de marchandises par semaine (€)</label><input id="trAch" type="number" step="100" value="${P.ach??''}" placeholder="estimation automatique"></div></div>
+    <label>Scénario de ventes : ${P.scenario>0?'+':''}${P.scenario} %</label><input id="trSc" type="range" min="-15" max="5" step="5" value="${P.scenario}" style="width:100%">
+    <div class="ligne"><span><input type="checkbox" id="trBp" ${P.bpgo?'checked':''}> Compter le solde BPGO</span><b class="sub">[À CONFIRMER] compte gelé à l'ouverture ?</b></div>
+    <div class="ligne"><span><input type="checkbox" id="trTva" ${P.tva?'checked':''}> Crédit de TVA de 25 000 € annoncé par le cabinet, semaine n° <input id="trTvaS" type="number" min="0" max="12" value="${P.tvaSem}" style="width:60px;display:inline-block;margin:0"></span></div>
+    <div class="sub w">Sans montant saisi : encaissements = CA HT du même mois l'an dernier ÷ 4,33 ; achats habituels = (CA HT − marge) du même mois ÷ 4,33. À remplacer par les montants réels de vos relevés bancaires.</div></div>
+   <div class="carte"><b>Combien je peux dépenser, semaine par semaine</b><div class="sub w">Ordre de priorité appliqué : ${CATS.map(c=>c[2]+'. '+c[1]).join(' · ')}. <b style="color:var(--txt)">Ordre à valider avec l'administrateur judiciaire.</b> « Enveloppe marchandises » = solde de début + encaissements − dépenses prioritaires − autres − réserve ; « restant » = après les achats habituels et les engagements de marchandises.</div>
+    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Semaine du</th><th class="n">Encaissements</th><th class="n">Prioritaires</th><th class="n">Marchandises prévues</th><th class="n">Enveloppe marchandises</th><th class="n">Solde fin</th></tr>
+    ${W.map(w=>`<tr><td>${dfr(w.deb)}<details><summary class="sub">détail</summary>${w.det.map(d=>`<div class="sub">${esc(d[0])} : ${eur(d[1])} · ${esc(catNom(d[2]))}</div>`).join('')||'<div class="sub">—</div>'}</details></td><td class="n">${eur(w.enc)}</td><td class="n">${eur(w.prio)}</td><td class="n">${eur(w.march)}</td><td class="n"><b class="${w.envReste<=0?'neg':'pos'}">${eur(w.envReste)}</b><div class="sub">sur ${eur(w.env)}</div></td><td class="n ${w.fin_<P.reserve?'neg':''}"><b>${eur(w.fin_)}</b></td></tr>`).join('')}</table></div></div>
+   <div class="carte"><b>Charges mensuelles prévues</b><div class="sub w">Saisissez chaque charge récurrente avec son jour de prélèvement. À compléter à partir de vos relevés bancaires : envoyez-moi l'export des 3 derniers mois (BPGO et Caisse d'Épargne) et je les pré-remplis.</div>
+    ${ch.length?`<div class="tw"><table class="t"><tr><th>Charge</th><th>Catégorie</th><th class="n">Jour</th><th class="n">Montant</th><th></th></tr>${ch.map((c,i)=>`<tr><td>${esc(c.lib)}</td><td class="sub">${esc(catNom(c.cat))}</td><td class="n">${c.jour}</td><td class="n">${eur2(c.montant)}</td><td><button class="mini" data-chdel="${i}">✕</button></td></tr>`).join('')}<tr class="tot"><td colspan="3">Total par mois</td><td class="n">${eur2(ch.reduce((s,c)=>s+(+c.montant||0),0))}</td><td></td></tr></table></div>`:'<div class="sub">Aucune charge saisie pour l\'instant.</div>'}
+    <div class="g2" style="margin-top:8px"><div><label>Libellé</label><input id="chLib" placeholder="ex. loyer Carmila"></div><div><label>Catégorie</label><select id="chCat">${CATS.map(c=>`<option value="${c[0]}">${esc(c[1])}</option>`).join('')}</select></div>
+     <div><label>Jour du mois</label><input id="chJour" type="number" min="1" max="31" value="5"></div><div><label>Montant TTC (€)</label><input id="chMt" type="number" step="0.01"></div></div>
+    <button class="btn sec" id="chAdd">+ Ajouter la charge</button></div>`}
+function brancherTresorerie(){const P=trParam(),sv=async m=>{if(await majEtat('tr_param',JSON.stringify({...P,...m}))){const y=scrollY;stock();scrollTo(0,y)}};
+  const n=id=>$('#'+id);if(!n('trRes'))return;
+  n('trEnc').onchange=e=>sv({enc:e.target.value===''?null:+e.target.value});n('trAch').onchange=e=>sv({ach:e.target.value===''?null:+e.target.value});n('trRes').onchange=e=>sv({reserve:+e.target.value||0});
+  n('trSc').onchange=e=>sv({scenario:+e.target.value});n('trBp').onchange=e=>sv({bpgo:e.target.checked});n('trTva').onchange=e=>sv({tva:e.target.checked});n('trTvaS').onchange=e=>sv({tvaSem:+e.target.value||0});
+  n('chAdd').onclick=async()=>{const lib=n('chLib').value.trim(),mt=num(n('chMt').value);if(!lib||mt===null){toast('Libellé et montant obligatoires');return}
+    const ch=jsonEt('tr_charges',[]);ch.push({lib,cat:n('chCat').value,jour:Math.min(31,Math.max(1,+n('chJour').value||1)),montant:mt});if(await majEtat('tr_charges',JSON.stringify(ch))){toast('Charge ajoutée');const y=scrollY;stock();scrollTo(0,y)}};
+  document.querySelectorAll('[data-chdel]').forEach(b=>b.onclick=async()=>{const ch=jsonEt('tr_charges',[]);ch.splice(+b.dataset.chdel,1);if(await majEtat('tr_charges',JSON.stringify(ch))){const y=scrollY;stock();scrollTo(0,y)}})}
+
+/* --- Registre des engagements : qui commande, combien, qui valide --- */
+const EST={avalider:['À valider','var(--orange)'],valide:['Validé','var(--bleu)'],paye:['Payé','var(--vert2)'],refuse:['Refusé','var(--rouge)']};
+function vueEngagements(){const V=V6();if(!V)return pasAudit();const E=jsonEt('eng',{}),B=jsonEt('eng_budget',{}),L=Object.entries(E).sort((a,b)=>String(b[1].date).localeCompare(String(a[1].date)));
+  const R=semainesTreso(),w0=R?R.W[0]:null,mois=auj().slice(0,7);
+  const parCat={};L.forEach(([,e])=>{if(e.statut!=='refuse'&&String(e.date).slice(0,7)===mois)parCat[e.cat]=(parCat[e.cat]||0)+(+e.ttc||0)});
+  const T=V.tresor;
+  return `<div class="carte"><b>Registre des engagements</b><div class="sub w">Toute commande ou dépense est notée ici avant d'être passée : qui la demande, combien, pour quand, et qui l'a validée. Elle entre dans la trésorerie dès qu'elle est validée.${w0?` Enveloppe marchandises encore disponible cette semaine : <b style="color:var(--txt)">${eur(w0.envReste)}</b>.`:''}</div>
+    <div class="g2" style="margin-top:8px"><div><label>Fournisseur ou tiers</label><input id="enT"></div><div><label>Catégorie</label><select id="enC">${CATS.map(c=>`<option value="${c[0]}">${esc(c[1])}</option>`).join('')}</select></div>
+     <div><label>Montant TTC (€)</label><input id="enM" type="number" step="0.01"></div><div><label>Échéance de paiement</label><input id="enE" type="date" value="${auj()}"></div>
+     <div><label>Demandé par</label><input id="enQ" value="${esc(ls.get('pil_qui')||'')}"></div><div><label>Pourquoi (nécessité)</label><input id="enN" placeholder="ex. ruptures Zentiva"></div></div>
+    <div id="enAl" class="sub w"></div><button class="btn" id="enOk">Enregistrer l'engagement</button></div>
+   <div class="carte"><b>Budget du mois par catégorie</b><div class="sub w">Plafond mensuel : une alerte s'affiche quand il est dépassé.</div>
+    <div class="tw"><table class="t"><tr><th>Catégorie</th><th class="n">Engagé ce mois</th><th class="n">Plafond</th></tr>${CATS.map(c=>{const u=parCat[c[0]]||0,p=num(B[c[0]]);return `<tr><td>${esc(c[1])}</td><td class="n ${p!==null&&u>p?'neg':''}"><b>${eur(u)}</b>${p!==null&&u>p?' ⚠':''}</td><td class="n"><input class="inBud" data-c="${c[0]}" type="number" step="100" value="${p??''}" placeholder="—" style="width:110px;margin:0;text-align:right"></td></tr>`}).join('')}</table></div></div>
+   <div class="carte"><b>Engagements (${L.length})</b>${L.length?L.map(([id,e])=>`<div class="ligne" style="flex-wrap:wrap;gap:6px"><span style="flex:1;min-width:180px"><b>${esc(e.tiers)}</b> · ${eur2(e.ttc)}<div class="sub">${esc(catNom(e.cat))} · échéance ${dfr(e.echeance)} · par ${esc(e.qui||'—')}${e.note?' · '+esc(e.note):''}</div></span>
+      <select class="enSt" data-id="${id}" style="width:auto;margin:0;border-color:${EST[e.statut||'avalider'][1]}">${Object.entries(EST).map(([k,v])=>`<option value="${k}" ${(e.statut||'avalider')===k?'selected':''}>${v[0]}</option>`).join('')}</select></div>`).join(''):'<div class="sub">Aucun engagement noté.</div>'}</div>
+   <div class="carte"><b>Dossiers en cours du suivi RJ</b> <span class="sub">${esc(T.source)} · ${T.dossiers.length} dossiers · ${eur2(T.totalOuvert)}</span>
+    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Tiers</th><th class="n">TTC</th><th>Statut</th><th>Livraison</th></tr>${T.dossiers.map(d=>`<tr><td><b>${esc(d.tiers)}</b><div class="sub">${esc(d.ref||'')}</div></td><td class="n">${d.ttc!=null?eur2(d.ttc):'—'}</td><td class="sub">${esc(d.statut)}</td><td class="sub">${esc(d.livraison)}</td></tr>`).join('')}</table></div>
+    <div class="sub w" style="margin-top:6px">Le suivi détaillé reste dans votre classeur Suivi RJ ; cette liste est une copie à la date indiquée.</div></div>`}
+function brancherEngagements(){if(!$('#enOk'))return;const al=()=>{const R=semainesTreso(),w0=R?R.W[0]:null,m=num($('#enM').value),c=$('#enC').value;const B=jsonEt('eng_budget',{});
+    const msg=[];if(w0&&m!==null&&(c==='mes'||c==='mco')&&m>w0.envReste)msg.push('⚠ Dépasse l\'enveloppe marchandises de la semaine ('+eur(w0.envReste)+').');
+    if(num(B[c])!==null&&m!==null){const E=jsonEt('eng',{}),mois=auj().slice(0,7);const u=Object.values(E).filter(e=>e.cat===c&&e.statut!=='refuse'&&String(e.date).slice(0,7)===mois).reduce((s,e)=>s+(+e.ttc||0),0);if(u+m>+B[c])msg.push('⚠ Dépasse le plafond du mois pour cette catégorie.')}
+    $('#enAl').innerHTML=msg.map(x=>`<b class="neg">${x}</b>`).join('<br>')};
+  ['enM','enC'].forEach(i=>$('#'+i).oninput=al);
+  $('#enOk').onclick=async()=>{const t=$('#enT').value.trim(),m=num($('#enM').value);if(!t||m===null){toast('Fournisseur et montant obligatoires');return}
+    const E=jsonEt('eng',{});const id='e'+Date.now().toString(36);E[id]={date:auj(),tiers:t,cat:$('#enC').value,ttc:m,echeance:$('#enE').value||auj(),qui:$('#enQ').value.trim(),note:$('#enN').value.trim(),statut:'avalider'};
+    if($('#enQ').value.trim())ls.set('pil_qui',$('#enQ').value.trim());if(await majEtat('eng',JSON.stringify(E))){toast('Engagement enregistré');const y=scrollY;stock();scrollTo(0,y)}};
+  document.querySelectorAll('.enSt').forEach(s=>s.onchange=async()=>{const E=jsonEt('eng',{});if(!E[s.dataset.id])return;E[s.dataset.id].statut=s.value;E[s.dataset.id]['le_'+s.value]=auj();if(await majEtat('eng',JSON.stringify(E))){toast('Statut mis à jour');const y=scrollY;stock();scrollTo(0,y)}});
+  document.querySelectorAll('.inBud').forEach(i=>i.onchange=async()=>{const B=jsonEt('eng_budget',{});B[i.dataset.c]=i.value===''?null:+i.value;if(await majEtat('eng_budget',JSON.stringify(B))){const y=scrollY;stock();scrollTo(0,y)}})}
+
+/* --- Tableau de bord de la procédure --- */
+function vueProcedure(){const V=V6();if(!V)return pasAudit();const P=V.procedure,T=V.tresor;const j=Math.round((new Date(auj())-new Date(P.ouverture))/864e5);
+  return `<div class="carte"><b>Redressement judiciaire</b><div class="sub w">Ouvert le ${dfr(P.ouverture)} (${esc(P.tribunal)}), il y a ${j} jours. ${esc(P.observation)}.</div>
+    ${P.acteurs.map(a=>`<div class="ligne"><span>${esc(a[0])}</span><b>${esc(a[1])}</b></div>`).join('')}
+    <div class="ligne"><span>Passif retenu (${esc(P.passif.source)})</span><b>${eur(P.passif.montant)} · ${P.passif.creanciers} créanciers</b></div></div>
+   <div class="carte"><b>Circuit de paiement pendant la période d'observation</b>${P.circuit.map((c,i)=>`<div class="ligne"><span>${i+1}. ${esc(c)}</span></div>`).join('')}
+    <div class="sub w" style="margin-top:4px">Dossiers en cours : ${T.dossiers.length} pour ${eur2(T.totalOuvert)} (détail dans Engagements).</div></div>
+   <div class="carte"><b>À suivre</b>${P.aSuivre.map(a=>`<div class="ligne"><span>${esc(a[0])}</span><b class="sub" style="text-align:right">${esc(a[1])}</b></div>`).join('')}</div>
+   <div class="carte"><div class="sub w">Cet écran rassemble les faits connus de l'application ; il ne remplace ni l'avis de vos conseils ni le jugement. Les dates d'échéance de la procédure sont à compléter à partir du jugement d'ouverture.</div></div>`}
+
+/* --- Surstocks et couverture adaptée --- */
+let sousSur='sur';
+function vueSurstocks(){const V=V6();if(!V)return pasAudit();const S=V.stock;const b15=S.labos.reduce((s,x)=>s+x[1],0),bad=S.labos.reduce((s,x)=>s+x[2],0);
+  const nav=`<div class="filtres" id="ssur">${[['sur','Surstocks'],['cov','Couverture adaptée'],['prio','Priorité d\'achat']].map(o=>`<button data-k="${o[0]}" class="${o[0]===sousSur?'on':''}">${o[1]}</button>`).join('')}</div>`;
+  let h='';
+  if(sousSur==='sur')h=`<div class="carte al o"><b class="t">${eur(S.valSurstocks)} immobilisés au-delà de 3 mois de ventes</b><div class="sub w">${S.nSurstocks} références des ${esc(S.perimetre)}. Valeur = (stock − 3 mois de ventes) × prix d'achat net. Leviers : ne pas recommander, retour fournisseur négocié, mise en avant ou bac soldeur. Les produits sans aucune vente demandent l'export complet du stock Vindilis (à faire, action A68).</div></div>
+    <div class="carte"><div class="tw"><table class="t"><tr><th>Produit</th><th class="n">Stock</th><th class="n">Ventes/mois</th><th class="n">Couverture</th><th class="n">À libérer</th></tr>${S.surstocks.slice(0,80).map(r=>`<tr><td>${esc(r[2])}<div class="sub">${esc(r[0])} · ${esc(r[1])}</div></td><td class="n">${String(r[3]).replace('.',',')}</td><td class="n">${String(r[4]).replace('.',',')}</td><td class="n">${String(r[5]).replace('.',',')} mois</td><td class="n"><b>${eur(r[6])}</b></td></tr>`).join('')}</table></div></div>`;
+  if(sousSur==='cov')h=`<div class="carte"><b>Couverture adaptée à la rotation</b><div class="sub w">Au lieu d'un mois et demi pour tout : ${S.regle.map(r=>esc(r[0])+' → '+esc(r[1])).join(' ; ')}.</div>
+    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Règle 1,5 mois</div><div class="v">${eur(b15)}</div></div><div class="kpi"><div class="l">Règle adaptée</div><div class="v">${eur(bad)}</div><div class="e" style="color:var(--doux);font-weight:400">${bad>b15?'+':''}${eur(bad-b15)}</div></div></div>
+    <div class="sub w" style="margin-top:6px">La règle adaptée commande un peu moins les produits rapides et garde au moins une boîte des produits lents : le rayon n'est jamais vide. Le vrai levier de trésorerie est dans les surstocks (${eur(S.valSurstocks)}).</div>
+    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Laboratoire</th><th class="n">1,5 mois</th><th class="n">Adaptée</th></tr>${S.labos.slice().sort((a,b)=>b[2]-a[2]).map(l=>`<tr><td>${esc(l[0])}</td><td class="n">${eur(l[1])}</td><td class="n"><b>${eur(l[2])}</b></td></tr>`).join('')}</table></div></div>`;
+  if(sousSur==='prio')h=`<div class="carte"><b>Quoi acheter en premier</b><div class="sub w">Classement : marge mensuelle protégée par euro dépensé. Avec une enveloppe limitée, commander dans cet ordre.</div>
+    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Produit</th><th class="n">Qté</th><th class="n">Coût</th><th class="n">Marge / mois</th><th class="n">€ de marge par € dépensé</th></tr>${S.priorite.slice(0,80).map(r=>`<tr><td>${esc(r[2])}<div class="sub">${esc(r[0])}</div></td><td class="n">${r[6]}</td><td class="n">${eur2(r[7])}</td><td class="n">${eur2(r[8])}</td><td class="n"><b>${String(r[9]).replace('.',',')}</b></td></tr>`).join('')}</table></div></div>`;
+  return nav+h}
+
+/* --- Demandes non satisfaites au comptoir --- */
+const MOTIFS=['Rupture','Pas en référence','Prix trop élevé','Attente trop longue','Autre'];
+function blocDemandesPerdues(){const L=jsonEt('perdus',[]);const c={};L.forEach(x=>c[x.motif]=(c[x.motif]||0)+1);
+  return `<div class="carte"><b>🙋 Demandes non satisfaites</b><div class="sub w">Un client repart sans ce qu'il voulait : notez-le en 5 secondes. Ça montre ce qui manque vraiment et ce qu'il faut référencer.</div>
+   <div class="g2" style="margin-top:6px"><div><label>Produit demandé</label><input id="pdP"></div><div><label>Motif</label><select id="pdM">${MOTIFS.map(m=>`<option>${m}</option>`).join('')}</select></div></div>
+   <button class="btn sec" id="pdOk">Noter la demande</button>
+   ${L.length?`<div style="margin-top:8px">${donut(MOTIFS.filter(m=>c[m]).map((m,i)=>[m,c[m],['var(--rouge)','var(--bleu)','var(--orange)','var(--violet,#7e57c2)','var(--doux)'][MOTIFS.indexOf(m)]]),String(L.length),'demandes')}</div>
+    ${L.slice(-15).reverse().map(x=>`<div class="ligne"><span>${esc(x.p)}<div class="sub">${dfr(x.d)}</div></span><b class="sub">${esc(x.motif)}</b></div>`).join('')}`:''}</div>`}
+function brancherDemandesPerdues(){const b=$('#pdOk');if(!b)return;b.onclick=async()=>{const p=$('#pdP').value.trim();if(!p){toast('Indiquez le produit');return}
+  const L=jsonEt('perdus',[]);L.push({p,motif:$('#pdM').value,d:auj()});if(L.length>500)L.splice(0,L.length-500);if(await majEtat('perdus',JSON.stringify(L))){toast('Demande notée');const y=scrollY;stock();scrollTo(0,y)}}}
+
+/* --- Bilan de la semaine (accueil) --- */
+function carteBilanSemaine(){if(!A)return '';const d7=ajJ(auj(),-7);const T=toutes();
+  const faites=T.filter(a=>{const s=suivi(a.id);return actFaite(a.id)&&s.maj&&s.maj>=d7});
+  const mes=T.filter(a=>{const s=suivi(a.id);return s.verdict&&s.maj&&s.maj>=d7});
+  const retard=T.filter(a=>statutA(a)==='retard').length;const E=jsonEt('eng',{}),eng7=Object.values(E).filter(e=>e.date>=d7);
+  return `<div class="carte"><b>📆 Bilan des 7 derniers jours</b>
+   <div class="ligne"><span>Actions terminées</span><b>${faites.length}</b></div><div class="ligne"><span>Actions mesurées (verdict avant / après)</span><b>${mes.length}</b></div>
+   <div class="ligne"><span>Actions en retard</span><b class="${retard?'neg':''}">${retard}</b></div><div class="ligne"><span>Engagements notés</span><b>${eng7.length} · ${eur(eng7.reduce((s,e)=>s+(+e.ttc||0),0))}</b></div>
+   <div class="sub w">À reprendre au point du lundi. ${lienV('Plan d\'action','act')}</div></div>`}
+
 /* ---------- ACCUEIL ---------- */
 function alertes(){const L=[];
   if(A){const c=A.cerp,t=c.lignes.reduce((s,x)=>s+x[2],0),r=c.lignes.reduce((s,x)=>s+x[4],0);
@@ -918,8 +1081,9 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);
   const nA=A?toutes().filter(a=>!actFaite(a.id)).length:null;
   const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur '+(A?toutes().length:'—'),'act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
   const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
-  $('#m').innerHTML=`${alertes()}${carteSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
+  $('#m').innerHTML=`${alertes()}${carteSemaine()}${carteBilanSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
    <div class="titre">Mois en cours</div>${carteEnCours()}${carteMarche()}
+   <details class="plusAcc"${ls.get('pil_plusAcc')==='1'?' open':''}><summary class="titre" style="cursor:pointer">▸ Plus d'analyses : mois complets, exercice, contexte</summary>
    <div class="titre">Mois complets (Vindilis, chargés dans l'application)</div>
    <div class="carte" style="display:flex;align-items:center;gap:8px;padding:8px 10px">
     <button class="btn sec" id="mPrev" style="width:auto;margin:0;padding:8px 14px" ${i<=0?'disabled':''}>‹</button>
@@ -929,7 +1093,8 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);
     <div class="carte kpi"><div class="l">Taux de marge</div><div class="v">${pct(tN)}</div><div class="e ${tN!==null&&tN1!==null?cls(tN-tN1):''}">${tN!==null&&tN1!==null?((tN-tN1)*100>0?'+':'')+((tN-tN1)*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' pt':'—'} <span style="color:var(--doux);font-weight:400">vs ${pct(tN1)}</span></div></div></div>
    <div class="carte"><div class="ligne"><span>Effet fréquentation</span><b class="${cls(p['Effet fréquentation €'])}">${eur(p['Effet fréquentation €'])}</b></div><div class="ligne"><span>Effet marge par client</span><b class="${cls(p['Effet marge/client €'])}">${eur(p['Effet marge/client €'])}</b></div><div class="ligne"><span>CA HT (pour information)</span><b>${eur(p['CA HT N'])} <span style="color:var(--doux);font-weight:400">vs ${eur(p['CA HT N-1'])}</span></b></div></div>
    ${carteExercice()}
-   ${A?`<div class="carte"><div class="sub w"><b style="color:var(--txt)">Contexte local.</b> ${esc(A.contexte)}</div></div>`:''}`;
+   ${A?`<div class="carte"><div class="sub w"><b style="color:var(--txt)">Contexte local.</b> ${esc(A.contexte)}</div></div>`:''}</details>`;
+  {const pa=document.querySelector('.plusAcc');if(pa)pa.ontoggle=()=>ls.set('pil_plusAcc',pa.open?'1':'0')}
   const go=m=>{moisSel=m;accueil()};$('#mSel').onchange=e=>go(e.target.value);
   if($('#mPrev'))$('#mPrev').onclick=()=>{if(i>0)go(ms[i-1])};if($('#mNext'))$('#mNext').onclick=()=>{if(i<ms.length-1)go(ms[i+1])};
   document.querySelectorAll('#exMode button').forEach(b=>b.onclick=()=>{modeEx=b.dataset.m;const y=scrollY;accueil();scrollTo(0,y)});
@@ -1541,12 +1706,16 @@ function promos(){$('#ht').textContent='Promos';fab(null);
   $('#m').innerHTML=nav+h;document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos();scrollTo(0,0)});document.querySelectorAll('#fw button').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f;promos()});document.querySelectorAll('#m .donut [data-f2]').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f2;promos()});}
 
 /* ---------- STOCK & COMMANDES ---------- */
-let sousStk='rec',labStk='';
+let sousStk='tre',labStk='';
 const DEC={commander:['Commander','var(--vert2)'],completer:['Clôturer l\'ancienne, puis compléter','var(--bleu)'],option:['Optionnel','var(--doux)'],bloque:['Ne pas recommander : débloquer l\'attente','var(--orange)']};
-function stock(){$('#ht').textContent='Stock & commandes';fab(null);
-  const nav=sousNav('sk',[['rec','Recommandes 1,5 mois'],['cerp','CERP & trésorerie'],['rup','Ruptures (relevé serveur)']],sousStk);
+function stock(){$('#ht').textContent='Stock & trésorerie';fab(null);
+  const nav=sousNav('sk',[['tre','💶 Trésorerie 13 semaines'],['eng','🧾 Engagements'],['rec','Recommandes'],['sur','📦 Surstocks & couverture'],['cerp','CERP'],['rup','Ruptures'],['proc','⚖️ Procédure']],sousStk);
   const bind=()=>{document.querySelectorAll('#sk button').forEach(b=>b.onclick=()=>{sousStk=b.dataset.k;stock();scrollTo(0,0)});brancherLiens()};
-  if(sousStk==='rup'){commandes();$('#ht').textContent='Stock & commandes';$('#m').insertAdjacentHTML('afterbegin',nav);bind();return}
+  if(sousStk==='rup'){commandes();$('#ht').textContent='Stock & trésorerie';$('#m').insertAdjacentHTML('afterbegin',nav);$('#m').insertAdjacentHTML('beforeend',blocDemandesPerdues());brancherDemandesPerdues();bind();return}
+  if(sousStk==='tre'){$('#m').innerHTML=nav+vueTresorerie();bind();brancherTresorerie();return}
+  if(sousStk==='eng'){$('#m').innerHTML=nav+vueEngagements();bind();brancherEngagements();return}
+  if(sousStk==='proc'){$('#m').innerHTML=nav+vueProcedure();bind();return}
+  if(sousStk==='sur'){$('#m').innerHTML=nav+vueSurstocks();bind();document.querySelectorAll('#ssur button').forEach(b=>b.onclick=()=>{sousSur=b.dataset.k;const y=scrollY;stock();scrollTo(0,y)});return}
   if(!A){$('#m').innerHTML=nav+pasAudit();bind();return}
   const T=A.tresorerie,dispo=T.bpgo+T.cebpl-T.suiviRJ,cerpT=A.cerp.lignes.reduce((s,x)=>s+x[2],0);
   if(sousStk==='cerp'){
