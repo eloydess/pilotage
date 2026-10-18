@@ -162,8 +162,8 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.13';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['prio','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
+const APP_V='6.14';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 let _rpT=null;new MutationObserver(()=>{clearTimeout(_rpT);_rpT=setTimeout(()=>{if(!document.getElementById('retCon')&&!document.getElementById('retCol'))replier()},60)}).observe(document.getElementById('m')||document.body,{childList:true});
@@ -261,7 +261,7 @@ function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;if(!D._opsTout
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
 function libererCarte(){if(typeof MAPC!=='undefined'&&MAPC){try{MAPC._onZoomTransitionEnd=()=>{};MAPC._animatingZoom=false;MAPC.stop();MAPC.off();MAPC.remove()}catch(e){}MAPC=null}}
 function rendre(){libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
-  ({acc:accueil,prio:()=>{$('#ht').textContent='Priorités';fab(null);$('#m').innerHTML=vuePriorites();brancherPriorites();brancherLiens()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
+  ({acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
 function allerReco(r){if(!r)return;const d=r['Domaine'],c=r['Cible'],labo=(D.labos||[]).some(l=>l['Laboratoire']===c);
@@ -365,7 +365,7 @@ function classement(){
   return Object.values(m).map(x=>({...x,tot:x.stock+x.marche+x.prix})).filter(x=>x.tot>0&&(x.marge||0)>0).sort((a,b)=>b.tot-a.tot);
 }
 function actionsServeur(){
-  $('#ht').textContent='Actions'; fab(null);
+  $('#ht').textContent='Priorités'; fab(null);
   if(filtre==='Classement'){const c=classement().slice(0,25);
     $('#m').innerHTML=`<div class="filtres">${['Classement','Ouvertes','P1','Stock','Marché','Prix','Laboratoire','Écrans','Faites'].map(d=>`<button class="${d===filtre?'on':''}" data-f="${d}">${d}</button>`).join('')}</div>
     <div class="carte"><b>Laboratoires à traiter en priorité</b><div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">Enjeu en marge €/an = ruptures (stock relevé le ${dfr(((D.commandes||[]).map(c=>c['Date relevé']).filter(Boolean).sort().slice(-1)[0])||'')}, ventes 29/09/2025 → 28/09/2026) + retard sur les grandes officines GERS (CA 09/2025 → 08/2026 vs 09/2024 → 08/2025, date pour date) + prix pas encore revus. Génériques exclus du retard marché (substitution Zentiva en priorité). Classement à refaire tous les 15 jours, après chaque export.</div></div>
@@ -1185,7 +1185,7 @@ function brancherPriorites(){document.querySelectorAll('.prl').forEach(el=>{cons
   const g=el.querySelector('[data-pgo]');if(g)g.onclick=()=>{if(k==='act')ouvrirAction(id);else{const p=String(x.go).split(':');vue=p[0];if(p[1]&&vue==='stk')sousStk=p[1];rendre();scrollTo(0,0)}};
   el.querySelectorAll('[data-pst]').forEach(bt=>bt.onclick=async()=>{await majInc(x.inc,bt.dataset.pst);_prC=null;rendre()})})}
 function cartePrioAccueil(){let L;try{L=prioListe().filter(x=>!x.claude).slice(0,5)}catch(e){return ''}if(!L.length)return '';
-  return `<div class="carte" id="prioAcc" style="border-left:6px solid var(--rouge)"><b>🔥 Vos 5 priorités du moment</b><div class="sub w">Du plus impactant au moins impactant, tous onglets confondus.</div>${L.map(x=>`<div class="ligne" data-go="prio" style="cursor:pointer"><span><span class="prk ${x.band}" style="margin-right:6px">${x.rang}</span>${esc(x.titre.length>90?x.titre.slice(0,88)+'…':x.titre)}</span><b class="sub" style="white-space:nowrap;margin-left:8px">${x.nat==='obligation'?'urgent':'≈ '+eur(x.val)}</b></div>`).join('')}<button class="btn sec" data-go="prio">Voir toutes les priorités, dans l'ordre</button></div>`}
+  return `<div class="carte" id="prioAcc" style="border-left:6px solid var(--rouge)"><b>🔥 Vos 5 priorités du moment</b><div class="sub w">Du plus impactant au moins impactant, tous onglets confondus.</div>${L.map(x=>`<div class="ligne" data-go="act:ord" style="cursor:pointer"><span><span class="prk ${x.band}" style="margin-right:6px">${x.rang}</span>${esc(x.titre.length>90?x.titre.slice(0,88)+'…':x.titre)}</span><b class="sub" style="white-space:nowrap;margin-left:8px">${x.nat==='obligation'?'urgent':'≈ '+eur(x.val)}</b></div>`).join('')}<button class="btn sec" data-go="act:ord">Voir toutes les priorités, dans l'ordre</button></div>`}
 /* ================= 6.7 : entrées et sorties réelles (relevés bancaires) ================= */
 const BQ=()=>(A&&A.banque)||null;
 function bqAgg(){const B=BQ();if(!B)return null;const R=B.ref||[1,2],moy=m=>R.reduce((s,i)=>s+(m[i]||0),0)/R.length;const g={};
@@ -1454,7 +1454,7 @@ function avantApres(){const L=A.avantApres,n=k=>L.filter(x=>x.verdict===k).lengt
    ${vis.map(([r,v])=>`<tr><td><b>${esc(r[0])}</b><div class="sub">${ent(r[3])} → ${ent(r[4])} u en oct.</div></td><td class="n ${cls(r[1])}">${pc1(r[1])}</td><td class="n ${cls(r[2])}">${pc1(r[2])}</td><td class="n">${eur(r[5])} → <b class="${cls(r[6]-r[5])}">${eur(r[6])}</b></td><td class="n">${r[7]===null?'—':String(r[7]).replace('.',',')+' %'} → ${r[8]===null?'—':String(r[8]).replace('.',',')+' %'}</td><td>${VERDP[v][0]} ${VERDP[v][1]}</td></tr>`).join('')}</table></div></div>`}
 
 /* ---------- ACTIONS ---------- */
-let sousAct='dix';
+let sousAct='ord';
 let sousCon='carte',rayonCon=3,filtreCon='3';
 const NIVC=n=>/^Élevée/.test(n)?'var(--rouge)':/élevée|^Moyenne$/.test(n)?'var(--orange)':/Moyenne|Faible à/.test(n)?'#c9a227':'var(--doux)';
 const ouiNon=v=>v===true?'oui':v===false?'non':'<span class="sub">?</span>';
@@ -1859,7 +1859,7 @@ async function majInc(i,st){const E=incEtat();if(st)E[i.id]={st,le:auj(),txt:i.t
 const aTraiter=i=>!incEtat()[i.id];
 const enCoursInc=i=>{const e=incEtat()[i.id];return !e||e.st==='vu'};
 let _rhAuto=false;function pastilles(){if(!D)return;if(!_rhAuto&&ss.get('pil_code2')&&!PAIE){_rhAuto=true;const c2=ss.get('pil_code2');chargerPaie(c2).then(ok=>ok&&chargerRhx(c2)).then(()=>pastilles())}
-  const I=incidences();document.querySelectorAll('#nav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(aTraiter).length,vu=L.filter(i=>(incEtat()[i.id]||{}).st==='vu').length;let p=b.querySelector('.pst');if(p)p.remove();if(t==='prio'){let n=0;try{n=prioListe().filter(x=>!x.claude&&x.j>=0).length}catch(e){}if(n){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${n} priorité(s) urgente(s) ou en retard">${n}</i>`)}return}
+  const I=incidences();document.querySelectorAll('#nav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(aTraiter).length,vu=L.filter(i=>(incEtat()[i.id]||{}).st==='vu').length;let p=b.querySelector('.pst');if(p)p.remove();if(t==='act'){let n=0;try{n=prioListe().filter(x=>!x.claude&&x.j>=0).length}catch(e){}if(n){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${n} priorité(s) urgente(s) ou en retard">${n}</i>`)}return}
    if(nv||vu){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst ${nv?'nv':''}" title="${nv} à traiter, ${vu} vue(s) non corrigée(s)">${nv||vu}</i>`)}})}
 function ligneInc(i,t){const e=incEtat()[i.id],s=e&&e.st;
   return `<div class="inc ${i.sev}" data-iid="${esc(i.id)}"><span class="pt" style="background:${i.sev==='rouge'?'var(--rouge)':'var(--orange)'}"></span><span class="grow">${!s?'<b class="nouv">À TRAITER</b> ':`<b style="font-size:11px;color:${ST_INC[s][1]}">${ST_INC[s][0].toUpperCase()} le ${dfr(e.le)}</b> `}<span class="badge">${i.src===t?'Cet onglet':'Depuis '+esc(NOM_ONG[i.src]||i.src)}</span> ${esc(i.txt)}
@@ -1891,16 +1891,17 @@ function vueIncidencesAccueil(){const I=incidences();if(!I.length)return '';cons
 
 let filtreTh='Tous',filtreSt='À faire';
 function actions(){fab(null);
+  if(sousAct==='ord'){$('#ht').textContent='Priorités';$('#m').innerHTML=sousNav('sa',[['ord','🔥 Par quoi commencer'],['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+vuePriorites();brancherPriorites();brancherLiens();document.querySelectorAll('#sa button').forEach(b=>b.onclick=()=>{sousAct=b.dataset.k;if(sousAct==='cls')filtre='Classement';actions();scrollTo(0,0)});return}
   const navA=()=>{document.querySelectorAll('#sa button').forEach(b=>b.onclick=()=>{sousAct=b.dataset.k;if(sousAct==='cls')filtre='Classement';if(sousAct==='rec')filtre='Ouvertes';actions();scrollTo(0,0)})};
-  if(sousAct==='av'&&A){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+avantApres();navA();
+  if(sousAct==='av'&&A){$('#ht').textContent='Priorités';$('#m').innerHTML=sousNav('sa',[['ord','🔥 Par quoi commencer'],['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+avantApres();navA();
     document.querySelectorAll('#fav button').forEach(b=>b.onclick=()=>{filtreAv=b.dataset.f;const y=scrollY;actions();scrollTo(0,y)});return}
-  if(sousAct==='msg'){$('#ht').textContent='Actions';$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+vueRemarques();navA();
+  if(sousAct==='msg'){$('#ht').textContent='Priorités';$('#m').innerHTML=sousNav('sa',[['ord','🔥 Par quoi commencer'],['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+vueRemarques();navA();
     document.querySelectorAll('#fmsg button').forEach(b=>b.onclick=()=>{filtreMsg=b.dataset.f;actions()});$('#rmNew').onclick=panneauMsg;brancherRetours(()=>{const y=scrollY;actions();scrollTo(0,y)});return}
   if(sousAct!=='dix'&&sousAct!=='av'&&sousAct!=='msg'){sousAct=filtre==='Classement'?'cls':'rec';actionsServeur();
-    $('#ht').textContent='Actions';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct));
+    $('#ht').textContent='Priorités';$('#m').insertAdjacentHTML('afterbegin',sousNav('sa',[['ord','🔥 Par quoi commencer'],['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct));
     navA();return}
-  $('#ht').textContent='Actions';
-  if(!A){$('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+pasAudit();navA();return}
+  $('#ht').textContent='Priorités';
+  if(!A){$('#m').innerHTML=sousNav('sa',[['ord','🔥 Par quoi commencer'],['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+pasAudit();navA();return}
   const TOUT=toutes(),TH=[...new Set(THEMES_DEF.concat(TOUT.map(a=>a.theme||'Autres')))].filter(t=>TOUT.some(a=>(a.theme||'Autres')===t));
   const FST={'À faire':a=>statutA(a)!=='faite','En cours':a=>statutA(a)==='encours','En retard':a=>statutA(a)==='retard','À mesurer':aMesurer,'Faites':a=>actFaite(a.id),'Garder':a=>suivi(a.id).verdict==='garder','Corriger':a=>suivi(a.id).verdict==='corriger','Arrêter':a=>suivi(a.id).verdict==='arreter','Toutes':()=>true};
   if(!FST[filtreSt])filtreSt='À faire';
@@ -1916,7 +1917,7 @@ function actions(){fab(null);
     ${blocSuivi(a)}</div></div></div>`};
   const groupes=filtreTh==='Tous'?TH.map(t=>[t,L.filter(a=>(a.theme||'Autres')===t)]).filter(g=>g[1].length):[[filtreTh,L]];
   const nc=k=>TOUT.filter(FST[k]).length;
-  $('#m').innerHTML=sousNav('sa',[['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+
+  $('#m').innerHTML=sousNav('sa',[['ord','🔥 Par quoi commencer'],['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+
    `<div class="carte"><b>Plan d'action global : toutes les actions de tous les onglets</b><div class="sub w">Chaque action a un responsable, une échéance, la façon de faire et sa mesure avant / après. Ouvrez « Suivi et mesure » pour noter la mise en place, les chiffres avant / après et le verdict : c'est enregistré sur le serveur, visible sur le téléphone comme sur l'ordinateur.</div><div class="ba-btn"><button class="mini" id="paAdd">+ Ajouter une action</button></div></div>
    ${tableauPlan(TOUT)}
    <div class="filtres" id="fst">${Object.keys(FST).map(k=>`<button data-f="${k}" class="${k===filtreSt?'on':''}">${k} (${nc(k)})</button>`).join('')}</div>
