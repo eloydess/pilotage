@@ -1265,7 +1265,8 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
       if(av)return {g,dec:'Doublon',com:'Même pièce que l\'envoi du '+String(choisi.f['Date mail']).slice(0,10)+' mis en paiement RJ',rg,txt:'classé doublon'};
       return rg?{g,dec:null,rg,txt:'déjà décidé ('+(g['Décision finale']||g['Statut'])+')'}:null}).filter(Boolean);
     const msg=plan.map(x=>'• '+String(x.g['Date mail']).slice(0,10)+' '+(x.g['Type']||'')+' : '+x.txt+(x.rg?' — mail rangé dans « '+et+' »':'')).join('\n');
-    if(!confirm((dejaRJ?'Cette pièce est DÉJÀ dans le suivi RJ : elle ne sera pas ajoutée une 2ᵉ fois.\n\n':'')+'Voici ce qui va être fait :\n'+msg+'\n\nLe statut lu / non lu ne change pas. Continuer ?'))return;
+    const ant=/ant[ée]rieure/i.test(choisi.f['Antériorité']||'')||choisi.dec0==='Créance antérieure';
+    if(!confirm((ant?'⚠ ATTENTION : cette pièce est ANTÉRIEURE au jugement du 30/06/2026. Elle fait partie du passif : elle se déclare au mandataire et ne doit PAS être payée.\n\n':'')+(dejaRJ?'Cette pièce est DÉJÀ dans le suivi RJ : elle ne sera pas ajoutée une 2ᵉ fois.\n\n':'')+'Voici ce qui va être fait :\n'+msg+'\n\nLe statut lu / non lu ne change pas. Continuer ?'))return;
     b.disabled=true;let ok=0,ko=0,err='';
     for(const x of plan){try{if(x.dec){const r=await crAppel('mob_decider',[J,x.g.ID,'Validé',x.dec,x.rg?et:'',x.com]);x.g['Statut']=r&&r.statut||'Validé';x.g['Décision finale']=r&&r.finale||x.dec}
       if(x.rg)await ranger(x.g.ID,et);['c','k','m','r','e'].forEach(k=>delete TRS[k][x.g.ID]);ok++}catch(e){ko++;err=e.message}}
