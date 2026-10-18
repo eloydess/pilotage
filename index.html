@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.28';
+const APP_V='6.29';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1190,6 +1190,7 @@ function trCarte(a){const f=a.f,id=esc(f.ID),coche=TRS.k[f.ID]!=null?TRS.k[f.ID]
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px"><b>Décision :</b><select class="trDec" data-id="${id}" style="max-width:100%">${TR_DEC.map(d=>`<option value="${esc(d)}"${d===a.ch?' selected':''}>${esc(TR_LIB[d])}${d===a.dec?' (proposé)':''}</option>`).join('')}</select></div>
     <input class="trCom" data-id="${id}" value="${esc(a.com)}" placeholder="Commentaire (facultatif)" style="width:100%;margin-top:4px">
     ${trRangH(a)}
+    ${trDemandeH(f)}
     <div class="prb"><button class="mini trLire" data-id="${id}" data-cible="${id}">📧 Lire le mail en entier</button><button class="mini mOk" data-id="${id}">✓ Valider (choix ci-dessus)</button><button class="mini trRJ" data-id="${id}" data-carte="${id}" style="font-weight:600">💶 Mettre en paiement RJ</button><button class="mini mNo" data-id="${id}">✗ À revoir</button>${/^C-/.test(f.ID)?'':`<button class="mini trDel" data-id="${id}">🗑 Supprimer</button>`}${f['Lien Gmail']?`<a class="mini" href="${esc(f['Lien Gmail'])}" target="_blank" rel="noopener" style="text-decoration:none" title="Le mail sera marqué comme lu">Ouvrir dans Gmail ›</a>`:''}</div>
     <div class="trMail" id="trm_${id}"></div></div></div>`}
 function trPicker(id){const f=(CR.fiches||[]).find(x=>x.ID===id);if(!f)return;let ov=document.getElementById('trPickOv');if(ov)ov.remove();
@@ -1208,6 +1209,15 @@ function trPicker(id){const f=(CR.fiches||[]).find(x=>x.ID===id);if(!f)return;le
     const v=q.value.trim().toUpperCase();NW.innerHTML=v?`<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="mini" data-e="LABORATOIRES/${esc(v)}">➕ Créer LABORATOIRES/${esc(v)}</button><button class="mini" data-e="PRESTATAIRES/${esc(v)}">➕ Créer PRESTATAIRES/${esc(v)}</button></div>`:'';
     ov.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>choisir(b.dataset.e))};
   q.oninput=maj;maj();ov.querySelector('#trPkX').onclick=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)ov.remove()};setTimeout(()=>q.focus(),50)}
+const trDem=f=>/^DEMANDE/i.test(String(f['Commentaire Pierre']||'')),trRep=f=>/RÉPONSE À VOTRE DEMANDE/i.test(String(f['Note de Claude']||''));
+function trDemandeH(f){const id=esc(f.ID),d=trDem(f),r=trRep(f);
+  return `<div style="margin-top:6px;padding:6px;border:1px solid var(--bleu,#2e6fd8);border-radius:8px">
+   ${d?`<div class="w">📝 <b>Votre demande :</b> ${esc(String(f['Commentaire Pierre']).replace(/^DEMANDE[^:]*:\s*/i,''))}</div><div class="sub w">${r?'':'⏳ En attente : traitée au prochain passage automatique (8 h 25, 12 h 25, 17 h 25), ou tout de suite si vous me dites « traite les demandes ».'}</div>`:''}
+   ${r?`<div class="w" style="margin-top:4px;color:var(--vert2)">💬 <b>Ma réponse :</b> ${esc(String(f['Note de Claude']).replace(/^.*?RÉPONSE À VOTRE DEMANDE/i,'RÉPONSE À VOTRE DEMANDE'))}</div>`:''}
+   <details${d&&!r?'':''}><summary style="cursor:pointer;font-weight:600">📝 ${d?'Modifier ma demande':'Demander quelque chose à Claude sur ce mail'}</summary>
+    <div class="sub w">Écrivez ou dictez (micro du clavier, ou 🎤) ce que vous voulez : « recherche si cette facture a déjà été payée », « prépare une réponse au comptable », « vérifie le contrat »… Le mail reste à traiter tant que vous ne l'avez pas validé.</div>
+    <textarea class="trDemT" data-id="${id}" rows="3" style="width:100%;margin-top:4px" placeholder="Votre demande…"></textarea>
+    <div class="prb">${('webkitSpeechRecognition' in window||'SpeechRecognition' in window)?`<button class="mini trMic" data-id="${id}">🎤 Dicter</button>`:''}<button class="mini trDemOk" data-id="${id}" style="font-weight:600">📨 Envoyer la demande à Claude</button>${d?`<button class="mini trDemDel" data-id="${id}">Retirer ma demande</button>`:''}</div></details></div>`}
 function trRangH(a){const f=a.f,id=esc(f.ID);if(/^C-/.test(f.ID))return `<div class="sub w" style="margin-top:4px">📂 Courrier papier : rien à ranger dans Gmail.</div>`;
   if(trRange(f)||/^🗑/.test(f['Date application']||''))return `<div class="sub w" style="margin-top:4px">📂 <b>Ce mail est déjà ${esc(trOu(f))}.</b></div>`;
   const conn=TR_ETQ&&a.et&&TR_ETQ.indexOf(a.et)<0;
@@ -1230,7 +1240,7 @@ function trChaineH(a){const f=a.f,id=esc(f.ID),gs=/^C-/.test(f.ID)?'':trGmailChe
    ${av.length?`<button class="mini trChaine" data-id="${id}" style="margin-top:4px">↳ Traiter aussi les ${av.length} autre(s) envoi(s) à décider comme celui-ci (même décision, même rangement)</button>`:''}</div>`}
 function vueTriSerie(){trReprendre();const T=trTout();if(!T)return `<div class="carte"><b>Courrier non chargé</b><div class="sub w">Ouvrez « 📬 Boîte mail » et entrez le code de Tri & RJ.</div></div>`;
   const A=T.A,n=k=>A.filter(k).length,paye=a=>a.ch==='Déjà payé',dbl=a=>a.db.length>0||/^(Doublon|Déjà au suivi RJ)$/.test(a.ch),alr=a=>!!a.alerte,nouv=a=>!!a.pourquoi;
-  const FL=[['l1','1. Rien à faire',a=>a.lot===1],['l2','2. À payer / suivi RJ',a=>a.lot===2],['l3','3. À vérifier / action',a=>a.lot===3],['paye','✅ Déjà payé',paye],['dbl','🔁 Doublons / déjà suivis',dbl],['nouv','🆕 Proposition changée',nouv],['alr','⚠ À regarder',alr],['tout','Toutes',a=>true]];
+  const FL=[['l1','1. Rien à faire',a=>a.lot===1],['l2','2. À payer / suivi RJ',a=>a.lot===2],['l3','3. À vérifier / action',a=>a.lot===3],['paye','✅ Déjà payé',paye],['dbl','🔁 Doublons / déjà suivis',dbl],['nouv','🆕 Proposition changée',nouv],['alr','⚠ À regarder',alr],['dem','📝 Mes demandes',a=>trDem(a.f)||trRep(a.f)],['tout','Toutes',a=>true]];
   const fl=FL.find(x=>x[0]===TRS.f)||FL[0],q=trNorm(TRS.q||''),V=A.filter(fl[2]).filter(a=>!q||trNorm([a.f.Tiers,a.f.Objet,a.f['Références'],a.f['Montant TTC']].join(' ')).indexOf(q)>=0);
   const tot2=A.filter(a=>a.lot===2&&a.mt<1e5).reduce((s,a)=>s+a.mt,0);
   const age=CR&&CR.ts?Math.round((Date.now()-CR.ts)/60e3):null,etat=crErr==='code'?`<div class="carte" style="border-left:6px solid var(--orange)"><b>⚠ Liste non mise à jour : votre code a expiré.</b><div class="sub w">Ouvrez « 📬 Boîte mail », entrez votre code, puis revenez ici. Les chiffres ci-dessous datent ${CR&&CR.ts?'du '+new Date(CR.ts).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'d\'une ancienne copie'}.</div></div>`:
@@ -1281,6 +1291,14 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
     b.disabled=true;try{const s=document.querySelector(`.trDec[data-id="${CSS.escape(id)}"]`),d=s&&s.value!=='Déjà payé'?s.value:'Sans intérêt',m=((document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`)||{}).value||'').trim();
       await crAppel('mob_decider',[J,id,'Validé',d==='Suivi RJ'?'Sans intérêt':d,'',(m?m+' — ':'')+'mail supprimé (corbeille)']);const rr=await crAppel('mob_corbeille',[J,id]);if(f){f['Statut']='Validé';f['Date application']=rr&&rr.note||'🗑 corbeille'}
       ['c','k','m','r','e'].forEach(k=>delete TRS[k][id]);trSauver();toast('Mail mis à la corbeille');const el=document.getElementById('tr_'+id);if(el)el.style.opacity='.35'}catch(e){toast('Non effectué : '+e.message);b.disabled=false}});
+  const envDem=async(id,txt)=>{const J=crJeton();if(!J){toast('Entrez d\'abord le code dans « 📬 Boîte mail »');return false}
+    const n=new Date(),dt=n.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const v=txt?'DEMANDE du '+dt+' : '+txt:'';await crAppel('mob_decider',[J,id,'À valider','','',v]);const f=(CR.fiches||[]).find(x=>x.ID===id);if(f)f['Commentaire Pierre']=v;return true};
+  document.querySelectorAll('.trDemOk').forEach(b=>b.onclick=async()=>{const t=(document.querySelector(`.trDemT[data-id="${CSS.escape(b.dataset.id)}"]`)||{}).value||'';if(!t.trim()){toast('Écrivez ou dictez votre demande');return}
+    b.disabled=true;try{if(await envDem(b.dataset.id,t.trim().replace(/\s+/g,' '))){toast('Demande envoyée à Claude');re()}}catch(e){toast('Non envoyée : '+e.message);b.disabled=false}});
+  document.querySelectorAll('.trDemDel').forEach(b=>b.onclick=async()=>{b.disabled=true;try{if(await envDem(b.dataset.id,'')){toast('Demande retirée');re()}}catch(e){toast('Non effectué : '+e.message);b.disabled=false}});
+  document.querySelectorAll('.trMic').forEach(b=>b.onclick=()=>{const R=window.SpeechRecognition||window.webkitSpeechRecognition;if(!R)return;const r=new R();r.lang='fr-FR';r.interimResults=false;
+    const t=document.querySelector(`.trDemT[data-id="${CSS.escape(b.dataset.id)}"]`);b.textContent='🎙 Je vous écoute…';r.onresult=e=>{t.value=(t.value?t.value+' ':'')+[...e.results].map(x=>x[0].transcript).join(' ')};r.onend=()=>{b.textContent='🎤 Dicter'};r.onerror=()=>{b.textContent='🎤 Dicter';toast('Micro indisponible : utilisez le micro du clavier')};r.start()});
   document.querySelectorAll('.trRJ').forEach(b=>b.onclick=async()=>{const J=crJeton();if(!J){toast('Entrez d\'abord le code dans « 📬 Boîte mail »');return}
     const T=trTout(),carte=T.A.find(x=>x.f.ID===b.dataset.carte),choisi=T.A.find(x=>x.f.ID===b.dataset.id);if(!carte||!choisi)return;
     const ch=carte.chaine.length?carte.chaine:[carte.f],dejaRJ=choisi.db.some(x=>x.suivi);
@@ -1302,7 +1320,7 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
   document.querySelectorAll('.trLire').forEach(b=>b.onclick=()=>trLire(b.dataset.id,b.dataset.cible));
   document.querySelectorAll('.trVoir').forEach(b=>b.onclick=()=>{TRS.f='tout';TRS.q='';TRS.n=999;trSauver();courrier();setTimeout(()=>{const e=document.getElementById('tr_'+b.dataset.id);if(e){e.scrollIntoView({block:'start'});e.style.outline='3px solid var(--orange)';setTimeout(()=>e.style.outline='',4000)}},50)});
   const tt=$('#mTout');if(tt)tt.onclick=()=>{const all=[...document.querySelectorAll('.mCh')],on=all.some(c=>!c.checked);all.forEach(c=>{c.checked=on;TRS.k[c.dataset.id]=on});trSauver();maj()};
-  const valeur=id=>{const s=document.querySelector(`.trDec[data-id="${CSS.escape(id)}"]`),c=document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`);let d=s?s.value:'',m=c?c.value.trim():'';if(d==='Déjà payé'){d='Information';if(!/PAY/i.test(m))m='DÉJÀ PAYÉ'+(m?' — '+m:'')}return [d,m]};
+  const valeur=id=>{const s=document.querySelector(`.trDec[data-id="${CSS.escape(id)}"]`),c=document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`);let d=s?s.value:'',m=c?c.value.trim():'';if(!m){const f0=(CR.fiches||[]).find(x=>x.ID===id);if(f0&&trDem(f0))m=String(f0['Commentaire Pierre'])}if(d==='Déjà payé'){d='Information';if(!/PAY/i.test(m))m='DÉJÀ PAYÉ'+(m?' — '+m:'')}return [d,m]};
   const dec=async(id,st)=>{const J=crJeton();if(!J)throw new Error('code Tri & RJ à saisir dans « Boîte mail »');const [d,m]=st==='Validé'?valeur(id):['',(document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`)||{}).value||''];
     const rg=(document.querySelector(`.trRg[data-id="${CSS.escape(id)}"]`)||{}).value,et=((document.querySelector(`.trEt[data-id="${CSS.escape(id)}"]`)||{}).value||'').trim();
     const r=await crAppel('mob_decider',[J,id,st,d,st==='Validé'&&rg==='ranger'?et:'',m]);
