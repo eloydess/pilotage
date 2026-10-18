@@ -162,8 +162,8 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.16';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
+const APP_V='6.17';
+const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 let _rpT=null;new MutationObserver(()=>{clearTimeout(_rpT);_rpT=setTimeout(()=>{if(!document.getElementById('retCon')&&!document.getElementById('retCol'))replier()},60)}).observe(document.getElementById('m')||document.body,{childList:true});
@@ -261,7 +261,7 @@ function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;if(!D._opsTout
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
 function libererCarte(){if(typeof MAPC!=='undefined'&&MAPC){try{MAPC._onZoomTransitionEnd=()=>{};MAPC._animatingZoom=false;MAPC.stop();MAPC.off();MAPC.remove()}catch(e){}MAPC=null}}
 function rendre(){libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
-  ({acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
+  ({acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,pas:passifV,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
 function allerReco(r){if(!r)return;const d=r['Domaine'],c=r['Cible'],labo=(D.labos||[]).some(l=>l['Laboratoire']===c);
@@ -549,7 +549,7 @@ const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
 const eurS=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.round(Math.abs(v)).toLocaleString('fr-FR')+' €');
 const sousNav=(id,opts,cur)=>`<div class="filtres" id="${id}">${opts.map(o=>`<button data-k="${o[0]}" class="${o[0]===cur?'on':''}">${o[1]}</button>`).join('')}</div>`;
 const lienV=(t,v)=>`<span class="lien" data-go="${v}">${t}</span>`;
-function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1];if(vue==='ecr')sousEcr=p[1];if(vue==='mois')sousMois=p[1];if(vue==='cou')sousCou=p[1]}rendre();scrollTo(0,0)})}
+function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1];if(vue==='ecr')sousEcr=p[1];if(vue==='mois')sousMois=p[1];if(vue==='cou')sousCou=p[1];if(vue==='pas')sousPas=p[1]}rendre();scrollTo(0,0)})}
 const pasAudit=()=>`<div class="carte al o"><b class="t">Analyses du 15/10 non chargées</b><div class="sub w">${esc(auditErr||'Chargement…')} Les données du serveur restent affichées.</div></div>`;
 
 /* ---------- État partagé (serveur, onglet ETAT_APPLI) : téléphone et ordinateur voient la même chose ---------- */
@@ -1227,7 +1227,7 @@ function vuePriorites(){const L=prioListe(),P=L.filter(x=>!x.claude),C=L.filter(
    ${C.length?`<div class="titre">🤖 Ce que Claude prépare de son côté</div><div class="carte prc"><details><summary class="sub" style="cursor:pointer">${C.length} action(s) dont Claude se charge : rien à faire pour vous, sauf validation</summary>${C.map(ligneP).join('')}</details></div>`:''}
    <div class="sub w" style="padding:0 4px 12px">Une action « faite » ou une incidence « traitée » sort de la liste. Les montants sont des estimations raisonnées (onglet d'origine pour le détail) : ils servent à ordonner, pas à comptabiliser.</div>`}
 function brancherPriorites(){document.querySelectorAll('.prl').forEach(el=>{const k=el.dataset.pk,id=el.dataset.pid,x=prioListe().find(z=>z.id===id);if(!x)return;
-  const g=el.querySelector('[data-pgo]');if(g)g.onclick=()=>{if(k==='act')ouvrirAction(id);else{const p=String(x.go).split(':');vue=p[0];if(p[1]&&vue==='stk')sousStk=p[1];rendre();scrollTo(0,0)}};
+  const g=el.querySelector('[data-pgo]');if(g)g.onclick=()=>{if(k==='act')ouvrirAction(id);else{const p=String(x.go).split(':');vue=p[0];if(p[1]&&vue==='stk')sousStk=p[1];if(p[1]&&vue==='pas')sousPas=p[1];rendre();scrollTo(0,0)}};
   el.querySelectorAll('[data-pst]').forEach(bt=>bt.onclick=async()=>{await majInc(x.inc,bt.dataset.pst);_prC=null;rendre()})})}
 function cartePrioAccueil(){let L;try{L=prioListe().filter(x=>!x.claude).slice(0,5)}catch(e){return ''}if(!L.length)return '';
   return `<div class="carte" id="prioAcc" style="border-left:6px solid var(--rouge)"><b>🔥 Vos 5 priorités du moment</b><div class="sub w">Du plus impactant au moins impactant, tous onglets confondus.</div>${L.map(x=>`<div class="ligne" data-go="act:ord" style="cursor:pointer"><span><span class="prk ${x.band}" style="margin-right:6px">${x.rang}</span>${esc(x.titre.length>90?x.titre.slice(0,88)+'…':x.titre)}</span><b class="sub" style="white-space:nowrap;margin-left:8px">${x.nat==='obligation'?'urgent':'≈ '+eur(x.val)}</b></div>`).join('')}<button class="btn sec" data-go="act:ord">Voir toutes les priorités, dans l'ordre</button></div>`}
@@ -1451,13 +1451,95 @@ function carteMarche(){if(!A)return '';return `<div class="carte"><b>Nous face a
   <div class="tw"><table class="t"><tr><th>Indicateur</th><th class="n">Marché</th><th class="n">Nous</th><th class="n">Écart</th></tr>
   ${A.gersNous.map(r=>`<tr><td>${esc(r[0])}</td><td class="n">${esc(r[1])}</td><td class="n neg">${esc(r[2])}</td><td class="n"><b>${esc(r[3])}</b></td></tr>`).join('')}</table></div>
   <div class="sub w" style="margin-top:6px">Le marché national est stable : ≈ 10 points de recul sont propres à la pharmacie (ruptures, ordonnances, trafic du centre commercial). ${lienV('Détail par laboratoire','lab:mar')}</div></div>`}
+// ===== Onglet Passif & plan =====
+const PA=()=>(A&&A.passif)||null;
+const PV={contester:['À contester','var(--rouge)'],payee:['Déjà payée','var(--bleu,#2e6fd8)'],doublon:['Doublon','var(--rouge)'],verifier:['À vérifier','var(--orange)'],accepter:['À accepter','var(--vert2)'],zero:['0 €','var(--doux)']};
+const PCAT={banque:'Banques et prêts',leasing:'Crédit-bail et locations',associe:'Votre compte courant',cedant:'Cédants (crédit vendeur 2020)',grossiste:'Grossistes et dépositaires',labo:'Laboratoires',fiscal:'Fiscal et social',services:'Prestataires et services',bailleur:'Bailleur'};
+const MJURL='https://espaces.mjcorp.fr/dirigeant/18157277/104593/creances/A/';
+let sousPas='syn',filtrePasV='tous',filtrePasC='tous',pasScen=2,pasOuv='';
+const pasEtat=()=>jsonEt('pas_st',{});
+const pasV=x=>(pasEtat()[x.id]||{}).v||x.v;
+function pasScenarios(){const P=PA();if(!P)return null;const R=P.ant;
+  const S1=R.reduce((s,x)=>s+x.m,0);
+  const dbl=R.filter(x=>pasV(x)==='doublon').reduce((s,x)=>s+x.m,0),pay=R.filter(x=>x.paye&&x.paye.q==='sur').reduce((s,x)=>s+x.paye.m,0);
+  const vu=new Set(),exc=[];R.forEach(x=>{if(vu.has(x.n))return;if(pasV(x)==='contester'&&x.cat!=='leasing'&&x.hasD&&x.gC>x.gD){vu.add(x.n);exc.push([x.n,x.gC-x.gD])}});
+  const vl=new Set(),lea=[];R.forEach(x=>{if(x.cat!=='leasing'||vl.has(x.n))return;vl.add(x.n);if(x.gC-x.gD>0)lea.push([x.n,x.gC-x.gD,x.gC,x.gD])});
+  const E=exc.reduce((s,e)=>s+e[1],0),L=lea.reduce((s,e)=>s+e[1],0),cca=R.filter(x=>x.cat==='associe').reduce((s,x)=>s+x.m,0);
+  const S2=S1-dbl-pay,S3=S2-E,S4=S3-L,S5=S4-cca;
+  return {S1,dbl,pay,S2,exc:exc.sort((a,b)=>b[1]-a[1]),E,S3,lea:lea.sort((a,b)=>b[1]-a[1]),L,S4,cca,S5,
+   sc:[['Tel que déclaré sur le site',S1,'Somme des 159 créances antérieures telles qu’affichées par le mandataire.'],
+       ['Après corrections certaines',S2,`− ${eur2(dbl)} de doublon (NOREVA LED) − ${eur2(pay)} de créances déjà payées après le jugement.`],
+       ['Si les écarts sont écartés (hors crédit-bail)',S3,`− ${eur2(E)} : part déclarée par ${exc.length} créanciers au-delà de votre liste (URSSAF, SOCOREC, CERP…).`],
+       ['Si les crédits-bails reviennent au montant de votre liste',S4,`− ${eur2(L)} de loyers futurs et indemnités (hypothèse haute, à négocier contrat par contrat).`],
+       ['Et votre compte courant bloqué pendant le plan',S5,`− ${eur2(cca)} : votre compte courant n’est pas remboursé pendant le plan.`]]}}
+const PROFILS=[['Linéaire',[10,10,10,10,10,10,10,10,10,10]],['Progressif (minimum légal les premières années)',[2,3,5,5,10,15,15,15,15,15]]];
+function pasCapa(){const Q=bqAgg();if(!Q)return null;return {m:Q.eMoy-Q.sMoy,a:12*(Q.eMoy-Q.sMoy),Q}}
+function cartePassifAccueil(){const P=PA();if(!P)return '';const S=pasScenarios(),c=P.ant.filter(x=>pasV(x)==='contester').length,u=P.ant.filter(x=>/payee|doublon/.test(pasV(x))).length;const j=Math.round((new Date(P.limiteVerif)-new Date(auj()))/864e5);
+  return `<div class="carte" style="border-left:6px solid var(--violet,#7b4fd6)"><b>⚖️ Passif : ${eur(S.S1)} déclarés</b><div class="sub w">${u} corrections à signaler au mandataire (${eur2(S.dbl+S.pay)}), ${c} créances à contester, ${eur(S.E)} d’écarts hors crédit-bail. Vérification à rendre avant le ${dfr(P.limiteVerif)} (dans ${j} jours).</div><button class="mini" data-go="pas:ctr">Ouvrir ›</button></div>`}
+function vuePasSyn(){const P=PA(),S=pasScenarios(),R=P.ant;const nb=v=>R.filter(x=>pasV(x)===v).length,mt=v=>R.filter(x=>pasV(x)===v).reduce((s,x)=>s+x.m,0);
+  const cats=Object.keys(PCAT).map(k=>{const L=R.filter(x=>x.cat===k);return [k,L.length,L.reduce((s,x)=>s+x.m,0),L.reduce((s,x)=>s+(x.sd||0),0)]}).filter(c=>c[1]).sort((a,b)=>b[2]-a[2]);
+  const j=Math.round((new Date(P.limiteVerif)-new Date(auj()))/864e5),post=P.post.reduce((s,x)=>s+x.m,0);
+  return `<div class="carte"><b>⚖️ Le passif de la pharmacie</b><div class="sub w">Relevé le ${esc(P.releve.slice(8,10)+'/'+P.releve.slice(5,7)+'/'+P.releve.slice(0,4))} sur l’${esc(P.source)}. Redressement judiciaire ouvert le ${dfr(P.ouverture)} (${esc(P.juridiction)}, mandat n° ${esc(P.mandat)}), publié au BODACC le ${dfr(P.bodacc)}.</div>
+   <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Déclaré par les créanciers (site)</div><div class="v">${eur(S.S1)}</div></div><div class="kpi"><div class="l">Selon votre liste${aide('Somme des montants que vous avez vous-même déclarés (colonne « Montant dirigeant » du site). Certaines créances n’y figurent pas.')}</div><div class="v">${eur(R.reduce((s,x)=>s+(x.dir||0),0))}</div></div><div class="kpi"><div class="l">Créances antérieures</div><div class="v">${R.length}</div></div><div class="kpi"><div class="l">Postérieures impayées</div><div class="v">${eur2(post)}</div></div></div>
+   <div class="sub w" style="margin-top:6px">⏳ Vous devez rendre votre position sur chaque créance <b style="color:var(--txt)">avant le ${dfr(P.limiteVerif)}</b> (dans ${j} jours), dans l’espace dirigeant du mandataire. Rien n’a été accepté ni contesté à votre place.</div></div>
+  <div class="carte"><b>Par décision proposée</b><div class="sub w">Proposition construite à partir des déclarations, de votre liste et de vos relevés bancaires. Vous pouvez la changer créance par créance dans « Créances ».</div>
+   ${Object.keys(PV).map(v=>nb(v)?`<div class="ligne"><span><b style="color:${PV[v][1]}">${PV[v][0]}</b> · ${nb(v)} créance${nb(v)>1?'s':''}${v==='payee'?` (dont ${eur2(S.pay)} payés après le jugement)`:''}</span><b>${eur(mt(v))}</b></div>`:'').join('')}<div class="sub w">Montants = créances telles que déclarées.</div></div>
+  <div class="carte"><b>Par nature de créancier</b><div class="tw" style="margin-top:6px"><table class="t"><tr><th>Nature</th><th class="n">Nb</th><th class="n">Déclaré</th><th class="n">Votre liste</th></tr>${cats.map(c=>`<tr><td>${esc(PCAT[c[0]])}</td><td class="n">${c[1]}</td><td class="n">${eur(c[2])}</td><td class="n">${eur(c[3])}</td></tr>`).join('')}<tr class="tot"><td>Total</td><td class="n">${R.length}</td><td class="n">${eur(S.S1)}</td><td class="n">${eur(R.reduce((s,x)=>s+(x.sd||0),0))}</td></tr></table></div>
+   <div class="sub w">« Votre liste » ici = détail de vos montants (échu + à échoir) tel qu’affiché sur chaque fiche ; il peut différer de la colonne « Montant dirigeant » pour les créances regroupées (BPGO).</div></div>
+  <div class="carte"><b>Les règles qui comptent</b>${P.regles.map(r=>`<div class="ligne" style="display:block"><b>${esc(r[0])}</b><div class="sub w">${esc(r[1])}</div></div>`).join('')}<div class="sub w">Sources vérifiées le 18/10/2026 : ${P.sources.map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">[${i+1}]</a>`).join(' ')}. Je ne suis pas avocat : faites valider la stratégie par Me Marie.</div></div>`}
+function lignePas(x){const v=pasV(x),d=PV[v],o=pasOuv===x.id,E=pasEtat()[x.id];const br=(t,o)=>o?Object.entries(o).map(([k,m])=>`${{C:'Chirographaire',P:'Privilégié',S:'Super privilégié'}[k[0]]} ${{e:'échu',a:'à échoir',p:'provisionnel'}[k[1]]} ${eur2(m)}`).join(' · '):'—';
+  return `<div class="prl" data-pas="${esc(x.id)}" style="cursor:pointer"><span class="prk" style="color:${d[1]};border-color:${d[1]}">${x.num||'·'}</span><div class="grow"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(x.n)}</b><b style="white-space:nowrap">${eur2(x.m)}</b></div>
+   <div class="prm"><span style="color:${d[1]};font-weight:600">${d[0]}${E?' (votre choix)':''}</span><span>${esc(PCAT[x.cat])}</span>${x.dir!=null&&x.dir!==x.m?`<span>votre liste : ${eur2(x.dir)}</span>`:''}${x.docs?`<span>📎 ${x.docs} pièce${x.docs>1?'s':''}</span>`:''}</div>
+   ${o?`<div class="sub w" style="margin-top:4px">${esc(x.mot)}</div><div class="sub w">Déclaré par le créancier : ${br('',x.cre)}<br>Votre liste : ${br('',x.deb)}<br>Statut sur le site : ${esc(x.st)}</div>
+   <div class="prb"><select data-pasv="${esc(x.id)}">${Object.keys(PV).map(k=>`<option value="${k}"${k===v?' selected':''}>${PV[k][0]}</option>`).join('')}</select><a class="mini" href="${MJURL}${esc(x.id)}" target="_blank" rel="noopener">Voir sur le site du mandataire ›</a></div>`:''}</div></div>`}
+function vuePasCre(){const P=PA();let L=P.ant.slice();if(filtrePasV!=='tous')L=L.filter(x=>pasV(x)===filtrePasV);if(filtrePasC!=='tous')L=L.filter(x=>x.cat===filtrePasC);L.sort((a,b)=>b.m-a.m);
+  return `${sousNav('pasfv',[['tous','Toutes'],...Object.keys(PV).map(k=>[k,PV[k][0]])],filtrePasV)}${sousNav('pasfc',[['tous','Toutes natures'],...Object.keys(PCAT).map(k=>[k,PCAT[k]])],filtrePasC)}
+   <div class="carte"><b>${L.length} créance${L.length>1?'s':''} · ${eur2(L.reduce((s,x)=>s+x.m,0))}</b><div class="sub w">Classées de la plus grosse à la plus petite. Touchez une créance pour voir le détail, le motif et changer la décision.</div>${L.map(lignePas).join('')||'<p class="vide">Aucune</p>'}</div>`}
+function vuePasCtr(){const P=PA(),S=pasScenarios(),R=P.ant;const urg=R.filter(x=>/payee|doublon/.test(pasV(x)));
+  return `<div class="carte" style="border-left:6px solid var(--rouge)"><b>1. À signaler au mandataire tout de suite : ${eur2(S.dbl+S.pay)}</b><div class="sub w">Des créances déjà payées ou déclarées deux fois : preuve bancaire ou doublon évident.</div>${urg.map(lignePas).join('')}</div>
+   <div class="carte"><b>2. Écarts à contester (hors crédit-bail) : ${eur(S.E)}</b><div class="sub w">Le créancier déclare plus que votre liste. Base : montant déclaré − montant de votre liste, par créancier. Classés du plus gros au plus petit.</div>
+    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Créancier</th><th class="n">En trop</th></tr>${S.exc.map(e=>`<tr><td>${esc(e[0])}</td><td class="n"><b>${eur2(e[1])}</b></td></tr>`).join('')}</table></div>
+    ${R.filter(x=>pasV(x)==='contester'&&x.cat!=='leasing').sort((a,b)=>b.m-a.m).map(lignePas).join('')}</div>
+   <div class="carte"><b>3. Crédit-bail : ${eur(S.L)} en jeu</b><div class="sub w">Déclaré par les loueurs − montant de votre liste. Ce sont surtout des loyers futurs et des indemnités de résiliation. Votre objectif : garder le matériel et signer des protocoles d’échelonnement sans indemnité, plutôt que de laisser ces montants entrer au passif.</div>
+    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Loueur</th><th class="n">Déclaré</th><th class="n">Votre liste</th><th class="n">Écart</th></tr>${S.lea.map(e=>`<tr><td>${esc(e[0])}</td><td class="n">${eur(e[2])}</td><td class="n">${eur(e[3])}</td><td class="n"><b>${eur(e[1])}</b></td></tr>`).join('')}</table></div></div>
+   <div class="carte"><b>4. À vérifier : ${R.filter(x=>pasV(x)==='verifier').length} créances</b><div class="sub w">Absentes de votre liste, ou à expliquer (compte courant, crédits vendeurs, CAVP). Les pièces jointes des créanciers sont sur le site du mandataire.</div>${R.filter(x=>pasV(x)==='verifier').sort((a,b)=>b.m-a.m).map(lignePas).join('')}</div>`}
+function vuePasBan(){const P=PA(),R=P.ant.filter(x=>x.paye);
+  return `<div class="carte"><b>🏦 Créances confrontées à vos relevés</b><div class="sub w">Méthode : les 249 montants des créances (total, échu, à échoir) comparés au centime près à toutes les opérations du compte Caisse d’Épargne du 01/07 au 17/10/2026 (1 501 opérations). La BPGO n’est pas encore analysée : les paiements d’avant le jugement (juin) y figurent.</div></div>
+   <div class="carte"><b>Paiements après le jugement d’un montant identique à une créance antérieure</b>
+   ${R.map(x=>`<div class="ligne" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(x.n)}</b><b>${eur2(x.paye.m)}</b></div><div class="sub w">${esc(x.paye.d)} · ${esc(x.paye.lib)}</div><div class="sub w">${x.paye.q==='sur'?'<b style="color:var(--bleu,#2e6fd8)">Correspondance nette</b> : à retirer ou déduire de la créance déclarée.':'<b style="color:var(--orange)">[AMBIGU]</b> même montant, lien non prouvé : à vérifier.'}</div></div>`).join('')}
+   <div class="sub w" style="margin-top:6px">⚠ Payer une créance antérieure après le jugement est en principe interdit sans autorisation (art. L. 622-7). Ces virements sont passés par la validation de l’administrateur : signalez-les au mandataire pour que la créance soit réduite d’autant.</div></div>
+   <div class="carte"><b>Créances postérieures déclarées impayées</b>${P.post.map(x=>`<div class="ligne" style="display:block"><div style="display:flex;justify-content:space-between"><b>${esc(x.n)} (n° ${esc(x.num)})</b><b>${eur2(x.m)}</b></div><div class="sub w">${x.paye?`Payée le ${esc(x.paye.d)} (${esc(x.paye.lib)}) : demander au mandataire de la solder.`:'Aucun paiement de ce montant trouvé : à payer (créance née après le jugement, payable à l’échéance).'}</div></div>`).join('')}</div>`}
+function vuePasPlan(){const S=pasScenarios(),C=pasCapa(),sc=S.sc[pasScen];
+  const capA=C?C.a:null;
+  return `<div class="carte"><b>📐 Peut-on rembourser le passif en 10 ans ?</b><div class="sub w">Choisissez l’hypothèse de passif. Le plan dure au plus 10 ans ; à partir de la 3e année, au moins 5 % par an de chaque créance (art. L. 626-18).</div>
+    ${S.sc.map((s,i)=>`<div class="ligne" data-scen="${i}" style="cursor:pointer;display:block;${i===pasScen?'background:rgba(123,79,214,.08);border-radius:8px;padding:6px':''}"><div style="display:flex;justify-content:space-between;gap:8px"><span>${i===pasScen?'🔘':'⚪'} <b>${esc(s[0])}</b></span><b>${eur(s[1])}</b></div><div class="sub w">${esc(s[2])}</div></div>`).join('')}</div>
+   <div class="carte"><b>Ce que le plan coûterait chaque année</b><div class="sub w">Passif retenu : <b style="color:var(--txt)">${eur(sc[1])}</b>. Capacité de remboursement estimée sur vos relevés : ${C?`entrées ${eur(C.Q.eMoy)} − toutes les sorties ${eur(C.Q.sMoy)} = <b style="color:var(--txt)">${eur(C.m)} par mois, soit ${eur(capA)} par an</b>`:'relevés non chargés'} (moyenne août-septembre, charges au mois normal, avant tout remboursement du passif).</div>
+    ${PROFILS.map(p=>`<div class="tw" style="margin-top:8px"><b>${esc(p[0])}</b><table class="t"><tr><th>Année</th><th class="n">%</th><th class="n">À payer</th>${C?'<th class="n">Couvert</th>':''}</tr>${p[1].map((t,i)=>{const a=sc[1]*t/100;return `<tr><td>${i+1}</td><td class="n">${t} %</td><td class="n">${eur(a)}</td>${C?`<td class="n ${capA>=a?'pos':'neg'}">${capA>0?Math.round(capA/a*100)+' %':'—'}</td>`:''}</tr>`}).join('')}</table></div>`).join('')}
+    ${C?`<div class="sub w" style="margin-top:8px">Avec ${eur(capA)} par an, le passif remboursable en 10 ans (10 % par an) est d’environ <b style="color:var(--txt)">${eur(capA*10)}</b>. Pour l’hypothèse choisie, il manque ${eur(Math.max(0,sc[1]-capA*10))} : à obtenir par contestations, remises acceptées par les créanciers, protocoles crédit-bail, blocage de votre compte courant, ou apport (associé).</div>`:''}
+    <div class="sub w">Simplifications : les créances à échoir (prêts) suivent en réalité leur échéancier d’origine ; les petites créances sont souvent payées dès l’adoption du plan. À affiner avec Me Marie et le cabinet SAPEC.</div></div>`}
+function vuePasBil(){return `<div class="carte"><b>📊 Bilans et liasses fiscales</b><div class="sub w">Exercice du 1er avril au 31 mars. Je n’ai trouvé ni bilan ni liasse fiscale (formulaires 2050 à 2059) dans votre Google Drive ni dans la boîte achat.</div>
+   <div class="ligne"><span>Exercice clos le 31/03/2026</span><b class="neg">à obtenir</b></div><div class="ligne"><span>Exercice clos le 31/03/2025</span><b class="neg">à obtenir</b></div><div class="ligne"><span>Situation intermédiaire au 30/06/2026 (date du jugement)</span><b class="neg">à obtenir</b></div>
+   <div class="sub w" style="margin-top:6px">Ce qu’ils apporteront ici : chiffre d’affaires, marge, EBE et résultat sur 2 ans, dettes au bilan comparées au passif déclaré (pour repérer les créances déclarées en trop), et la capacité de remboursement retenue par le tribunal. Demandez les PDF au cabinet SAPEC (Nathalie Dumaine) ou envoyez-les-moi : je les intègre.</div></div>`}
+function vuePasProc(){return typeof vueProcedure==='function'?vueProcedure():''}
+function passifV(){$('#ht').textContent='Passif & plan';fab(null);const P=PA();if(!P){$('#m').innerHTML=pasAudit();return}
+  const nav=sousNav('pasn',[['syn','⚖️ Synthèse'],['ctr','🎯 À contester'],['cre','📋 Toutes les créances'],['ban','🏦 Vérif. bancaire'],['plan','📐 Plan'],['bil','📊 Bilans'],['proc','👥 Procédure']],sousPas);
+  const f={syn:vuePasSyn,ctr:vuePasCtr,cre:vuePasCre,ban:vuePasBan,plan:vuePasPlan,bil:vuePasBil,proc:vuePasProc}[sousPas]||vuePasSyn;
+  $('#m').innerHTML=nav+f();
+  const re=()=>{const y=scrollY;passifV();scrollTo(0,y)};
+  document.querySelectorAll('#pasn button').forEach(b=>b.onclick=()=>{sousPas=b.dataset.k;passifV();scrollTo(0,0)});
+  document.querySelectorAll('#pasfv button').forEach(b=>b.onclick=()=>{filtrePasV=b.dataset.k;re()});
+  document.querySelectorAll('#pasfc button').forEach(b=>b.onclick=()=>{filtrePasC=b.dataset.k;re()});
+  document.querySelectorAll('[data-pas]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('select,a'))return;pasOuv=pasOuv===e.dataset.pas?'':e.dataset.pas;re()});
+  document.querySelectorAll('[data-scen]').forEach(e=>e.onclick=()=>{pasScen=+e.dataset.scen;re()});
+  document.querySelectorAll('select[data-pasv]').forEach(s=>s.onchange=async e=>{const E=pasEtat();E[s.dataset.pasv]={v:e.target.value,d:auj()};if(await majEtat('pas_st',JSON.stringify(E)))re()});
+  brancherLiens()}
 function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);setTimeout(()=>chargerCR(),50);
   const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
   const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};const i=ms.indexOf(moisSel);
   const nA=A?toutes().filter(a=>!actFaite(a.id)).length:null;
   const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur '+(A?toutes().length:'—'),'act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
   const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
-  $('#m').innerHTML=`${(()=>{try{return cartePayer(true)}catch(e){return ''}})()}${(()=>{try{return carteTropPercus(true)}catch(e){return ''}})()}${cartePrioAccueil()}${alertes()}${carteCourrier()}${(()=>{try{return carteReel(true)}catch(e){return ""}})()}${carteSemaine()}${carteBilanSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
+  $('#m').innerHTML=`${(()=>{try{return cartePayer(true)}catch(e){return ''}})()}${(()=>{try{return carteTropPercus(true)}catch(e){return ''}})()}${(()=>{try{return cartePassifAccueil()}catch(e){return ''}})()}${cartePrioAccueil()}${alertes()}${carteCourrier()}${(()=>{try{return carteReel(true)}catch(e){return ""}})()}${carteSemaine()}${carteBilanSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
    <div class="titre">Mois en cours</div>${carteEnCours()}${carteMarche()}
    <details class="plusAcc"${ls.get('pil_plusAcc')==='1'?' open':''}><summary class="titre" style="cursor:pointer">▸ Plus d'analyses : mois complets, exercice, contexte</summary>
    <div class="titre">Mois complets (Vindilis, chargés dans l'application)</div>
@@ -2087,13 +2169,13 @@ function promos(){$('#ht').textContent='Promos';fab(null);
 let sousStk='tre',labStk='';
 const DEC={commander:['Commander','var(--vert2)'],completer:['Clôturer l\'ancienne, puis compléter','var(--bleu)'],option:['Optionnel','var(--doux)'],bloque:['Ne pas recommander : débloquer l\'attente','var(--orange)']};
 function stock(){$('#ht').textContent='Stock & trésorerie';fab(null);
-  const nav=sousNav('sk',[['tre','💶 Trésorerie 13 semaines'],['rel','🏦 Entrées & sorties réelles'],['eng','🧾 Engagements'],['att','🛒 Commandes en attente'],['rec','Recommandes'],['sur','📦 Surstocks & couverture'],['cerp','CERP'],['rup','Ruptures'],['proc','⚖️ Procédure']],sousStk);
+  const nav=sousNav('sk',[['tre','💶 Trésorerie 13 semaines'],['rel','🏦 Entrées & sorties réelles'],['eng','🧾 Engagements'],['att','🛒 Commandes en attente'],['rec','Recommandes'],['sur','📦 Surstocks & couverture'],['cerp','CERP'],['rup','Ruptures']],sousStk);
   const bind=()=>{document.querySelectorAll('#sk button').forEach(b=>b.onclick=()=>{sousStk=b.dataset.k;stock();scrollTo(0,0)});brancherLiens()};
   if(sousStk==='rup'){commandes();$('#ht').textContent='Stock & trésorerie';$('#m').insertAdjacentHTML('afterbegin',nav);$('#m').insertAdjacentHTML('beforeend',blocDemandesPerdues());brancherDemandesPerdues();bind();return}
   if(sousStk==='tre'){$('#m').innerHTML=nav+vueTresorerie();bind();brancherTresorerie();brancherTropPercus();return}
   if(sousStk==='rel'){$('#m').innerHTML=nav+vueReel();bind();return}
   if(sousStk==='eng'){$('#m').innerHTML=nav+vueEngagements();bind();brancherEngagements();return}
-  if(sousStk==='proc'){$('#m').innerHTML=nav+vueProcedure();bind();return}
+  if(sousStk==='proc'){vue='pas';sousPas='proc';navig();passifV();return}
   if(sousStk==='att'){$('#m').innerHTML=nav+vueCommandesAttente();bind();document.querySelectorAll('[data-cmd]').forEach(b=>b.onclick=()=>{cmdOuv=cmdOuv===b.dataset.cmd?'':b.dataset.cmd;const y=scrollY;stock();scrollTo(0,y)});
     const sv=async m=>{if(await majEtat('cmd_param',JSON.stringify({...cmdP(),...m}))){const y=scrollY;stock();scrollTo(0,y)}};const a=$('#cpCov'),d=$('#cpDel');if(a)a.onchange=()=>sv({cov:+a.value});if(d)d.onchange=()=>sv({delai:+d.value});return}
   if(sousStk==='sur'){$('#m').innerHTML=nav+vueSurstocks();bind();document.querySelectorAll('#ssur button').forEach(b=>b.onclick=()=>{sousSur=b.dataset.k;const y=scrollY;stock();scrollTo(0,y)});return}
