@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.14';
+const APP_V='6.15';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -965,7 +965,7 @@ const trParam=()=>({bpgo:true,reserve:15000,scenario:0,enc:null,ach:null,tva:fal
    L'écran de traitement (fiches, paiements, courriers) est la page courrier/ (même site, même code d'accès que Tri & RJ).
    Pilotage lit les mêmes données pour les relier aux autres onglets : accueil, trésorerie, commandes en attente, incidences. */
 const CR_API='https://script.google.com/macros/s/AKfycbxaL37ZTZwlNcn9G5Cf_BjdiQkJ4rgpxpskiJ3TkNgqfmWMcFzrLI-sSedImWCBj_E/exec';
-let CR=(()=>{try{return JSON.parse(ls.get('pil_cr')||'null')}catch(e){return null}})(),crErr='',crEnCours=false,sousCou='mail';
+let CR=(()=>{try{return JSON.parse(ls.get('pil_cr')||'null')}catch(e){return null}})(),crErr='',crEnCours=false,sousCou='tri';
 const crJeton=()=>{try{const j=JSON.parse(localStorage.getItem('triRJ_jeton')||'null');return j&&j.exp>Date.now()?j.v:null}catch(e){return null}};
 const crAppel=(fn,args)=>fetch(CR_API+'?t='+Date.now(),{method:'POST',cache:'no-store',body:JSON.stringify({fn,args}),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.json()).then(r=>{if(!r.ok)throw new Error(r.erreur||'Erreur');return r.data});
 function crSauver(){try{ls.set('pil_cr',JSON.stringify(CR))}catch(e){}}
@@ -1031,12 +1031,13 @@ function vueSynCourrier(){const S=crSyn();if(!S)return `<div class="carte"><b>Sy
 const barre=r=>`<div style="height:8px;border-radius:4px;background:var(--ligne);margin:8px 0 4px;overflow:hidden"><div style="height:100%;width:${Math.round(Math.max(0,Math.min(1,r))*100)}%;background:var(--vert2)"></div></div>`;
 /* L'onglet : sous-onglets Boîte mail / Paiements / Courrier (page courrier/) et Synthèse (Pilotage) */
 function courrier(){$('#ht').textContent='Courrier & paiements';fab(null);
-  const nav=sousNav('cs',[['mail','📬 Boîte mail'],['rj','💶 Paiements RJ'],['cr','📮 Courrier / PDF'],['syn','🧭 Synthèse et liens']],sousCou);
-  if(sousCou==='syn'){$('#m').innerHTML=nav+vueSynCourrier();chargerCR();}
+  const nav=sousNav('cs',[['tri','⚡ Traiter en série'],['mail','📬 Boîte mail'],['rj','💶 Paiements RJ'],['cr','📮 Courrier / PDF'],['syn','🧭 Synthèse et liens']],sousCou);
+  if(sousCou==='tri'){$('#m').innerHTML=nav+vueTriSerie();brancherTriSerie();if(!crSyn())chargerCR();}
+  else if(sousCou==='syn'){$('#m').innerHTML=nav+vueSynCourrier();chargerCR();}
   else{$('#m').innerHTML=nav+`<iframe id="crF" src="courrier/?v=${APP_V}" title="Courrier et paiements" style="width:100%;border:0;display:block;background:var(--fond)"></iframe>`;
     const f=$('#crF');f.onload=()=>{try{if(f.contentWindow.vue&&sousCou!=='mail')f.contentWindow.vue(sousCou)}catch(e){}};taillerCadre()}
   document.querySelectorAll('#cs button').forEach(b=>b.onclick=()=>{const k=b.dataset.k,f=$('#crF');
-    if(k!=='syn'&&f&&sousCou!=='syn'){sousCou=k;document.querySelectorAll('#cs button').forEach(x=>x.classList.toggle('on',x.dataset.k===k));try{f.contentWindow.vue(k)}catch(e){}return}
+    if(k!=='syn'&&k!=='tri'&&f&&sousCou!=='syn'&&sousCou!=='tri'){sousCou=k;document.querySelectorAll('#cs button').forEach(x=>x.classList.toggle('on',x.dataset.k===k));try{f.contentWindow.vue(k)}catch(e){}return}
     sousCou=k;courrier();scrollTo(0,0)});
   brancherLiens&&brancherLiens();const r=$('#crRel');if(r)r.onclick=()=>{toast('Actualisation…');chargerCR(true)}}
 function taillerCadre(){const f=$('#crF');if(!f)return;const top=f.getBoundingClientRect().top+scrollY,nv=$('#nav'),bas=nv&&getComputedStyle(nv).bottom==='0px'&&nv.offsetWidth>=innerWidth-2?nv.offsetHeight:0;f.style.height=Math.max(420,innerHeight-top-bas-6)+'px'}
@@ -1085,6 +1086,37 @@ function vueTresorerie(){const V=V6();if(!V)return pasAudit();const R=semainesTr
     <div class="g2" style="margin-top:8px"><div><label>Libellé</label><input id="chLib" placeholder="ex. loyer Carmila"></div><div><label>Catégorie</label><select id="chCat">${CATS.map(c=>`<option value="${c[0]}">${esc(c[1])}</option>`).join('')}</select></div>
      <div><label>Jour du mois</label><input id="chJour" type="number" min="1" max="31" value="5"></div><div><label>Montant TTC (€)</label><input id="chMt" type="number" step="0.01"></div></div>
     <button class="btn sec" id="chAdd">+ Ajouter la charge</button></div>`}
+/* ================= 6.15 : traiter tous les mails en série (lots du plus simple au plus délicat) ================= */
+const PRI_ORD={Urgente:0,Haute:1,Moyenne:2,Basse:3};
+function lotsMails(){const S=crSyn();if(!S)return null;const F=S.F.filter(f=>f['Statut']==='À valider');
+  const L1=/^(Information|Sans intérêt|Doublon|Déjà au suivi RJ)$/,L2=/^(Suivi RJ|Prestataire à payer|Créance antérieure)$/;
+  const tri=(a,b)=>(PRI_ORD[a['Priorité']]??4)-(PRI_ORD[b['Priorité']]??4)||String(a['Date mail']).localeCompare(String(b['Date mail']));
+  return {F,l1:F.filter(f=>L1.test(f['Décision proposée']||'')).sort(tri),l2:F.filter(f=>L2.test(f['Décision proposée']||'')).sort(tri),l3:F.filter(f=>!L1.test(f['Décision proposée']||'')&&!L2.test(f['Décision proposée']||'')).sort(tri)}}
+const mtF=f=>{const v=parseFloat(String(f['Montant TTC']||'').replace(/[^\d,.-]/g,'').replace(/\.(?=\d{3}(\D|$))/g,'').replace(',','.'));return isNaN(v)?0:v};
+function ligneMail(f,coche){const id=esc(f['ID']);return `<div class="prl" data-mid="${id}">${coche?`<input type="checkbox" class="mCh" data-id="${id}" checked style="width:20px;height:20px;margin-top:2px;flex:none">`:''}<div class="grow"><b>${esc(f['Tiers']||'—')}</b> <span class="badge">${esc(f['Type']||'')}</span>${f['Priorité']==='Urgente'||f['Priorité']==='Haute'?` <span class="badge" style="color:var(--rouge);border-color:var(--rouge)">${esc(f['Priorité'])}</span>`:''}
+  <div class="sub w">${esc(String(f['Objet']||'').slice(0,140))}${f['Montant TTC']?' · <b style="color:var(--txt)">'+esc(f['Montant TTC'])+'</b>':''} · reçu ${esc(String(f['Date mail']||'').slice(0,10))}</div>
+  ${coche?'':`<div class="sub w" style="margin-top:3px">${esc(String(f['Résumé']||'').slice(0,260))}</div>${f['Action demandée']?`<div class="sub w"><b>Demandé :</b> ${esc(String(f['Action demandée']).slice(0,200))}</div>`:''}`}
+  <div class="sub w"><b>Proposition :</b> ${esc(f['Décision proposée']||'—')}${f['Étiquette proposée']?' → rangé dans '+esc(f['Étiquette proposée']):''}${f['Note de Claude']&&!coche?' · '+esc(String(f['Note de Claude']).slice(0,160)):''}</div>
+  ${coche?'':`<div class="prb"><button class="mini mOk" data-id="${id}">✓ D'accord</button><button class="mini mNo" data-id="${id}">✗ Refuser</button>${f['Lien Gmail']?`<a class="mini" href="${esc(f['Lien Gmail'])}" target="_blank" rel="noopener" style="text-decoration:none">Ouvrir le mail ›</a>`:''}</div>`}</div></div>`}
+function vueTriSerie(){const T=lotsMails();if(!T)return `<div class="carte"><b>Courrier non chargé</b><div class="sub w">Ouvrez « 📬 Boîte mail » et entrez le code de Tri & RJ.</div></div>`;
+  const tot2=T.l2.reduce((s,f)=>s+mtF(f),0);
+  return `<div class="carte al b"><b class="t">Traiter tous les mails d'aujourd'hui : ${T.F.length} à décider</b><div class="sub w">Trois lots, du plus rapide au plus délicat. « D'accord » = vous acceptez la proposition (la même chose que le bouton ✓ de la Boîte mail) ; « Refuser » = la fiche reste à revoir. Rien n'est supprimé.</div>
+   <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">1. Rien à faire</div><div class="v">${T.l1.length}</div></div><div class="kpi"><div class="l">2. À payer / suivi RJ</div><div class="v">${T.l2.length}</div><div class="sub">${eur(tot2)}</div></div><div class="kpi"><div class="l">3. À vérifier / action</div><div class="v">${T.l3.length}</div></div></div></div>
+  <div class="titre">Lot 1 · Rien à faire (${T.l1.length}) : informations, publicités, doublons, déjà au suivi RJ</div>
+  <div class="carte prc"><div class="sub w">Parcourez la liste, décochez ce qui mérite votre attention, puis validez tout en une fois (environ 5 minutes).</div>
+   <div style="margin:6px 0;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="mL1">✓ D'accord pour les <span id="mN">${T.l1.length}</span> cochées</button><button class="btn sec" id="mTout">Tout cocher / décocher</button></div><div id="mProg" class="sub"></div>
+   ${T.l1.map(f=>ligneMail(f,true)).join('')}</div>
+  <div class="titre">Lot 2 · À payer ou à ajouter au suivi RJ (${T.l2.length} · ${eur(tot2)})</div>
+  <div class="carte prc"><div class="sub w">Valider ajoute la pièce au suivi RJ (paiement à demander à l'administrateur) : elle entre alors dans « Ce que vous pouvez payer ». Les plus urgentes d'abord.</div>${T.l2.map(f=>ligneMail(f,false)).join('')||'<div class="sub">—</div>'}</div>
+  <div class="titre">Lot 3 · À vérifier ou action à faire (${T.l3.length})</div>
+  <div class="carte prc"><div class="sub w">Une décision de votre part, une par une. Les plus urgentes d'abord.</div>${T.l3.map(f=>ligneMail(f,false)).join('')||'<div class="sub">—</div>'}</div>`}
+function brancherTriSerie(){const J=crJeton();if(!J)return;const maj=()=>{const n=document.querySelectorAll('.mCh:checked').length,e=$('#mN');if(e)e.textContent=n};
+  document.querySelectorAll('.mCh').forEach(c=>c.onchange=maj);const tt=$('#mTout');if(tt)tt.onclick=()=>{const all=[...document.querySelectorAll('.mCh')],on=all.some(c=>!c.checked);all.forEach(c=>c.checked=on);maj()};
+  const dec=async(id,st)=>{await crAppel('mob_decider',[J,id,st,'','','']);const f=(CR.fiches||[]).find(x=>x['ID']===id);if(f)f['Statut']=st;const el=document.querySelector(`[data-mid="${CSS.escape(id)}"]`);if(el)el.style.opacity='.35'};
+  const b=$('#mL1');if(b)b.onclick=async()=>{const ids=[...document.querySelectorAll('.mCh:checked')].map(c=>c.dataset.id);if(!ids.length)return;b.disabled=true;let ok=0,ko=0;
+    for(const id of ids){try{await dec(id,'Validé');ok++}catch(e){ko++}$('#mProg').textContent=`${ok+ko} / ${ids.length} traités${ko?' · '+ko+' en erreur':''}`}
+    toast(ok+' fiche(s) validée(s)');b.disabled=false;setTimeout(()=>{chargerCR(true);setTimeout(()=>{if(vue==='cou'&&sousCou==='tri')courrier()},2500)},300)};
+  document.querySelectorAll('.mOk,.mNo').forEach(x=>x.onclick=async()=>{x.disabled=true;try{await dec(x.dataset.id,x.classList.contains('mOk')?'Validé':'Refusé');toast(x.classList.contains('mOk')?'Validé':'Refusé')}catch(e){toast('Non enregistré : '+e.message);x.disabled=false}})}
 /* ================= 6.10 : COMBIEN JE PEUX PAYER AUJOURD'HUI (jour par jour, 3 semaines) ================= */
 const CERP_CONNUS={'2026-10-19':37936.29};/* débits déjà connus (relevé CERP du 15/10 reçu par mail) */
 const CERP_HIST=[['2026-08-04',46194.52],['2026-08-11',36233.25],['2026-08-18',23120.69],['2026-08-25',29682.35],['2026-09-03',49231.94],['2026-09-10',50162.09],['2026-09-17',32888.48],['2026-09-24',36403.80],['2026-10-05',38684.89],['2026-10-12',37435.04]];/* relevé Caisse d'Épargne */
