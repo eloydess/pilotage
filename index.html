@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.18';
+const APP_V='6.19';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1474,10 +1474,14 @@ const PROFILS=[['Linéaire',[10,10,10,10,10,10,10,10,10,10]],['Progressif (minim
 function pasCapa(){const Q=bqAgg();if(!Q)return null;return {m:Q.eMoy-Q.sMoy,a:12*(Q.eMoy-Q.sMoy),Q}}
 function cartePassifAccueil(){const P=PA();if(!P)return '';const S=pasScenarios();const j=Math.round((new Date(P.limiteVerif)-new Date(auj()))/864e5);
   return `<div class="carte" style="border-left:6px solid var(--violet,#7b4fd6)"><b>⚖️ Passif : ${eur(S.S1)} déclarés</b><div class="sub w">${eur(S.S1-S.sc[1][1])} de corrections prouvées par les pièces, le bilan et vos relevés (loyers futurs de contrats poursuivis, intérêts ajoutés, doublon, créances payées) ; ${eur(S.sc[1][1]-S.sc[2][1])} de plus à confirmer. Position à rendre avant le ${dfr(P.limiteVerif)} (dans ${j} jours).</div><button class="mini" data-go="pas:ctr">Ouvrir ›</button></div>`}
+function cartePasAFaire(){const L=(toutes()||[]).filter(a=>/^Passif/.test(a.theme||'')||['A76'].includes(a.id));if(!L.length)return '';const P=prioListe();const r=id=>{const x=P.find(z=>z.id===id);return x?x:null};
+  const L2=L.map(a=>({a,x:r(a.id),st:statutA(a)})).sort((p,q)=>(p.st==='faite')-(q.st==='faite')||((p.x&&p.x.rang)||999)-((q.x&&q.x.rang)||999));
+  return `<div class="carte" style="border-left:6px solid var(--rouge)"><b>✅ Ce qu'il y a à faire, dans l'ordre</b><div class="sub w">Classé du plus impactant au moins impactant (même classement que l'onglet Priorités). Touchez une ligne pour le détail des étapes.</div>
+   ${L2.map(({a,x,st})=>`<div class="ligne" data-pasact="${esc(a.id)}" style="cursor:pointer;display:block${st==='faite'?';opacity:.5':''}"><div style="display:flex;gap:8px;align-items:baseline"><span class="prk ${x&&x.band||'C'}">${x&&x.rang||'·'}</span><span class="grow"><b>${esc(a.id)} · ${esc(a.titre)}</b><div class="sub">${esc(a.qui||'')} · ${st==='faite'?'fait':delaiTxt(jours(a.quand)??0)} · ${esc(a.enjeu||'')}</div></span></div></div>`).join('')}</div>`}
 function vuePasSyn(){const P=PA(),S=pasScenarios(),R=P.ant;const nb=v=>R.filter(x=>pasV(x)===v).length,mt=v=>R.filter(x=>pasV(x)===v).reduce((s,x)=>s+x.m,0);
   const cats=Object.keys(PCAT).map(k=>{const L=R.filter(x=>x.cat===k);return [k,L.length,L.reduce((s,x)=>s+x.m,0),L.reduce((s,x)=>s+(x.sd||0),0)]}).filter(c=>c[1]).sort((a,b)=>b[2]-a[2]);
   const j=Math.round((new Date(P.limiteVerif)-new Date(auj()))/864e5),post=P.post.reduce((s,x)=>s+x.m,0);
-  return `<div class="carte"><b>⚖️ Le passif de la pharmacie</b><div class="sub w">Relevé le ${esc(P.releve.slice(8,10)+'/'+P.releve.slice(5,7)+'/'+P.releve.slice(0,4))} sur l’${esc(P.source)}. Redressement judiciaire ouvert le ${dfr(P.ouverture)} (${esc(P.juridiction)}, mandat n° ${esc(P.mandat)}), publié au BODACC le ${dfr(P.bodacc)}.</div>
+  return `${cartePasAFaire()}<div class="carte"><b>⚖️ Le passif de la pharmacie</b><div class="sub w">Relevé le ${esc(P.releve.slice(8,10)+'/'+P.releve.slice(5,7)+'/'+P.releve.slice(0,4))} sur l’${esc(P.source)}. Redressement judiciaire ouvert le ${dfr(P.ouverture)} (${esc(P.juridiction)}, mandat n° ${esc(P.mandat)}), publié au BODACC le ${dfr(P.bodacc)}.</div>
    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Déclaré par les créanciers (site)</div><div class="v">${eur(S.S1)}</div></div><div class="kpi"><div class="l">Selon votre liste${aide('Somme des montants que vous avez vous-même déclarés (colonne « Montant dirigeant » du site). Certaines créances n’y figurent pas.')}</div><div class="v">${eur(R.reduce((s,x)=>s+(x.dir||0),0))}</div></div><div class="kpi"><div class="l">Créances antérieures</div><div class="v">${R.length}</div></div><div class="kpi"><div class="l">Postérieures impayées</div><div class="v">${eur2(post)}</div></div></div>
    <div class="sub w" style="margin-top:6px">⏳ Vous devez rendre votre position sur chaque créance <b style="color:var(--txt)">avant le ${dfr(P.limiteVerif)}</b> (dans ${j} jours), dans l’espace dirigeant du mandataire. Rien n’a été accepté ni contesté à votre place.</div></div>
   <div class="carte"><b>Par décision proposée</b><div class="sub w">Proposition construite à partir des déclarations, de votre liste et de vos relevés bancaires. Vous pouvez la changer créance par créance dans « Créances ».</div>
@@ -1543,6 +1547,7 @@ function passifV(){$('#ht').textContent='Passif & plan';fab(null);const P=PA();i
   document.querySelectorAll('#pasfc button').forEach(b=>b.onclick=()=>{filtrePasC=b.dataset.k;re()});
   document.querySelectorAll('[data-pas]').forEach(e=>e.onclick=ev=>{if(ev.target.closest('select,a'))return;pasOuv=pasOuv===e.dataset.pas?'':e.dataset.pas;re()});
   document.querySelectorAll('[data-scen]').forEach(e=>e.onclick=()=>{pasScen=+e.dataset.scen;re()});
+  document.querySelectorAll('[data-pasact]').forEach(e=>e.onclick=()=>{if(typeof ouvrirAction==='function')ouvrirAction(e.dataset.pasact)});
   document.querySelectorAll('select[data-pasv]').forEach(s=>s.onchange=async e=>{const E=pasEtat();E[s.dataset.pasv]={v:e.target.value,d:auj()};if(await majEtat('pas_st',JSON.stringify(E)))re()});
   brancherLiens()}
 function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);setTimeout(()=>chargerCR(),50);
