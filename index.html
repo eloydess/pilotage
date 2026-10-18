@@ -1092,7 +1092,7 @@ function cerpDates(d0,n){/* relevés CERP les 8, 15, 22 et dernier jour du mois 
   for(let k=-3;k<n+3;k++){const d=ajJ(d0,k),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');if(j===8||j===15||j===22||j===fm){let p=ajJ(d,1);while([0,6].includes(new Date(p+'T12:00:00').getDay()))p=ajJ(p,1);if(p>=d0&&p<=ajJ(d0,n-1))out.push({releve:d,prlv:p})}}return out}
 function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return null;
   const sol=S&&S.tot?(S.sC||0)+(P.bpgo?(S.sB||0):0):(V&&V.tresor?V.tresor.soldes.filter(s=>P.bpgo||!/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
-  const dSol=S&&S.tot?(S.dateC||''):'';const N=21,d0=auj(),enc=QB.eMoy/21.7,ch=jsonEt('tr_charges',[]);
+  const dSol=S&&S.tot?(S.dateC||''):'';const N=21,d0=auj(),enc=QB.eMoy/21.7*0.9,ch=jsonEt('tr_charges',[]);
   const gros=(QB.S.find(x=>x.cat==='grossiste')||{moy:0}).moy,cerpM=P.cerp!=null&&P.cerp!==''?+P.cerp:Math.round(gros/4.33/100)*100;
   const C=A&&A.cerp,cerpAtt=C?C.lignes.reduce((s,l)=>s+Math.max(0,(+l[2]||0)-(+l[4]||0)),0)*1.021:0;
   const cd=cerpDates(d0,N);const J=[];let b=sol;
@@ -1117,7 +1117,7 @@ function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,
    <div class="sub w">de factures (laboratoires, dossiers du suivi RJ, autres) <b style="color:var(--txt)">sans que vos comptes passent sous la réserve de ${eur(P.reserve)}</b> dans les 3 prochaines semaines, en tenant compte de tout ce qui va tomber.${!ok?` Il manquerait ${eur(-cap)} au moment le plus tendu : ne payer que l'indispensable.`:''}</div>
    <div class="tw" style="margin-top:8px"><table class="t">
     <tr><td>Sur vos comptes${R.dSol?' (relevé du '+esc(R.dSol.slice(0,10))+')':''}</td><td class="n"><b>${eur(R.sol)}</b></td></tr>
-    <tr><td>+ Ce qui va rentrer d'ici le ${jsem(fin)} ${dfr(fin)} (≈ ${eur(R.enc)} par jour ouvré : assurance maladie, mutuelles, cartes)</td><td class="n pos">+ ${eur(encJ)}</td></tr>
+    <tr><td>+ Ce qui va rentrer d'ici le ${jsem(fin)} ${dfr(fin)} (≈ ${eur(R.enc)} par jour ouvré : assurance maladie, mutuelles, cartes ; moyenne d'août-septembre réduite de 10 % par prudence)</td><td class="n pos">+ ${eur(encJ)}</td></tr>
     <tr><td>− Ce qui va tomber d'ici là (détail ci-dessous)</td><td class="n neg">− ${eur(outJ)}</td></tr>
     <tr><td>− Réserve de sécurité, à ne jamais entamer</td><td class="n neg">− ${eur(P.reserve)}</td></tr>
     <tr class="tot"><td>= Vous pouvez payer maintenant</td><td class="n ${ok?'pos':'neg'}">${ok?eur(cap):'− '+eur(-cap)}</td></tr></table></div>
@@ -1131,7 +1131,7 @@ function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,
    <div class="sub w">Le solde du soir inclut les encaissements des jours ouvrés précédents. Ligne surlignée : le moment le plus tendu.</div></div>
   <div class="carte"><b>Factures à payer (suivi RJ) : lesquelles maintenant, lesquelles plus tard</b><div class="sub w">Ordre : priorité 1, puis validées par l'administrateur, puis les plus anciennes. Chaque facture est payable à la date où, en la payant avec celles du dessus, le solde ne passe jamais sous la réserve.</div>
    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Fournisseur</th><th class="n">Montant</th><th class="n">Cumul</th><th>Quand</th></tr>${F.map(f=>`<tr><td><b>${esc(f.tiers)}</b><div class="sub">${esc(f.statut.replace(/^\S+\s*/,''))}</div></td><td class="n">${eur2(f.du)}</td><td class="n">${eur(f.cum)}</td><td>${f.des===0?'<b class="pos">✅ maintenant</b>':f.des>0?`⏳ à partir du ${jsem(J[f.des].d)} ${dfr(J[f.des].d)}`:'<b class="neg">⛔ pas dans les 3 semaines</b>'}</td></tr>`).join('')||'<tr><td colspan="4" class="sub">Aucune facture en attente (ou courrier non chargé : code Tri & RJ).</td></tr>'}</table></div>
-   <div class="sub w">${payables.length} facture(s) payable(s) maintenant pour ${eur(payables.reduce((s,f)=>s+f.du,0))}${plusTard.length?`, ${plusTard.length} plus tard`:''}${jamais.length?`, ${jamais.length} à repousser`:''}. Toute dépense hors liste (commande directe à un laboratoire) se prend sur le même montant : ${ok?eur(cap):'rien de disponible'}.</div></div>`}`}
+   <div class="sub w">${payables.length===F.length&&F.length?`<b style="color:var(--txt)">Toutes les factures du suivi RJ peuvent être payées maintenant (${eur(F.reduce((s,f)=>s+f.du,0))}) ; il resterait ≈ ${eur(Math.max(0,cap-F.reduce((s,f)=>s+f.du,0)))} pour les commandes directes.</b> `:''}${payables.length} facture(s) payable(s) maintenant pour ${eur(payables.reduce((s,f)=>s+f.du,0))}${plusTard.length?`, ${plusTard.length} plus tard`:''}${jamais.length?`, ${jamais.length} à repousser`:''}. Toute dépense hors liste (commande directe à un laboratoire) se prend sur le même montant : ${ok?eur(cap):'rien de disponible'}.</div></div>`}`}
 /* ================= 6.8 : registre des écrans réels (noms exacts Cenareo et MagicInfo) ================= */
 function registreEcrans(){const Df=DIFF();if(!Df||!Df.magicinfo)return '';const POS=jsonEt('ecr_pos',{}),ids=Df.cenareoId||{},R=[];
   Object.entries(Df.cenareo||{}).forEach(([n,L])=>R.push({k:'C|'+n,nom:(ids[n]?ids[n]+' – ':'')+n,pf:'Cenareo',app:'1 écran',liste:'campagnes en cours',boucle:'',vis:L,rel:Df.releve}));
