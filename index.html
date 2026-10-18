@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.26';
+const APP_V='6.27';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1160,7 +1160,7 @@ function trAnalyse(f,F,L,ALL){const mt=trMt(f),bq=trBanque(f['Tiers'],mt);let db
   if(bq&&bq.st==='non'&&/^(Doublon|Information|Sans intérêt)$/.test(dec)&&mt>=50)alerte=(alerte?alerte+' ':'')+`⚠ ${eur2(mt)} réclamés et aucun paiement trouvé en banque : vérifiez que l'original est bien suivi.`;
   const ch=TRS.c[f.ID]||dec;return {f,mt,bq,db,dec0,dec,ch,pourquoi,alerte,info,com:TRS.m[f.ID]!=null?TRS.m[f.ID]:com,lot:TR_L1.test(ch)?1:TR_L2.test(ch)?2:3}}
 function trTout(){const S=crSyn();if(!S)return null;const F=S.F,L=S.L||[],av=F.filter(f=>f['Statut']==='À valider');TR_CODES=null;
-  const A=av.map((CH=>f=>{const a=trAnalyse(f,F,L,F);a.chaine=CH[f.ID]||[];a.rg=TRS.r[f.ID]||TR_RG_DEF(a.ch);a.et=TRS.e[f.ID]!=null?TRS.e[f.ID]:(f['Étiquette proposée']||'');return a})(trChaines(F,L))).sort((a,b)=>(PRI_ORD[a.f['Priorité']]??4)-(PRI_ORD[b.f['Priorité']]??4)||String(a.f['Date mail']).localeCompare(String(b.f['Date mail'])));
+  const A=av.map((CH=>f=>{const a=trAnalyse(f,F,L,F);a.chaine=CH[f.ID]||[];a.rg=TRS.r[f.ID]||TR_RG_DEF(a.ch);a.et=TRS.e[f.ID]!=null?TRS.e[f.ID]:(/^(AA |COMMANDE PROJET)/i.test(f['Étiquette proposée']||'')?'':String(f['Étiquette proposée']||'').replace(/\s*\(.*$/,''));return a})(trChaines(F,L))).sort((a,b)=>(PRI_ORD[a.f['Priorité']]??4)-(PRI_ORD[b.f['Priorité']]??4)||String(a.f['Date mail']).localeCompare(String(b.f['Date mail'])));
   return {A,F,L,S}}
 function lotsMails(){const T=trTout();if(!T)return null;return {F:T.A.map(a=>a.f),l1:T.A.filter(a=>a.lot===1).map(a=>a.f),l2:T.A.filter(a=>a.lot===2).map(a=>a.f),l3:T.A.filter(a=>a.lot===3).map(a=>a.f)}}
 const mtF=f=>{const v=crNb(f['Montant TTC']);return v==null?0:v};
@@ -1192,12 +1192,29 @@ function trCarte(a){const f=a.f,id=esc(f.ID),coche=TRS.k[f.ID]!=null?TRS.k[f.ID]
     ${trRangH(a)}
     <div class="prb"><button class="mini trLire" data-id="${id}" data-cible="${id}">📧 Lire le mail en entier</button><button class="mini mOk" data-id="${id}">✓ Valider (choix ci-dessus)</button><button class="mini trRJ" data-id="${id}" data-carte="${id}" style="font-weight:600">💶 Mettre en paiement RJ</button><button class="mini mNo" data-id="${id}">✗ À revoir</button>${/^C-/.test(f.ID)?'':`<button class="mini trDel" data-id="${id}">🗑 Supprimer</button>`}${f['Lien Gmail']?`<a class="mini" href="${esc(f['Lien Gmail'])}" target="_blank" rel="noopener" style="text-decoration:none" title="Le mail sera marqué comme lu">Ouvrir dans Gmail ›</a>`:''}</div>
     <div class="trMail" id="trm_${id}"></div></div></div>`}
+function trPicker(id){const f=(CR.fiches||[]).find(x=>x.ID===id);if(!f)return;let ov=document.getElementById('trPickOv');if(ov)ov.remove();
+  const tous=(TR_ETQ||[...new Set((CR.fiches||[]).map(g=>g['Étiquette proposée']).concat((CR.fiches||[]).map(g=>g['Étiquette finale'])).filter(e=>e&&/\//.test(e)))]).filter(e=>!/^(AA |COMMANDE PROJET)/i.test(e)).sort((a,b)=>(/^(LABORATOIRES|PRESTATAIRES)\//.test(a)?0:1)-(/^(LABORATOIRES|PRESTATAIRES)\//.test(b)?0:1)||a.localeCompare(b,'fr'));
+  const mot=trNorm(f.Tiers).split(' ').filter(w=>w.length>=4&&!/^(LABORATOIRE|LABORATOIRES|FRANCE|SAS|VIA|PHARMA)$/.test(w))[0]||'';
+  ov=document.createElement('div');ov.id='trPickOv';ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;display:flex;align-items:flex-end;justify-content:center';
+  ov.innerHTML=`<div style="background:var(--fond,#fff);color:var(--txt);width:100%;max-width:640px;max-height:85vh;border-radius:14px 14px 0 0;padding:12px;display:flex;flex-direction:column;gap:8px">
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><b>📂 Ranger le mail « ${esc(String(f.Tiers).slice(0,40))} » dans :</b><button class="mini" id="trPkX">Fermer</button></div>
+   <input id="trPkQ" placeholder="Tapez quelques lettres : abbvie, cooper, carmila…" value="${esc(mot.toLowerCase())}" style="width:100%;font-size:16px">
+   <div id="trPkNew"></div><div id="trPkL" style="overflow:auto;flex:1"></div>
+   <div class="sub w">Les étiquettes LABORATOIRES/… et PRESTATAIRES/… sont en tête. Une étiquette qui n'existe pas encore est créée au moment du rangement.</div></div>`;
+  document.body.appendChild(ov);const q=ov.querySelector('#trPkQ'),L=ov.querySelector('#trPkL'),NW=ov.querySelector('#trPkNew');
+  const choisir=e=>{TRS.e[id]=e;TRS.r[id]='ranger';trSauver();ov.remove();const y=scrollY;courrier();scrollTo(0,y);toast('Étiquette choisie : '+e)};
+  const maj=()=>{const t=trNorm(q.value);const l=t?tous.filter(e=>trNorm(e).indexOf(t)>=0):tous;
+    L.innerHTML=l.slice(0,80).map(e=>`<button class="mini" data-e="${esc(e)}" style="display:block;width:100%;text-align:left;margin:3px 0;padding:8px">${esc(e)}</button>`).join('')+(l.length>80?`<div class="sub">… ${l.length-80} autres : précisez la recherche.</div>`:'')+(!l.length?'<div class="sub">Aucune étiquette ne correspond.</div>':'');
+    const v=q.value.trim().toUpperCase();NW.innerHTML=v?`<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="mini" data-e="LABORATOIRES/${esc(v)}">➕ Créer LABORATOIRES/${esc(v)}</button><button class="mini" data-e="PRESTATAIRES/${esc(v)}">➕ Créer PRESTATAIRES/${esc(v)}</button></div>`:'';
+    ov.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>choisir(b.dataset.e))};
+  q.oninput=maj;maj();ov.querySelector('#trPkX').onclick=()=>ov.remove();ov.onclick=e=>{if(e.target===ov)ov.remove()};setTimeout(()=>q.focus(),50)}
 function trRangH(a){const f=a.f,id=esc(f.ID);if(/^C-/.test(f.ID))return `<div class="sub w" style="margin-top:4px">📂 Courrier papier : rien à ranger dans Gmail.</div>`;
   if(trRange(f)||/^🗑/.test(f['Date application']||''))return `<div class="sub w" style="margin-top:4px">📂 <b>Ce mail est déjà ${esc(trOu(f))}.</b></div>`;
   const conn=TR_ETQ&&a.et&&TR_ETQ.indexOf(a.et)<0;
   return `<div style="margin-top:6px;padding:6px;border:1px dashed var(--bord,#ccc);border-radius:8px"><div class="w"><b>📂 Le mail, après validation :</b> aujourd'hui il est ${esc(trOu(f))}.</div>
    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px"><select class="trRg" data-id="${id}"><option value="ranger"${a.rg==='ranger'?' selected':''}>🗂 Le ranger dans l'étiquette ci-dessous (il sort de la boîte de réception)</option><option value="laisser"${a.rg==='laisser'?' selected':''}>📥 Le laisser dans la boîte de réception</option><option value="corbeille"${a.rg==='corbeille'?' selected':''}>🗑 Le supprimer (corbeille Gmail)</option></select></div>
-   <input class="trEt" data-id="${id}" list="trEtL" value="${esc(a.et)}" placeholder="Étiquette, ex. LABORATOIRES/ABBVIE (tapez pour voir la liste)" style="width:100%;margin-top:4px;${a.rg==='ranger'?'':'display:none'}">
+   <input type="hidden" class="trEt" data-id="${id}" value="${esc(a.et)}">
+   ${a.rg==='ranger'?`<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px"><span>Étiquette : <b style="color:${a.et?'var(--txt)':'var(--orange)'}">${a.et?esc(a.et):'aucune choisie'}</b></span><button class="mini trPick" data-id="${id}" style="font-weight:600">📂 Choisir une autre étiquette</button></div>`:''}
    <div class="sub w">${f['Étiquette proposée']?'Étiquette proposée : '+esc(f['Étiquette proposée'])+'. ':'Aucune étiquette proposée : choisissez-la. '}${conn?'<b style="color:var(--orange)">Cette étiquette n\'existe pas encore : elle sera créée.</b> ':''}${a.rg==='corbeille'?'<b>Il partira à la corbeille de Gmail</b> (sans étiquette). Gmail le supprime définitivement de lui-même au bout de 30 jours ; d\'ici là, il reste récupérable.':a.rg==='laisser'?'Il restera à traiter dans votre boîte de réception.':(/^(Suivi RJ|Déjà au suivi RJ)$/.test(a.ch)?'La pièce est suivie dans Paiements RJ : le mail peut sortir de la boîte de réception. ':'')+'Son statut lu / non lu ne change pas.'}</div></div>`}
 function trGmailCherche(f){const r=trRefs(f['Références']+' '+f['Objet']).slice(0,3),t=trNorm(f['Tiers']).split(' ').filter(w=>w.length>=4)[0]||'';
   const q=r.length?r.map(x=>'"'+x+'"').join(' OR '):t;return q?'https://mail.google.com/mail/?authuser=pharmaciecsudachat@gmail.com#search/'+encodeURIComponent(q+' in:anywhere'):''}
@@ -1250,6 +1267,7 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
   document.querySelectorAll('.trDec').forEach(s=>s.onchange=()=>{TRS.c[s.dataset.id]=s.value;delete TRS.m[s.dataset.id];trSauver();re()});
   document.querySelectorAll('.trCom').forEach(s=>s.onchange=()=>{TRS.m[s.dataset.id]=s.value;trSauver()});
   document.querySelectorAll('.trRg').forEach(s=>s.onchange=()=>{TRS.r[s.dataset.id]=s.value;trSauver();re()});
+  document.querySelectorAll('.trPick').forEach(b=>b.onclick=()=>{if(!TR_ETQ&&crJeton()){toast('Chargement de vos étiquettes…');crAppel('mob_etiquettes',[crJeton()]).then(l=>{if(Array.isArray(l))TR_ETQ=l;trPicker(b.dataset.id)}).catch(()=>trPicker(b.dataset.id))}else trPicker(b.dataset.id)});
   document.querySelectorAll('.trEt').forEach(s=>s.onchange=()=>{TRS.e[s.dataset.id]=s.value.trim();trSauver();re()});
   document.querySelectorAll('.trChaine').forEach(b=>b.onclick=()=>{const T=trTout(),a=T.A.find(x=>x.f.ID===b.dataset.id);if(!a)return;let n=0;
     a.chaine.filter(g=>g!==a.f&&g['Statut']==='À valider').forEach(g=>{TRS.c[g.ID]=a.ch;TRS.r[g.ID]=a.rg;TRS.e[g.ID]=a.et;TRS.k[g.ID]=true;n++});TRS.k[a.f.ID]=true;trSauver();re();toast(n+' autre(s) envoi(s) réglé(s) comme celui-ci et cochés')});
