@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.20';
+const APP_V='6.21';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1521,48 +1521,92 @@ function vuePasLea(){const P=PA(),Lz=P.leasing;if(!Lz)return '<p class="vide">An
     <div class="sub w">Contrats : ${esc(c.contrats)}</div><div class="sub w" style="margin-top:4px">${esc(c.detail)}</div>
     ${c.frais.length?`<div class="sub w" style="margin-top:4px"><b style="color:var(--rouge)">Ajouté :</b> ${c.frais.map(f=>esc(f[0])+' '+eur2(f[1])).join(' ; ')}</div>`:''}
     <div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Position :</b> ${esc(c.arg)}</div></div>`}).join('')}`}
-let pasSim=null;
-function pasSimCalc(p){const S=pasScenarios(),PL=PA().plan,C=pasCapa();const base=S.sc[p.niv][1];const cca=(p.cca&&p.niv<4)?213317.47:0;
+let pasSim=null,pasFin=null;
+const PAS_DEF={niv:3,cca:true,rem:0,acc:0,caPct:0,mPts:0,charges:0,loyer:true,apport:0,coussin:0};
+function pasSimCalc(p0){const p={...PAS_DEF,...p0};const S=pasScenarios(),PL=PA().plan,C=pasCapa();const base=S.sc[p.niv][1];const cca=(p.cca&&p.niv<4)?213317.47:0;
   const priv=PL.privil.reduce((s,x)=>s+x[1],0)-(p.niv>=2?PL.regul:0),sup=PL.superp;const P0=base-cca,chiro=Math.max(0,P0-priv-sup);
-  const remise=chiro*(p.acc/100)*(p.rem/100),P1=P0-remise,Pp=Math.max(0,P1-p.apport);const capA=(C?C.a:0)+(+p.gain||0);
-  return {base,cca,priv,sup,P0,chiro,remise,P1,Pp,capA,capBase:C?C.a:0,lin:Pp/10,prog:Pp*0.15,maxLin:capA*10}}
-function vuePasPlan(){const P=PA(),PL=P.plan,S=pasScenarios(),C=pasCapa();if(!pasSim)pasSim={...PL.hyp[0].p};const p=pasSim,r=pasSimCalc(p);
-  const ok=r.capA>=r.lin,ok2=r.capA>=r.prog;
-  const ligne=(l,v,cls)=>`<tr><td>${l}</td><td class="n ${cls||''}">${v}</td></tr>`;
-  const hypRes=PL.hyp.filter(h=>h.p).map(h=>{const x=pasSimCalc(h.p);return {h,x,ok:x.capA>=x.lin}});
+  const remise=chiro*(p.acc/100)*(p.rem/100),P1=P0-remise;const ventes=PL.ca-126533;
+  const gCA=ventes*(p.caPct/100)*0.2751,gM=ventes*(1+p.caPct/100)*(p.mPts/100),gain=gCA+gM+(+p.charges||0),hl=p.loyer?PL.bail.hausse:0;
+  const capA=(C?C.a:0)+gain-hl;const besoin=Math.max(0,P1-Math.max(0,capA)*10);const Pp=Math.max(0,P1-p.apport);
+  return {p,base,cca,priv,sup,P0,chiro,remise,P1,Pp,capA,capBase:C?C.a:0,gCA,gM,gain,hl,lin:Pp/10,prog:Pp*0.15,maxLin:Math.max(0,capA)*10,besoin,besoinTot:besoin+(+p.coussin||0)}}
+function pasFinCalc(f){const PL=PA().plan;const r=pasSimCalc(pasSim);const VE=f.ve,dettes=r.P1;const pre=Math.max(0,VE-dettes);const pct=f.mt>0?f.mt/(pre+f.mt):0;
+  const rach=y=>f.mt*Math.pow(1+f.tri/100,y);const ann=(t,n)=>t>0?f.mt*(t/100)/(1-Math.pow(1+t/100,-n)):f.mt/n;return {pre,pct,rach,ann,dettes}}
+function vuePasPlan(){const P=PA(),PL=P.plan,S=pasScenarios(),C=pasCapa(),B=PL.bail;if(!pasSim)pasSim={...PAS_DEF,rem:50,acc:60,caPct:8,mPts:1};const r=pasSimCalc(pasSim),p=r.p;
+  const ok=r.capA>=r.lin;const ligne=(l,v,cls)=>`<tr><td>${l}</td><td class="n ${cls||''}">${v}</td></tr>`;
+  const j=Math.round((new Date('2026-11-07')-new Date(auj()))/864e5);
+  const HYP=[
+   ['H1','Plan sans aménagement',{niv:2,cca:false}],
+   ['H2','Toutes les corrections + compte courant bloqué',{niv:3,cca:true}],
+   ['H3','H2 + remise de 50 % acceptée par 60 % des chirographaires',{niv:3,cca:true,rem:50,acc:60}],
+   ['H4','H3 + marge : ventes +8 % et +1 point de taux de marge',{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1}],
+   ['H5','H4 + charges −60 000 €/an',{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1,charges:60000}],
+   ['H6','H5 + remise plus forte : 60 % acceptée par 70 %',{niv:3,cca:true,rem:60,acc:70,caPct:8,mPts:1,charges:60000}]];
+  const hr=HYP.map(h=>[h,pasSimCalc(h[2])]);
+  if(!pasFin)pasFin={mt:Math.round(r.besoinTot/10000)*10000||500000,ve:PL.valo[0][1]*PL.marge+PL.stock,tri:12,ans:5,taux:9,dur:7};const F=pasFinCalc(pasFin);
+  const VEs=[[PL.valo[0][1]*PL.marge+PL.stock,'Référence de marché (2,83 × marge) + stock'],[0.7*PL.valo[0][1]*PL.marge+PL.stock,'Même référence −30 % (vente contrainte) + stock'],[PL.valo[1][1]*PL.ca+PL.stock,'82 % du CA HT + stock']];
   // cession
   const mL=S.sc[p.niv][1],privC=PL.privil.reduce((s,x)=>s+x[1],0)-(p.niv>=2?PL.regul:0),chiroC=Math.max(1,mL-privC-PL.superp);
   const prix=[...PL.valo.map(v=>[v[0],v[1]*(v[1]>1?PL.marge:PL.ca)]),['Même prix réduit de 30 % (hypothèse de vente contrainte)',0.7*PL.valo[0][1]*PL.marge]];
   const cess=prix.map(([l,f])=>{const tot=f+PL.stock,dispo=Math.max(0,tot-PL.superp-privC),div=Math.min(1,dispo/chiroC),soc=PL.socorec*(1-div);return {l,f,tot,div,cau:Math.min(450000,soc)}});
-  return `<div class="carte"><b>📐 Éviter la liquidation : les hypothèses chiffrées</b><div class="sub w">Point de départ : passif déclaré ${eur(S.S1)} ; capacité de remboursement d’après vos relevés <b style="color:var(--txt)">${C?eur(C.a):'—'} par an</b> (${C?eur(C.m):'—'} par mois, août-septembre, après toutes les charges courantes) ; EBE du dernier exercice ${eur(PL.ebe)}. Règle : plan de 10 ans au plus, au moins 5 % par an de chaque créance à partir de la 3e année (art. L. 626-18). Le tribunal n’arrête le plan que s’il est crédible : sinon, c’est la cession ou la liquidation.</div></div>
-  <div class="carte"><b>Les 6 hypothèses</b><div class="sub w">Les remises, taux d’acceptation, gains et apports sont des hypothèses de travail à chiffrer, pas des données. Touchez « Simuler » pour charger une hypothèse dans le simulateur ci-dessous.</div>
-   ${hypRes.map(({h,x,ok})=>`<div class="ligne" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b>${h.k} · ${esc(h.t)}</b><b style="color:${ok?'var(--vert2)':'var(--rouge)'};white-space:nowrap">${ok?'faisable':'manque '+eur(x.lin-x.capA)+'/an'}</b></div><div class="sub w">${esc(h.d)}</div><div class="sub w">Reste à payer dans le plan : <b style="color:var(--txt)">${eur(x.Pp)}</b> → ${eur(x.lin)} par an sur 10 ans, pour ${eur(x.capA)} de capacité.</div><button class="mini" data-hyp="${h.k}">Simuler ›</button></div>`).join('')}
-   <div class="ligne" style="display:block"><b>H6 · ${esc(PL.hyp[5].t)}</b><div class="sub w">${esc(PL.hyp[5].d)} Détail plus bas.</div></div></div>
+  return `<div class="carte" style="border-left:6px solid var(--rouge)"><b>🏢 Votre bail : les dates exactes</b><div class="sub w">${esc(B.preuve)}</div>
+   <div class="tw" style="margin-top:6px"><table class="t">${ligne('Durée',esc(B.duree))}${ligne('Prise d’effet',B.effetTxt)}${ligne('Fin du bail',B.fin)}
+   ${B.triennales.map((t,i)=>ligne(`Congé possible pour partir le <b>${t[0]}</b> (${['3','6','9'][i]}e année)`,`congé reçu avant le <b>${t[1]}</b>`,i===0?'neg':'')).join('')}</table></div>
+   <div class="sub w" style="margin-top:6px"><b style="color:var(--rouge)">Première échéance : congé à faire recevoir avant le 07/11/2026, dans ${j} jours.</b> ${esc(B.conge)} ${esc(B.rj)}</div>
+   <div class="tw" style="margin-top:6px"><table class="t">${B.loyer.map(l=>ligne(esc(l[0]),esc(l[1]))).join('')}</table></div>
+   <div class="sub w">Conséquence pour le plan : à partir du 08/11/2027, le loyer coûte ${eur(B.hausse)} de plus par an qu’aujourd’hui ; le simulateur le retranche de votre capacité (case cochée par défaut).</div></div>
+  <div class="carte"><b>📐 Combien faut-il pour entrer dans le plan ?</b><div class="sub w">Méthode : reste à payer dans le plan − 10 ans de capacité de remboursement = apport nécessaire. Capacité de départ : ${C?eur(C.a):'—'} par an d’après vos relevés (août-septembre, toutes charges courantes payées), moins la hausse de loyer de 2027. Les remises, taux d’acceptation, hausses de marge et baisses de charges sont des hypothèses de travail.</div>
+   <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Hypothèse</th><th class="n">Reste à payer</th><th class="n">Capacité/an</th><th class="n">Apport nécessaire</th></tr>
+   ${hr.map(([h,x])=>`<tr data-hyp2="${h[0]}" style="cursor:pointer"><td><b>${h[0]}</b> · ${esc(h[1])}</td><td class="n">${eur(x.P1)}</td><td class="n ${x.capA>0?'':'neg'}">${eur(x.capA)}</td><td class="n"><b>${eur(x.besoin)}</b></td></tr>`).join('')}</table></div>
+   <div class="sub w">Touchez une ligne pour la charger dans le simulateur. Lecture : sans hausse de marge, il faudrait entre 1,7 et 2,9 M€ d’argent frais, hors de portée. Le plan devient finançable seulement en combinant corrections, remises, hausse de la marge et baisse des charges (H4 : environ 394 000 € d’apport ; H5 et H6 : aucun apport). Tout repose donc sur l’exploitation, avec un apport limité en appui ; la vente reste la solution de repli à préparer en parallèle.</div></div>
   <div class="carte" id="pasSimC"><b>🧮 Simulateur</b>
    <div class="sub w" style="margin-top:6px">Passif retenu</div><select id="psNiv" style="width:100%">${S.sc.map((s,i)=>`<option value="${i}"${i===p.niv?' selected':''}>${esc(s[0])} : ${eur(s[1])}</option>`).join('')}</select>
    <label class="sub w" style="display:block;margin-top:6px"><input type="checkbox" id="psCca"${p.cca?' checked':''}${p.niv>=4?' disabled':''}> Bloquer votre compte courant (213 317,47 €) pendant le plan</label>
+   <label class="sub w" style="display:block"><input type="checkbox" id="psLoy"${p.loyer?' checked':''}> Intégrer la hausse de loyer de novembre 2027 (−${eur(B.hausse)}/an)</label>
    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
     <label class="sub w">Remise proposée aux chirographaires (%)<input type="number" id="psRem" min="0" max="90" step="5" value="${p.rem}" style="width:100%"></label>
-    <label class="sub w">Part du montant qui l’accepte (%)<input type="number" id="psAcc" min="0" max="100" step="5" value="${p.acc}" style="width:100%"></label>
-    <label class="sub w">Capacité gagnée par an (€)<input type="number" id="psGain" step="5000" value="${p.gain}" style="width:100%"></label>
-    <label class="sub w">Apport d’un associé (€)<input type="number" id="psApp" step="10000" value="${p.apport}" style="width:100%"></label></div>
+    <label class="sub w">Part qui l’accepte (%)<input type="number" id="psAcc" min="0" max="100" step="5" value="${p.acc}" style="width:100%"></label>
+    <label class="sub w">Hausse des ventes (%)<input type="number" id="psCa" step="1" value="${p.caPct}" style="width:100%"></label>
+    <label class="sub w">Points de taux de marge gagnés<input type="number" id="psMp" step="0.5" value="${p.mPts}" style="width:100%"></label>
+    <label class="sub w">Baisse de charges (€/an)<input type="number" id="psCh" step="5000" value="${p.charges}" style="width:100%"></label>
+    <label class="sub w">Apport d’argent frais (€)<input type="number" id="psApp" step="10000" value="${p.apport}" style="width:100%"></label>
+    <label class="sub w">Coussin de trésorerie (€)<input type="number" id="psCou" step="10000" value="${p.coussin}" style="width:100%"></label></div>
    <div class="tw" style="margin-top:8px"><table class="t">
     ${ligne('Passif retenu',eur(r.base))}${r.cca?ligne('− Compte courant bloqué','− '+eur(r.cca),'neg'):''}
     ${ligne('dont privilégiés et super privilégiés (payés à 100 %)',eur(r.priv+r.sup))}${ligne('dont chirographaires',eur(r.chiro))}
-    ${r.remise?ligne(`− Remises acceptées (${p.rem} % × ${p.acc} % des chirographaires)`,'− '+eur(r.remise),'neg'):''}${p.apport?ligne('− Payé tout de suite grâce à l’apport','− '+eur(Math.min(p.apport,r.P1)),'neg'):''}
-    <tr class="tot"><td>Reste à payer dans le plan</td><td class="n">${eur(r.Pp)}</td></tr>
-    ${ligne('Plan linéaire : par an pendant 10 ans',eur(r.lin))}${ligne('Plan progressif : années 6 à 10 (15 % par an)',eur(r.prog))}
-    ${ligne(`Capacité par an (relevés ${eur(r.capBase)}${p.gain?' + '+eur(+p.gain):''})`,eur(r.capA),r.capA>=r.lin?'pos':'neg')}</table></div>
-   <div class="sub w" style="margin-top:6px"><b style="color:${ok?'var(--vert2)':'var(--rouge)'}">${ok?'Plan linéaire finançable.':'Plan linéaire non finançable : il manque '+eur(r.lin-r.capA)+' par an.'}</b> ${ok2?'Le profil progressif passe aussi.':'Le profil progressif ne passe pas les années 6 à 10 sans hausse de capacité.'} Avec cette capacité, le passif finançable en 10 ans est d’environ ${eur(r.maxLin)}.</div>
-   <div class="sub w">⚠ Fin des allègements de loyer : le loyer de base remonte d’au moins 20 000 € HT par an après la 3e année du bail : à retrancher de la capacité.</div></div>
-  <div class="carte"><b>H6 · Vendre l’officine : combien les créanciers récupéreraient</b><div class="sub w">Passif retenu : ${esc(S.sc[p.niv][0])} (${eur(mL)}). Marge brute du dernier exercice ${eur(PL.marge)}, CA HT ${eur(PL.ca)}, stock au 31/03/2026 ${eur(PL.stock)} (payé en plus du fonds, à sa valeur d’inventaire, hypothèse). Les frais de procédure, non chiffrés, sont à déduire. ⚠ Les références Interfimo valent pour des officines rentables : avec un EBE négatif, le prix réel peut être nettement plus bas ; faire estimer l’officine par un spécialiste avant toute décision.</div>
-   <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Prix du fonds</th><th class="n">Fonds + stock</th><th class="n">Chirographaires payés</th><th class="n">Caution SOCOREC appelée</th></tr>${cess.map(c=>`<tr><td>${esc(c.l)}<div class="sub">${eur(c.f)}</div></td><td class="n">${eur(c.tot)}</td><td class="n ${c.div>=1?'pos':''}">${Math.round(c.div*100)} %</td><td class="n ${c.cau>0?'neg':''}">${eur(c.cau)}</td></tr>`).join('')}</table></div>
-   <div class="sub w">Ordre de paiement : super privilégiés (${eur(PL.superp)}), puis privilégiés (${eur(privC)}, dont BPGO 995 026,12 € couverte par le nantissement), puis chirographaires au prorata. Vos cautions : BPGO couverte si le prix suffit ; SOCOREC (631 757,06 €, caution de 450 000 €) payée au même pourcentage que les chirographaires, le solde pouvant vous être réclamé. Le bail : agrément et droit de préférence du bailleur (pt 174 à 194). S’il reste un solde après paiement de tous les créanciers, il revient à la société. En liquidation, le fonds serait vendu par le liquidateur, sans plan, et les cautions appelées.</div></div>
-  <div class="carte"><b>Leviers vérifiés (droit et bail)</b>${PL.leviers.map(l=>`<div class="ligne" style="display:block"><b>${esc(l[0])}</b><div class="sub w">${esc(l[1])}</div></div>`).join('')}<div class="sub w">Sources vérifiées le 18/10/2026 : ${PL.sources.map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">[${i+1}]</a>`).join(' ')}. Je ne suis pas avocat : stratégie à valider avec Me Marie et l’administrateur.</div></div>`}
+    ${r.remise?ligne(`− Remises acceptées (${p.rem} % × ${p.acc} %)`,'− '+eur(r.remise),'neg'):''}
+    <tr class="tot"><td>Reste à payer avant apport</td><td class="n">${eur(r.P1)}</td></tr>
+    ${ligne('Capacité actuelle (relevés)',eur(r.capBase))}${r.gCA?ligne(`+ Marge sur ventes +${p.caPct} % (taux 27,51 %)`,'+ '+eur(r.gCA),'pos'):''}${r.gM?ligne(`+ ${p.mPts} point(s) de taux de marge`,'+ '+eur(r.gM),'pos'):''}${p.charges?ligne('+ Baisse de charges','+ '+eur(+p.charges),'pos'):''}${r.hl?ligne('− Hausse de loyer 2027','− '+eur(r.hl),'neg'):''}
+    <tr class="tot"><td>Capacité de remboursement par an</td><td class="n ${r.capA>0?'':'neg'}">${eur(r.capA)}</td></tr>
+    ${ligne('Ce que 10 ans de capacité remboursent',eur(r.maxLin))}
+    <tr class="tot"><td>Apport nécessaire pour entrer dans le plan</td><td class="n"><b>${eur(r.besoin)}</b></td></tr>${p.coussin?ligne('+ coussin de trésorerie',eur(r.besoinTot)):''}
+    ${p.apport?ligne(`Avec votre apport de ${eur(p.apport)} : par an pendant 10 ans`,eur(r.lin),ok?'pos':'neg'):''}</table></div>
+   <div class="sub w" style="margin-top:6px">${p.apport?`<b style="color:${ok?'var(--vert2)':'var(--rouge)'}">${ok?'Plan finançable avec cet apport.':'Encore insuffisant : il manque '+eur(r.lin-r.capA)+' par an.'}</b> `:''}À partir de la 3e année, chaque annuité doit atteindre au moins 5 % de chaque créance (art. L. 626-18).</div></div>
+  <div class="carte"><b>💼 Faire entrer de l’argent : combien, quelle part, quel coût</b><div class="sub w">Pour un associé pharmacien : part du capital = apport ÷ (valeur des parts avant apport + apport). Valeur des parts = valeur de l’officine (fonds + stock) − dettes restant dans le plan.</div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
+    <label class="sub w">Montant apporté (€)<input type="number" id="pfMt" step="10000" value="${pasFin.mt}" style="width:100%"></label>
+    <label class="sub w">Valeur de l’officine<select id="pfVe" style="width:100%">${VEs.map(v=>`<option value="${Math.round(v[0])}"${Math.round(v[0])===Math.round(pasFin.ve)?' selected':''}>${esc(v[1])} : ${eur(v[0])}</option>`).join('')}</select></label>
+    <label class="sub w">Rendement exigé par l’investisseur (%/an)<input type="number" id="pfTri" step="1" value="${pasFin.tri}" style="width:100%"></label>
+    <label class="sub w">Rachat de ses parts au bout de (ans)<input type="number" id="pfAns" min="3" max="10" value="${pasFin.ans}" style="width:100%"></label>
+    <label class="sub w">Si c’est un prêt : taux (%)<input type="number" id="pfTx" step="0.5" value="${pasFin.taux}" style="width:100%"></label>
+    <label class="sub w">Durée du prêt (ans)<input type="number" id="pfDu" min="2" max="12" value="${pasFin.dur}" style="width:100%"></label></div>
+   <div class="tw" style="margin-top:8px"><table class="t">
+    ${ligne('Valeur de l’officine retenue',eur(pasFin.ve))}${ligne('− Dettes restant dans le plan (avant apport)','− '+eur(F.dettes),'neg')}
+    <tr class="tot"><td>Valeur de vos parts avant l’apport</td><td class="n">${eur(F.pre)}</td></tr>
+    ${ligne('Part du capital pour l’investisseur',String(Math.round(F.pct*1000)/10).replace('.',',')+' %',F.pct>0.5?'neg':'')}
+    ${ligne(`Prix de rachat de ses parts au bout de ${pasFin.ans} ans (${pasFin.tri} %/an)`,eur(F.rach(pasFin.ans)))}
+    ${ligne(`Ou, en prêt / compte courant : annuité sur ${pasFin.dur} ans à ${pasFin.taux} %`,eur(F.ann(pasFin.taux,pasFin.dur))+' /an')}</table></div>
+   <div class="sub w">${F.pct>0.5?'⚠ Au-delà de 50 %, vous perdez le contrôle : préférer un apport en compte courant ou des obligations, ou réduire le montant. ':''}En compte courant (prêt d’associé), l’apport peut bénéficier du privilège de new money (art. L. 626-10) : remboursé en priorité, sans remise imposée ; un apport en capital n’en bénéficie pas. Le rachat et l’annuité doivent tenir dans la capacité de remboursement après le plan.</div></div>
+  <div class="carte"><b>🗂️ Toutes les options, une par une</b><div class="sub w">Aucune ne suffit seule ; le plan crédible les combine. Classées par ordre logique d’action.</div>
+   ${PL.options.map(o=>`<div class="ligne" style="display:block"><b>${o.k} · ${esc(o.t)}</b> <span class="sub">— ${esc(o.v)} · ${esc(o.d)}</span><div class="sub w">${esc(o.m)}</div><div class="sub w"><b style="color:var(--txt)">Conditions et limites :</b> ${esc(o.c)}</div></div>`).join('')}</div>
+  <div class="carte"><b>🏦 Banques spécialisées des entreprises en difficulté</b>${PL.bqJud.map(b=>`<div class="ligne" style="display:block"><b>${esc(b[0])}</b><div class="sub w">${esc(b[1])} <a href="${esc(b[2])}" target="_blank" rel="noopener">Source</a></div></div>`).join('')}<div class="sub w">Ce qu’elles demanderont : prévisionnel sur 3 ans, plan de redressement chiffré, situation au 30/06/2026, relevés, et l’accord de l’administrateur. Le privilège de new money (art. L. 622-17 pendant l’observation, L. 626-10 pour le plan) les rembourse en priorité : c’est l’argument à mettre en avant.</div></div>
+  <div class="carte"><b>O · Vendre l’officine : combien les créanciers récupéreraient</b><div class="sub w">Passif retenu : ${esc(S.sc[p.niv][0])} (${eur(mL)}). Marge brute ${eur(PL.marge)}, CA HT ${eur(PL.ca)}, stock ${eur(PL.stock)} (payé en plus du fonds, hypothèse). Frais de procédure non chiffrés à déduire. ⚠ Références Interfimo valables pour des officines rentables : avec un EBE négatif, le prix réel peut être nettement plus bas ; faire estimer par un spécialiste.</div>
+   <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Prix du fonds</th><th class="n">Fonds + stock</th><th class="n">Chirographaires payés</th><th class="n">Caution SOCOREC appelée</th></tr>${cess.map(c=>`<tr><td>${esc(c.l)}<div class="sub">${eur(c.f)}</div></td><td class="n">${eur(c.tot)}</td><td class="n ${c.div>=1?'pos':''}">${Math.round(c.div*100)} %</td><td class="n ${c.cau>0?'neg':''}">${eur(c.cau)}</td></tr>`).join('')}</table></div></div>
+  <div class="carte"><b>Leviers juridiques vérifiés</b>${PL.leviers.map(l=>`<div class="ligne" style="display:block"><b>${esc(l[0])}</b><div class="sub w">${esc(l[1])}</div></div>`).join('')}<div class="sub w">Sources vérifiées le 18/10/2026 : ${PL.sources.map((u,i)=>`<a href="${esc(u)}" target="_blank" rel="noopener">[${i+1}]</a>`).join(' ')}. Je ne suis pas avocat : stratégie à valider avec Me Marie et l’administrateur.</div></div>`}
 function brancherPasPlan(){const g=id=>document.getElementById(id);if(!g('psNiv'))return;const re=()=>{const y=scrollY;passifV();scrollTo(0,y)};
-  g('psNiv').onchange=e=>{pasSim.niv=+e.target.value;re()};g('psCca').onchange=e=>{pasSim.cca=e.target.checked;re()};
-  [['psRem','rem'],['psAcc','acc'],['psGain','gain'],['psApp','apport']].forEach(([i,k])=>g(i).onchange=e=>{pasSim[k]=+e.target.value||0;re()});
-  document.querySelectorAll('[data-hyp]').forEach(b=>b.onclick=()=>{const h=PA().plan.hyp.find(x=>x.k===b.dataset.hyp);pasSim={...h.p};passifV();const c=document.getElementById('pasSimC');if(c)c.scrollIntoView()})}
+  g('psNiv').onchange=e=>{pasSim.niv=+e.target.value;re()};g('psCca').onchange=e=>{pasSim.cca=e.target.checked;re()};g('psLoy').onchange=e=>{pasSim.loyer=e.target.checked;re()};
+  [['psRem','rem'],['psAcc','acc'],['psCa','caPct'],['psMp','mPts'],['psCh','charges'],['psApp','apport'],['psCou','coussin']].forEach(([i,k])=>g(i).onchange=e=>{pasSim[k]=+e.target.value||0;pasFin=null;re()});
+  [['pfMt','mt'],['pfVe','ve'],['pfTri','tri'],['pfAns','ans'],['pfTx','taux'],['pfDu','dur']].forEach(([i,k])=>g(i).onchange=e=>{pasFin[k]=+e.target.value||0;re()});
+  document.querySelectorAll('[data-hyp2]').forEach(b=>b.onclick=()=>{const H={H1:{niv:2,cca:false},H2:{niv:3,cca:true},H3:{niv:3,cca:true,rem:50,acc:60},H4:{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1},H5:{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1,charges:60000},H6:{niv:3,cca:true,rem:60,acc:70,caPct:8,mPts:1,charges:60000}}[b.dataset.hyp2];pasSim={...PAS_DEF,...H};pasFin=null;passifV();const c=g('pasSimC');if(c)c.scrollIntoView()})}
 function vuePasBil(){const B=(PA()||{}).bilan;if(!B)return '<p class="vide">Bilan non chargé</p>';const f=v=>typeof v==='number'&&Math.abs(v)<100&&v%1?String(v).replace('.',',')+' %':eur(v);
   return `<div class="carte"><b>📊 Comptes annuels</b><div class="sub w">${esc(B.source)}. Exercice du 1er avril au 31 mars.</div>
    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Poste</th>${B.sig.cols.map(c=>`<th class="n">${esc(c)}</th>`).join('')}</tr>${B.sig.lignes.map(l=>`<tr><td>${esc(l[0])}</td>${l.slice(1).map(v=>`<td class="n ${typeof v==='number'&&v<0?'neg':''}">${f(v)}</td>`).join('')}</tr>`).join('')}</table></div>
