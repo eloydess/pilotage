@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.10';
+const APP_V='6.11';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['prio','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1091,8 +1091,11 @@ const jsem=d=>JSEM[new Date(d+'T12:00:00').getDay()];
 function cerpDates(d0,n){/* relevés CERP les 8, 15, 22 et dernier jour du mois ; prélèvement le jour ouvré suivant */const out=[];
   for(let k=-3;k<n+3;k++){const d=ajJ(d0,k),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');if(j===8||j===15||j===22||j===fm){let p=ajJ(d,1);while([0,6].includes(new Date(p+'T12:00:00').getDay()))p=ajJ(p,1);if(p>=d0&&p<=ajJ(d0,n-1))out.push({releve:d,prlv:p})}}return out}
 function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return null;
-  const sol=S&&S.tot?(S.sC||0)+(P.bpgo?(S.sB||0):0):(V&&V.tresor?V.tresor.soldes.filter(s=>P.bpgo||!/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
-  const dSol=S&&S.tot?(S.dateC||''):'';const N=21,d0=auj(),enc=QB.eMoy/21.7*0.9,ch=jsonEt('tr_charges',[]);
+  /* Paiements depuis la seule Caisse d'Épargne : la BPGO accumule la trésorerie et n'est pas utilisée */
+  const solB=S&&S.tot?(S.sB||0):(V&&V.tresor?V.tresor.soldes.filter(s=>/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
+  const sol=S&&S.tot?(S.sC||0):(V&&V.tresor?V.tresor.soldes.filter(s=>!/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
+  const encCEm=(()=>{const L=QB.B.lignes.filter(l=>l.s==='E'&&/caisse/i.test(l.compte||'')&&l.cat!=='exceptionnel');const R=QB.B.ref||[1,2];return R.reduce((s,i)=>s+L.reduce((a,l)=>a+(l.m[i]||0),0),0)/R.length})();
+  const dSol=S&&S.tot?(S.dateC||''):'';const N=21,d0=auj(),enc=encCEm/21.7*0.9,ch=jsonEt('tr_charges',[]);
   const gros=(QB.S.find(x=>x.cat==='grossiste')||{moy:0}).moy,cerpM=P.cerp!=null&&P.cerp!==''?+P.cerp:Math.round(gros/4.33/100)*100;
   const C=A&&A.cerp,cerpAtt=C?C.lignes.reduce((s,l)=>s+Math.max(0,(+l[2]||0)-(+l[4]||0)),0)*1.021:0;
   const cd=cerpDates(d0,N);const J=[];let b=sol;
@@ -1107,21 +1110,21 @@ function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return 
   const F=(S&&S.L||[]).filter(l=>(+l.du||0)>0).map(l=>({tiers:l.tiers,du:+l.du,p1:/1/.test(String(l.priorite||'')),val:!!String(l.validation||'').trim()||/valid/i.test(l.statut||''),dt:dIso(l.dateCommande||l.date)||'9999',statut:l.statut||''}))
     .sort((a,b)=>(b.p1-a.p1)||(b.val-a.val)||String(a.dt).localeCompare(String(b.dt)));
   let cum=0;F.forEach(f=>{cum+=f.du;f.cum=cum;let kk=-1;for(let k=0;k<N;k++){if(capAt(k)>=cum){kk=k;break}}f.des=kk});
-  return {sol,dSol,J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
+  return {sol,solB,encCEm,dSol,J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
 function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,P}=R,d0=J[0].d;
   const fin=mn.d,encJ=J.filter(x=>x.d<=fin).reduce((s,x)=>s+x.enc,0),evJ=J.filter(x=>x.d<=fin).flatMap(x=>x.ev.map(e=>[x.d,...e])),outJ=evJ.reduce((s,x)=>s+x[2],0);
   const ok=cap>0;const grand=ok?eur(Math.floor(cap/100)*100):'0 €';
   const payables=F.filter(f=>f.des===0),plusTard=F.filter(f=>f.des>0),jamais=F.filter(f=>f.des<0);
-  return `<div class="carte" style="border-left:6px solid ${ok?'var(--vert2)':'var(--rouge)'}"><b>💶 Ce que vous pouvez payer aujourd'hui (${jsem(d0)} ${dfr(d0)})</b>
+  return `<div class="carte" style="border-left:6px solid ${ok?'var(--vert2)':'var(--rouge)'}"><b>💶 Ce que vous pouvez payer aujourd'hui depuis la Caisse d'Épargne (${jsem(d0)} ${dfr(d0)})</b>
    <div class="gros" style="font-size:34px;margin:6px 0 2px;color:${ok?'var(--vert2)':'var(--rouge)'}">${grand}</div>
-   <div class="sub w">de factures (laboratoires, dossiers du suivi RJ, autres) <b style="color:var(--txt)">sans que vos comptes passent sous la réserve de ${eur(P.reserve)}</b> dans les 3 prochaines semaines, en tenant compte de tout ce qui va tomber.${!ok?` Il manquerait ${eur(-cap)} au moment le plus tendu : ne payer que l'indispensable.`:''}</div>
+   <div class="sub w">de factures (laboratoires, dossiers du suivi RJ, autres) <b style="color:var(--txt)">sans que le compte Caisse d'Épargne passe sous la réserve de ${eur(P.reserve)}</b> dans les 3 prochaines semaines, en tenant compte de tout ce qui va y tomber. La BPGO n'est pas comptée : elle accumule la trésorerie (${eur(R.solB)}).${!ok?` Il manquerait ${eur(-cap)} au moment le plus tendu : ne payer que l'indispensable, ou prévoir un virement depuis la BPGO.`:''}</div>
    <div class="tw" style="margin-top:8px"><table class="t">
-    <tr><td>Sur vos comptes${R.dSol?' (relevé du '+esc(R.dSol.slice(0,10))+')':''}</td><td class="n"><b>${eur(R.sol)}</b></td></tr>
-    <tr><td>+ Ce qui va rentrer d'ici le ${jsem(fin)} ${dfr(fin)} (≈ ${eur(R.enc)} par jour ouvré : assurance maladie, mutuelles, cartes ; moyenne d'août-septembre réduite de 10 % par prudence)</td><td class="n pos">+ ${eur(encJ)}</td></tr>
+    <tr><td>Sur la Caisse d'Épargne${R.dSol?' (solde du '+esc(R.dSol.slice(0,10))+' dans le suivi RJ)':''}</td><td class="n"><b>${eur(R.sol)}</b></td></tr>
+    <tr><td>+ Ce qui va rentrer d'ici le ${jsem(fin)} ${dfr(fin)} sur la Caisse d'Épargne (≈ ${eur(R.enc)} par jour ouvré : assurance maladie, mutuelles, cartes ; ${eur(R.encCEm)} par mois en août-septembre, réduits de 10 % par prudence)</td><td class="n pos">+ ${eur(encJ)}</td></tr>
     <tr><td>− Ce qui va tomber d'ici là (détail ci-dessous)</td><td class="n neg">− ${eur(outJ)}</td></tr>
     <tr><td>− Réserve de sécurité, à ne jamais entamer</td><td class="n neg">− ${eur(P.reserve)}</td></tr>
     <tr class="tot"><td>= Vous pouvez payer maintenant</td><td class="n ${ok?'pos':'neg'}">${ok?eur(cap):'− '+eur(-cap)}</td></tr></table></div>
-   <div class="sub w">Moment le plus tendu : <b style="color:var(--txt)">${jsem(fin)} ${dfr(fin)}</b>, solde prévu ${eur(mn.bal)} avant tout nouveau paiement. Après cette date, la marge de manœuvre remonte.</div>
+   <div class="sub w">Moment le plus tendu : <b style="color:var(--txt)">${jsem(fin)} ${dfr(fin)}</b>, solde Caisse d'Épargne prévu ${eur(mn.bal)} avant tout nouveau paiement. Après cette date, la marge de manœuvre remonte. Si une facture urgente dépasse ce montant : virement depuis la BPGO (${eur(R.solB)} disponibles), à décider au cas par cas.</div>
    ${R.cerpAtt>1000?`<div class="al o" style="margin-top:6px;padding:6px 10px;border-radius:8px"><b>⚠ Commandes CERP encore non livrées : ≈ ${eur(R.cerpAtt)}</b><div class="sub w">Les commandes des 13–15/10 ne sont presque pas livrées. Si elles arrivent avant le prochain relevé, elles seront prélevées en plus : votre capacité tomberait à ${R.capRisque>0?eur(R.capRisque):'zéro (il manquerait '+eur(-R.capRisque)+')'}. À vérifier avec la CERP (action A1) avant de payer de gros montants.</div></div>`:''}
    ${court?`<button class="btn sec" data-go="stk:tre">Voir ce qui va tomber, jour par jour, et les factures payables</button>`:''}</div>
   ${court?'':`<div class="carte"><b>Ce qui va tomber dans les 3 semaines</b><div class="sub w">Prélèvements et charges fixes (Trésorerie › Charges mensuelles, issues de vos relevés) et prélèvements CERP. La CERP fait un relevé les 8, 15, 22 et en fin de mois, prélevé le jour ouvré suivant : ≈ ${eur(R.cerpM)} par relevé (moyenne août-septembre ; dernier relevé : 37 936,29 € prélevés le 16/10).</div>
