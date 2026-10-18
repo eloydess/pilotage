@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.11';
+const APP_V='6.12';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['prio','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['act','✅','Actions','Actions'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1086,10 +1086,11 @@ function vueTresorerie(){const V=V6();if(!V)return pasAudit();const R=semainesTr
      <div><label>Jour du mois</label><input id="chJour" type="number" min="1" max="31" value="5"></div><div><label>Montant TTC (€)</label><input id="chMt" type="number" step="0.01"></div></div>
     <button class="btn sec" id="chAdd">+ Ajouter la charge</button></div>`}
 /* ================= 6.10 : COMBIEN JE PEUX PAYER AUJOURD'HUI (jour par jour, 3 semaines) ================= */
+const CERP_CONNUS={'2026-10-15':37936.29};/* montants lus sur les relevés CERP reçus par mail */
 const JSEM=['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
 const jsem=d=>JSEM[new Date(d+'T12:00:00').getDay()];
-function cerpDates(d0,n){/* relevés CERP les 8, 15, 22 et dernier jour du mois ; prélèvement le jour ouvré suivant */const out=[];
-  for(let k=-3;k<n+3;k++){const d=ajJ(d0,k),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');if(j===8||j===15||j===22||j===fm){let p=ajJ(d,1);while([0,6].includes(new Date(p+'T12:00:00').getDay()))p=ajJ(p,1);if(p>=d0&&p<=ajJ(d0,n-1))out.push({releve:d,prlv:p})}}return out}
+function cerpDates(d0,n){/* relevés CERP les 8, 15, 22 et dernier jour du mois ; échéance le jour ouvré suivant, débité sur le compte le jour ouvré d'après (relevé du 15/10 : échéance 16/10, débit 19/10) */const out=[];
+  for(let k=-3;k<n+3;k++){const d=ajJ(d0,k),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');if(j===8||j===15||j===22||j===fm){let p=d,nb=0;while(nb<2){p=ajJ(p,1);if(![0,6].includes(new Date(p+'T12:00:00').getDay()))nb++}if(p>=d0&&p<=ajJ(d0,n-1))out.push({releve:d,prlv:p})}}return out}
 function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return null;
   /* Paiements depuis la seule Caisse d'Épargne : la BPGO accumule la trésorerie et n'est pas utilisée */
   const solB=S&&S.tot?(S.sB||0):(V&&V.tresor?V.tresor.soldes.filter(s=>/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
@@ -1102,7 +1103,7 @@ function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return 
   for(let k=0;k<N;k++){const d=ajJ(d0,k),wd=new Date(d+'T12:00:00').getDay(),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');const ev=[];
     const e=(wd>=1&&wd<=5&&k>0)?enc:0;
     ch.forEach(c=>{const cj=Math.min(+c.jour,fm);if(cj===j&&k>0)ev.push([c.lib.replace(/\s*\(.*$/,''),+c.montant||0,c.cat])});
-    cd.filter(x=>x.prlv===d&&k>0).forEach(x=>ev.push(['CERP (relevé du '+dfr(x.releve)+')',cerpM,'mes']));
+    cd.filter(x=>x.prlv===d&&k>0).forEach(x=>{const kn=CERP_CONNUS[x.releve];ev.push(['CERP (relevé du '+dfr(x.releve)+(kn?', montant exact':', estimé')+')',kn||cerpM,'mes'])});
     const out=ev.reduce((s,x)=>s+x[1],0);b=b+e-out;J.push({d,k,enc:e,ev,out,bal:b})}
   const capAt=k=>Math.min(...J.slice(k).map(x=>x.bal))-P.reserve;const mn=J.reduce((m,x)=>x.bal<m.bal?x:m,J[0]);
   const cap=capAt(0),capRisque=cap-cerpAtt;
@@ -1127,7 +1128,7 @@ function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,
    <div class="sub w">Moment le plus tendu : <b style="color:var(--txt)">${jsem(fin)} ${dfr(fin)}</b>, solde Caisse d'Épargne prévu ${eur(mn.bal)} avant tout nouveau paiement. Après cette date, la marge de manœuvre remonte. Si une facture urgente dépasse ce montant : virement depuis la BPGO (${eur(R.solB)} disponibles), à décider au cas par cas.</div>
    ${R.cerpAtt>1000?`<div class="al o" style="margin-top:6px;padding:6px 10px;border-radius:8px"><b>⚠ Commandes CERP encore non livrées : ≈ ${eur(R.cerpAtt)}</b><div class="sub w">Les commandes des 13–15/10 ne sont presque pas livrées. Si elles arrivent avant le prochain relevé, elles seront prélevées en plus : votre capacité tomberait à ${R.capRisque>0?eur(R.capRisque):'zéro (il manquerait '+eur(-R.capRisque)+')'}. À vérifier avec la CERP (action A1) avant de payer de gros montants.</div></div>`:''}
    ${court?`<button class="btn sec" data-go="stk:tre">Voir ce qui va tomber, jour par jour, et les factures payables</button>`:''}</div>
-  ${court?'':`<div class="carte"><b>Ce qui va tomber dans les 3 semaines</b><div class="sub w">Prélèvements et charges fixes (Trésorerie › Charges mensuelles, issues de vos relevés) et prélèvements CERP. La CERP fait un relevé les 8, 15, 22 et en fin de mois, prélevé le jour ouvré suivant : ≈ ${eur(R.cerpM)} par relevé (moyenne août-septembre ; dernier relevé : 37 936,29 € prélevés le 16/10).</div>
+  ${court?'':`<div class="carte"><b>Ce qui va tomber dans les 3 semaines</b><div class="sub w">Prélèvements et charges fixes (Trésorerie › Charges mensuelles, issues de vos relevés) et prélèvements CERP. La CERP fait un relevé les 8, 15, 22 et en fin de mois ; l'échéance est le jour ouvré suivant et le débit arrive le jour ouvré d'après (relevé du 15/10 : 37 936,29 €, échéance 16/10, débit lundi 19/10, pas encore dans le solde du 16/10). Les relevés suivants sont estimés à ≈ ${eur(R.cerpM)} (moyenne août-septembre).</div>
    <div class="g2" style="margin-top:6px"><div><label>Montant CERP par relevé (€)</label><input id="cpCerp" type="number" step="500" value="${P.cerp??''}" placeholder="${R.cerpM}"></div></div>
    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Date</th><th>Ce qui tombe</th><th class="n">Montant</th><th class="n">Solde prévu le soir</th></tr>
     ${J.filter(x=>x.ev.length).map(x=>x.ev.map((e,i)=>`<tr${x.d===fin?' style="background:rgba(229,57,53,.07)"':''}><td>${i?'':jsem(x.d)+' '+dfr(x.d)}</td><td>${esc(e[0])}</td><td class="n">${eur(e[1])}</td><td class="n ${x.bal<P.reserve?'neg':''}">${i===x.ev.length-1?'<b>'+eur(x.bal)+'</b>':''}</td></tr>`).join('')).join('')}</table></div>
