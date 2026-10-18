@@ -11,11 +11,12 @@ const BQ_RAP={date:'2026-10-18',perim:"Caisse d'Épargne depuis le 01/07/2026, B
  ['OPELLA',371.68,'ecart','2026-09-15',371.28,'payé 371,28 € : 0,40 € d’écart'],['DE LAGE LANDEN',190.80,'avant','2026-06-26',190.80,'payé avant le jugement'],['MESOIGNER',238.80,'avant','2026-06-12',238.80,'payé avant le jugement'],
  ['SIVAN',97.19,'paye','2026-07-08',97.19,''],['NHCO',93.02,'paye','2026-09-29',93.02,''],['ALLIANCE',14.61,'paye','2026-09-02',14.61,''],['GOOGLE',4.99,'paye','2026-09-23',4.99,''],
  ['COOPER',6305.30,'paye','2026-09-29',6305.30,'factures C608776134 / 135 / 136'],['BIOCODEX',2929.93,'paye','2026-10-15',2929.93,'commande 55778334-00'],['ARAGAN',1540.05,'paye','2026-10-08',1540.05,'virement libellé proforma 40010087 : vérifier que c’est la même pièce'],
- ['LEASECOM',4305.60,'avant','2026-06-23',4305.60,'même montant prélevé le 05/06 et le 23/06, avant le jugement : relève du passif'],
+ ['LEASECOM',4305.60,'doute','','',"ce montant a été prélevé le 05/06 et le 23/06, avant le jugement ; aucun prélèvement Leasecom depuis : si la demande porte sur une échéance après le 30/06, elle n'est pas payée"],
  ['KLESIA',3247.04,'non','','',"cotisations de juillet jamais prélevées : le prélèvement du 25/09 (5 834,04 €) correspond à août (libellé 202608M). 3 247,04 € = 3 091,04 € + 156 € de majorations : même dette"],
  ['KLESIA',3091.04,'non','','',"cotisations de juillet jamais prélevées (le prélèvement du 25/09 correspond à août) ; la relance de 3 247,04 € porte sur la même dette, majorations comprises"],
  ['THUASNE',188.34,'doute','','','des paiements à Thuasne existent, mais aucun de ce montant exact'],['ORLIMAN',21.55,'doute','','','des paiements à Orliman existent, mais aucun de ce montant exact'],
  ...[['URGO',36.90],['VITRY',83.45],['ORKYN',26.75],['OSPHAREA',55.75],['GRIMBERG',286.39],['OPELLA',62.02],['ALLIANZ',9700.94],['COOPER',295.31],['COOPER',12.34],['BOIRON',1301.22],['URGO',48.38],['LEASECOM',17222.40],['LEASECOM',4383.72],['DOCTOLIB',1.28],['SOLOCAL',528.00],['SIEMENS',4190.07],['SAPEC',35.00],['ASCA',356.40],['OREAL',85.55],['OREAL',1844.35],['OREAL',1690.24],['ARAGAN',2109.00],['GIMED',102.44],['BIODERMA',70.08],['NUXE',450.14],['ORANGE',26.97],['UPSA',3469.24],['NUXE',182.40],['ORANGE',17.98],['PHARMA',1.02],['NUXE',2101.00],['IDES',527.27],['ULYS',30.00],['KREME',536.86],['EXPANSCIENCE',1693.69],['RETIF',205988.04],['ANAVEO',273.68],['BOIRON',88.85],['SANOFI',3051.77],['SITOUR',2720.80],['PLUXEE',190.00],['BIOCODEX',2539.44],['ABBOTT',5290.86],['BOIRON',6.62],['BAYER',6315.85],['URIAGE',2067.08],['NHCO',1620.27],['MEME',1265.57],['MEME',222.65],['UPSA',87.99],['GREFFE',468.54],['PILEJE',1722.70]].map(x=>[x[0],x[1],'non','','',''])]};
+const trMt=f=>{const t=String(f['Montant TTC']||'');const m=t.match(/\d{1,3}(?:[\s\u202f.]\d{3})+,\d{2}|\d{1,3}(?:[\s\u202f,]\d{3})+\.\d{2}|\d+[.,]\d{1,2}(?!\d)|\d+/);if(!m)return 0;let x=m[0].replace(/[\s\u202f]/g,'');if(/,\d{2}$/.test(x))x=x.replace(/\./g,'').replace(',','.');else x=x.replace(/,/g,'');const v=parseFloat(x);return isNaN(v)?0:v};
 const trNorm=s=>String(s||'').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
 function trBanque(tiers,mt){if(!mt)return null;const t=trNorm(tiers);const x=BQ_RAP.L.find(l=>Math.abs(l[1]-mt)<=0.005&&t.indexOf(l[0])>=0)||BQ_RAP.L.find(l=>Math.abs(l[1]-mt)<=0.005&&crProche(tiers,l[0]));
   return x?{st:x[2],d:x[3],p:x[4],note:x[5]}:null}
@@ -25,9 +26,9 @@ function trCodes(F,L){if(TR_CODES&&TR_CODES_N===F.length)return Object.assign({}
   const tx=F.map(g=>[g['Références'],g['Objet'],g['Résumé'],g['Note de Claude'],g['Tiers']].join(' \n '));L.forEach(l=>tx.push(l.refs+' \n '+(l.commentaire||'')));
   tx.forEach(t=>{let m;re.lastIndex=0;while((m=re.exec(t)))trRefs(m[1]).forEach(r=>c[r]=1)});TR_CODES=c;TR_CODES_N=F.length;return Object.assign({},c)}
 /* Même logique que la Boîte mail : la pièce la plus ancienne est l'original, la relance est le doublon */
-function trDoublons(f,F,L){const src=[];
+function trDoublons(f,F,L,deux){const src=[];
   L.forEach(l=>src.push({suivi:true,l,tiers:l.tiers,refs:String(l.refs||''),mt:l.montantTTC!=null?+l.montantTTC:(l.du!=null?+l.du:null)}));
-  F.forEach(g=>{if(g===f)return;if(String(g['Date mail'])>String(f['Date mail']))return;if(String(g['Date mail'])===String(f['Date mail'])&&String(g['ID'])>String(f['ID']))return;
+  F.forEach(g=>{if(g===f)return;if(!deux&&String(g['Date mail'])>String(f['Date mail']))return;if(!deux&&String(g['Date mail'])===String(f['Date mail'])&&String(g['ID'])>String(f['ID']))return;
     if(g['Statut']!=='À valider'&&!/^(Suivi RJ|Déjà au suivi RJ)$/.test(g['Décision finale']||''))return;src.push({suivi:false,g,tiers:g['Tiers'],refs:g['Références']+' '+g['Objet'],mt:crNb(g['Montant TTC'])})});
   const codes=trCodes(F,L);trRefs(f['Tiers']).forEach(r=>codes[r]=1);const sans=t=>trRefs(t).filter(r=>!codes[r]);const mes=sans(f['Références']+' '+f['Objet']),mm=crNb(f['Montant TTC']);const res=[];
   src.forEach(s=>{const leurs=sans(s.refs).filter(r=>trRefs(s.tiers).indexOf(r)<0);let com=leurs.filter(r=>mes.indexOf(r)>=0);
@@ -41,17 +42,19 @@ const TR_L1=/^(Déjà payé|Information|Sans intérêt|Doublon|Déjà au suivi R
 let TRS=(()=>{try{return JSON.parse(localStorage.getItem('pil_tri')||'{}')}catch(e){return {}}})();TRS.c=TRS.c||{};TRS.k=TRS.k||{};TRS.m=TRS.m||{};TRS.f=TRS.f||'l1';
 const trSauver=()=>{try{localStorage.setItem('pil_tri',JSON.stringify(TRS))}catch(e){}};
 /* Analyse d'une fiche : preuves + nouvelle proposition */
-function trAnalyse(f,F,L){const mt=mtF(f),bq=trBanque(f['Tiers'],mt),db=trDoublons(f,F,L),dec0=f['Décision proposée']||'À vérifier';let dec=dec0,pourquoi='',alerte='',com='';
+function trAnalyse(f,F,L,ALL){const mt=trMt(f),bq=trBanque(f['Tiers'],mt);let db=trDoublons(f,F,L,false);if(!db.length&&/^(Doublon|Déjà au suivi RJ)$/.test(f['Décision proposée']||''))db=trDoublons(f,F,L,true);
+  const cit=(String(f['Vérification']||'')+' '+String(f['Note de Claude']||'')+' '+String(f['Déjà fait']||'')).match(/\b[0-9a-f]{16}\b/g)||[];[...new Set(cit)].forEach(i=>{if(i===f.ID||db.some(x=>x.g&&x.g.ID===i))return;const g=ALL.find(x=>x.ID===i);if(g)db.push({suivi:false,g,pourquoi:'fiche citée par le contrôle du tri'})});
+  const ver=String(f['Vérification']||'')+' '+String(f['Note de Claude']||''),enSuivi=/suivi factures|fichier rj|archives|cl[oô]tur|suivi rj/i.test(ver);const dec0=f['Décision proposée']||'À vérifier';let dec=dec0,pourquoi='',alerte='',info='',com='';
   if(bq&&(bq.st==='paye'||bq.st==='avant')){dec='Déjà payé';com=`DÉJÀ PAYÉ le ${dfr(bq.d)} : ${eur2(bq.p)}${bq.note?' ('+bq.note+')':''} — rapprochement bancaire du ${dfr(BQ_RAP.date)}`;
     if(dec0!=='Déjà payé')pourquoi='Nouvelle proposition : la banque montre que ce montant est déjà payé.'}
   else if(bq&&bq.st==='ecart'){dec='À vérifier';pourquoi='Nouvelle proposition : un paiement existe, mais pas du montant exact.';com=`Paiement trouvé le ${dfr(bq.d)} : ${eur2(bq.p)} (${bq.note})`}
-  else if(/^(Doublon|Déjà au suivi RJ)$/.test(dec0)&&!db.length){alerte=`La proposition dit « ${dec0} », mais je ne retrouve pas l'autre exemplaire parmi les fiches et le suivi RJ ouverts${bq&&bq.st==='non'?" et aucun paiement n'apparaît en banque":''}. Lisez le mail avant de valider.`}
+  else if(/^(Doublon|Déjà au suivi RJ)$/.test(dec0)&&!db.length){if(enSuivi&&!(bq&&bq.st==='non'))info=`Je ne retrouve pas l'autre exemplaire parmi les fiches et les dossiers ouverts du suivi RJ. D'après le contrôle du tri (ci-dessous), la pièce est dans le suivi RJ ou dans les archives (dossier clos) : vérifiez-le dans Paiements RJ.`;else alerte=`La proposition dit « ${dec0} », mais je ne retrouve l'autre exemplaire ni parmi les fiches, ni dans le suivi RJ${bq&&bq.st==='non'?", et aucun paiement n'apparaît en banque":''}. Lisez le mail avant de valider.`}
   else if(dec0==='Suivi RJ'&&db.some(x=>x.suivi)){dec='Déjà au suivi RJ';pourquoi='Nouvelle proposition : cette pièce est déjà dans le suivi RJ (détail ci-dessous).'}
   else if(dec0==='Suivi RJ'&&db.length){dec='Doublon';pourquoi='Nouvelle proposition : une fiche plus ancienne porte déjà cette pièce (détail ci-dessous).'}
   if(bq&&bq.st==='non'&&/^(Doublon|Information|Sans intérêt)$/.test(dec)&&mt>=50)alerte=(alerte?alerte+' ':'')+`⚠ ${eur2(mt)} réclamés et aucun paiement trouvé en banque : vérifiez que l'original est bien suivi.`;
-  const ch=TRS.c[f.ID]||dec;return {f,mt,bq,db,dec0,dec,ch,pourquoi,alerte,com:TRS.m[f.ID]!=null?TRS.m[f.ID]:com,lot:TR_L1.test(ch)?1:TR_L2.test(ch)?2:3}}
+  const ch=TRS.c[f.ID]||dec;return {f,mt,bq,db,dec0,dec,ch,pourquoi,alerte,info,com:TRS.m[f.ID]!=null?TRS.m[f.ID]:com,lot:TR_L1.test(ch)?1:TR_L2.test(ch)?2:3}}
 function trTout(){const S=crSyn();if(!S)return null;const F=S.F,L=S.L||[],av=F.filter(f=>f['Statut']==='À valider');TR_CODES=null;
-  const A=av.map(f=>trAnalyse(f,F,L)).sort((a,b)=>(PRI_ORD[a.f['Priorité']]??4)-(PRI_ORD[b.f['Priorité']]??4)||String(a.f['Date mail']).localeCompare(String(b.f['Date mail'])));
+  const A=av.map(f=>trAnalyse(f,F,L,F)).sort((a,b)=>(PRI_ORD[a.f['Priorité']]??4)-(PRI_ORD[b.f['Priorité']]??4)||String(a.f['Date mail']).localeCompare(String(b.f['Date mail'])));
   return {A,F,L,S}}
 function lotsMails(){const T=trTout();if(!T)return null;return {F:T.A.map(a=>a.f),l1:T.A.filter(a=>a.lot===1).map(a=>a.f),l2:T.A.filter(a=>a.lot===2).map(a=>a.f),l3:T.A.filter(a=>a.lot===3).map(a=>a.f)}}
 
@@ -65,7 +68,7 @@ function trCarte(a){const f=a.f,id=esc(f.ID),coche=TRS.k[f.ID]!=null?TRS.k[f.ID]
     :`<div class="w">🏦 <b>Aucun paiement trouvé</b> de ce montant à ce tiers${bq.note?' — '+esc(bq.note):''}</div>`;
   const dbH=a.db.map(x=>x.suivi?`<div class="w" style="margin-top:4px">📁 <b>Déjà au suivi RJ</b> (${esc(x.pourquoi)}) : ${esc(x.l.tiers)} — ${esc(x.l.refs)}${x.mt!=null?' — '+eur2(x.mt):''}<div class="sub w">${esc(trEtatDossier(x.l))}${trBanque(x.l.tiers,x.l.du||x.mt)&&trBanque(x.l.tiers,x.l.du||x.mt).st==='paye'?' · <b style="color:var(--vert2)">la banque montre ce dossier payé le '+dfr(trBanque(x.l.tiers,x.l.du||x.mt).d)+' : à solder dans Paiements RJ</b>':''}</div>
       <div class="prb"><button class="mini" data-go="cou:rj">Voir dans Paiements RJ ›</button>${x.l.lien?`<a class="mini" href="${esc(x.l.lien)}" target="_blank" rel="noopener" style="text-decoration:none">Pièce du dossier ›</a>`:''}</div></div>`
-    :`<div class="w" style="margin-top:4px">🔁 <b>Autre exemplaire</b> (${esc(x.pourquoi)}) : fiche reçue le ${esc(String(x.g['Date mail']).slice(0,10))} — ${esc(x.g['Tiers'])} — ${esc(x.g['Type']||'')} ${x.g['Montant TTC']?'— '+esc(x.g['Montant TTC']):''} ${x.g['Statut']!=='À valider'?'('+esc(x.g['Statut'])+', '+esc(x.g['Décision finale']||'')+')':''}<div class="sub w">${esc(String(x.g['Objet']||'').slice(0,140))}</div>
+    :`<div class="w" style="margin-top:4px">🔁 <b>${x.pourquoi==='fiche citée par le contrôle du tri'?'Fiche liée':'Autre exemplaire'}</b> (${esc(x.pourquoi)}) : fiche reçue le ${esc(String(x.g['Date mail']).slice(0,10))} — ${esc(x.g['Tiers'])} — ${esc(x.g['Type']||'')} ${x.g['Montant TTC']?'— '+esc(x.g['Montant TTC']):''} ${x.g['Statut']!=='À valider'?'('+esc(x.g['Statut'])+', '+esc(x.g['Décision finale']||'')+')':''}<div class="sub w">${esc(String(x.g['Objet']||'').slice(0,140))}</div>
       <div class="prb">${x.g['Statut']==='À valider'?`<button class="mini trVoir" data-id="${esc(x.g.ID)}">Voir cette fiche ›</button>`:''}<button class="mini trLire" data-id="${esc(x.g.ID)}" data-cible="${id}">📧 Lire ce mail</button></div></div>`).join('');
   return `<div class="prl trC" data-mid="${id}" id="tr_${id}" style="display:block;${TRS.ok&&TRS.ok[f.ID]?'opacity:.35':''}"><div style="display:flex;gap:8px;align-items:flex-start">
    <input type="checkbox" class="mCh" data-id="${id}" ${coche?'checked':''} style="width:22px;height:22px;margin-top:2px;flex:none">
@@ -74,7 +77,7 @@ function trCarte(a){const f=a.f,id=esc(f.ID),coche=TRS.k[f.ID]!=null?TRS.k[f.ID]
    <div style="margin:6px 0 0 30px">
     <div class="sub w" style="margin-bottom:4px">${esc(String(f['Résumé']||''))}</div>
     <div style="border-left:3px solid var(--bord,#ccc);padding-left:8px;margin:6px 0"><div class="sub" style="font-weight:600">Ce que j'ai vérifié</div>${bqH}${dbH}
-     ${a.alerte?`<div class="w" style="color:var(--orange);margin-top:4px">${esc(a.alerte)}</div>`:''}
+     ${a.alerte?`<div class="w" style="color:var(--orange);margin-top:4px">${esc(a.alerte)}</div>`:''}${a.info?`<div class="sub w" style="margin-top:4px">📁 ${esc(a.info)} <button class="mini" data-go="cou:rj">Paiements RJ ›</button></div>`:''}
      ${f['Vérification']?`<div class="sub w" style="margin-top:4px"><b>Contrôle du passage automatique :</b> ${esc(f['Vérification'])}</div>`:''}</div>
     ${a.pourquoi?`<div class="w" style="color:var(--bleu,#2e6fd8);font-weight:600">${esc(a.pourquoi)} (proposition d'origine : ${esc(a.dec0)})</div>`:''}
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px"><b>Décision :</b><select class="trDec" data-id="${id}" style="max-width:100%">${TR_DEC.map(d=>`<option value="${esc(d)}"${d===a.ch?' selected':''}>${esc(TR_LIB[d])}${d===a.dec?' (proposé)':''}</option>`).join('')}</select></div>
@@ -85,7 +88,7 @@ function vueTriSerie(){const T=trTout();if(!T)return `<div class="carte"><b>Cour
   const A=T.A,n=k=>A.filter(k).length,paye=a=>a.ch==='Déjà payé',dbl=a=>a.db.length>0||/^(Doublon|Déjà au suivi RJ)$/.test(a.ch),alr=a=>!!a.alerte,nouv=a=>!!a.pourquoi;
   const FL=[['l1','1. Rien à faire',a=>a.lot===1],['l2','2. À payer / suivi RJ',a=>a.lot===2],['l3','3. À vérifier / action',a=>a.lot===3],['paye','✅ Déjà payé',paye],['dbl','🔁 Doublons / déjà suivis',dbl],['nouv','🆕 Proposition changée',nouv],['alr','⚠ À regarder',alr],['tout','Toutes',a=>true]];
   const fl=FL.find(x=>x[0]===TRS.f)||FL[0],q=trNorm(TRS.q||''),V=A.filter(fl[2]).filter(a=>!q||trNorm([a.f.Tiers,a.f.Objet,a.f['Références'],a.f['Montant TTC']].join(' ')).indexOf(q)>=0);
-  const tot2=A.filter(a=>a.lot===2).reduce((s,a)=>s+a.mt,0);
+  const tot2=A.filter(a=>a.lot===2&&a.mt<1e5).reduce((s,a)=>s+a.mt,0);
   return `<div class="carte al b"><b class="t">${A.length} mails à décider</b><div class="sub w">Chaque fiche montre ce que j'ai vérifié : <b>banque</b> (rapprochement ligne par ligne du ${dfr(BQ_RAP.date)} : ${esc(BQ_RAP.perim)}), <b>autre exemplaire</b> (fiche ou dossier du suivi RJ, avec le lien), et le contrôle fait au tri. Vous pouvez <b>changer la décision</b> de chaque fiche, <b>lire le mail en entier</b> (sans le marquer comme lu), puis valider en masse les fiches cochées. Rien n'est supprimé.</div>
    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">1. Rien à faire</div><div class="v">${n(a=>a.lot===1)}</div><div class="sub">dont ${n(paye)} déjà payés</div></div><div class="kpi"><div class="l">2. À payer / suivi RJ</div><div class="v">${n(a=>a.lot===2)}</div><div class="sub">${eur(tot2)}</div></div><div class="kpi"><div class="l">3. À vérifier / action</div><div class="v">${n(a=>a.lot===3)}</div></div></div></div>
   <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0" id="trF">${FL.map(x=>`<button class="mini${x[0]===fl[0]?' on':''}" data-f="${x[0]}" style="${x[0]===fl[0]?'background:var(--txt);color:var(--fond)':''}">${x[1]} (${n(x[2])})</button>`).join('')}</div>
