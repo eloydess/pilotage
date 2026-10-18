@@ -132,4 +132,4 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
   brancherLiens()}
 
 
-Object.assign(window,{trTout:trTout,vueTriSerie:vueTriSerie,brancherTriSerie:brancherTriSerie,lotsMails:lotsMails,trAnalyse:trAnalyse,trBanque:trBanque,trDoublons:trDoublons,trCarte:trCarte,_TRS:TRS});})();
+Object.assign(window,{trTout:trTout,vueTriSerie:vueTriSerie,brancherTriSerie:brancherTriSerie,lotsMails:lotsMails,trAnalyse:trAnalyse,trBanque:trBanque,trDoublons:trDoublons,trCarte:trCarte,trMt:trMt,_TRS:TRS});})();
