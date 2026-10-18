@@ -191,7 +191,7 @@
   <div class="corps" id="mCorps"></div>
 </div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 var JETON = null, FICHES = [], DECISIONS = [], FILTRE = 'À valider';
 var ORDRE = {Urgente:0, Haute:1, Moyenne:2, Basse:3};
@@ -241,7 +241,13 @@ function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(
 var EMBED = (function(){ try { return window.self !== window.top; } catch(e) { return true; } })();
 if (EMBED) { document.body ? document.body.classList.add('embed') : document.addEventListener('DOMContentLoaded', function(){ document.body.classList.add('embed'); }); }
 /* Pilotage (fenêtre parente, même site) est prévenu à chaque mise à jour des fiches ou des paiements */
-function notifierParent(){ try { if (EMBED && window.parent && window.parent.crDepuisCadre) window.parent.crDepuisCadre({ fiches: FICHES, treso: TRESO }); } catch(e) {} }
+var SIG_PARENT = '';
+function notifierParent(){ try {
+  if (!(EMBED && window.parent && window.parent.crDepuisCadre) || !FICHES) return;
+  var sig = FICHES.length + '|' + FICHES.map(function(f){ return f['Statut'] + (f['Date application'] || ''); }).join('') + '|' + (TRESO ? JSON.stringify(TRESO.soldes || {}) + (TRESO.lignes || []).length : '');
+  if (sig === SIG_PARENT) return; SIG_PARENT = sig;
+  window.parent.crDepuisCadre({ fiches: FICHES, treso: TRESO });
+} catch(e) {} }
 var API = 'https://script.google.com/macros/s/AKfycbxaL37ZTZwlNcn9G5Cf_BjdiQkJ4rgpxpskiJ3TkNgqfmWMcFzrLI-sSedImWCBj_E/exec';
 function appel(fn, args, ok, ko){
   var echec = function(msg){
@@ -285,8 +291,24 @@ function demarrer(){
   charger();
 }
 
+/* Affichage immédiat : la dernière copie des fiches (gardée par Pilotage sur cet appareil) s'affiche tout de suite, la mise à jour arrive ensuite */
+function copieLocale(){
+  try { var c = JSON.parse(localStorage.getItem('pil_cr') || 'null'); if (c && c.fiches && c.fiches.length) return c; } catch(e) {}
+  return null;
+}
+function bandeauMaj(txt){ var b = document.getElementById('majInfo'); if (!b) { b = document.createElement('div'); b.id = 'majInfo'; b.style.cssText = 'font-size:12px;color:#667085;padding:4px 2px'; var l = document.getElementById('liste'); l.parentNode.insertBefore(b, l); } b.textContent = txt || ''; b.style.display = txt ? '' : 'none'; }
 function charger(){
+  if (!FICHES || !FICHES.length) {
+    var c = copieLocale();
+    if (c) {
+      FICHES = c.fiches.slice(); if (c.treso && !TRESO) TRESO = c.treso;
+      FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
+      afficher();
+      bandeauMaj('⏳ Mise à jour en cours… (affichage de la copie du ' + new Date(c.t || Date.now()).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')');
+    }
+  }
   appel('mob_liste', [JETON], function(r){
+    bandeauMaj('');
     FICHES = r.fiches; DECISIONS = r.decisions;
     FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
     afficher();
@@ -370,7 +392,13 @@ function afficher(){
   }
   VISIBLES = l; notifierParent();
   if (!l.length) { document.getElementById('liste').innerHTML = (ECRAN_PC ? barrePC() : '') + '<div class="vide">' + (RECHERCHE ? 'Aucune fiche ne correspond à « ' + esc(RECHERCHE) + ' ».' : FILTRE === 'À valider' ? '✅ Tout est traité pour ce lot.' : 'Aucune fiche traitée.') + '</div>'; return; }
-  if (!ECRAN_PC) { document.getElementById('liste').innerHTML = l.map(carte).join(''); return; }
+  if (!ECRAN_PC) {
+    var cle = FILTRE + '|' + RECHERCHE; if (cle !== LIM_CLE) { LIM_CLE = cle; LIMITE = 30; }
+    var reste = l.length - LIMITE;
+    document.getElementById('liste').innerHTML = l.slice(0, LIMITE).map(carte).join('') +
+      (reste > 0 ? '<button class="btn b-voir" style="width:100%;margin:8px 0" onclick="LIMITE+=30;afficher()">Afficher ' + Math.min(30, reste) + ' fiches de plus (encore ' + reste + ')</button>' : '');
+    return;
+  }
   var pos = l.map(function(f){ return f['ID']; }).indexOf(SEL);
   if (pos < 0) { pos = Math.min(POS_SEL, l.length - 1); SEL = l[pos]['ID']; }   // après une décision : la fiche suivante
   POS_SEL = pos;
@@ -380,6 +408,7 @@ function afficher(){
 }
 
 /* ---------- Version ordinateur : liste à gauche, fiche à droite, raccourcis clavier ---------- */
+var LIMITE = 30, LIM_CLE = '';
 var ECRAN_PC = window.matchMedia('(min-width:1100px)').matches, SEL = null, POS_SEL = 0, RECHERCHE = '', VISIBLES = [];
 window.matchMedia('(min-width:1100px)').addEventListener('change', function(e){
   ECRAN_PC = e.matches; document.body.classList.toggle('pc', ECRAN_PC);

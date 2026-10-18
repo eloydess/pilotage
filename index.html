@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.23';
+const APP_V='6.24';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1125,7 +1125,8 @@ function trDoublons(f,F,L,deux){const src=[];
     if(com.length||memeMt)res.push({...s,pourquoi:com.length?'même référence '+com.join(', '):'même tiers et même montant '+eur2(mm)})});
   return res}
 /* Tous les envois d'une même pièce (original, relances, renvois), fiches traitées comprises */
-function trChaines(F,L){const codes=trCodes(F,L),n=F.length,R=F.map(f=>{const tr=trRefs(f['Tiers']);return trRefs(f['Références']+' '+f['Objet']).filter(r=>!codes[r]&&tr.indexOf(r)<0)}),M=F.map(trMt),p=F.map((_,i)=>i),rt=i=>{while(p[i]!==i)i=p[i]=p[p[i]];return i};
+let TR_CH_CACHE=null;function trChaines(F,L){const ck=F.length+'|'+(CR&&CR.t)+'|'+F.map(f=>f['Statut']).join('');if(TR_CH_CACHE&&TR_CH_CACHE.k===ck)return TR_CH_CACHE.v;const v=trChaines0(F,L);TR_CH_CACHE={k:ck,v};return v}
+function trChaines0(F,L){const codes=trCodes(F,L),n=F.length,R=F.map(f=>{const tr=trRefs(f['Tiers']);return trRefs(f['Références']+' '+f['Objet']).filter(r=>!codes[r]&&tr.indexOf(r)<0)}),M=F.map(trMt),p=F.map((_,i)=>i),rt=i=>{while(p[i]!==i)i=p[i]=p[p[i]];return i};
   const lie=(i,j)=>{const a=R[i],b=R[j];let c=a.filter(r=>b.indexOf(r)>=0);if(c.length&&a.some(r=>c.indexOf(r)<0)&&b.some(r=>c.indexOf(r)<0))c=[];if(c.length)return true;
     return M[i]>0&&Math.abs(M[i]-M[j])<0.005&&(!a.length||!b.length)&&crProche(F[i]['Tiers'],F[j]['Tiers'])};
   for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(rt(i)!==rt(j)&&lie(i,j))p[rt(i)]=rt(j);
@@ -1139,7 +1140,13 @@ const TR_DEC=['Déjà payé','Suivi RJ','Déjà au suivi RJ','Créance antérieu
 const TR_LIB={'Déjà payé':'✅ Déjà payé — rien à payer','Suivi RJ':'💶 À payer — ajouter au suivi RJ','Déjà au suivi RJ':'💶 Déjà au suivi RJ — rien à ajouter','Créance antérieure':'⛔ Avant le 30/06 — ne pas payer (passif)','Prestataire à payer':'💶 Prestataire à payer','À vérifier':'❓ À vérifier par vous','Action à faire':'✍️ Action à faire (répondre, appeler, signer)','Information':'ℹ️ Information — rien à faire','Doublon':'🔁 Doublon — rien à faire','Sans intérêt':'🗑️ Publicité / notification'};
 const TR_L1=/^(Déjà payé|Information|Sans intérêt|Doublon|Déjà au suivi RJ)$/,TR_L2=/^(Suivi RJ|Prestataire à payer|Créance antérieure)$/;
 let TRS=(()=>{try{return JSON.parse(localStorage.getItem('pil_tri')||'{}')}catch(e){return {}}})();TRS.c=TRS.c||{};TRS.k=TRS.k||{};TRS.m=TRS.m||{};TRS.r=TRS.r||{};TRS.e=TRS.e||{};TRS.f=TRS.f||'l1';
-const trSauver=()=>{try{localStorage.setItem('pil_tri',JSON.stringify(TRS))}catch(e){}};
+/* Vos choix (cases cochées, décisions, commentaires, rangement) sont gardés sur l'appareil ET dans le classeur : ils survivent au changement d'onglet, à la fermeture de l'application et passent d'un appareil à l'autre */
+let TR_SYNC=null;
+function trSauver(){TRS.t=Date.now();const av=CR&&CR.fiches?new Set(CR.fiches.filter(f=>f['Statut']==='À valider').map(f=>f.ID)):null;
+  if(av)['c','k','m','r','e'].forEach(x=>Object.keys(TRS[x]).forEach(id=>{if(!av.has(id))delete TRS[x][id]}));
+  const j=JSON.stringify(TRS);try{localStorage.setItem('pil_tri',j)}catch(e){try{localStorage.removeItem('pil_cr');localStorage.setItem('pil_tri',j)}catch(_){}}
+  clearTimeout(TR_SYNC);TR_SYNC=setTimeout(()=>{majEtat('tri_choix',JSON.stringify({c:TRS.c,k:TRS.k,m:TRS.m,r:TRS.r,e:TRS.e,t:TRS.t})).catch(()=>{})},1500)}
+function trReprendre(){const S=jsonEt('tri_choix',null);if(S&&S.t&&S.t>(TRS.t||0)){['c','k','m','r','e'].forEach(x=>TRS[x]=S[x]||{});TRS.t=S.t;try{localStorage.setItem('pil_tri',JSON.stringify(TRS))}catch(e){}}}
 /* Analyse d'une fiche : preuves + nouvelle proposition */
 function trAnalyse(f,F,L,ALL){const mt=trMt(f),bq=trBanque(f['Tiers'],mt);let db=trDoublons(f,F,L,false);if(!db.length&&/^(Doublon|Déjà au suivi RJ)$/.test(f['Décision proposée']||''))db=trDoublons(f,F,L,true);
   const cit=(String(f['Vérification']||'')+' '+String(f['Note de Claude']||'')+' '+String(f['Déjà fait']||'')).match(/\b[0-9a-f]{16}\b/g)||[];[...new Set(cit)].forEach(i=>{if(i===f.ID||db.some(x=>x.g&&x.g.ID===i))return;const g=ALL.find(x=>x.ID===i);if(g)db.push({suivi:false,g,pourquoi:'fiche citée par le contrôle du tri'})});
@@ -1203,7 +1210,7 @@ function trChaineH(a){const f=a.f,id=esc(f.ID),gs=/^C-/.test(f.ID)?'':trGmailChe
      ${moi?'':`<div class="prb"><button class="mini trLire" data-id="${gid}" data-cible="${id}">📧 Lire</button>${!fait?`<button class="mini trVoir" data-id="${gid}">Voir sa fiche ›</button>`:''}${fait&&!/^C-/.test(g.ID)&&!trRange(g)&&!/^🗑/.test(g['Date application']||'')?`<button class="mini trRgUn" data-id="${gid}" data-src="${id}">🗂 Le ranger dans l'étiquette de cette fiche</button>`:''}</div>`}</div>`}).join('')}
    <div class="prb">${lien}</div>
    ${av.length?`<button class="mini trChaine" data-id="${id}" style="margin-top:4px">↳ Traiter aussi les ${av.length} autre(s) envoi(s) à décider comme celui-ci (même décision, même rangement)</button>`:''}</div>`}
-function vueTriSerie(){const T=trTout();if(!T)return `<div class="carte"><b>Courrier non chargé</b><div class="sub w">Ouvrez « 📬 Boîte mail » et entrez le code de Tri & RJ.</div></div>`;
+function vueTriSerie(){trReprendre();const T=trTout();if(!T)return `<div class="carte"><b>Courrier non chargé</b><div class="sub w">Ouvrez « 📬 Boîte mail » et entrez le code de Tri & RJ.</div></div>`;
   const A=T.A,n=k=>A.filter(k).length,paye=a=>a.ch==='Déjà payé',dbl=a=>a.db.length>0||/^(Doublon|Déjà au suivi RJ)$/.test(a.ch),alr=a=>!!a.alerte,nouv=a=>!!a.pourquoi;
   const FL=[['l1','1. Rien à faire',a=>a.lot===1],['l2','2. À payer / suivi RJ',a=>a.lot===2],['l3','3. À vérifier / action',a=>a.lot===3],['paye','✅ Déjà payé',paye],['dbl','🔁 Doublons / déjà suivis',dbl],['nouv','🆕 Proposition changée',nouv],['alr','⚠ À regarder',alr],['tout','Toutes',a=>true]];
   const fl=FL.find(x=>x[0]===TRS.f)||FL[0],q=trNorm(TRS.q||''),V=A.filter(fl[2]).filter(a=>!q||trNorm([a.f.Tiers,a.f.Objet,a.f['Références'],a.f['Montant TTC']].join(' ')).indexOf(q)>=0);
@@ -1216,7 +1223,7 @@ function vueTriSerie(){const T=trTout();if(!T)return `<div class="carte"><b>Cour
    <div class="sub w">Chaque fiche cochée est validée avec la décision affichée sur sa ligne (et son commentaire), puis son mail est rangé ou laissé dans la boîte de réception selon votre choix. « Déjà payé » est enregistré comme « Information » avec la preuve de paiement en commentaire.</div><div id="mProg" class="sub"></div></div>
   <datalist id="trEtL">${(TR_ETQ||[...new Set(A.map(a=>a.f['Étiquette proposée']).concat(A.map(a=>a.f['Étiquette actuelle'])).filter(e=>e&&e!=='(aucune)'&&/\//.test(e)))].sort()).map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
   <div class="titre">${esc(fl[1])} (${V.length})</div>
-  <div class="carte prc">${V.map(trCarte).join('')||'<div class="sub">Aucune fiche.</div>'}</div>`}
+  <div class="carte prc">${V.slice(0,TRS.n||25).map(trCarte).join('')||'<div class="sub">Aucune fiche.</div>'}${V.length>(TRS.n||25)?`<button class="btn sec" id="trPlus" style="width:100%;margin-top:8px">Afficher ${Math.min(25,V.length-(TRS.n||25))} fiches de plus (encore ${V.length-(TRS.n||25)})</button>`:''}</div>`}
 async function trLire(id,cible){const z=document.getElementById('trm_'+cible);if(!z)return;if(z.dataset.ouvert===id){z.innerHTML='';z.dataset.ouvert='';return}z.dataset.ouvert=id;
   if(/^C-/.test(id)){z.innerHTML=`<div class="sub w">Courrier papier scanné : <button class="mini" data-go="cou:cr">ouvrir Courrier / PDF ›</button></div>`;brancherLiens();return}
   const J=crJeton();if(!J){z.innerHTML='<div class="sub w">Entrez d\'abord le code dans « 📬 Boîte mail ».</div>';return}
@@ -1235,8 +1242,9 @@ async function trPdf(o,zone){if(!window.pdfjsLib)await new Promise((ok,ko)=>{con
   for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),vp=pg.getViewport({scale:1.6}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;c.style.width='100%';zone.appendChild(c);await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise}}
 function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.mCh:checked').length,e=$('#mN');if(e)e.textContent=n};maj();
   const re=()=>{const y=scrollY;courrier();scrollTo(0,y)};
-  document.querySelectorAll('#trF button').forEach(b=>b.onclick=()=>{TRS.f=b.dataset.f;trSauver();courrier()});
-  const q=$('#trQ');if(q)q.onchange=()=>{TRS.q=q.value;trSauver();re()};
+  document.querySelectorAll('#trF button').forEach(b=>b.onclick=()=>{TRS.f=b.dataset.f;TRS.n=25;trSauver();courrier()});
+  const pl=$('#trPlus');if(pl)pl.onclick=()=>{TRS.n=(TRS.n||25)+25;re()};
+  const q=$('#trQ');if(q)q.onchange=()=>{TRS.q=q.value;TRS.n=25;trSauver();re()};
   document.querySelectorAll('.mCh').forEach(c=>c.onchange=()=>{TRS.k[c.dataset.id]=c.checked;trSauver();maj()});
   document.querySelectorAll('.trDec').forEach(s=>s.onchange=()=>{TRS.c[s.dataset.id]=s.value;delete TRS.m[s.dataset.id];trSauver();re()});
   document.querySelectorAll('.trCom').forEach(s=>s.onchange=()=>{TRS.m[s.dataset.id]=s.value;trSauver()});
@@ -1249,7 +1257,7 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
   document.querySelectorAll('.trRgUn').forEach(b=>b.onclick=async()=>{const et=(document.querySelector(`.trEt[data-id="${CSS.escape(b.dataset.src)}"]`)||{}).value||'';if(!et){toast('Choisissez d\'abord une étiquette sur cette fiche');return}
     if(!confirm('Ranger ce mail dans « '+et+' » ? Il sortira de la boîte de réception ; son statut lu / non lu ne change pas.'))return;b.disabled=true;try{await ranger(b.dataset.id,et);toast('Rangé dans '+et);re()}catch(e){toast('Non rangé : '+e.message);b.disabled=false}});
   document.querySelectorAll('.trLire').forEach(b=>b.onclick=()=>trLire(b.dataset.id,b.dataset.cible));
-  document.querySelectorAll('.trVoir').forEach(b=>b.onclick=()=>{TRS.f='tout';TRS.q='';trSauver();courrier();setTimeout(()=>{const e=document.getElementById('tr_'+b.dataset.id);if(e){e.scrollIntoView({block:'start'});e.style.outline='3px solid var(--orange)';setTimeout(()=>e.style.outline='',4000)}},50)});
+  document.querySelectorAll('.trVoir').forEach(b=>b.onclick=()=>{TRS.f='tout';TRS.q='';TRS.n=999;trSauver();courrier();setTimeout(()=>{const e=document.getElementById('tr_'+b.dataset.id);if(e){e.scrollIntoView({block:'start'});e.style.outline='3px solid var(--orange)';setTimeout(()=>e.style.outline='',4000)}},50)});
   const tt=$('#mTout');if(tt)tt.onclick=()=>{const all=[...document.querySelectorAll('.mCh')],on=all.some(c=>!c.checked);all.forEach(c=>{c.checked=on;TRS.k[c.dataset.id]=on});trSauver();maj()};
   const valeur=id=>{const s=document.querySelector(`.trDec[data-id="${CSS.escape(id)}"]`),c=document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`);let d=s?s.value:'',m=c?c.value.trim():'';if(d==='Déjà payé'){d='Information';if(!/PAY/i.test(m))m='DÉJÀ PAYÉ'+(m?' — '+m:'')}return [d,m]};
   const dec=async(id,st)=>{const J=crJeton();if(!J)throw new Error('code Tri & RJ à saisir dans « Boîte mail »');const [d,m]=st==='Validé'?valeur(id):['',(document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`)||{}).value||''];
