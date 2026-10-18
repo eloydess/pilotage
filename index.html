@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.22';
+const APP_V='6.23';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1124,10 +1124,21 @@ function trDoublons(f,F,L,deux){const src=[];
     const memeMt=mm!=null&&mm>0&&s.mt!=null&&Math.abs(mm-s.mt)<0.005&&crProche(f['Tiers'],s.tiers);
     if(com.length||memeMt)res.push({...s,pourquoi:com.length?'même référence '+com.join(', '):'même tiers et même montant '+eur2(mm)})});
   return res}
+/* Tous les envois d'une même pièce (original, relances, renvois), fiches traitées comprises */
+function trChaines(F,L){const codes=trCodes(F,L),n=F.length,R=F.map(f=>{const tr=trRefs(f['Tiers']);return trRefs(f['Références']+' '+f['Objet']).filter(r=>!codes[r]&&tr.indexOf(r)<0)}),M=F.map(trMt),p=F.map((_,i)=>i),rt=i=>{while(p[i]!==i)i=p[i]=p[p[i]];return i};
+  const lie=(i,j)=>{const a=R[i],b=R[j];let c=a.filter(r=>b.indexOf(r)>=0);if(c.length&&a.some(r=>c.indexOf(r)<0)&&b.some(r=>c.indexOf(r)<0))c=[];if(c.length)return true;
+    return M[i]>0&&Math.abs(M[i]-M[j])<0.005&&(!a.length||!b.length)&&crProche(F[i]['Tiers'],F[j]['Tiers'])};
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(rt(i)!==rt(j)&&lie(i,j))p[rt(i)]=rt(j);
+  const G={};F.forEach((f,i)=>{const k=rt(i);(G[k]=G[k]||[]).push(f)});const out={};Object.values(G).forEach(g=>{if(g.length>1&&g.length<=8){g.sort((a,b)=>String(a['Date mail']).localeCompare(String(b['Date mail']))||String(a.ID).localeCompare(String(b.ID)));g.forEach(f=>out[f.ID]=g)}});return out}
+const trRange=f=>!!f['Date application']&&!/^↩/.test(f['Date application']);
+function trOu(f){const d=String(f['Date application']||'');if(/^🗑/.test(d))return 'dans la corbeille ('+d+')';if(trRange(f))return 'rangé dans « '+(f['Étiquette finale']||'?')+' » ('+d+')';
+  const ea=f['Étiquette actuelle'];return 'dans la boîte de réception'+(ea&&ea!=='(aucune)'?' (étiquette déjà posée : '+ea+')':'')}
+let TR_ETQ=null;
+const TR_RG_DEF=d=>/^(Déjà payé|Information|Sans intérêt|Doublon|Créance antérieure)$/.test(d)?'ranger':'laisser';
 const TR_DEC=['Déjà payé','Suivi RJ','Déjà au suivi RJ','Créance antérieure','Prestataire à payer','À vérifier','Action à faire','Information','Doublon','Sans intérêt'];
 const TR_LIB={'Déjà payé':'✅ Déjà payé — rien à payer','Suivi RJ':'💶 À payer — ajouter au suivi RJ','Déjà au suivi RJ':'💶 Déjà au suivi RJ — rien à ajouter','Créance antérieure':'⛔ Avant le 30/06 — ne pas payer (passif)','Prestataire à payer':'💶 Prestataire à payer','À vérifier':'❓ À vérifier par vous','Action à faire':'✍️ Action à faire (répondre, appeler, signer)','Information':'ℹ️ Information — rien à faire','Doublon':'🔁 Doublon — rien à faire','Sans intérêt':'🗑️ Publicité / notification'};
 const TR_L1=/^(Déjà payé|Information|Sans intérêt|Doublon|Déjà au suivi RJ)$/,TR_L2=/^(Suivi RJ|Prestataire à payer|Créance antérieure)$/;
-let TRS=(()=>{try{return JSON.parse(localStorage.getItem('pil_tri')||'{}')}catch(e){return {}}})();TRS.c=TRS.c||{};TRS.k=TRS.k||{};TRS.m=TRS.m||{};TRS.f=TRS.f||'l1';
+let TRS=(()=>{try{return JSON.parse(localStorage.getItem('pil_tri')||'{}')}catch(e){return {}}})();TRS.c=TRS.c||{};TRS.k=TRS.k||{};TRS.m=TRS.m||{};TRS.r=TRS.r||{};TRS.e=TRS.e||{};TRS.f=TRS.f||'l1';
 const trSauver=()=>{try{localStorage.setItem('pil_tri',JSON.stringify(TRS))}catch(e){}};
 /* Analyse d'une fiche : preuves + nouvelle proposition */
 function trAnalyse(f,F,L,ALL){const mt=trMt(f),bq=trBanque(f['Tiers'],mt);let db=trDoublons(f,F,L,false);if(!db.length&&/^(Doublon|Déjà au suivi RJ)$/.test(f['Décision proposée']||''))db=trDoublons(f,F,L,true);
@@ -1142,7 +1153,7 @@ function trAnalyse(f,F,L,ALL){const mt=trMt(f),bq=trBanque(f['Tiers'],mt);let db
   if(bq&&bq.st==='non'&&/^(Doublon|Information|Sans intérêt)$/.test(dec)&&mt>=50)alerte=(alerte?alerte+' ':'')+`⚠ ${eur2(mt)} réclamés et aucun paiement trouvé en banque : vérifiez que l'original est bien suivi.`;
   const ch=TRS.c[f.ID]||dec;return {f,mt,bq,db,dec0,dec,ch,pourquoi,alerte,info,com:TRS.m[f.ID]!=null?TRS.m[f.ID]:com,lot:TR_L1.test(ch)?1:TR_L2.test(ch)?2:3}}
 function trTout(){const S=crSyn();if(!S)return null;const F=S.F,L=S.L||[],av=F.filter(f=>f['Statut']==='À valider');TR_CODES=null;
-  const A=av.map(f=>trAnalyse(f,F,L,F)).sort((a,b)=>(PRI_ORD[a.f['Priorité']]??4)-(PRI_ORD[b.f['Priorité']]??4)||String(a.f['Date mail']).localeCompare(String(b.f['Date mail'])));
+  const A=av.map((CH=>f=>{const a=trAnalyse(f,F,L,F);a.chaine=CH[f.ID]||[];a.rg=TRS.r[f.ID]||TR_RG_DEF(a.ch);a.et=TRS.e[f.ID]!=null?TRS.e[f.ID]:(f['Étiquette proposée']||'');return a})(trChaines(F,L))).sort((a,b)=>(PRI_ORD[a.f['Priorité']]??4)-(PRI_ORD[b.f['Priorité']]??4)||String(a.f['Date mail']).localeCompare(String(b.f['Date mail'])));
   return {A,F,L,S}}
 function lotsMails(){const T=trTout();if(!T)return null;return {F:T.A.map(a=>a.f),l1:T.A.filter(a=>a.lot===1).map(a=>a.f),l2:T.A.filter(a=>a.lot===2).map(a=>a.f),l3:T.A.filter(a=>a.lot===3).map(a=>a.f)}}
 const mtF=f=>{const v=crNb(f['Montant TTC']);return v==null?0:v};
@@ -1154,7 +1165,7 @@ function trCarte(a){const f=a.f,id=esc(f.ID),coche=TRS.k[f.ID]!=null?TRS.k[f.ID]
     :bq.st==='ecart'?`<div class="w" style="color:var(--orange)">🏦 <b>Paiement trouvé le ${dfr(bq.d)} : ${eur2(bq.p)}</b> — ${esc(bq.note)}</div>`
     :bq.st==='doute'?`<div class="w" style="color:var(--orange)">🏦 <b>Je ne peux pas conclure :</b> ${esc(bq.note)}</div>`
     :`<div class="w">🏦 <b>Aucun paiement trouvé</b> de ce montant à ce tiers${bq.note?' — '+esc(bq.note):''}</div>`;
-  const dbH=a.db.map(x=>x.suivi?`<div class="w" style="margin-top:4px">📁 <b>Déjà au suivi RJ</b> (${esc(x.pourquoi)}) : ${esc(x.l.tiers)} — ${esc(x.l.refs)}${x.mt!=null?' — '+eur2(x.mt):''}<div class="sub w">${esc(trEtatDossier(x.l))}${trBanque(x.l.tiers,x.l.du||x.mt)&&trBanque(x.l.tiers,x.l.du||x.mt).st==='paye'?' · <b style="color:var(--vert2)">la banque montre ce dossier payé le '+dfr(trBanque(x.l.tiers,x.l.du||x.mt).d)+' : à solder dans Paiements RJ</b>':''}</div>
+  const dbH=a.db.filter(x=>x.suivi||!a.chaine.includes(x.g)).map(x=>x.suivi?`<div class="w" style="margin-top:4px">📁 <b>Déjà au suivi RJ</b> (${esc(x.pourquoi)}) : ${esc(x.l.tiers)} — ${esc(x.l.refs)}${x.mt!=null?' — '+eur2(x.mt):''}<div class="sub w">${esc(trEtatDossier(x.l))}${trBanque(x.l.tiers,x.l.du||x.mt)&&trBanque(x.l.tiers,x.l.du||x.mt).st==='paye'?' · <b style="color:var(--vert2)">la banque montre ce dossier payé le '+dfr(trBanque(x.l.tiers,x.l.du||x.mt).d)+' : à solder dans Paiements RJ</b>':''}</div>
       <div class="prb"><button class="mini" data-go="cou:rj">Voir dans Paiements RJ ›</button>${x.l.lien?`<a class="mini" href="${esc(x.l.lien)}" target="_blank" rel="noopener" style="text-decoration:none">Pièce du dossier ›</a>`:''}</div></div>`
     :`<div class="w" style="margin-top:4px">🔁 <b>${x.pourquoi==='fiche citée par le contrôle du tri'?'Fiche liée':'Autre exemplaire'}</b> (${esc(x.pourquoi)}) : fiche reçue le ${esc(String(x.g['Date mail']).slice(0,10))} — ${esc(x.g['Tiers'])} — ${esc(x.g['Type']||'')} ${x.g['Montant TTC']?'— '+esc(x.g['Montant TTC']):''} ${x.g['Statut']!=='À valider'?'('+esc(x.g['Statut'])+', '+esc(x.g['Décision finale']||'')+')':''}<div class="sub w">${esc(String(x.g['Objet']||'').slice(0,140))}</div>
       <div class="prb">${x.g['Statut']==='À valider'?`<button class="mini trVoir" data-id="${esc(x.g.ID)}">Voir cette fiche ›</button>`:''}<button class="mini trLire" data-id="${esc(x.g.ID)}" data-cible="${id}">📧 Lire ce mail</button></div></div>`).join('');
@@ -1167,11 +1178,31 @@ function trCarte(a){const f=a.f,id=esc(f.ID),coche=TRS.k[f.ID]!=null?TRS.k[f.ID]
     <div style="border-left:3px solid var(--bord,#ccc);padding-left:8px;margin:6px 0"><div class="sub" style="font-weight:600">Ce que j'ai vérifié</div>${bqH}${dbH}
      ${a.alerte?`<div class="w" style="color:var(--orange);margin-top:4px">${esc(a.alerte)}</div>`:''}${a.info?`<div class="sub w" style="margin-top:4px">📁 ${esc(a.info)} <button class="mini" data-go="cou:rj">Paiements RJ ›</button></div>`:''}
      ${f['Vérification']?`<div class="sub w" style="margin-top:4px"><b>Contrôle du passage automatique :</b> ${esc(f['Vérification'])}</div>`:''}</div>
+    ${trChaineH(a)}
     ${a.pourquoi?`<div class="w" style="color:var(--bleu,#2e6fd8);font-weight:600">${esc(a.pourquoi)} (proposition d'origine : ${esc(a.dec0)})</div>`:''}
     <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px"><b>Décision :</b><select class="trDec" data-id="${id}" style="max-width:100%">${TR_DEC.map(d=>`<option value="${esc(d)}"${d===a.ch?' selected':''}>${esc(TR_LIB[d])}${d===a.dec?' (proposé)':''}</option>`).join('')}</select></div>
     <input class="trCom" data-id="${id}" value="${esc(a.com)}" placeholder="Commentaire (facultatif)" style="width:100%;margin-top:4px">
+    ${trRangH(a)}
     <div class="prb"><button class="mini trLire" data-id="${id}" data-cible="${id}">📧 Lire le mail en entier</button><button class="mini mOk" data-id="${id}">✓ Valider</button><button class="mini mNo" data-id="${id}">✗ À revoir</button>${f['Lien Gmail']?`<a class="mini" href="${esc(f['Lien Gmail'])}" target="_blank" rel="noopener" style="text-decoration:none" title="Le mail sera marqué comme lu">Ouvrir dans Gmail ›</a>`:''}</div>
     <div class="trMail" id="trm_${id}"></div></div></div>`}
+function trRangH(a){const f=a.f,id=esc(f.ID);if(/^C-/.test(f.ID))return `<div class="sub w" style="margin-top:4px">📂 Courrier papier : rien à ranger dans Gmail.</div>`;
+  if(trRange(f)||/^🗑/.test(f['Date application']||''))return `<div class="sub w" style="margin-top:4px">📂 <b>Ce mail est déjà ${esc(trOu(f))}.</b></div>`;
+  const conn=TR_ETQ&&a.et&&TR_ETQ.indexOf(a.et)<0;
+  return `<div style="margin-top:6px;padding:6px;border:1px dashed var(--bord,#ccc);border-radius:8px"><div class="w"><b>📂 Le mail, après validation :</b> aujourd'hui il est ${esc(trOu(f))}.</div>
+   <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:4px"><select class="trRg" data-id="${id}"><option value="ranger"${a.rg==='ranger'?' selected':''}>🗂 Le ranger dans l'étiquette ci-dessous (il sort de la boîte de réception)</option><option value="laisser"${a.rg==='laisser'?' selected':''}>📥 Le laisser dans la boîte de réception</option></select></div>
+   <input class="trEt" data-id="${id}" list="trEtL" value="${esc(a.et)}" placeholder="Étiquette, ex. LABORATOIRES/ABBVIE (tapez pour voir la liste)" style="width:100%;margin-top:4px;${a.rg==='ranger'?'':'opacity:.5'}">
+   <div class="sub w">${f['Étiquette proposée']?'Étiquette proposée : '+esc(f['Étiquette proposée'])+'. ':'Aucune étiquette proposée : choisissez-la. '}${conn?'<b style="color:var(--orange)">Cette étiquette n\'existe pas encore : elle sera créée.</b> ':''}${a.rg==='laisser'?(/^(Suivi RJ|Déjà au suivi RJ|Prestataire à payer)$/.test(a.ch)?'Il sera rangé automatiquement quand le dossier sera payé.':'Il restera à traiter dans votre boîte de réception.'):'Son statut lu / non lu ne change pas.'}</div></div>`}
+function trGmailCherche(f){const r=trRefs(f['Références']+' '+f['Objet']).slice(0,3),t=trNorm(f['Tiers']).split(' ').filter(w=>w.length>=4)[0]||'';
+  const q=r.length?r.map(x=>'"'+x+'"').join(' OR '):t;return q?'https://mail.google.com/mail/?authuser=pharmaciecsudachat@gmail.com#search/'+encodeURIComponent(q+' in:anywhere'):''}
+function trChaineH(a){const f=a.f,id=esc(f.ID),gs=/^C-/.test(f.ID)?'':trGmailCherche(f),lien=gs?`<a class="mini" href="${esc(gs)}" target="_blank" rel="noopener" style="text-decoration:none">🔎 Chercher tous les envois dans Gmail ›</a>`:'';
+  if(!a.chaine.length)return /relance|rappel|renvoi|impay/i.test(f['Type']+' '+f['Objet'])||/^Doublon$/.test(a.dec0)?`<div style="margin:6px 0;padding:6px;border:1px solid var(--bord,#ccc);border-radius:8px"><div class="w"><b>📚 Envois de cette pièce :</b> parmi les fiches, je ne trouve que celui-ci. L'envoi d'origine a sans doute été rangé ou traité avant la mise en place de l'application (avant le 13/10).</div><div class="prb">${lien}</div><div class="sub w">La recherche Gmail s'ouvre dans un nouvel onglet ; elle ne change pas le statut lu / non lu (seule l'ouverture d'un mail le marque comme lu).</div></div>`:'';
+  const autres=a.chaine.filter(g=>g!==f),av=autres.filter(g=>g['Statut']==='À valider');
+  return `<div style="margin:6px 0;padding:6px;border:1px solid var(--bord,#ccc);border-radius:8px"><div class="w"><b>📚 Tous les envois de cette pièce (${a.chaine.length})</b>, du plus ancien au plus récent :</div>
+   ${a.chaine.map((g,i)=>{const moi=g===f,gid=esc(g.ID),fait=g['Statut']!=='À valider';return `<div style="border-top:1px solid var(--bord,#ddd);padding:4px 0;${moi?'font-weight:600':''}">${i+1}. ${esc(String(g['Date mail']).slice(0,10))} — ${esc(g['Type']||'')}${g['Montant TTC']?' — '+esc(String(g['Montant TTC']).slice(0,40)):''}${moi?' ← cette fiche':''}
+     <div class="sub w">Décision : ${fait?'<b>'+esc(g['Statut'])+'</b>'+(g['Décision finale']?' ('+esc(g['Décision finale'])+')':'')+(g['Date validation']?' le '+esc(String(g['Date validation']).slice(0,10)):''):'<b>pas encore décidée</b>'+(moi?'':' (proposition : '+esc(g['Décision proposée']||'—')+')')} · Le mail est ${esc(trOu(g))}</div>
+     ${moi?'':`<div class="prb"><button class="mini trLire" data-id="${gid}" data-cible="${id}">📧 Lire</button>${!fait?`<button class="mini trVoir" data-id="${gid}">Voir sa fiche ›</button>`:''}${fait&&!/^C-/.test(g.ID)&&!trRange(g)&&!/^🗑/.test(g['Date application']||'')?`<button class="mini trRgUn" data-id="${gid}" data-src="${id}">🗂 Le ranger dans l'étiquette de cette fiche</button>`:''}</div>`}</div>`}).join('')}
+   <div class="prb">${lien}</div>
+   ${av.length?`<button class="mini trChaine" data-id="${id}" style="margin-top:4px">↳ Traiter aussi les ${av.length} autre(s) envoi(s) à décider comme celui-ci (même décision, même rangement)</button>`:''}</div>`}
 function vueTriSerie(){const T=trTout();if(!T)return `<div class="carte"><b>Courrier non chargé</b><div class="sub w">Ouvrez « 📬 Boîte mail » et entrez le code de Tri & RJ.</div></div>`;
   const A=T.A,n=k=>A.filter(k).length,paye=a=>a.ch==='Déjà payé',dbl=a=>a.db.length>0||/^(Doublon|Déjà au suivi RJ)$/.test(a.ch),alr=a=>!!a.alerte,nouv=a=>!!a.pourquoi;
   const FL=[['l1','1. Rien à faire',a=>a.lot===1],['l2','2. À payer / suivi RJ',a=>a.lot===2],['l3','3. À vérifier / action',a=>a.lot===3],['paye','✅ Déjà payé',paye],['dbl','🔁 Doublons / déjà suivis',dbl],['nouv','🆕 Proposition changée',nouv],['alr','⚠ À regarder',alr],['tout','Toutes',a=>true]];
@@ -1182,7 +1213,8 @@ function vueTriSerie(){const T=trTout();if(!T)return `<div class="carte"><b>Cour
   <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0" id="trF">${FL.map(x=>`<button class="mini${x[0]===fl[0]?' on':''}" data-f="${x[0]}" style="${x[0]===fl[0]?'background:var(--txt);color:var(--fond)':''}">${x[1]} (${n(x[2])})</button>`).join('')}</div>
   <input id="trQ" placeholder="Rechercher un tiers, une référence, un montant…" value="${esc(TRS.q||'')}" style="width:100%;margin-bottom:6px">
   <div class="carte prc" style="position:sticky;top:0;z-index:5"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn" id="mL1">✓ Valider les <span id="mN">0</span> fiches cochées</button><button class="btn sec" id="mTout">Tout cocher / décocher (cette liste)</button></div>
-   <div class="sub w">Chaque fiche cochée est validée avec la décision affichée sur sa ligne (et son commentaire). « Déjà payé » est enregistré comme « Information » avec la preuve de paiement en commentaire.</div><div id="mProg" class="sub"></div></div>
+   <div class="sub w">Chaque fiche cochée est validée avec la décision affichée sur sa ligne (et son commentaire), puis son mail est rangé ou laissé dans la boîte de réception selon votre choix. « Déjà payé » est enregistré comme « Information » avec la preuve de paiement en commentaire.</div><div id="mProg" class="sub"></div></div>
+  <datalist id="trEtL">${(TR_ETQ||[...new Set(A.map(a=>a.f['Étiquette proposée']).concat(A.map(a=>a.f['Étiquette actuelle'])).filter(e=>e&&e!=='(aucune)'&&/\//.test(e)))].sort()).map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
   <div class="titre">${esc(fl[1])} (${V.length})</div>
   <div class="carte prc">${V.map(trCarte).join('')||'<div class="sub">Aucune fiche.</div>'}</div>`}
 async function trLire(id,cible){const z=document.getElementById('trm_'+cible);if(!z)return;if(z.dataset.ouvert===id){z.innerHTML='';z.dataset.ouvert='';return}z.dataset.ouvert=id;
@@ -1208,17 +1240,31 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
   document.querySelectorAll('.mCh').forEach(c=>c.onchange=()=>{TRS.k[c.dataset.id]=c.checked;trSauver();maj()});
   document.querySelectorAll('.trDec').forEach(s=>s.onchange=()=>{TRS.c[s.dataset.id]=s.value;delete TRS.m[s.dataset.id];trSauver();re()});
   document.querySelectorAll('.trCom').forEach(s=>s.onchange=()=>{TRS.m[s.dataset.id]=s.value;trSauver()});
+  document.querySelectorAll('.trRg').forEach(s=>s.onchange=()=>{TRS.r[s.dataset.id]=s.value;trSauver();re()});
+  document.querySelectorAll('.trEt').forEach(s=>s.onchange=()=>{TRS.e[s.dataset.id]=s.value.trim();trSauver();re()});
+  document.querySelectorAll('.trChaine').forEach(b=>b.onclick=()=>{const T=trTout(),a=T.A.find(x=>x.f.ID===b.dataset.id);if(!a)return;let n=0;
+    a.chaine.filter(g=>g!==a.f&&g['Statut']==='À valider').forEach(g=>{TRS.c[g.ID]=a.ch;TRS.r[g.ID]=a.rg;TRS.e[g.ID]=a.et;TRS.k[g.ID]=true;n++});TRS.k[a.f.ID]=true;trSauver();re();toast(n+' autre(s) envoi(s) réglé(s) comme celui-ci et cochés')});
+  if(!TR_ETQ&&crJeton())crAppel('mob_etiquettes',[crJeton()]).then(l=>{if(Array.isArray(l)){TR_ETQ=l;const d=$('#trEtL');if(d)d.innerHTML=l.map(e=>`<option value="${esc(e)}">`).join('')}}).catch(()=>{});
+  const ranger=async(id,et)=>{const J=crJeton();const r=await crAppel('mob_ranger',[J,id,et]);const f=(CR.fiches||[]).find(x=>x['ID']===id);if(f){f['Étiquette finale']=r&&r.etiquette||et;f['Date application']=r&&r.date||'rangé';}if(TR_ETQ&&TR_ETQ.indexOf(et)<0)TR_ETQ.push(et)};
+  document.querySelectorAll('.trRgUn').forEach(b=>b.onclick=async()=>{const et=(document.querySelector(`.trEt[data-id="${CSS.escape(b.dataset.src)}"]`)||{}).value||'';if(!et){toast('Choisissez d\'abord une étiquette sur cette fiche');return}
+    if(!confirm('Ranger ce mail dans « '+et+' » ? Il sortira de la boîte de réception ; son statut lu / non lu ne change pas.'))return;b.disabled=true;try{await ranger(b.dataset.id,et);toast('Rangé dans '+et);re()}catch(e){toast('Non rangé : '+e.message);b.disabled=false}});
   document.querySelectorAll('.trLire').forEach(b=>b.onclick=()=>trLire(b.dataset.id,b.dataset.cible));
   document.querySelectorAll('.trVoir').forEach(b=>b.onclick=()=>{TRS.f='tout';TRS.q='';trSauver();courrier();setTimeout(()=>{const e=document.getElementById('tr_'+b.dataset.id);if(e){e.scrollIntoView({block:'start'});e.style.outline='3px solid var(--orange)';setTimeout(()=>e.style.outline='',4000)}},50)});
   const tt=$('#mTout');if(tt)tt.onclick=()=>{const all=[...document.querySelectorAll('.mCh')],on=all.some(c=>!c.checked);all.forEach(c=>{c.checked=on;TRS.k[c.dataset.id]=on});trSauver();maj()};
   const valeur=id=>{const s=document.querySelector(`.trDec[data-id="${CSS.escape(id)}"]`),c=document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`);let d=s?s.value:'',m=c?c.value.trim():'';if(d==='Déjà payé'){d='Information';if(!/PAY/i.test(m))m='DÉJÀ PAYÉ'+(m?' — '+m:'')}return [d,m]};
   const dec=async(id,st)=>{const J=crJeton();if(!J)throw new Error('code Tri & RJ à saisir dans « Boîte mail »');const [d,m]=st==='Validé'?valeur(id):['',(document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`)||{}).value||''];
-    const r=await crAppel('mob_decider',[J,id,st,d,'',m]);const f=(CR.fiches||[]).find(x=>x['ID']===id);if(f){f['Statut']=r&&r.statut||st;f['Décision finale']=r&&r.finale||d;f['Commentaire Pierre']=m}
+    const rg=(document.querySelector(`.trRg[data-id="${CSS.escape(id)}"]`)||{}).value,et=((document.querySelector(`.trEt[data-id="${CSS.escape(id)}"]`)||{}).value||'').trim();
+    const r=await crAppel('mob_decider',[J,id,st,d,st==='Validé'&&rg==='ranger'?et:'',m]);
+    if(st==='Validé'&&rg==='ranger'&&et&&!/^C-/.test(id)){const f0=(CR.fiches||[]).find(x=>x['ID']===id);if(!f0||!trRange(f0))await ranger(id,et)}const f=(CR.fiches||[]).find(x=>x['ID']===id);if(f){f['Statut']=r&&r.statut||st;f['Décision finale']=r&&r.finale||d;f['Commentaire Pierre']=m}
     TRS.ok=TRS.ok||{};TRS.ok[id]=1;const el=document.getElementById('tr_'+id);if(el)el.style.opacity='.35'};
   const b=$('#mL1');if(b)b.onclick=async()=>{const ids=[...document.querySelectorAll('.mCh:checked')].map(c=>c.dataset.id);if(!ids.length)return;
+    const rgx=id=>((document.querySelector(`.trRg[data-id="${CSS.escape(id)}"]`)||{}).value),etx=id=>(((document.querySelector(`.trEt[data-id="${CSS.escape(id)}"]`)||{}).value)||'').trim();
+    const sansEt=ids.filter(id=>rgx(id)==='ranger'&&!etx(id)&&!/^C-/.test(id));if(sansEt.length){toast(sansEt.length+' fiche(s) à ranger sans étiquette : choisissez l\'étiquette ou « Laisser dans la boîte de réception »');const e=document.getElementById('tr_'+sansEt[0]);if(e){e.scrollIntoView({block:'start'});e.style.outline='3px solid var(--orange)'}return}
+    const nouv=[...new Set(ids.filter(id=>rgx(id)==='ranger').map(etx).filter(e=>e&&TR_ETQ&&TR_ETQ.indexOf(e)<0))];if(nouv.length&&!confirm('Ces étiquettes n\'existent pas encore et seront créées :\n'+nouv.join('\n')+'\n\nContinuer ?'))return;
+    const nR=ids.filter(id=>rgx(id)==='ranger').length;
     const sr=ids.filter(id=>valeur(id)[0]==='Suivi RJ');if(sr.length&&!confirm(`${sr.length} fiche(s) cochée(s) seront AJOUTÉES au suivi RJ (à payer). Continuer ?`))return;b.disabled=true;let ok=0,ko=0;
     for(const id of ids){try{await dec(id,'Validé');ok++}catch(e){ko++;$('#mProg').textContent=e.message}$('#mProg').textContent=`${ok+ko} / ${ids.length} traitées${ko?' · '+ko+' en erreur':''}`}
-    toast(ok+' fiche(s) validée(s)');b.disabled=false;ids.forEach(id=>{delete TRS.k[id]});trSauver();setTimeout(()=>{chargerCR(true).then(()=>{if(vue==='cou'&&sousCou==='tri')re()})},300)};
+    toast(ok+' fiche(s) validée(s), dont '+nR+' mail(s) rangé(s)');b.disabled=false;ids.forEach(id=>{delete TRS.k[id]});trSauver();setTimeout(()=>{chargerCR(true).then(()=>{if(vue==='cou'&&sousCou==='tri')re()})},300)};
   document.querySelectorAll('.mOk,.mNo').forEach(x=>x.onclick=async()=>{x.disabled=true;try{await dec(x.dataset.id,x.classList.contains('mOk')?'Validé':'Refusé');toast(x.classList.contains('mOk')?'Validé':'Gardé à revoir')}catch(e){toast('Non enregistré : '+e.message);x.disabled=false}});
   brancherLiens()}
 
