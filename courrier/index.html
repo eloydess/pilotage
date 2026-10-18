@@ -241,9 +241,9 @@ function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(
 var EMBED = (function(){ try { return window.self !== window.top; } catch(e) { return true; } })();
 if (EMBED) { document.body ? document.body.classList.add('embed') : document.addEventListener('DOMContentLoaded', function(){ document.body.classList.add('embed'); }); }
 /* Pilotage (fenêtre parente, même site) est prévenu à chaque mise à jour des fiches ou des paiements */
-var SIG_PARENT = '';
+var SIG_PARENT = '', COPIE_LOCALE = false;
 function notifierParent(){ try {
-  if (!(EMBED && window.parent && window.parent.crDepuisCadre) || !FICHES) return;
+  if (COPIE_LOCALE || !(EMBED && window.parent && window.parent.crDepuisCadre) || !FICHES) return;
   var sig = FICHES.length + '|' + FICHES.map(function(f){ return f['Statut'] + (f['Date application'] || ''); }).join('') + '|' + (TRESO ? JSON.stringify(TRESO.soldes || {}) + (TRESO.lignes || []).length : '');
   if (sig === SIG_PARENT) return; SIG_PARENT = sig;
   window.parent.crDepuisCadre({ fiches: FICHES, treso: TRESO });
@@ -301,14 +301,14 @@ function charger(){
   if (!FICHES || !FICHES.length) {
     var c = copieLocale();
     if (c) {
-      FICHES = c.fiches.slice(); if (c.treso && !TRESO) TRESO = c.treso;
+      COPIE_LOCALE = true; FICHES = c.fiches.slice(); if (c.treso && !TRESO) TRESO = c.treso;
       FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
       afficher();
       bandeauMaj('⏳ Mise à jour en cours… (affichage de la copie du ' + new Date(c.t || Date.now()).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')');
     }
   }
   appel('mob_liste', [JETON], function(r){
-    bandeauMaj('');
+    bandeauMaj(''); COPIE_LOCALE = false;
     FICHES = r.fiches; DECISIONS = r.decisions;
     FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
     afficher();

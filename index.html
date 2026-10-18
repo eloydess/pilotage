@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.27';
+const APP_V='6.28';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -970,12 +970,12 @@ const crJeton=()=>{try{const j=JSON.parse(localStorage.getItem('triRJ_jeton')||'
 const crAppel=(fn,args)=>fetch(CR_API+'?t='+Date.now(),{method:'POST',cache:'no-store',body:JSON.stringify({fn,args}),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.json()).then(r=>{if(!r.ok)throw new Error(r.erreur||'Erreur');return r.data});
 function crSauver(){try{ls.set('pil_cr',JSON.stringify(CR))}catch(e){}}
 /* appelé par la page courrier/ à chaque mise à jour (décision, paiement, solde) */
-window.crDepuisCadre=function(d){if(!d)return;CR=Object.assign({},CR||{},{t:Date.now()});if(d.fiches&&d.fiches.length)CR.fiches=d.fiches;if(d.treso)CR.treso=d.treso;crSauver();pastilles();
+window.crDepuisCadre=function(d){if(!d)return;CR=Object.assign({},CR||{},{t:Date.now(),ts:Date.now()});if(d.fiches&&d.fiches.length)CR.fiches=d.fiches;if(d.treso)CR.treso=d.treso;crSauver();pastilles();
   if(vue==='acc'){const y=scrollY;rendre();scrollTo(0,y)}};
 async function chargerCR(force){const j=crJeton();if(!j){crErr='code';return false}if(crEnCours)return false;if(CR&&CR.t&&!force&&Date.now()-CR.t<10*60e3)return false;
-  crEnCours=true;try{const [l,t]=await Promise.all([crAppel('mob_liste',[j]),crAppel('mob_tresorerie',[j])]);CR={t:Date.now(),fiches:l.fiches||[],treso:t};crErr='';crSauver()}
+  crEnCours=true;try{const [l,t]=await Promise.all([crAppel('mob_liste',[j]),crAppel('mob_tresorerie',[j])]);CR={t:Date.now(),ts:Date.now(),fiches:l.fiches||[],treso:t};crErr='';crSauver()}
   catch(e){crErr=String(e&&e.message||e);if(/SESSION_EXPIREE/.test(crErr)){try{localStorage.removeItem('triRJ_jeton')}catch(_){}crErr='code'}}
-  crEnCours=false;pastilles();if(vue==='acc'||(vue==='cou'&&sousCou==='syn')||(vue==='stk'&&sousStk==='tre')){const y=scrollY;rendre();scrollTo(0,y)}return true}
+  crEnCours=false;pastilles();if(vue==='acc'||(vue==='cou'&&(sousCou==='syn'||sousCou==='tri'))||(vue==='stk'&&sousStk==='tre')){const y=scrollY;rendre();scrollTo(0,y)}return true}
 const crNb=v=>{if(v==null||v==='')return null;if(typeof v==='number')return v;let s=String(v).replace(/\s|€/g,'');if(s.lastIndexOf(',')>s.lastIndexOf('.'))s=s.replace(/\./g,'').replace(',','.');else s=s.replace(/,/g,'');const n=parseFloat(s);return isNaN(n)?null:n};
 const crISO=v=>{const s=String(v||'');let m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s);if(m)return m[0];m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(s);return m?m[3]+'-'+m[2]+'-'+m[1]:''};
 const crProche=(a,b)=>{const n=x=>String(x||'').toUpperCase().normalize('NFD').replace(/[^A-Z]/g,'');a=n(a);b=n(b);return !!a&&!!b&&a.length>=4&&b.length>=4&&(a.indexOf(b.slice(0,5))>=0||b.indexOf(a.slice(0,5))>=0)};
@@ -1032,7 +1032,7 @@ const barre=r=>`<div style="height:8px;border-radius:4px;background:var(--ligne)
 /* L'onglet : sous-onglets Boîte mail / Paiements / Courrier (page courrier/) et Synthèse (Pilotage) */
 function courrier(){$('#ht').textContent='Courrier & paiements';fab(null);
   const nav=sousNav('cs',[['tri','⚡ Traiter en série'],['mail','📬 Boîte mail'],['rj','💶 Paiements RJ'],['cr','📮 Courrier / PDF'],['syn','🧭 Synthèse et liens']],sousCou);
-  if(sousCou==='tri'){$('#m').innerHTML=nav+vueTriSerie();brancherTriSerie();if(!crSyn())chargerCR();}
+  if(sousCou==='tri'){if(!crJeton())crErr='code';else if(crErr==='code')crErr='';$('#m').innerHTML=nav+vueTriSerie();brancherTriSerie();chargerCR(!CR||!CR.ts||Date.now()-CR.ts>2*60e3);}
   else if(sousCou==='syn'){$('#m').innerHTML=nav+vueSynCourrier();chargerCR();}
   else{$('#m').innerHTML=nav+`<iframe id="crF" src="courrier/?v=${APP_V}" title="Courrier et paiements" style="width:100%;border:0;display:block;background:var(--fond)"></iframe>`;
     const f=$('#crF');f.onload=()=>{try{if(f.contentWindow.vue&&sousCou!=='mail')f.contentWindow.vue(sousCou)}catch(e){}};taillerCadre()}
@@ -1233,7 +1233,9 @@ function vueTriSerie(){trReprendre();const T=trTout();if(!T)return `<div class="
   const FL=[['l1','1. Rien à faire',a=>a.lot===1],['l2','2. À payer / suivi RJ',a=>a.lot===2],['l3','3. À vérifier / action',a=>a.lot===3],['paye','✅ Déjà payé',paye],['dbl','🔁 Doublons / déjà suivis',dbl],['nouv','🆕 Proposition changée',nouv],['alr','⚠ À regarder',alr],['tout','Toutes',a=>true]];
   const fl=FL.find(x=>x[0]===TRS.f)||FL[0],q=trNorm(TRS.q||''),V=A.filter(fl[2]).filter(a=>!q||trNorm([a.f.Tiers,a.f.Objet,a.f['Références'],a.f['Montant TTC']].join(' ')).indexOf(q)>=0);
   const tot2=A.filter(a=>a.lot===2&&a.mt<1e5).reduce((s,a)=>s+a.mt,0);
-  return `<div class="carte al b"><b class="t">${A.length} mails à décider</b><div class="sub w">Chaque fiche montre ce que j'ai vérifié : <b>banque</b> (rapprochement ligne par ligne du ${dfr(BQ_RAP.date)} : ${esc(BQ_RAP.perim)}), <b>autre exemplaire</b> (fiche ou dossier du suivi RJ, avec le lien), et le contrôle fait au tri. Vous pouvez <b>changer la décision</b> de chaque fiche, <b>lire le mail en entier</b> (sans le marquer comme lu), puis valider en masse les fiches cochées. Rien n'est supprimé.</div>
+  const age=CR&&CR.ts?Math.round((Date.now()-CR.ts)/60e3):null,etat=crErr==='code'?`<div class="carte" style="border-left:6px solid var(--orange)"><b>⚠ Liste non mise à jour : votre code a expiré.</b><div class="sub w">Ouvrez « 📬 Boîte mail », entrez votre code, puis revenez ici. Les chiffres ci-dessous datent ${CR&&CR.ts?'du '+new Date(CR.ts).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'d\'une ancienne copie'}.</div></div>`:
+    `<div class="sub w" style="margin:4px 0">${crEnCours?'⏳ Mise à jour en cours…':age===null?'Copie ancienne : mise à jour en cours…':'Liste à jour '+(age<1?'à l\'instant':'il y a '+age+' min')} · <button class="mini" id="trMaj">↻ Actualiser</button></div>`;
+  return `${etat}<div class="carte al b"><b class="t">${A.length} mails à décider</b><div class="sub w">Chaque fiche montre ce que j'ai vérifié : <b>banque</b> (rapprochement ligne par ligne du ${dfr(BQ_RAP.date)} : ${esc(BQ_RAP.perim)}), <b>autre exemplaire</b> (fiche ou dossier du suivi RJ, avec le lien), et le contrôle fait au tri. Vous pouvez <b>changer la décision</b> de chaque fiche, <b>lire le mail en entier</b> (sans le marquer comme lu), puis valider en masse les fiches cochées. Rien n'est supprimé.</div>
    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">1. Rien à faire</div><div class="v">${n(a=>a.lot===1)}</div><div class="sub">dont ${n(paye)} déjà payés</div></div><div class="kpi"><div class="l">2. À payer / suivi RJ</div><div class="v">${n(a=>a.lot===2)}</div><div class="sub">${eur(tot2)}</div></div><div class="kpi"><div class="l">3. À vérifier / action</div><div class="v">${n(a=>a.lot===3)}</div></div></div></div>
   <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0" id="trF">${FL.map(x=>`<button class="mini${x[0]===fl[0]?' on':''}" data-f="${x[0]}" style="${x[0]===fl[0]?'background:var(--txt);color:var(--fond)':''}">${x[1]} (${n(x[2])})</button>`).join('')}</div>
   <input id="trQ" placeholder="Rechercher un tiers, une référence, un montant…" value="${esc(TRS.q||'')}" style="width:100%;margin-bottom:6px">
@@ -1261,6 +1263,7 @@ async function trPdf(o,zone){if(!window.pdfjsLib)await new Promise((ok,ko)=>{con
 function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.mCh:checked').length,e=$('#mN');if(e)e.textContent=n};maj();
   const re=()=>{const y=scrollY;courrier();scrollTo(0,y)};
   document.querySelectorAll('#trF button').forEach(b=>b.onclick=()=>{TRS.f=b.dataset.f;TRS.n=25;trSauver();courrier()});
+  const mj=$('#trMaj');if(mj)mj.onclick=()=>{toast('Actualisation…');chargerCR(true)};
   const pl=$('#trPlus');if(pl)pl.onclick=()=>{TRS.n=(TRS.n||25)+25;re()};
   const q=$('#trQ');if(q)q.onchange=()=>{TRS.q=q.value;TRS.n=25;trSauver();re()};
   document.querySelectorAll('.mCh').forEach(c=>c.onchange=()=>{TRS.k[c.dataset.id]=c.checked;trSauver();maj()});
