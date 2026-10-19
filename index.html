@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.33';
+const APP_V='6.34';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -971,10 +971,19 @@ let CR=(()=>{try{return JSON.parse(ls.get('pil_cr')||'null')}catch(e){return nul
 const crJeton=()=>{try{const j=JSON.parse(localStorage.getItem('triRJ_jeton')||'null');return j&&j.exp>Date.now()?j.v:null}catch(e){return null}};
 const crAppel=(fn,args)=>fetch(CR_API+'?t='+Date.now(),{method:'POST',cache:'no-store',body:JSON.stringify({fn,args}),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.json()).then(r=>{if(!r.ok)throw new Error(r.erreur||'Erreur');return r.data});
 function crSauver(){try{ls.set('pil_cr',JSON.stringify(CR))}catch(e){}}
+/* Soldes saisis directement dans Pilotage (carte « Ce que vous pouvez payer ») */
+const reRendre=()=>{const y=scrollY;rendre();scrollTo(0,y)};
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='slBp'){(async()=>{if(await majEtat('tr_param',JSON.stringify({...trParam(),payBpgo:e.target.checked})))reRendre()})()}});
+document.addEventListener('click',e=>{if(!e.target||e.target.id!=='slOk')return;const b=e.target;(async()=>{const j=crJeton();if(!j){toast('Code Tri & RJ à entrer dans Courrier & paiements');return}
+  const R=capacite()||{},vals=[['CEBPL',crNb($('#slC').value),R.solCE],['BPGO',crNb($('#slB').value),R.solB]].filter(x=>x[1]!=null&&Math.abs(x[1]-(x[2]||0))>=0.005);
+  if(!vals.length){toast('Soldes inchangés');return}b.disabled=true;b.textContent='Enregistrement…';
+  try{for(const [bk,n] of vals){const r=await crAppel('mob_solde',[j,bk,String(n),'saisi dans Pilotage']);CR=CR||{};CR.treso=CR.treso||{lignes:[],soldes:{}};CR.treso.soldes=CR.treso.soldes||{};CR.treso.soldes[bk]={montant:r&&r.montant!=null?r.montant:n,date:r&&r.date||new Date().toLocaleString('fr-FR')}}
+    crSauver();toast('Soldes enregistrés — tout est recalculé');reRendre();chargerCR(true)}
+  catch(err){toast('Erreur : '+(err.message||err));b.disabled=false;b.textContent='Enregistrer les soldes'}})()});
 /* appelé par la page courrier/ à chaque mise à jour (décision, paiement, solde) */
 window.crDepuisCadre=function(d){if(!d)return;CR=Object.assign({},CR||{},{t:Date.now(),ts:Date.now()});if(d.fiches&&d.fiches.length)CR.fiches=d.fiches;if(d.treso)CR.treso=d.treso;crSauver();pastilles();
-  if(vue==='acc'){const y=scrollY;rendre();scrollTo(0,y)}};
-async function chargerCR(force){const j=crJeton();if(!j){crErr='code';return false}if(crEnCours)return false;if(CR&&CR.t&&!force&&Date.now()-CR.t<10*60e3)return false;
+  if(vue==='acc'||vue==='stk'||vue==='pas'||(vue==='cou'&&sousCou==='syn')){const y=scrollY;rendre();scrollTo(0,y)}};
+async function chargerCR(force){const j=crJeton();if(!j){crErr='code';return false}if(crEnCours)return false;if(CR&&CR.t&&!force&&Date.now()-CR.t<2*60e3)return false;
   crEnCours=true;try{const [l,t]=await Promise.all([crAppel('mob_liste',[j]),crAppel('mob_tresorerie',[j])]);CR={t:Date.now(),ts:Date.now(),fiches:l.fiches||[],treso:t};crErr='';crSauver()}
   catch(e){crErr=String(e&&e.message||e);if(/SESSION_EXPIREE/.test(crErr)){try{localStorage.removeItem('triRJ_jeton')}catch(_){}crErr='code'}}
   crEnCours=false;pastilles();if(vue==='acc'||(vue==='cou'&&(sousCou==='syn'||sousCou==='tri'))||(vue==='stk'&&sousStk==='tre')){const y=scrollY;rendre();scrollTo(0,y)}return true}
@@ -1366,10 +1375,11 @@ function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return 
   const solB=S&&S.tot?(S.sB||0):(V&&V.tresor?V.tresor.soldes.filter(s=>/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
   const sol=S&&S.tot?(S.sC||0):(V&&V.tresor?V.tresor.soldes.filter(s=>!/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
   const encCEm=(()=>{const L=QB.B.lignes.filter(l=>l.s==='E'&&/caisse/i.test(l.compte||'')&&l.cat!=='exceptionnel');const R=QB.B.ref||[1,2];return R.reduce((s,i)=>s+L.reduce((a,l)=>a+(l.m[i]||0),0),0)/R.length})();
+  const inclB=!!P.payBpgo;const solCE=sol;const solT=inclB?sol+solB:sol;
   const dSol=S&&S.tot?(S.dateC||''):'';const N=21,d0=auj(),enc=encCEm/21.7*0.9,ch=jsonEt('tr_charges',[]);
   const gros=(QB.S.find(x=>x.cat==='grossiste')||{moy:0}).moy,cerpM=P.cerp!=null&&P.cerp!==''?+P.cerp:Math.round(CERP_HIST.slice(-6).reduce((s,x)=>s+x[1],0)/6/100)*100;
   const C=A&&A.cerp,cerpAtt=C?C.lignes.reduce((s,l)=>s+Math.max(0,(+l[2]||0)-(+l[4]||0)),0)*1.021:0;
-  const cd=cerpDates(d0,N);const J=[];let b=sol;
+  const cd=cerpDates(d0,N);const J=[];let b=solT;
   for(let k=0;k<N;k++){const d=ajJ(d0,k),wd=new Date(d+'T12:00:00').getDay(),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');const ev=[];
     const e=(wd>=1&&wd<=5&&k>0)?enc:0;
     ch.forEach(c=>{const cj=Math.min(+c.jour,fm);if(cj===j&&k>0)ev.push([c.lib.replace(/\s*\(.*$/,''),+c.montant||0,c.cat])});
@@ -1381,16 +1391,22 @@ function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return 
   const F=(S&&S.L||[]).filter(l=>(+l.du||0)>0).map(l=>({tiers:l.tiers,du:+l.du,p1:/1/.test(String(l.priorite||'')),val:!!String(l.validation||'').trim()||/valid/i.test(l.statut||''),dt:dIso(l.dateCommande||l.date)||'9999',statut:l.statut||''}))
     .sort((a,b)=>(b.p1-a.p1)||(b.val-a.val)||String(a.dt).localeCompare(String(b.dt)));
   let cum=0;F.forEach(f=>{cum+=f.du;f.cum=cum;let kk=-1;for(let k=0;k<N;k++){if(capAt(k)>=cum){kk=k;break}}f.des=kk});
-  return {sol,solB,encCEm,dSol,J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
+  return {sol,solCE,solT,inclB,solB,encCEm,dSol,dSolB:S&&S.tot?(S.dateB||''):'',J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
+function soldesEditeur(R){const j=crJeton(),v=x=>x==null?'':String(Math.round(x*100)/100).replace('.',',');
+  return `<div style="background:var(--fond2,#f6f7f9);border-radius:10px;padding:8px;margin:6px 0"><b>🏦 Vos soldes du jour</b> <span class="sub">— changez-les ici : tout se recalcule aussitôt (ce montant, la trésorerie sur 13 semaines, la synthèse, Paiements RJ)</span>
+   <div class="g2" style="margin-top:6px"><div><label>Caisse d'Épargne${R.dSol?` <span class="sub">(saisi le ${esc(String(R.dSol).slice(0,16))})</span>`:''}</label><input id="slC" inputmode="decimal" value="${v(R.solCE)}"></div><div><label>BPGO, total des 2 comptes${R.dSolB?` <span class="sub">(saisi le ${esc(String(R.dSolB).slice(0,16))})</span>`:''}</label><input id="slB" inputmode="decimal" value="${v(R.solB)}"></div></div>
+   <label class="sub w" style="display:block;margin-top:4px"><input type="checkbox" id="slBp" ${R.inclB?'checked':''}> Compter aussi la BPGO (vous ferez un virement BPGO → Caisse d'Épargne si besoin)</label>
+   ${j?`<button class="btn" id="slOk" style="margin-top:6px">Enregistrer les soldes</button>`:`<div class="sub w" style="margin-top:6px">Pour enregistrer : ouvrez une fois « Courrier & paiements » et entrez le code de Tri & RJ.</div>`}</div>`}
 function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,P}=R,d0=J[0].d;
   const fin=mn.d,encJ=J.filter(x=>x.d<=fin).reduce((s,x)=>s+x.enc,0),evJ=J.filter(x=>x.d<=fin).flatMap(x=>x.ev.map(e=>[x.d,...e])),outJ=evJ.reduce((s,x)=>s+x[2],0);
   const ok=cap>0;const grand=ok?eur(Math.floor(cap/100)*100):'0 €';
   const payables=F.filter(f=>f.des===0),plusTard=F.filter(f=>f.des>0),jamais=F.filter(f=>f.des<0);
-  return `<div class="carte" style="border-left:6px solid ${ok?'var(--vert2)':'var(--rouge)'}"><b>💶 Ce que vous pouvez payer aujourd'hui depuis la Caisse d'Épargne (${jsem(d0)} ${dfr(d0)})</b>
+  return `<div class="carte" style="border-left:6px solid ${ok?'var(--vert2)':'var(--rouge)'}"><b>💶 Ce que vous pouvez payer aujourd'hui depuis ${R.inclB?'la Caisse d\'Épargne + la BPGO':'la Caisse d\'Épargne'} (${jsem(d0)} ${dfr(d0)})</b>
    <div class="gros" style="font-size:34px;margin:6px 0 2px;color:${ok?'var(--vert2)':'var(--rouge)'}">${grand}</div>
-   <div class="sub w">de factures (laboratoires, dossiers du suivi RJ, autres) <b style="color:var(--txt)">sans que le compte Caisse d'Épargne passe sous la réserve de ${eur(P.reserve)}</b> dans les 3 prochaines semaines, en tenant compte de tout ce qui va y tomber. La BPGO n'est pas comptée : elle accumule la trésorerie (${eur(R.solB)}).${!ok?` Il manquerait ${eur(-cap)} au moment le plus tendu : ne payer que l'indispensable, ou prévoir un virement depuis la BPGO.`:''}</div>
+   ${soldesEditeur(R)}
+   <div class="sub w">de factures (laboratoires, dossiers du suivi RJ, autres) <b style="color:var(--txt)">sans que le compte Caisse d'Épargne passe sous la réserve de ${eur(P.reserve)}</b> dans les 3 prochaines semaines, en tenant compte de tout ce qui va y tomber. ${R.inclB?`La BPGO est comptée (${eur(R.solB)}) : un virement BPGO → Caisse d'Épargne sera nécessaire.`:`La BPGO n'est pas comptée : elle accumule la trésorerie (${eur(R.solB)}).`}${!ok?` Il manquerait ${eur(-cap)} au moment le plus tendu : ne payer que l'indispensable, ou prévoir un virement depuis la BPGO.`:''}</div>
    <div class="tw" style="margin-top:8px"><table class="t">
-    <tr><td>Sur la Caisse d'Épargne${R.dSol?' (solde du '+esc(R.dSol.slice(0,10))+' dans le suivi RJ)':''}</td><td class="n"><b>${eur(R.sol)}</b></td></tr>
+    <tr><td>Sur la Caisse d'Épargne${R.dSol?' (solde du '+esc(R.dSol.slice(0,10))+', virements faits depuis déduits)':''}</td><td class="n"><b>${eur(R.solCE)}</b></td></tr>${R.inclB?`<tr><td>+ BPGO (à virer sur la Caisse d'Épargne au besoin)</td><td class="n"><b>${eur(R.solB)}</b></td></tr>`:''}
     <tr><td>+ Ce qui va rentrer d'ici le ${jsem(fin)} ${dfr(fin)} sur la Caisse d'Épargne (≈ ${eur(R.enc)} par jour ouvré : assurance maladie, mutuelles, cartes ; ${eur(R.encCEm)} par mois en août-septembre, réduits de 10 % par prudence)</td><td class="n pos">+ ${eur(encJ)}</td></tr>
     <tr><td>− Ce qui va tomber d'ici là (détail ci-dessous)</td><td class="n neg">− ${eur(outJ)}</td></tr>
     <tr><td>− Réserve de sécurité, à ne jamais entamer</td><td class="n neg">− ${eur(P.reserve)}</td></tr>
