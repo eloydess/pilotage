@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.39';
+const APP_V='6.40';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -754,9 +754,10 @@ function vueRemarques(){const R=retours(),F={'À traiter':r=>r.st!=='faite'&&r.s
 /* ---------- OBJECTIFS DU MOIS : minimum / objectif / très bien, pharmacie et équipe ---------- */
 let sousMois='obj',moisObj='';
 const DEPARTS={ALINE:{nom:'Aline Bourgeon-Mennesson',poste:'Pharmacien adjoint',d:'2026-10-16',t:'Démission remise en main propre le 02/10/2026 ; préavis écourté à sa demande ; dernier jour le vendredi 16/10/2026.',resp:'Pharmacienne habilitée à prescrire les vaccins à la pharmacie'}};
-const parti=n=>DEPARTS[sansAcc(String(n||'')).split(/\s+/).find(w=>DEPARTS[w.toUpperCase()])?.toUpperCase()||'']||null;
+function departsTous(){const M={...DEPARTS};try{(jsonEt('evts',{})._perso||[]).filter(e=>e.type==='depart'&&e.qui&&!(jsonEt('evts',{})[e.id]||{}).off).forEach(e=>{M[e.qui]={nom:e.nomC||e.qui,poste:e.poste||'',d:e.debut,t:e.src||'',resp:''}})}catch(x){}return M}
+const parti=n=>{const DP=departsTous();return DP[sansAcc(String(n||'')).split(/\s+/).find(w=>DP[w.toUpperCase()])?.toUpperCase()||'']||null};
 const PRES0={NASSABIA:'parti',GADJI:'sam'};
-const objCfg=()=>{let c={};try{c=JSON.parse(ETAT.obj_cfg||'{}')}catch(e){}let pl=null;if(c.planAuto!==false){try{const C=cibleMois(typeof moisObj!=='undefined'&&moisObj?moisObj:null);pl=C?Math.round(C.pct*10)/10:null}catch(e){}}return {planAuto:c.planAuto!==false,o:pl!=null?pl:(num(c.o)??3),tb:pl!=null?Math.round((pl+4)*10)/10:(num(c.tb)??6),valide:!!c.valide,le:c.le,pres:{...PRES0,...(c.pres||{}),...Object.fromEntries(Object.keys(DEPARTS).map(k=>[k,'parti']))},pot:num(c.pot)??10,potOk:!!c.potOk}};
+const objCfg=()=>{let c={};try{c=JSON.parse(ETAT.obj_cfg||'{}')}catch(e){}let pl=null;if(c.planAuto!==false){try{const C=cibleMois(typeof moisObj!=='undefined'&&moisObj?moisObj:null);pl=C?Math.round(C.pct*10)/10:null}catch(e){}}return {planAuto:c.planAuto!==false,o:pl!=null?pl:(num(c.o)??3),tb:pl!=null?Math.round((pl+4)*10)/10:(num(c.tb)??6),valide:!!c.valide,le:c.le,pres:{...PRES0,...(c.pres||{}),...Object.fromEntries(Object.entries(departsTous()).filter(([k,x])=>!x.d||x.d<=auj().slice(0,8)+'31').map(([k])=>[k,'parti']))},pot:num(c.pot)??10,potOk:!!c.potOk}};
 const sauverCfg=async m=>{const c=objCfg();return majEtat('obj_cfg',JSON.stringify({...c,...m}))};
 function paques(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),j=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,j,12)}
 function feries(y){const p=paques(y),dj=n=>{const d=new Date(p);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};return new Set([y+'-01-01',y+'-05-01',y+'-05-08',y+'-07-14',y+'-08-15',y+'-11-01',y+'-11-11',y+'-12-25',dj(1),dj(39),dj(50)])}
@@ -1069,8 +1070,8 @@ function semainesTreso(){const V=V6();if(!V)return null;const P=trParam(),T=V.tr
   const ref=m=>MM.find(z=>z.m===moisPlus(m,-12))||MM[MM.length-1];const encDef=m=>{const mm=ref(m);return mm?mm.ca/4.33:0};const achDef=m=>{const mm=ref(m);return mm?(mm.ca-mm.mg)/4.33:0};
   let s=sol;
   for(let i=0;i<13;i++){const deb=ajJ(d0,7*i),fin=ajJ(deb,6),mois=deb.slice(0,7)+'-01';
-    const enc=(P.enc!=null&&P.enc!==''?+P.enc:encDef(mois))*(1+P.scenario/100)+(P.tva&&i===+P.tvaSem?25000:0);
-    const ach=(P.ach!=null&&P.ach!==''?+P.ach:achDef(mois))*(1+P.scenario/100);
+    const FC=caFacteurs();const enc=(P.enc!=null&&P.enc!==''?+P.enc*FC.rel:encDef(mois)*FC.n1)*(1+P.scenario/100)+(P.tva&&i===+P.tvaSem?25000:0);
+    const ach=(P.ach!=null&&P.ach!==''?+P.ach*FC.rel:achDef(mois)*FC.n1)*(1+P.scenario/100);
     let prio=0,march=ach,autres=0;const det=[['Achats de marchandises habituels',ach,'mes']];
     if(!ch.length){const mm=ref(mois),fr=mm?(mm.mg*FRAIS_DEF)/4.33:0;autres+=fr;det.push(['Charges courantes estimées (salaires, loyer, impôts… : '+Math.round(FRAIS_DEF*100)+' % de la marge, en attendant vos relevés)',fr,'aut'])}
     ch.forEach(c=>{const jours=[];for(let k=0;k<7;k++){const d=ajJ(deb,k);if(+d.slice(8)===+c.jour)jours.push(d)}if(jours.length){const m=+c.montant||0;if(PRIO.includes(c.cat))prio+=m;else if(c.cat==='mes'||c.cat==='mco')march+=m;else autres+=m;det.push([c.lib,m,c.cat])}});
@@ -1392,7 +1393,7 @@ const evtEtat=()=>jsonEt('evts',{});
 function coutPaie(k){if(!PAIE)return null;const L=PAIE.filter(r=>sansAcc(r['Collaborateur']||'').toUpperCase().split(/\s+/).includes(k)).map(r=>({m:isoMois(r['Mois']),k:num(r['Coût employeur'])||0})).filter(r=>r.m&&r.k>0).sort((a,b)=>a.m.localeCompare(b.m));
   const pleins=L.filter(r=>r.m<'2026-10-01').slice(-3);return pleins.length?pleins.reduce((s,r)=>s+r.k,0)/pleins.length:null}
 function evts(){const S=evtEtat(),perso=(S._perso||[]);return EVTS_DEF.concat(perso).map(e=>{const o=S[e.id]||{};const x={...e,...(o.montant!=null?{montant:o.montant}:{}),...(o.date?{date:o.date}:{}),fait:!!o.fait,off:!!o.off};
-  if(x.type==='depart'){const c=o.montant!=null?o.montant:coutPaie(x.qui);x.montant=c;x.inconnu=c==null}return x}).filter(e=>!e.off)}
+  if(x.type==='depart'){const c=o.montant!=null?o.montant:(e.montant!=null?e.montant:coutPaie(x.qui));x.montant=c;x.inconnu=c==null}return x}).filter(e=>!e.off)}
 /* montant qui sort (positif) ou économie (négatif) un jour donné ; retard = ponctuels non faits dont la date est passée */
 function evtJour(d,retard){const out=[];evts().forEach(e=>{if(e.fait||e.montant==null)return;
   if(e.type==='ponctuel'){if(e.date===d||(retard&&e.date<d))out.push([e.lib+(e.date<d?' (en retard)':''),+e.montant,'evt'])}
@@ -1409,7 +1410,7 @@ function carteChangements(court){const L=evts(),inc=L.filter(e=>e.inconnu),net=e
      <td>${e.type==='ponctuel'?dfr(e.date):'à partir du '+dfr(e.debut)+', le '+e.jour+' du mois'}</td>
      <td>${e.type==='ponctuel'?`<button class="mini evFait" data-id="${esc(e.id)}">${e.fait?'↺ Pas encore payé':'✅ Payé'}</button>`:''} <button class="mini evOff" data-id="${esc(e.id)}">Retirer</button></td></tr>`).join('')}</table></div>
    <details style="margin-top:6px"><summary class="sub">+ Ajouter un changement (embauche, départ, nouveau contrat, dette à régler…)</summary>
-    <div class="g2"><div><label>Libellé</label><input id="evLib" placeholder="ex. Embauche d'un préparateur"></div><div><label>Type</label><select id="evTyp"><option value="mensuel">Charge mensuelle en plus</option><option value="eco">Charge mensuelle en moins (économie)</option><option value="ponctuel">À payer une fois</option></select></div>
+    <div class="g2"><div><label>Libellé</label><input id="evLib" placeholder="ex. Embauche d'un préparateur"></div><div><label>Type</label><select id="evTyp"><option value="embauche">Embauche d’un collaborateur (coût employeur / mois)</option><option value="depart">Départ d’un collaborateur (coût employeur / mois)</option><option value="mensuel">Charge mensuelle en plus (loyer, contrat…)</option><option value="eco">Charge mensuelle en moins (économie)</option><option value="ponctuel">À payer une fois</option></select></div><div><label>Prénom (embauche ou départ)</label><input id="evQui" placeholder="ex. Alban"></div><div><label>Poste</label><input id="evPoste" placeholder="ex. Préparateur"></div>
      <div><label>Montant (€)</label><input id="evMtN" inputmode="decimal"></div><div><label>Date (ou début)</label><input id="evDt" type="date" value="${auj()}"></div></div>
     <button class="btn" id="evAdd" style="margin-top:6px">Ajouter</button></details></div>`}
 async function evtMaj(id,patch){const S=evtEtat();if(id==='_perso')S._perso=patch;else S[id]={...(S[id]||{}),...patch};if(await majEtat('evts',JSON.stringify(S)))toast('Recalculé partout')}
@@ -1417,7 +1418,11 @@ document.addEventListener('click',e=>{const t=e.target;if(!t||!t.classList)retur
   if(t.classList.contains('evFait')){const x=evts().find(z=>z.id===t.dataset.id);evtMaj(t.dataset.id,{fait:!(x&&x.fait)})}
   else if(t.classList.contains('evOff')){if(confirm('Retirer ce changement des calculs ?'))evtMaj(t.dataset.id,{off:true})}
   else if(t.id==='evAdd'){const lib=$('#evLib').value.trim(),mt=crNb($('#evMtN').value),ty=$('#evTyp').value,d=$('#evDt').value||auj();if(!lib||mt==null){toast('Libellé et montant obligatoires');return}
-    const P=(evtEtat()._perso||[]).slice();const id='p'+Date.now();P.push(ty==='ponctuel'?{id,type:'ponctuel',lib,date:d,montant:mt,src:'Ajouté par vous'}:ty==='eco'?{id,type:'depart',lib,debut:d,jour:+d.slice(8)||25,montant:mt,src:'Ajouté par vous'}:{id,type:'mensuel',lib,debut:d,jour:+d.slice(8)||1,montant:mt,src:'Ajouté par vous'});evtMaj('_perso',P)}});
+    const P=(evtEtat()._perso||[]).slice();const id='p'+Date.now();const qui=($('#evQui')&&$('#evQui').value.trim())||'',poste=($('#evPoste')&&$('#evPoste').value.trim())||'';
+    if((ty==='embauche'||ty==='depart')&&!qui){toast('Indiquez le prénom');return}
+    if(ty==='embauche'){P.push({id,type:'mensuel',cat:'personnel',lib:'Embauche de '+qui+(poste?' ('+poste+')':'')+' : coût employeur',debut:d,jour:25,montant:mt,src:'Ajouté par vous'});evtMaj('_perso',P);return}
+    if(ty==='depart'){P.push({id,type:'depart',qui:sansAcc(qui).split(/\s+/)[0].toUpperCase(),nomC:qui,poste,lib:'Départ de '+qui+(poste?' ('+poste+')':'')+' : salaire en moins',debut:d,jour:25,montant:mt,src:'Ajouté par vous'});evtMaj('_perso',P);return}
+    P.push(ty==='ponctuel'?{id,type:'ponctuel',lib,date:d,montant:mt,src:'Ajouté par vous'}:ty==='eco'?{id,type:'depart',lib,debut:d,jour:+d.slice(8)||25,montant:mt,src:'Ajouté par vous'}:{id,type:'mensuel',lib,debut:d,jour:+d.slice(8)||1,montant:mt,src:'Ajouté par vous'});evtMaj('_perso',P)}});
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('evMt')){const v=crNb(t.value);if(v!=null)evtMaj(t.dataset.id,{montant:v})}});
 function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return null;
   /* Paiements depuis la seule Caisse d'Épargne : la BPGO accumule la trésorerie et n'est pas utilisée */
@@ -1425,7 +1430,7 @@ function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return 
   const sol=S&&S.tot?(S.sC||0):(V&&V.tresor?V.tresor.soldes.filter(s=>!/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
   const encCEm=(()=>{const L=QB.B.lignes.filter(l=>l.s==='E'&&/caisse/i.test(l.compte||'')&&l.cat!=='exceptionnel');const R=QB.B.ref||[1,2];return R.reduce((s,i)=>s+L.reduce((a,l)=>a+(l.m[i]||0),0),0)/R.length})();
   const inclB=!!P.payBpgo;const solCE=sol;const solT=inclB?sol+solB:sol;
-  const dSol=S&&S.tot?(S.dateC||''):'';const N=21,d0=auj(),enc=encCEm/21.7*0.9,ch=jsonEt('tr_charges',[]);
+  const dSol=S&&S.tot?(S.dateC||''):'';const N=21,d0=auj(),enc=encCEm/21.7*0.9*margeFacteur(),ch=jsonEt('tr_charges',[]);
   const gros=(QB.S.find(x=>x.cat==='grossiste')||{moy:0}).moy,cerpM=P.cerp!=null&&P.cerp!==''?+P.cerp:Math.round(CERP_HIST.slice(-6).reduce((s,x)=>s+x[1],0)/6/100)*100;
   const C=A&&A.cerp,cerpAtt=C?C.lignes.reduce((s,l)=>s+Math.max(0,(+l[2]||0)-(+l[4]||0)),0)*1.021:0;
   const cd=cerpDates(d0,N);const J=[];let b=solT;
@@ -1534,9 +1539,9 @@ function bqAgg(){const B=BQ();if(!B)return null;const R=B.ref||[1,2],moy=m=>R.re
   const sum=(a,f)=>a.filter(f).reduce((s,x)=>s+x.moy,0),sumM=(a,i)=>a.reduce((s,x)=>s+x.m[i],0);
   const eMoy=sum(E,x=>x.cat!=='exceptionnel'),sMoy=sum(S,()=>true),fixe=sum(S,x=>x.nat==='fixe'),march=sum(S,x=>x.cat==='grossiste'||x.cat==='marchandises'),ponct=sum(S,x=>x.nat==='ponctuel'),div=sum(S,x=>x.cat==='divers');
   return {B,S,E,eMoy,sMoy,fixe,march,ponct,div,eM:[0,1,2,3].map(i=>sumM(E,i)),sM:[0,1,2,3].map(i=>sumM(S,i))}}
-function carteReel(court){const Q=bqAgg();if(!Q)return '';const reste=Q.eMoy-Q.sMoy;
+function carteReel(court){const Q=bqAgg();if(!Q)return '';const K=chargesMois(),reste=K?K.capa:Q.eMoy-Q.sMoy;
   return `<div class="carte" style="border-left:6px solid var(--bleu)"><b>🏦 Ce qui rentre et ce qui sort vraiment chaque mois</b><div class="sub w">D'après vos relevés bancaires (${esc(Q.B.periode)}). Repère « par mois » : moyenne d'août et de septembre pour les entrées et la marchandise, montant normal d'un mois pour les charges fixes (sans rattrapages).</div>
-   <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Entrées / mois</div><div class="v">${eur(Q.eMoy)}</div></div><div class="kpi"><div class="l">Charges fixes / mois${aide('Salaires, rémunération du titulaire, URSSAF et retraite, loyer, électricité, crédit-bail, expert-comptable, logiciels, assurances, services, frais bancaires : ce qui revient tous les mois quoi qu\'il arrive.')}</div><div class="v">${eur(Q.fixe)}</div></div><div class="kpi"><div class="l">Marchandises / mois${aide('CERP + laboratoires et autres fournisseurs, réellement payés.')}</div><div class="v">${eur(Q.march)}</div></div><div class="kpi"><div class="l">Reste / mois</div><div class="v ${reste<0?'neg':'pos'}">${reste<0?'−':'+'}${eur(Math.abs(reste))}</div></div></div>
+   <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Entrées / mois</div><div class="v">${eur(Q.eMoy)}</div></div><div class="kpi"><div class="l">Charges fixes / mois${aide('Salaires, rémunération du titulaire, URSSAF et retraite, loyer, électricité, crédit-bail, expert-comptable, logiciels, assurances, services, frais bancaires : ce qui revient tous les mois quoi qu\'il arrive.')}</div><div class="v">${eur(Q.fixe)}</div></div><div class="kpi"><div class="l">Marchandises / mois${aide('CERP + laboratoires et autres fournisseurs, réellement payés.')}</div><div class="v">${eur(Q.march)}</div></div><div class="kpi"><div class="l">Reste / mois${aide('Entrées − marchandises − vos charges mensuelles (Trésorerie) ± changements de gestion (embauches, départs, contrats), ajusté à l’évolution réelle de la marge. C’est la même base que la capacité du plan.')}</div><div class="v ${reste<0?'neg':'pos'}">${reste<0?'−':'+'}${eur(Math.abs(reste))}</div></div></div>
    <div class="sub w" style="margin-top:6px">Après les charges fixes, il reste <b style="color:var(--txt)">${eur(Q.eMoy-Q.fixe)}</b> par mois pour payer la marchandise et l'imprévu ; vous en avez payé ${eur(Q.march+Q.ponct+Q.div)}.</div>
    ${court?`<button class="btn sec" data-go="stk:rel">Voir le détail par poste et par fournisseur</button>`:''}</div>`}
 function vueReel(){const Q=bqAgg();if(!Q)return '<div class="carte">Relevés bancaires non chargés.</div>';const B=Q.B,ch=jsonEt('tr_charges',[]);
@@ -1583,7 +1588,7 @@ function vueEngagements(){const V=V6();if(!V)return pasAudit();const E=jsonEt('e
   const T=V.tresor;
   const S=crSyn(),mg=((A.margeMensuelle||[]).slice(-1)[0]||{}).mg||0,envM=R?R.W.slice(0,4).reduce((a,w)=>a+Math.max(0,w.env),0):0;
   const QB=bqAgg(),r100=v=>Math.round(v/100)*100,chM=jsonEt('tr_charges',[]);
-  const dispoM=QB?QB.eMoy-QB.fixe-QB.div-QB.ponct:null,dispoMar=dispoM!=null?Math.max(0,dispoM-(S?S.du||0:0)):null;
+  const _K=chargesMois(),dispoM=QB?(QB.eMoy*_K.f)-_K.fixe-QB.div-QB.ponct:null,dispoMar=dispoM!=null?Math.max(0,dispoM-(S?S.du||0:0)):null;
   const CONS=dispoMar!=null?{mes:r100(dispoMar*0.8),mco:r100(dispoMar*0.2),aut:r100(Math.max(QB.div+QB.ponct,1000))}:{mes:r100(envM*0.8),mco:r100(envM*0.2),aut:r100(mg*0.02)};
   const DU={sal:chM.filter(c=>c.cat==='sal').reduce((s,c)=>s+(+c.montant||0),0),imp:chM.filter(c=>c.cat==='imp').reduce((s,c)=>s+(+c.montant||0),0),loy:chM.filter(c=>c.cat==='loy').reduce((s,c)=>s+(+c.montant||0),0),det:S?S.du||0:0,pro:chM.filter(c=>c.cat==='pro').reduce((s,c)=>s+(+c.montant||0),0)};
   const payeOct=QB?((QB.S.find(x=>x.cat==='grossiste')||{m:[0,0,0,0]}).m[3]+(QB.S.find(x=>x.cat==='marchandises')||{m:[0,0,0,0]}).m[3]):null;
@@ -1766,7 +1771,18 @@ function pasScenarios(){const P=PA();if(!P)return null;const R=P.ant;
   const E2=sm(1)+sm(2)+sm(3);
   return {S1,dbl,pay,S2:sc[1][1],exc:exc.sort((a,b)=>b[1]-a[1]),E:E2,S3:sc[2][1],lea:lea.sort((a,b)=>b[1]-a[1]),L,S4:sc[3][1],cca,S5:sc[4][1],AJ,sc}}
 const PROFILS=[['Linéaire',[10,10,10,10,10,10,10,10,10,10]],['Progressif (minimum légal les premières années)',[2,3,5,5,10,15,15,15,15,15]]];
-function pasCapa(){const Q=bqAgg();if(!Q)return null;const ev=evtMensuelNet(),m0=Q.eMoy-Q.sMoy;return {m0,ev,m:m0-ev,a:12*(m0-ev),a0:12*m0,Q}}
+/* ================= 6.40 : UN SEUL CALCUL MENSUEL — partagé par le plan, la trésorerie, les engagements, l'accueil =================
+   Charges fixes = votre liste « Charges mensuelles » (Trésorerie), qui part des relevés et que vous pouvez modifier (loyer, salaires…)
+   + changements de gestion (embauches, départs, contrats). Marge encaissée = relevés août-septembre, ajustée à l'évolution
+   réelle de la marge Vindilis depuis ces mois-là (si le CA et la marge montent, la capacité monte). */
+function caFacteurs(){const MM=(A&&A.margeMensuelle)||[];const last=MM.slice(-2);const ref=MM.filter(x=>x.m==='2026-08-01'||x.m==='2026-09-01');const n1=last.map(x=>MM.find(z=>z.m===(+x.m.slice(0,4)-1)+x.m.slice(4)));
+  const s=a=>a.reduce((t,x)=>t+(x?x.ca:0),0);return {rel:ref.length===2&&s(ref)?s(last)/s(ref):1,n1:n1.every(Boolean)&&s(n1)?s(last)/s(n1):1}}
+function margeFacteur(){const MM=(A&&A.margeMensuelle)||[];const ref=MM.filter(x=>x.m==='2026-08-01'||x.m==='2026-09-01');const last=MM.slice(-2);
+  if(ref.length<2||last.length<2)return 1;const r=ref.reduce((s,x)=>s+x.mg,0),l=last.reduce((s,x)=>s+x.mg,0);return r?l/r:1}
+function chargesMois(){const Q=bqAgg();if(!Q)return null;const ch=jsonEt('tr_charges',[]),saisi=ch.reduce((s,c)=>s+(+c.montant||0),0);
+  const base=ch.length&&saisi>=0.5*Q.fixe?saisi:Q.fixe,ev=evtMensuelNet(),f=margeFacteur(),varM=Q.sMoy-Q.fixe;const dispo0=(Q.eMoy-varM)*f;
+  return {Q,releves:Q.fixe,saisi,base,ev,fixe:base+ev,varM,f,dispo0,capa:dispo0-base-ev,capa0:dispo0-base}}
+function pasCapa(){const K=chargesMois();if(!K)return null;const m0=K.capa0,ev=K.ev;return {m0,ev,m:m0-ev,a:12*(m0-ev),a0:12*m0,Q:K.Q,K}}
 function cartePassifAccueil(){const P=PA();if(!P)return '';const S=pasScenarios();const j=Math.round((new Date(P.limiteVerif)-new Date(auj()))/864e5);
   return `<div class="carte" style="border-left:6px solid var(--violet,#7b4fd6)"><b>⚖️ Passif : ${eur(S.S1)} déclarés</b><div class="sub w">${eur(S.S1-S.sc[1][1])} de corrections prouvées par les pièces, le bilan et vos relevés (loyers futurs de contrats poursuivis, intérêts ajoutés, doublon, créances payées) ; ${eur(S.sc[1][1]-S.sc[2][1])} de plus à confirmer. Position à rendre avant le ${dfr(P.limiteVerif)} (dans ${j} jours).</div><button class="mini" data-go="pas:ctr">Ouvrir ›</button></div>`}
 function cartePasAFaire(){const L=(toutes()||[]).filter(a=>/^Passif/.test(a.theme||'')||['A76'].includes(a.id));if(!L.length)return '';const P=prioListe();const r=id=>{const x=P.find(z=>z.id===id);return x?x:null};
@@ -1856,13 +1872,24 @@ function blocOnglet(){const E=ECO(),C=cibleMois();if(!E||!C)return '';const pc=v
   else if(vue==='cou')ici=`Chaque 1 000 € de CA en plus = ≈ ${eur(1000*E.tx)} de marge disponible pour payer les factures.`;
   else ici=ligneTrajectoire();
   return `<div class="sub w" style="margin-top:6px;border-top:1px solid var(--ligne);padding-top:6px">${tete} ${ici}</div>`}
+function carteLiens(){const K=chargesMois(),E=ecoBase(),C=cibleMois();if(!K||!E)return '';const v=x=>`<b style="color:var(--txt)">${x}</b>`;
+  const R=[['Chiffre d’affaires et marge réels (Vindilis, chaque mois)',`marge encaissée × ${K.f.toLocaleString('fr-FR',{maximumFractionDigits:2})} vs août-sept.`,'capacité du plan, ce que vous pouvez payer (encaissements), CA nécessaire, objectifs de chaque onglet, priorités'],
+   ['Vos charges mensuelles (Trésorerie : salaires, loyer, URSSAF, contrats…)',`${eur(K.base)} / mois`,'capacité du plan, CA nécessaire, ce que vous pouvez payer (jour du prélèvement), trésorerie 13 semaines, budget des engagements, « reste / mois »'],
+   ['Changements de gestion (embauche, départ, contrat, dette)',`${K.ev>0?'+':''}${eur(K.ev)} / mois`,'les mêmes, plus les objectifs de l’équipe (départ = retiré des objectifs et de l’organigramme)'],
+   ['Hausse de loyer Carmila du 08/11/2027','41 600 € / an','capacité du plan et CA nécessaire (case du simulateur)'],
+   ['Soldes Caisse d’Épargne / BPGO','saisis sur l’accueil','ce que vous pouvez payer, factures payables, trésorerie 13 semaines, synthèse'],
+   ['Paiements du suivi RJ (versements)','en direct','reste dû, ce que vous pouvez payer, trésorerie'],
+   ['Corrections et remises du passif, plan choisi',`reste ${eur(E.P1)}`,'annuité, CA nécessaire (phase 3), apport'],
+   ['Trajectoire de CA (Objectifs & mois)',`ce mois ${C?'+'+C.pct.toLocaleString('fr-FR',{maximumFractionDigits:1})+' %':'—'}`,'paliers de l’équipe, part de chaque laboratoire, seuil des promotions et animations, clients à capter'],
+   ['Actions faites / ouvertes',`${eur(ECO().pot)} de marge / an en jeu`,'priorités (pondérées par le manque de CA et la trésorerie), part de chaque onglet']];
+  return `<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">🔗 Ce qui est relié à quoi (vérifié le 19/10/2026)</summary><div class="tw"><table class="t"><tr><th>Ce que vous changez</th><th class="n">Valeur actuelle</th><th>Ce qui se recalcule</th></tr>${R.map(r=>`<tr><td>${r[0]}</td><td class="n">${v(r[1])}</td><td class="sub">${r[2]}</td></tr>`).join('')}</table></div><div class="sub w">Seuls les achats de stock restent calés sur le CA réel (pas sur l’objectif), pour ne pas immobiliser de trésorerie.</div></details>`}
 function filRouge(){const E=ECO();if(!E)return '';const g=ONG_GO[vue],L=g?prioListe().filter(x=>String(x.go||'').split(':')[0]===g):[];
   const mgT=L.filter(x=>x.nat==='marge'||x.nat==='clients').reduce((s,x)=>s+(+x.val||0),0)*12,trT=L.filter(x=>x.nat==='tresorerie').reduce((s,x)=>s+(+x.val||0),0)*12;
   const pc=v=>(v>0?'+':'')+(v*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';
   const plan=E.manque>0?`il manque <b class="neg">${eur(E.manque)} de marge par an</b> pour payer le plan (${eur(E.annu)}/an sur 10 ans ; capacité ${eur(E.capA)}/an) : soit <b style="color:var(--txt)">+${eur(E.caReq)} de CA par an (${pc(E.pct)}), ≈ ${eur(E.jour)} de plus par jour d'ouverture</b> au taux de marge actuel`:`la capacité couvre le plan (${eur(E.capA)}/an pour ${eur(E.annu)}/an) : chaque euro de CA en plus accélère le remboursement`;
   const ici=g?(L.length?`Dans cet onglet : ${L.length} action(s) ouverte(s) ≈ <b style="color:var(--txt)">${eur(mgT)} de marge par an</b>${mgT?` (= ${eur(mgT/E.tx)} de CA)`:''}${trT?` + ${eur(trT)}/an de trésorerie`:''}${E.manque&&mgT?` → ${pc(mgT/E.manque).replace('+','')} du manque`:''}.`:'Dans cet onglet : aucune action chiffrée ouverte.'):`Toutes les actions ouvertes : ≈ ${eur(E.pot)} de marge par an${E.manque?` = ${pc(E.pot/E.manque).replace('+','')} du manque`:''}.`;
   return `<div class="carte" style="border-left:6px solid var(--vert2);margin-bottom:8px"><details><summary style="cursor:pointer"><b>🎯 Fil rouge : chiffre d'affaires</b> <span class="sub">${eur(E.ca)} sur 12 mois${E.tend!=null?' ('+pc(E.tend)+' vs N−1)':''} · ${(()=>{const C=cibleMois();return C?'objectif du mois <b style="color:var(--txt)">+'+C.pct.toLocaleString('fr-FR',{maximumFractionDigits:1})+' % (≈ +'+eur(C.jour)+'/jour)</b> · plan : +'+(E.pct*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %':''})()}</span></summary>${blocOnglet()}
-   <div class="sub w" style="margin-top:6px">Chiffre d'affaires HT des 12 derniers mois (Vindilis, ${moisFr(E.moisDe)} → ${moisFr(E.moisA)}) : <b style="color:var(--txt)">${eur(E.ca)}</b>, marge ${eur(E.mg)} (${(E.tx*100).toLocaleString('fr-FR',{maximumFractionDigits:1})} %)${E.tendM!=null?', marge '+pc(E.tendM)+' vs les 12 mois précédents':''}. Avec le plan choisi dans <span class="lien" data-go="pas:plan">Passif & plan</span> (sans hausse de CA), ${plan}. ${ici} Tout changement (solde, charge, départ, remise, action faite) recalcule ces chiffres et l'ordre des priorités.</div></details></div>`}
+   <div class="sub w" style="margin-top:6px">Chiffre d'affaires HT des 12 derniers mois (Vindilis, ${moisFr(E.moisDe)} → ${moisFr(E.moisA)}) : <b style="color:var(--txt)">${eur(E.ca)}</b>, marge ${eur(E.mg)} (${(E.tx*100).toLocaleString('fr-FR',{maximumFractionDigits:1})} %)${E.tendM!=null?', marge '+pc(E.tendM)+' vs les 12 mois précédents':''}. Avec le plan choisi dans <span class="lien" data-go="pas:plan">Passif & plan</span> (sans hausse de CA), ${plan}. ${ici} Tout changement (solde, charge, départ, remise, action faite) recalcule ces chiffres et l'ordre des priorités.</div>${carteLiens()}</details></div>`}
 function pasSimCalc(p0){const p={...PAS_DEF,...p0};const S=pasScenarios(),PL=PA().plan,C=pasCapa();const base=S.sc[p.niv][1];const cca=(p.cca&&p.niv<4)?213317.47:0;
   const priv=PL.privil.reduce((s,x)=>s+x[1],0)-(p.niv>=2?PL.regul:0),sup=PL.superp;const P0=base-cca,chiro=Math.max(0,P0-priv-sup);
   const remise=chiro*(p.acc/100)*(p.rem/100),P1=P0-remise;const ventes=PL.ca-126533;
