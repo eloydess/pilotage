@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.37';
+const APP_V='6.38';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -3008,6 +3008,11 @@ function vueChal(){const C=A&&A.challenges;if(!C)return '<div class="carte"><p c
   const form='<div class="titre">Formations</div>'+vueForm();
   const al=`<div class="carte"><b>Écarts relevés dans le fichier challenge (${C.alertes.length})</b><div class="sub w">Ici, les boîtes sont recomptées colonne par colonne ; le fichier, lui, a parfois un total tapé à la main. À faire corriger par la personne qui tient le fichier avant le prochain versement.</div><ul class="sub" style="margin:6px 0 0 18px;line-height:1.5">${C.alertes.map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>`;
   return kp+cle+clas+'<div class="titre">Challenges : détail</div>'+evo+labs+tri+al+form}
+/* Départs : coût réel lu sur les bulletins (code RH), reporté partout sur décision du titulaire */
+function carteDepartsRH(){if(!PAIE)return '';const S=evtEtat();const L=evts().filter(e=>e.type==='depart'&&e.qui);if(!L.length)return '';
+  return `<div class="carte" style="border-left:6px solid var(--violet,#7b4fd6)"><b>👋 Départs : ce que ça change sur les charges</b><div class="sub w">Coût employeur (salaire brut + charges patronales) = moyenne des 3 derniers bulletins complets avant le départ. Tant qu'il n'est pas reporté, le plan, la trésorerie et la capacité de paiement ne le connaissent pas (le montant reste protégé par le code RH).</div>
+   ${L.map(e=>{const c=coutPaie(e.qui),rep=(S[e.id]||{}).montant;const ok=rep!=null&&c!=null&&Math.abs(rep-c)<1;return `<div class="ligne" style="display:block;margin-top:6px"><b>${esc(e.lib)}</b><div class="sub">${c==null?'Bulletins introuvables pour ce collaborateur.':`Coût employeur moyen : <b style="color:var(--txt)">${eur2(c)} par mois</b>, soit ${eur(c*12)} par an d'économie à partir du ${dfr(e.debut)}.`} ${ok?'<b class="pos">✅ Reporté partout</b>':rep!=null?'Montant reporté : '+eur2(rep)+' /mois':''}</div>${c!=null&&!ok?`<button class="btn" data-rep="${esc(e.id)}" data-mt="${c.toFixed(2)}" style="margin-top:4px">Reporter cette économie partout (plan, trésorerie, capacité de paiement)</button>`:''}</div>`}).join('')}</div>`}
+document.addEventListener('click',e=>{const t=e.target;if(t&&t.dataset&&t.dataset.rep){t.disabled=true;evtMaj(t.dataset.rep,{montant:+t.dataset.mt})}});
 /* ---------- Collaborateurs : coût, masse salariale / marge, ventes par vendeur (code RH) ---------- */
 let sousCol='annee',sousColAvant='annee',RHXtente=false;
 function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
@@ -3068,6 +3073,7 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
        <div class="sub w" style="margin-top:6px">Coût employeur et heures : bulletins de paie de la même période (rapprochement par le prénom). « — » : pas de bulletin trouvé (titulaire, intérimaire, stagiaire, ou prénom différent).</div></div>`}).join('')+
        `<div class="carte al"><b class="t">Bien lire ces chiffres</b><div class="sub w">La marge d'une ordonnance dépend du médecin, pas du vendeur : on juge un collaborateur surtout sur le <b>sans ordonnance</b> (conseil, parapharmacie, panier) et sur la marge par vente. Les postes (caisse rapide, ordonnances, réception) ne sont pas comparables entre eux : comparer des personnes au même poste.</div></div>`}
   }
+  h=carteDepartsRH()+h;
   $('#m').innerHTML=nav+h+`<button class="btn sec" id="lock" style="margin-top:6px">🔒 Verrouiller</button>`;bind();
   document.querySelectorAll('#fan button').forEach(b=>b.onclick=()=>{anneeCol=b.dataset.a;collaborateurs()});
   document.querySelectorAll('.colf').forEach(b=>b.onclick=()=>{const c=b.dataset.c,{parC}=equipeAnnees(P);if(c.startsWith('§')){sousColAvant=sousCol;ficheCol=c;sousCol='fiche';collaborateurs();scrollTo(0,0);return}const k=parC[c]?c:Object.keys(parC).find(n=>sansAcc(n).split(' ')[0]===sansAcc(c).split(' ')[0]);const kk=k||((ficheRh(c)||resp(c))?c:null);if(!kk){toast('Aucune fiche pour '+c);return}sousColAvant=sousCol;ficheCol=kk;sousCol='fiche';collaborateurs();scrollTo(0,0)});
