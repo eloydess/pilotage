@@ -850,7 +850,11 @@ function facturesManquantes(force){
   }, function(m){ FACT_AUTO.enCours = false; FACT_AUTO.msg = 'Recherche des factures impossible : ' + m; afficherTreso(); });
 }
 function soldesActualises(){ return !!(TRESO && TRESO.soldes && Object.keys(TRESO.soldes).some(function(b){ return TRESO.soldes[b] && TRESO.soldes[b].actuel != null; })); }
-function soldeDe(b){ var s = TRESO.soldes[b]; if (!s) return null; return s.actuel != null ? s.actuel : s.montant; }
+function isoJ(v){ var s=String(v||''); var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s); if(m) return m[0]; m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(s); return m? m[3]+'-'+m[2]+'-'+m[1] : ''; }
+function soldeDe(b){ var s = TRESO.soldes[b]; if (!s) return null; if (s.actuel == null || !s.depuis || !s.depuis.liste) return s.actuel != null ? s.actuel : s.montant;
+  var base = s.saisi != null ? +s.saisi : +s.montant, dS = isoJ(s.date); var ded = 0;
+  s.depuis.liste.forEach(function(v){ var dv = isoJ(v.quand) || isoJ(v.date); if (!dS || !dv || dv >= dS) ded += (+v.montant || 0); });
+  return base - ded; }
 function detailSolde(b){
   var s = TRESO.soldes[b]; if (!s || s.actuel == null) return '';
   var d = s.depuis || { total: 0, liste: [], sansMontant: [] };

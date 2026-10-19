@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.38';
+const APP_V='6.39';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -994,6 +994,10 @@ async function chargerCR(force){const j=crJeton();if(!j){crErr='code';return fal
 const crNb=v=>{if(v==null||v==='')return null;if(typeof v==='number')return v;let s=String(v).replace(/\s|€/g,'');if(s.lastIndexOf(',')>s.lastIndexOf('.'))s=s.replace(/\./g,'').replace(',','.');else s=s.replace(/,/g,'');const n=parseFloat(s);return isNaN(n)?null:n};
 const crISO=v=>{const s=String(v||'');let m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s);if(m)return m[0];m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(s);return m?m[3]+'-'+m[2]+'-'+m[1]:''};
 const crProche=(a,b)=>{const n=x=>String(x||'').toUpperCase().normalize('NFD').replace(/[^A-Z]/g,'');a=n(a);b=n(b);return !!a&&!!b&&a.length>=4&&b.length>=4&&(a.indexOf(b.slice(0,5))>=0||b.indexOf(a.slice(0,5))>=0)};
+/* Solde estimé maintenant = solde saisi − virements faits APRÈS le jour de la saisie.
+   Un virement daté d'avant la saisie était déjà débité : on ne le retire pas une 2e fois (même s'il a été noté plus tard). */
+function soldeReel(s){if(!s)return null;const base=s.saisi!=null?+s.saisi:(s.montant!=null?+s.montant:null);if(s.actuel==null||!s.depuis||!Array.isArray(s.depuis.liste))return s.actuel!=null?s.actuel:base;
+  const dS=crISO(s.date)||'';const ded=s.depuis.liste.filter(v=>{const dv=crISO(v.quand)||crISO(v.date)||'';return !dS||!dv||dv>=dS}).reduce((t,v)=>t+(+v.montant||0),0);return base-ded}
 /* Synthèse unique utilisée par tous les onglets */
 function crSyn(){if(!CR||!CR.fiches)return null;const F=CR.fiches,T=CR.treso||{lignes:[],soldes:{}},av=F.filter(f=>f['Statut']==='À valider'),today=auj();
   const pr={Urgente:0,Haute:0,Moyenne:0,Basse:0};av.forEach(f=>{pr[f['Priorité']]=(pr[f['Priorité']]||0)+1});
@@ -1001,7 +1005,7 @@ function crSyn(){if(!CR||!CR.fiches)return null;const F=CR.fiches,T=CR.treso||{l
   const ages=av.map(f=>jours(crISO(f['Date mail']))).filter(x=>x!==null),vieux=av.filter(f=>(jours(crISO(f['Date mail']))||0)>3);
   const traitesAuj=F.filter(f=>f['Statut']!=='À valider'&&crISO(f['Date validation'])===today).length;
   const L=T.lignes||[],act=!!(T.soldes&&Object.keys(T.soldes).some(b=>T.soldes[b]&&T.soldes[b].actuel!=null));
-  const sd=b=>{const s=(T.soldes||{})[b];return s?(s.actuel!=null?s.actuel:s.montant):null};
+  const sd=b=>soldeReel((T.soldes||{})[b]);
   let du=0,duDed=0,nDu=0,sansMt=0,du1=0;L.forEach(l=>{if(l.du!=null){du+=l.du;nDu++;if(String(l.priorite)==='1')du1+=Math.max(0,l.du)}else sansMt++;if(act&&l.du>0&&(l.validation||l.preuve))duDed+=l.du});
   const sC=sd('CEBPL'),sB=sd('BPGO'),tot=(sC||0)+(sB||0);
   const liv=(T.attenteLivraison||[]).map(x=>({...x,j:jours(crISO(x.preuve))})),livRet=liv.filter(x=>x.j!==null&&x.j>10&&!/🟢|⚪/.test(x.livraison||''));
