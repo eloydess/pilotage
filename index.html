@@ -157,12 +157,12 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 </head>
 <body>
 <header><h1 id="ht">Pilotage</h1><span id="maj"></span><button id="bRech" aria-label="Rechercher" onclick="if(D)rechercheGlobale()">🔍</button><button id="bMsg" aria-label="Laisser une remarque ou une idée" onclick="panneauMsg()">💬</button><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
-<main id="m"></main>
+<div id="fil" style="padding:0 12px"></div><main id="m"></main>
 <nav id="nav"></nav>
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.35';
+const APP_V='6.36';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -261,6 +261,7 @@ function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;if(!D._opsTout
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
 function libererCarte(){if(typeof MAPC!=='undefined'&&MAPC){try{MAPC._onZoomTransitionEnd=()=>{};MAPC._animatingZoom=false;MAPC.stop();MAPC.off();MAPC.remove()}catch(e){}MAPC=null}}
 function rendre(){libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
+  try{const f=document.getElementById('fil');if(f)f.innerHTML=vue==='cfg'?'':filRouge();if(f)brancherLiens()}catch(e){}
   ({acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,pas:passifV,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
@@ -562,7 +563,7 @@ async function chargerEtat(){const c=cfg();if(!c.code)return;try{const r=await f
 async function majEtat(k,v){const av=ETAT[k];ETAT[k]=v;ls.set('pil_etat',JSON.stringify(ETAT));
   if(!(await poster({action:'etat_set',cle:k,valeur:v}))){if(av===undefined)delete ETAT[k];else ETAT[k]=av;ls.set('pil_etat',JSON.stringify(ETAT));return false}toutRecalculer();return true}
 /* Après toute saisie : on vide les caches de calcul et on redessine l'écran affiché (tous les autres onglets se recalculent à l'ouverture) */
-let _trT=null;function toutRecalculer(){clearTimeout(_trT);_trT=setTimeout(()=>{try{_prC=null}catch(e){}try{pastilles()}catch(e){}const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.type!=='checkbox')return;const y=scrollY;rendre();scrollTo(0,y)},350)}
+let _trT=null;function toutRecalculer(){clearTimeout(_trT);_trT=setTimeout(()=>{try{_prC=null;_ecoC=null}catch(e){}try{pastilles()}catch(e){}const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.type!=='checkbox')return;const y=scrollY;rendre();scrollTo(0,y)},350)}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')chargerEtat()});
 const actFaite=id=>ETAT['act_'+id]==='1';
 const joursAv=d=>{const j=jours(d);return j===null?'':j>0?'en retard de '+j+' j':j===0?'aujourd\'hui':'dans '+(-j)+' j'};
@@ -792,7 +793,7 @@ function vueObjectifs(){if(!A)return pasAudit();const c=objCfg(),cur=auj().slice
   const atteints=L.filter(x=>x.mg!==null&&x.m<cur).map(x=>niveau(x.mg,paliers(x).mg)).filter(n=>n!==null);
   const lev=toutes().filter(a=>!actFaite(a.id)&&['Stock & commandes','Prix & promotions','Événements & écrans','Réseaux sociaux','Merchandising'].includes(a.theme)).sort((a,b)=>String(a.quand).localeCompare(String(b.quand))).slice(0,8);
   const ms=L.map(x=>x.m);
-  return `<div class="carte"><b>Objectifs du mois : pharmacie et équipe</b><div class="sub w">Trois paliers par mois, en marge et en clients (le chiffre d'affaires est donné pour information). <b>Minimum</b> = faire au moins autant que le même mois de l'an dernier ; <b>Objectif</b> = +${String(c.o).replace('.',',')} % ; <b>Très bien</b> = +${String(c.tb).replace('.',',')} %. ${c.valide?'<b class="pos">Paliers validés par le titulaire.</b>':'<b style="color:var(--orange)">Pourcentages proposés, à valider par le titulaire</b> (bouton en bas).'}</div></div>
+  return `<div class="carte"><b>Objectifs du mois : pharmacie et équipe</b><div class="sub w">Trois paliers par mois, en marge et en clients (le chiffre d'affaires est donné pour information). <b>Minimum</b> = faire au moins autant que le même mois de l'an dernier ; <b>Objectif</b> = +${String(c.o).replace('.',',')} % ; <b>Très bien</b> = +${String(c.tb).replace('.',',')} %. ${c.valide?'<b class="pos">Paliers validés par le titulaire.</b>':'<b style="color:var(--orange)">Pourcentages proposés, à valider par le titulaire</b> (bouton en bas).'}${(()=>{try{const E=ecoBase();if(!E)return '';const need=E.pct*100;return ` <b style="color:var(--txt)">Lien avec le plan :</b> pour le financer sans apport, il faut ${E.manque>0?'<b class="'+(need>c.o?'neg':'pos')+'">+'+need.toLocaleString('fr-FR',{maximumFractionDigits:1})+' % de CA</b> sur l’année (≈ '+eur(E.jour)+' de plus par jour d’ouverture) : l’objectif de +'+String(c.o).replace('.',',')+' % '+(need>c.o?'ne suffit pas, le palier « Très bien » (+'+String(c.tb).replace('.',',')+' %) '+(need>c.tb?'non plus':'oui'):'suffit'):'aucune hausse (capacité suffisante)'}.`}catch(e){return ''}})()}</div></div>
    <div class="carte no-print" style="display:flex;align-items:center;gap:8px;padding:8px 10px;flex-wrap:wrap"><select id="moSel" style="flex:1;min-width:180px;margin:0">${ms.map(m=>`<option value="${m}" ${m===moisObj?'selected':''}>${moisFr(m)}${m===cur?' (en cours)':''}</option>`).join('')}</select><button class="mini" id="bPrint">🖨️ Imprimer / PDF pour la réunion</button></div>
    ${p.mg?`<div class="carte"><b style="text-transform:capitalize">${moisFr(moisObj)} — marge</b>${real!==null?` <span class="badge" style="background:${NIV[niveau(proj??real,p.mg)][1]};color:#fff">${enC?'Au rythme actuel : ':''}${NIV[niveau(proj??real,p.mg)][0]}</span>`:''}
      ${jauge(real,proj,p.mg,eur)}
@@ -1493,7 +1494,8 @@ function prioListe(){if(_prC&&A&&Date.now()-_prT<3000)return _prC;const L=[];
     L.push({k:'act',id:a.id,titre:a.titre,go:a.go||'act',val:v,nat:a.nat||'marge',eff:a.eff||2,j:j===null?-20:j,pq:a.pq||a.enjeu||'',claude:/claude/i.test(a.qui||''),qui:a.qui||'',st})});
   (incidences()||[]).filter(enCoursInc).forEach(i=>{const d=INC_DEF.find(x=>x[0].test(i.id))||[null,150,'marge',''];
     L.push({k:'inc',id:i.id,inc:i,titre:i.txt.length>170?i.txt.slice(0,167)+'…':i.txt,go:i.go||i.src,val:i.v!=null?i.v:d[1],nat:d[2],eff:1,j:i.sev==='rouge'?0:-7,pq:d[3],claude:false,qui:'',st:(incEtat()[i.id]||{}).st||'nv'})});
-  L.forEach(x=>{const U=x.j>0?2:x.j>=-2?1.7:x.j>=-7?1.4:x.j>=-14?1.15:x.j>=-30?1:.8;x.U=U;x.score=(x.val||0)*U/EFF[x.eff][2]});
+  let EB=null;try{EB=ecoBase()}catch(e){}let CP=null;try{CP=capacite()}catch(e){}const bM=EB&&EB.manque>0?1+Math.min(1,EB.pct*4):1,bT=CP&&CP.cap<0?1.6:1;
+  L.forEach(x=>{const U=x.j>0?2:x.j>=-2?1.7:x.j>=-7?1.4:x.j>=-14?1.15:x.j>=-30?1:.8;x.U=U;x.boost=(x.nat==='marge'||x.nat==='clients')?bM:x.nat==='tresorerie'?bT:1;x.score=(x.val||0)*U*x.boost/EFF[x.eff][2]});
   L.sort((a,b)=>b.score-a.score);if(!A){_prC=null}let r=0;L.forEach(x=>{if(x.claude){x.band='C';return}r++;x.rang=r;x.band=r<=5?'P1':r<=15?'P2':'P3'});
   if(A){_prC=L;_prT=Date.now()}return L}
 const rangDe=id=>{const x=prioListe().find(z=>z.id===id);return x&&x.rang?x.rang:null};
@@ -1811,6 +1813,25 @@ function vuePasLea(){const P=PA(),Lz=P.leasing;if(!Lz)return '<p class="vide">An
     <div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Position :</b> ${esc(c.arg)}</div></div>`}).join('')}`}
 let pasSim=null,pasFin=null;
 const PAS_DEF={niv:3,cca:true,rem:0,acc:0,caPct:0,mPts:0,charges:0,loyer:true,apport:0,coussin:0};
+/* ================= 6.36 : FIL ROUGE — le chiffre d'affaires relie tous les onglets =================
+   Un seul modèle : CA et marge réels (12 derniers mois Vindilis), capacité de remboursement (relevés + changements de gestion),
+   plan choisi dans le simulateur. Il donne le CA qu'il faut en plus pour tenir le plan, et chaque onglet affiche sa part. */
+let _ecoC=null,_ecoT=0;
+function ecoBase(){if(_ecoC&&Date.now()-_ecoT<1500)return _ecoC;const MM=(A&&A.margeMensuelle)||[],P=PA();if(MM.length<6||!P)return null;
+  const L=MM.slice(-12),n=L.length,ca=L.reduce((s,x)=>s+x.ca,0)*12/n,mg=L.reduce((s,x)=>s+x.mg,0)*12/n,tx=mg/ca;
+  const L0=MM.slice(-24,-12),caN1=L0.length>=12?L0.reduce((s,x)=>s+x.ca,0):null,mgN1=L0.length>=12?L0.reduce((s,x)=>s+x.mg,0):null;
+  const base=pasSim||{...PAS_DEF,rem:50,acc:60};const r=pasSimCalc({...base,caPct:0,mPts:0,apport:base.apport||0});
+  const annu=r.Pp/10,manque=Math.max(0,annu-r.capA),caReq=manque/tx;
+  _ecoC={ca,mg,tx,caN1,mgN1,tend:caN1?ca/caN1-1:null,tendM:mgN1?mg/mgN1-1:null,capA:r.capA,annu,manque,caReq,pct:caReq/ca,jour:caReq/300,mgJour:manque/300,P1:r.Pp,p:base,moisDe:L[0].m,moisA:L[n-1].m};_ecoT=Date.now();return _ecoC}
+function ECO(){const b=ecoBase();if(!b)return null;const L=prioListe().filter(x=>x.nat==='marge'||x.nat==='clients');const pot=L.reduce((s,x)=>s+(+x.val||0),0)*12;return {...b,pot,potCA:pot/b.tx,couvre:b.manque?pot/b.manque:null}}
+const ONG_GO={acc:null,act:null,prio:null,cou:'cou',lab:'lab',pro:'pro',stk:'stk',pas:'pas',eve:'eve',ecr:'ecr',con:'con',col:'col',mois:'mois'};
+function filRouge(){const E=ECO();if(!E)return '';const g=ONG_GO[vue],L=g?prioListe().filter(x=>String(x.go||'').split(':')[0]===g):[];
+  const mgT=L.filter(x=>x.nat==='marge'||x.nat==='clients').reduce((s,x)=>s+(+x.val||0),0)*12,trT=L.filter(x=>x.nat==='tresorerie').reduce((s,x)=>s+(+x.val||0),0)*12;
+  const pc=v=>(v>0?'+':'')+(v*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';
+  const plan=E.manque>0?`il manque <b class="neg">${eur(E.manque)} de marge par an</b> pour payer le plan (${eur(E.annu)}/an sur 10 ans ; capacité ${eur(E.capA)}/an) : soit <b style="color:var(--txt)">+${eur(E.caReq)} de CA par an (${pc(E.pct)}), ≈ ${eur(E.jour)} de plus par jour d'ouverture</b> au taux de marge actuel`:`la capacité couvre le plan (${eur(E.capA)}/an pour ${eur(E.annu)}/an) : chaque euro de CA en plus accélère le remboursement`;
+  const ici=g?(L.length?`Dans cet onglet : ${L.length} action(s) ouverte(s) ≈ <b style="color:var(--txt)">${eur(mgT)} de marge par an</b>${mgT?` (= ${eur(mgT/E.tx)} de CA)`:''}${trT?` + ${eur(trT)}/an de trésorerie`:''}${E.manque&&mgT?` → ${pc(mgT/E.manque).replace('+','')} du manque`:''}.`:'Dans cet onglet : aucune action chiffrée ouverte.'):`Toutes les actions ouvertes : ≈ ${eur(E.pot)} de marge par an${E.manque?` = ${pc(E.pot/E.manque).replace('+','')} du manque`:''}.`;
+  return `<div class="carte" style="border-left:6px solid var(--vert2);margin-bottom:8px"><details><summary style="cursor:pointer"><b>🎯 Fil rouge : chiffre d'affaires</b> <span class="sub">${eur(E.ca)} sur 12 mois${E.tend!=null?' ('+pc(E.tend)+' vs N−1)':''} · ${E.manque>0?'<b class="neg">+'+eur(E.jour)+'/jour de CA nécessaires</b>':'<b class="pos">plan couvert</b>'}</span></summary>
+   <div class="sub w" style="margin-top:6px">Chiffre d'affaires HT des 12 derniers mois (Vindilis, ${moisFr(E.moisDe)} → ${moisFr(E.moisA)}) : <b style="color:var(--txt)">${eur(E.ca)}</b>, marge ${eur(E.mg)} (${(E.tx*100).toLocaleString('fr-FR',{maximumFractionDigits:1})} %)${E.tendM!=null?', marge '+pc(E.tendM)+' vs les 12 mois précédents':''}. Avec le plan choisi dans <span class="lien" data-go="pas:plan">Passif & plan</span> (sans hausse de CA), ${plan}. ${ici} Tout changement (solde, charge, départ, remise, action faite) recalcule ces chiffres et l'ordre des priorités.</div></details></div>`}
 function pasSimCalc(p0){const p={...PAS_DEF,...p0};const S=pasScenarios(),PL=PA().plan,C=pasCapa();const base=S.sc[p.niv][1];const cca=(p.cca&&p.niv<4)?213317.47:0;
   const priv=PL.privil.reduce((s,x)=>s+x[1],0)-(p.niv>=2?PL.regul:0),sup=PL.superp;const P0=base-cca,chiro=Math.max(0,P0-priv-sup);
   const remise=chiro*(p.acc/100)*(p.rem/100),P1=P0-remise;const ventes=PL.ca-126533;
