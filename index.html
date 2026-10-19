@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.31';
+const APP_V='6.32';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1753,11 +1753,30 @@ function pasSimCalc(p0){const p={...PAS_DEF,...p0};const S=pasScenarios(),PL=PA(
   return {p,base,cca,priv,sup,P0,chiro,remise,P1,Pp,capA,capBase:C?C.a:0,gCA,gM,gain,hl,lin:Pp/10,prog:Pp*0.15,maxLin:Math.max(0,capA)*10,besoin,besoinTot:besoin+(+p.coussin||0)}}
 function pasFinCalc(f){const PL=PA().plan;const r=pasSimCalc(pasSim);const VE=f.ve,dettes=r.P1;const pre=Math.max(0,VE-dettes);const pct=f.mt>0?f.mt/(pre+f.mt):0;
   const rach=y=>f.mt*Math.pow(1+f.tri/100,y);const ann=(t,n)=>t>0?f.mt*(t/100)/(1-Math.pow(1+t/100,-n)):f.mt/n;return {pre,pct,rach,ann,dettes}}
+function pasDeroule(h,x,S,PL){const p=x.p,AJ=S.AJ||[],l=(t,v,c,b)=>`<tr${b?' style="border-top:2px solid var(--ligne)"':''}><td class="${c||''}">${t}</td><td class="n ${c||''}">${v}</td></tr>`;let run=S.S1;
+  let h1=l('<b>Départ : total déclaré sur le site du mandataire</b><div class="sub">159 créances antérieures, montants des créanciers (vos propres montants n’en font que '+eur(PA().ant.reduce((s,y)=>s+(y.dir||0),0))+')</div>','<b>'+eur2(S.S1)+'</b>');
+  const NV=['','Corrections prouvées (pièces, bilan, relevés)','Corrections à confirmer ou qui dépendent de votre décision','Contestations abouties (hypothèse haute)','Compte courant échu bloqué pendant le plan'];
+  for(let n=1;n<=Math.min(p.niv,4);n++){const L=AJ.filter(a=>a.niv===n);h1+=`<tr><td colspan="2" class="sub" style="padding-top:6px"><b>Étape ${n} · ${NV[n]}</b></td></tr>`+L.map(a=>{run-=a.m;return l('− '+esc(a.lib),'−'+eur2(a.m),'sub')}).join('')+l('= après l’étape '+n,eur2(run))}
+  if(x.cca){run-=x.cca;h1+=l('− Votre compte courant échu, bloqué pendant le plan (non remboursé pendant 10 ans)','−'+eur2(x.cca),'sub')}
+  h1+=l('<b>= Passif retenu pour le plan</b>','<b>'+eur2(x.P0)+'</b>','',1);
+  const regul=p.niv>=2?PL.regul:0;
+  h1+=`<tr><td colspan="2" class="sub" style="padding-top:6px"><b>Qui est payé en priorité</b></td></tr>`+PL.privil.map(q=>l('Privilégié : '+esc(q[0]),eur2(q[1]),'sub')).join('')+(regul?l('− « régularisation » URSSAF déjà retirée à l’étape 2','−'+eur2(regul),'sub'):'')+l('Superprivilège des salaires (AGS)',eur2(x.sup),'sub')+l('= Chirographaires (créanciers sans garantie) : passif retenu − privilégiés − superprivilège',eur2(x.chiro));
+  if(x.remise>0)h1+=l(`− Remise : ${p.rem} % accordée par les créanciers représentant ${p.acc} % des chirographaires (${eur(x.chiro)} × ${p.acc} % × ${p.rem} %)`,'−'+eur2(x.remise),'sub');
+  h1+=l('<b>= Reste à payer dans le plan</b>','<b>'+eur2(x.P1)+'</b>','',1);
+  let h2=l('Capacité de remboursement actuelle (relevés août-septembre : encaissements − toutes les dépenses courantes) × 12',eur2(x.capBase));
+  if(x.gCA)h2+=l(`+ Ventes hors honoraires +${p.caPct} % (${eur(PL.ca-126533)} × ${p.caPct} % × taux de marge 27,51 %)`,'+'+eur2(x.gCA),'sub');
+  if(x.gM)h2+=l(`+ Taux de marge +${p.mPts} point sur les ventes (${eur((PL.ca-126533)*(1+p.caPct/100))} × ${p.mPts} %)`,'+'+eur2(x.gM),'sub');
+  if(+p.charges)h2+=l('+ Baisse des charges','+'+eur2(+p.charges),'sub');
+  if(x.hl)h2+=l('− Hausse du loyer à partir du 08/11/2027 (fin de l’allègement Carmila)','−'+eur2(x.hl),'sub');
+  h2+=l('<b>= Capacité par an</b>','<b>'+eur2(x.capA)+'</b>','',1)+l('× 10 ans (durée maximale d’un plan, art. L. 626-12)',eur2(Math.max(0,x.capA)*10));
+  h2+=l('<b>Apport nécessaire = reste à payer − 10 ans de capacité</b>',`<b>${eur2(x.besoin)}</b><div class="sub">${eur(x.P1)} − ${eur(Math.max(0,x.capA)*10)}</div>`,'',1);
+  return `<div style="background:var(--fond2,#f6f7f9);border-radius:10px;padding:8px"><b>${h[0]} · ${esc(h[1])} : le calcul pas à pas</b><div class="tw" style="margin-top:4px"><table class="t">${h1}</table></div><div class="sub w" style="margin-top:8px"><b>Capacité et apport</b></div><div class="tw"><table class="t">${h2}</table></div><button class="mini" data-hyp2="${h[0]}" style="margin-top:6px">Charger ${h[0]} dans le simulateur ›</button></div>`}
 function vuePasPlan(){const P=PA(),PL=P.plan,S=pasScenarios(),C=pasCapa(),B=PL.bail;if(!pasSim)pasSim={...PAS_DEF,rem:50,acc:60,caPct:8,mPts:1};const r=pasSimCalc(pasSim),p=r.p;
   const ok=r.capA>=r.lin;const ligne=(l,v,cls)=>`<tr><td>${l}</td><td class="n ${cls||''}">${v}</td></tr>`;
   const j=Math.round((new Date('2026-11-07')-new Date(auj()))/864e5);
   const HYP=[
-   ['H1','Plan sans aménagement',{niv:2,cca:false}],
+   ['H0','Passif brut du site du mandataire, sans aucune correction',{niv:0,cca:false}],
+   ['H1','Plan sans aménagement (passif corrigé, sans remise)',{niv:2,cca:false}],
    ['H2','Toutes les corrections + compte courant bloqué',{niv:3,cca:true}],
    ['H3','H2 + remise de 50 % acceptée par 60 % des chirographaires',{niv:3,cca:true,rem:50,acc:60}],
    ['H4','H3 + marge : ventes +8 % et +1 point de taux de marge',{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1}],
@@ -1778,8 +1797,8 @@ function vuePasPlan(){const P=PA(),PL=P.plan,S=pasScenarios(),C=pasCapa(),B=PL.b
    <div class="sub w">Conséquence pour le plan : à partir du 08/11/2027, le loyer coûte ${eur(B.hausse)} de plus par an qu’aujourd’hui ; le simulateur le retranche de votre capacité (case cochée par défaut).</div></div>
   <div class="carte"><b>📐 Combien faut-il pour entrer dans le plan ?</b><div class="sub w">Méthode : reste à payer dans le plan − 10 ans de capacité de remboursement = apport nécessaire. Capacité de départ : ${C?eur(C.a):'—'} par an d’après vos relevés (août-septembre, toutes charges courantes payées), moins la hausse de loyer de 2027. Les remises, taux d’acceptation, hausses de marge et baisses de charges sont des hypothèses de travail.</div>
    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Hypothèse</th><th class="n">Reste à payer</th><th class="n">Capacité/an</th><th class="n">Apport nécessaire</th></tr>
-   ${hr.map(([h,x])=>`<tr data-hyp2="${h[0]}" style="cursor:pointer"><td><b>${h[0]}</b> · ${esc(h[1])}</td><td class="n">${eur(x.P1)}</td><td class="n ${x.capA>0?'':'neg'}">${eur(x.capA)}</td><td class="n"><b>${eur(x.besoin)}</b></td></tr>`).join('')}</table></div>
-   <div class="sub w">Touchez une ligne pour la charger dans le simulateur. Lecture : sans hausse de marge, il faudrait entre 1,7 et 2,9 M€ d’argent frais, hors de portée. Le plan devient finançable seulement en combinant corrections, remises, hausse de la marge et baisse des charges (H4 : environ 394 000 € d’apport ; H5 et H6 : aucun apport). Tout repose donc sur l’exploitation, avec un apport limité en appui ; la vente reste la solution de repli à préparer en parallèle.</div></div>
+   ${hr.map(([h,x])=>`<tr data-hypd="${h[0]}" style="cursor:pointer"><td><b style="color:var(--vert2)">${h[0]} ▸</b> · ${esc(h[1])}</td><td class="n">${eur(x.P1)}</td><td class="n ${x.capA>0?'':'neg'}">${eur(x.capA)}</td><td class="n"><b>${eur(x.besoin)}</b></td></tr><tr id="hd${h[0]}" style="display:none"><td colspan="4">${pasDeroule(h,x,S,PL)}</td></tr>`).join('')}</table></div>
+   <div class="sub w"><b style="color:var(--txt)">Point de départ commun : ${eur2(S.S1)}</b>, total des 159 créances antérieures déclarées sur le site du mandataire (H0). « Sans aménagement » (H1) ne veut pas dire « brut » : c'est ce total, moins les corrections prouvées et à confirmer, remboursé à 100 % sur 10 ans sans remise. Touchez une hypothèse pour voir le calcul pas à pas, depuis le total du site. Lecture : sans hausse de marge, il faudrait entre 1,7 et 2,9 M€ d’argent frais, hors de portée. Le plan devient finançable seulement en combinant corrections, remises, hausse de la marge et baisse des charges (H4 : environ 394 000 € d’apport ; H5 et H6 : aucun apport). Tout repose donc sur l’exploitation, avec un apport limité en appui ; la vente reste la solution de repli à préparer en parallèle.</div></div>
   <div class="carte" id="pasSimC"><b>🧮 Simulateur</b>
    <div class="sub w" style="margin-top:6px">Passif retenu</div><select id="psNiv" style="width:100%">${S.sc.map((s,i)=>`<option value="${i}"${i===p.niv?' selected':''}>${esc(s[0])} : ${eur(s[1])}</option>`).join('')}</select>
    <label class="sub w" style="display:block;margin-top:6px"><input type="checkbox" id="psCca"${p.cca?' checked':''}${p.niv>=4?' disabled':''}> Bloquer votre compte courant (213 317,47 €) pendant le plan</label>
@@ -1828,7 +1847,8 @@ function brancherPasPlan(){const g=id=>document.getElementById(id);if(!g('psNiv'
   g('psNiv').onchange=e=>{pasSim.niv=+e.target.value;re()};g('psCca').onchange=e=>{pasSim.cca=e.target.checked;re()};g('psLoy').onchange=e=>{pasSim.loyer=e.target.checked;re()};
   [['psRem','rem'],['psAcc','acc'],['psCa','caPct'],['psMp','mPts'],['psCh','charges'],['psApp','apport'],['psCou','coussin']].forEach(([i,k])=>g(i).onchange=e=>{pasSim[k]=+e.target.value||0;pasFin=null;re()});
   [['pfMt','mt'],['pfVe','ve'],['pfTri','tri'],['pfAns','ans'],['pfTx','taux'],['pfDu','dur']].forEach(([i,k])=>g(i).onchange=e=>{pasFin[k]=+e.target.value||0;re()});
-  document.querySelectorAll('[data-hyp2]').forEach(b=>b.onclick=()=>{const H={H1:{niv:2,cca:false},H2:{niv:3,cca:true},H3:{niv:3,cca:true,rem:50,acc:60},H4:{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1},H5:{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1,charges:60000},H6:{niv:3,cca:true,rem:60,acc:70,caPct:8,mPts:1,charges:60000}}[b.dataset.hyp2];pasSim={...PAS_DEF,...H};pasFin=null;passifV();const c=g('pasSimC');if(c)c.scrollIntoView()})}
+  document.querySelectorAll('[data-hypd]').forEach(b=>b.onclick=()=>{const r=g('hd'+b.dataset.hypd);if(!r)return;const v=r.style.display==='none';r.style.display=v?'':'none';b.querySelector('b').textContent=b.dataset.hypd+(v?' ▾':' ▸')});
+  document.querySelectorAll('[data-hyp2]').forEach(b=>b.onclick=()=>{const H={H0:{niv:0,cca:false},H1:{niv:2,cca:false},H2:{niv:3,cca:true},H3:{niv:3,cca:true,rem:50,acc:60},H4:{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1},H5:{niv:3,cca:true,rem:50,acc:60,caPct:8,mPts:1,charges:60000},H6:{niv:3,cca:true,rem:60,acc:70,caPct:8,mPts:1,charges:60000}}[b.dataset.hyp2];pasSim={...PAS_DEF,...H};pasFin=null;passifV();const c=g('pasSimC');if(c)c.scrollIntoView()})}
 function vuePasBil(){const B=(PA()||{}).bilan;if(!B)return '<p class="vide">Bilan non chargé</p>';const f=v=>typeof v==='number'&&Math.abs(v)<100&&v%1?String(v).replace('.',',')+' %':eur(v);
   return `<div class="carte"><b>📊 Comptes annuels</b><div class="sub w">${esc(B.source)}. Exercice du 1er avril au 31 mars.</div>
    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Poste</th>${B.sig.cols.map(c=>`<th class="n">${esc(c)}</th>`).join('')}</tr>${B.sig.lignes.map(l=>`<tr><td>${esc(l[0])}</td>${l.slice(1).map(v=>`<td class="n ${typeof v==='number'&&v<0?'neg':''}">${f(v)}</td>`).join('')}</tr>`).join('')}</table></div>
