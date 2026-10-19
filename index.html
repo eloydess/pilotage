@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.29';
+const APP_V='6.30';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -2815,10 +2815,44 @@ async function equipe(){
   $('#ret').onclick=collaborateurs; $('#selM').onchange=e=>{moisRh=e.target.value;equipe()};
   $('#lock').onclick=()=>{ss.del('pil_code2');PAIE=null;mois();toast('Détail RH verrouillé')};
 }
+/* ---------- Équipe : challenges et formations (v6.30) ---------- */
+function vueChal(){const C=A&&A.challenges;if(!C)return '<div class="carte"><p class="vide">Fichier challenge non chargé.</p></div>';
+  const P=C.personnes,M=C.equipeMois,mf=m=>moisFr(m+'-01'),dec=v=>num(v)===null?'—':(+v).toLocaleString('fr-FR',{maximumFractionDigits:1});
+  const totB=M.reduce((s,x)=>s+x.boites,0),totG=M.reduce((s,x)=>s+x.gains,0),der=M[M.length-1],prem=M[0],moy=totB/M.length;
+  const med=C.med100,reg=P.filter(p=>p.nbMois>=6&&p.pour100!==null),fort=reg.filter(p=>p.pour100>=med*1.5&&p.dernier===M[M.length-1].m),faible=reg.filter(p=>p.pour100<med*0.6).sort((a,b)=>b.estConseil-a.estConseil);
+  const L=C.labs,top3L=L.slice(0,3),part3=top3L.reduce((s,l)=>s+l.tot,0)/L.reduce((s,l)=>s+l.tot,0),petits=L.filter(l=>l.tot<30);
+  const actifs=P.filter(p=>p.dernier===der.m);
+  const kp=`<div class="carte"><b>Challenges laboratoires : janvier → ${mf(der.m)}</b><div class="sub w">Source : ${esc(C.source)}. Une boîte = un produit du laboratoire challengé vendu par la personne et noté dans le fichier.</div>
+   <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Boîtes challengées (${M.length} mois)</div><div class="v">${ent(totB)}</div><div class="sub">${ent(moy)} par mois en moyenne</div></div>
+   <div class="kpi"><div class="l">Gains notés pour l'équipe</div><div class="v">${eur(totG)}</div><div class="sub">versés par les laboratoires, le complément par le titulaire</div></div>
+   <div class="kpi"><div class="l">${mf(der.m)}</div><div class="v">${ent(der.boites)}</div><div class="sub">${der.participants} participants · ${pct((der.boites-moy)/moy,1)} vs la moyenne</div></div>
+   <div class="kpi"><div class="l">Meilleur mois</div><div class="v">${(()=>{const b=M.reduce((a,x)=>x.boites>a.boites?x:a);return ent(b.boites)+'</div><div class="sub">'+mf(b.m)})()}</div></div></div></div>`;
+  const cle=`<div class="carte al"><b class="t">Ce qu'il faut en retenir, du plus important au moins important</b><div class="sub w" style="line-height:1.55">
+   1. <b>Avant de verser les gains du 3ᵉ trimestre</b> : le fichier contient <b>${C.alertes.length} écarts</b> (totaux tapés à la main qui ne correspondent pas aux colonnes, une formule qui additionne toute la colonne NHCO dans la case de Reber en juillet, bilans trimestriels ≠ somme des mois). Détail en bas de page.<br>
+   2. <b>Des gros vendeurs conseil vendent peu de produits challengés</b> : ${faible.map(p=>`${esc(p.nom)} ${dec(p.pour100)}`).join(', ')} boîtes pour 100 ventes conseil, contre <b>${dec(med)}</b> pour la médiane de l'équipe. C'est là que se trouve le plus de boîtes à gagner : formation laboratoire ciblée (action A94).<br>
+   3. <b>Ceux qui entraînent l'équipe</b> : ${fort.map(p=>`${esc(p.nom)} (${dec(p.pour100)} pour 100, ${p.top3} fois dans le top 3)`).join(', ')}.<br>
+   4. <b>Personnes absentes du fichier</b> alors qu'elles vendent du conseil (Vindilis, ${esc(C.vindPeriode)}) : ${C.sansChallenge.sort((a,b)=>b.ventesLibre-a.ventesLibre).map(x=>`${esc(x.nom)} (${ent(x.ventesLibre)} ventes conseil)`).join(', ')}. À vérifier : nouvelle arrivée, départ, ou oubli.<br>
+   5. <b>Trois laboratoires font ${pct(part3)} des boîtes</b> : ${top3L.map(l=>`${esc(l.lab)} ${ent(l.tot)}`).join(', ')}. ${petits.length} challenges ont fait moins de 30 boîtes en tout (${petits.map(l=>esc(l.lab)+' '+ent(l.tot)).join(', ')}) : à arrêter ou à relancer avec une formation.<br>
+   6. <b>Creux de l'été</b> : ${ent(M.find(x=>x.m.endsWith('-08')).boites)} boîtes en août contre ${ent(M.find(x=>x.m.endsWith('-06')).boites)} en juin ; reprise en septembre (${ent(der.boites)}).<br>
+   7. <b>Formations</b> : le fichier des formations n'est pas encore branché. Dès qu'il le sera, chaque ligne ci-dessous montrera les formations suivies, pour appliquer la règle « pas de formation, pas de challenge ».</div></div>`;
+  const clas=`<div class="carte"><b>Classement des collaborateurs</b><div class="sub w">« Pour 100 ventes conseil » = boîtes challengées ÷ ventes sans ordonnance de la personne (Vindilis, 12 mois ramenés au nombre de mois présents dans le fichier) × 100. C'est le chiffre qui compare des personnes qui ne passent pas le même temps au comptoir. Médiane de l'équipe : <b>${dec(med)}</b>. Calculé seulement pour les personnes présentes au moins 6 mois.</div>
+   <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Collaborateur</th><th class="n">Mois</th><th class="n">Boîtes</th><th class="n">Par mois</th><th class="n">Pour 100 ventes conseil</th><th class="n">Écart à la médiane</th><th class="n">Gains notés</th><th class="n">Top 3</th><th>Laboratoires les plus vendus</th></tr>
+   ${P.map(p=>{const ok=p.nbMois>=6&&p.pour100!==null,e=ok?p.pour100-med:null;return `<tr><td><b>${esc(p.nom)}</b>${p.dernier!==der.m?`<div class="sub">absent du fichier depuis ${mf(p.dernier)}</div>`:''}</td><td class="n">${p.nbMois}</td><td class="n"><b>${ent(p.boites)}</b>${p.boitesDecl!==p.boites?`<div class="sub">fichier : ${ent(p.boitesDecl)}</div>`:''}</td><td class="n">${dec(p.parMois)}</td><td class="n">${ok?`<b>${dec(p.pour100)}</b><div class="sub">${ent(p.boites)} / ${ent(p.estConseil)}</div>`:'<span class="sub">—</span>'}</td><td class="n ${e===null?'':e>=0?'pos':'neg'}">${e===null?'—':(e>0?'+':'')+dec(e)}</td><td class="n">${eur2(p.gains)}</td><td class="n">${p.top3||'—'}</td><td class="sub">${p.labs.slice(0,3).map(l=>esc(l[0])+' '+ent(l[1])).join(' · ')}</td></tr>`}).join('')}
+   <tr><td><b>Équipe</b></td><td></td><td class="n"><b>${ent(totB)}</b></td><td></td><td class="n">${dec(med)} (médiane)</td><td></td><td class="n"><b>${eur2(totG)}</b></td><td></td><td></td></tr></table></div></div>
+   <div class="chart2"><div class="carte"><b>Boîtes challengées par personne (${M.length} mois)</b>${barresH(P.map(p=>[p.nom,[[p.boites,'var(--vert2)']],'',ent(p.boites)]))}</div>
+   <div class="carte"><b>Pour 100 ventes conseil</b>${barresH(reg.slice().sort((a,b)=>b.pour100-a.pour100).map(p=>[p.nom,[[p.pour100,p.pour100>=med?'var(--vert2)':'var(--orange)']],'',dec(p.pour100)]))}${legende([['Au-dessus de la médiane','var(--vert2)'],['En dessous','var(--orange)']])}</div></div>`;
+  const evo=`<div class="carte"><b>Mois par mois : équipe</b>${barresH(M.map(x=>[mf(x.m),[[x.boites,'var(--bleu)']],'',ent(x.boites)+' · '+eur(x.gains)]))}
+   <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Mois</th><th class="n">Boîtes</th><th class="n">Gains notés</th><th class="n">Participants</th><th>Top 3 du fichier</th><th>Challenges du mois</th></tr>${M.slice().reverse().map(x=>`<tr><td style="text-transform:capitalize">${mf(x.m)}</td><td class="n">${ent(x.boites)}</td><td class="n">${eur2(x.gains)}</td><td class="n">${x.participants} / ${x.inscrits}</td><td>${x.top3.map(esc).join(', ')}</td><td class="sub">${x.labs.map(esc).join(', ')}</td></tr>`).join('')}</table></div></div>`;
+  const labs=`<div class="carte"><b>Par laboratoire : ce que chaque challenge a fait vendre</b><div class="sub w">« Part du 1ᵉʳ » : part des boîtes vendues par le meilleur vendeur. Au-dessus de 50 %, le challenge repose sur une seule personne.</div><div class="tw" style="margin-top:6px"><table class="t"><tr><th>Laboratoire</th><th class="n">Boîtes</th><th class="n">Mois actifs</th><th class="n">Vendeurs</th><th>Meilleurs vendeurs</th><th class="n">Part du 1ᵉʳ</th></tr>
+   ${L.map(l=>`<tr><td><b>${esc(l.lab)}</b></td><td class="n">${ent(l.tot)}</td><td class="n">${l.nbMois}</td><td class="n">${l.vendeurs}</td><td class="sub">${l.top.map(t=>esc(t[0])+' '+ent(t[1])).join(' · ')}</td><td class="n ${l.partTop>0.5?'neg':''}">${pct(l.partTop)}</td></tr>`).join('')}</table></div></div>`;
+  const tri=`<div class="carte"><b>Bilans trimestriels et versements</b><div class="sub w">Tels qu'ils sont notés dans le fichier. Statut et mode de versement renseignés seulement pour le 1ᵉʳ trimestre.</div>${C.trim.map(t=>`<div style="margin-top:8px"><b>${t.t} · ${eur2(t.total)}</b> <span class="sub">top 3 : ${t.top3.map(esc).join(', ')}${t.points.length?' · '+t.points.map(esc).join(', '):''}</span><div class="tw"><table class="t"><tr><th>Collaborateur</th><th class="n">Gains</th><th class="n">Boîtes notées</th><th>Statut</th><th>Détail</th></tr>${t.rows.map(r=>`<tr><td>${esc(r.nom)}</td><td class="n">${eur2(r.gains)}</td><td class="n">${r.boites===null?'—':ent(r.boites)}</td><td>${esc(r.statut)||'<span class="sub">non renseigné</span>'}</td><td class="sub">${esc(r.detail)}</td></tr>`).join('')}</table></div></div>`).join('')}</div>`;
+  const form=`<div class="carte al o"><b class="t">Formations : fichier à brancher</b><div class="sub w">Le fichier des formations n'a pas été trouvé sur le Drive. Dès qu'il sera transmis : formations suivies par personne et par laboratoire, taux de présence aux créneaux 12 h–15 h, qui se forme le plus, et pour chaque challenge, ventes des personnes formées contre non formées (règle formation → challenge, action A52).</div></div>`;
+  const al=`<div class="carte"><b>Écarts relevés dans le fichier challenge (${C.alertes.length})</b><div class="sub w">Ici, les boîtes sont recomptées colonne par colonne ; le fichier, lui, a parfois un total tapé à la main. À faire corriger par la personne qui tient le fichier avant le prochain versement.</div><ul class="sub" style="margin:6px 0 0 18px;line-height:1.5">${C.alertes.map(a=>`<li>${esc(a)}</li>`).join('')}</ul></div>`;
+  return kp+cle+clas+evo+labs+tri+form+al}
 /* ---------- Collaborateurs : coût, masse salariale / marge, ventes par vendeur (code RH) ---------- */
 let sousCol='annee',sousColAvant='annee',RHXtente=false;
 function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
-  const nav=sousNav('scl',[['annee','📅 Équipe par année'],['orga','Organigramme'],['cout','Coût par collaborateur'],['masse','Masse salariale / marge'],['ventes','Ventes par collaborateur']],sousCol);
+  const nav=sousNav('scl',[['annee','📅 Équipe par année'],['chal','🏆 Challenges & formations'],['orga','Organigramme'],['cout','Coût par collaborateur'],['masse','Masse salariale / marge'],['ventes','Ventes par collaborateur']],sousCol);
   const bind=()=>document.querySelectorAll('#scl button').forEach(b=>b.onclick=()=>{sousCol=b.dataset.k;collaborateurs();scrollTo(0,0)});
   const code2=ss.get('pil_code2');
   if(!code2||!PAIE){
@@ -2831,6 +2865,7 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
   if(!RHX&&!RHXtente){RHXtente=true;chargerRhx(code2).then(r=>{if(r&&vue==='col')collaborateurs()})}
   let h='';
   if(sousCol==='annee')h=vueAnnee(P);
+  else if(sousCol==='chal')h=vueChal();
   else if(sousCol==='orga')h=vueOrga(P);
   else if(sousCol==='fiche')h=vueFicheCol(P);
   else if(sousCol==='cout'){
