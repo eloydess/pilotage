@@ -162,7 +162,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.42';
+const APP_V='6.43';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -215,16 +215,19 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setT
 const URL_DEF='https://script.google.com/macros/s/AKfycbyQvb6qxIQ9Z1Ah97F7UouUwmqRiXNDCr1YLzgZ7afWpVDUKwWy8KVb32nVSwM-Z0oiyg/exec';
 const cfg=()=>({url:ls.get('pil_url')||URL_DEF,code:ls.get('pil_code')||''});
 let enCours=false,derniereErreur='';
+/* 6.43 : un seul rendu groupé quand plusieurs données arrivent ; jamais pendant une saisie ; position conservée */
+let _rdT=null;function planifierRendu(){clearTimeout(_rdT);_rdT=setTimeout(()=>{const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.type!=='checkbox'&&a.type!=='button'){planifierRendu();return}try{_prC=null;_ecoC=null}catch(e){}const y=scrollY;rendre();scrollTo(0,y)},150)}
 async function charger(silencieux){
   const c=cfg(); if(!c.url||!c.code){derniereErreur='Saisissez votre code d\'accès.';reglages();return}
   if(!silencieux)toast('Actualisation…');
   enCours=true; if(!D)$('#m').innerHTML='<p class="vide">Chargement…</p>';
   try{
     const r=await fetch(c.url+'?code='+encodeURIComponent(c.code)+'&t='+Date.now());
-    const j=await r.json();
+    const txt=await r.text();const j=JSON.parse(txt);
     enCours=false;
     if(!j.ok){derniereErreur=j.err||'Erreur';toast(derniereErreur);if(/Code/.test(j.err||'')||!D)reglages();return}
-    derniereErreur=''; D=j; ls.set('pil_cache',JSON.stringify(j)); if(vue==='cfg')vue='acc'; rendre(); if(!silencieux)toast('À jour'); chargerAudit();
+    derniereErreur='';const pareil=D&&txt===ls.get('pil_cache');if(!pareil){D=j;ls.set('pil_cache',txt)}const etaitCfg=vue==='cfg';if(etaitCfg)vue='acc';
+    if(!pareil||etaitCfg)planifierRendu();if(!silencieux)toast('À jour');if(!A)chargerAudit();
   }catch(e){enCours=false;derniereErreur='Connexion impossible au serveur ('+(e&&e.message||e)+').';if(D)toast('Hors ligne : dernières données affichées');else{toast('Connexion impossible');reglages();}}
 }
 async function poster(body){
@@ -539,11 +542,22 @@ async function dechiffrer(o,code){const te=new TextEncoder();
   const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(o.iv)},k,b64d(o.data));
   if(o.gz){const st=new Blob([pt]).stream().pipeThrough(new DecompressionStream('gzip'));return JSON.parse(await new Response(st).text())}
   return JSON.parse(new TextDecoder().decode(pt))}
-async function chargerAudit(){const c=cfg();if(!c.code)return;
-  let o=null;try{const r=await fetch('audit.enc.json?t='+Date.now());if(r.ok){o=await r.json();ls.set('pil_audit',JSON.stringify(o))}}catch(e){}
-  if(!o){try{o=JSON.parse(ls.get('pil_audit')||'null')}catch(e){}}
-  if(!o){auditErr='Analyses indisponibles (hors ligne).';return}
-  try{A=await dechiffrer(o,c.code);auditErr='';majBandeau();if(D)rendre();chargerEtat()}catch(e){A=null;auditErr='Analyses illisibles avec ce code d\'accès.'}}
+/* Clé de déchiffrement gardée sur l'appareil (non exportable, IndexedDB) : évite 200 000 itérations à chaque ouverture */
+const idb=()=>new Promise((ok,ko)=>{try{const r=indexedDB.open('pil',1);r.onupgradeneeded=()=>r.result.createObjectStore('k');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error)}catch(e){ko(e)}});
+async function idbGet(k){try{const d=await idb();return await new Promise(ok=>{const t=d.transaction('k').objectStore('k').get(k);t.onsuccess=()=>ok(t.result||null);t.onerror=()=>ok(null)})}catch(e){return null}}
+async function idbSet(k,v){try{const d=await idb();d.transaction('k','readwrite').objectStore('k').put(v,k)}catch(e){}}
+async function cleAudit(o,code){const id='a|'+o.salt+'|'+o.it+'|'+code.length+'|'+[...code].reduce((h,ch)=>(h*31+ch.charCodeAt(0))|0,7);let k=await idbGet(id);
+  if(!k){const te=new TextEncoder(),km=await crypto.subtle.importKey('raw',te.encode(code),'PBKDF2',false,['deriveKey']);k=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64d(o.salt),iterations:o.it,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);idbSet(id,k)}return k}
+async function dechiffrerVite(o,code){const k=await cleAudit(o,code);const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64d(o.iv)},k,b64d(o.data));
+  if(o.gz){const st=new Blob([pt]).stream().pipeThrough(new DecompressionStream('gzip'));return JSON.parse(await new Response(st).text())}return JSON.parse(new TextDecoder().decode(pt))}
+let _audEnCours=false;
+async function chargerAudit(){const c=cfg();if(!c.code||_audEnCours)return;_audEnCours=true;
+  try{let o=null;try{o=JSON.parse(ls.get('pil_audit')||'null')}catch(e){}
+    if(o&&!A){try{A=await dechiffrerVite(o,c.code);auditErr='';majBandeau();planifierRendu();chargerEtat()}catch(e){A=null}}
+    let n=null;try{const r=await fetch('audit.enc.json?frais=1',{cache:'no-cache'});if(r.ok)n=await r.json()}catch(e){}
+    if(n&&(!o||n.data!==o.data||!A)){try{const a=await dechiffrerVite(n,c.code);A=a;ls.set('pil_audit',JSON.stringify(n));auditErr='';majBandeau();planifierRendu();chargerEtat()}catch(e){if(!A)auditErr='Analyses illisibles avec ce code d\'accès.'}}
+    if(!A&&!n&&!o)auditErr='Analyses indisponibles (hors ligne).'}
+  finally{_audEnCours=false}}
 function majBandeau(){const m=$('#maj');if(m)m.textContent=A?'Analyses du '+A.majLib.replace(/^\w+ /,'').replace(' 2026',''):''}
 const pc1=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %');
 const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
@@ -3170,7 +3184,8 @@ function formulaire(sheet,x){
 /* ---------- Démarrage ---------- */
 $('#bRef').onclick=()=>charger();
 try{const c=ls.get('pil_cache'); if(c)D=JSON.parse(c)}catch(e){}
-rendre(); charger(!!D); chargerAudit();
+rendre(); chargerAudit(); charger(!!D);
+if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='maj'){const b=document.getElementById('majApp');if(b)return;document.body.insertAdjacentHTML('beforeend','<div id="majApp" style="position:fixed;left:12px;right:12px;bottom:12px;z-index:99;background:var(--vert2);color:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,.25);font-size:14px">Nouvelle version prête. <b style="text-decoration:underline;cursor:pointer" onclick="location.reload()">Toucher pour l’appliquer</b></div>')}});
 // Ouverture directe d'une fiche depuis la vue 3D : index.html?ouvrir=SURFACE_VENTE&cle=TG01
 (function(){try{const q=new URLSearchParams(location.search),sh=q.get('ouvrir'),k=q.get('cle');if(!D||!sh||!k)return;
   const l=sh==='SURFACE_VENTE'?D.surface:sh==='ECRANS'?D.ecrans:null;if(!l)return;
