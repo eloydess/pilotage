@@ -254,7 +254,7 @@
     "quand": "2026-10-20T18:00",
     "ou": "Instagram",
     "impact": 1,
-    "txt": "Reel d'annonce (10 à 15 s) sur l'extrait chanté « Allô ? Il est arrivé ? » de la chanson du 1er reel : photos du calendrier en zoom, texte à l'écran « Il est de retour ! · Samedi 24 octobre · dès 14h30 · quantité limitée, 1 par personne », fin sur l'adresse ; légende avec les prochaines dates (7, 14, 21 et 28 novembre). + story avec l'autocollant « Compte à rebours » réglé sur samedi 14h30."
+    "txt": "Reel d'annonce (21 s, refrain « Allô ? Il est arrivé ? ») : gros plan sur le calendrier puis zoom arrière lent jusqu'au sakura ; texte « OUI ! Il est de retour ! · Samedi 24 octobre · dès 14h30 · quantité limitée, 1 par personne ». Légende sans les dates suivantes (pour garder l'urgence) : « D'autres ventes suivront : abonnez-vous pour être prévenu(e) en premier ». + story « Compte à rebours » réglée sur samedi 14h30 (à faire depuis l'application Instagram du téléphone)."
    },
    {
     "id": "e2",
@@ -378,6 +378,6 @@
     "Dernière vente : week-end du Black Friday, 3 jours avant le 1er décembre"
    ]
   ],
-  "sessionsRegle": "Ce qui n'est pas vendu un samedi reste en vente jusqu'à 20h, puis s'ajoute au samedi suivant. Pas de vente après le 28 novembre : le calendrier s'ouvre le 1er décembre."
+  "sessionsRegle": "Ce qui n'est pas vendu un samedi reste en vente jusqu'à 20h, puis s'ajoute au samedi suivant. Pas de vente après le 28 novembre : le calendrier s'ouvre le 1er décembre. Ne pas annoncer les dates suivantes à l'avance : la date suivante est annoncée après chaque vente."
  }
 }
