@@ -2888,6 +2888,7 @@ function vueRS(){if(!RS)return '';const I=RS.instagram,T=RS.tiktok,O=RS.operatio
    <div style="margin-top:8px;font-size:14px">${RS.lecture.map(t=>'• '+esc(t)).join('<br>')}</div></div>
   ${O?`<div class="carte al v" id="rsOp"><b class="t">📅 ${esc(O.titre)} — ${dfr(O.date)} dès ${esc(O.heure)}</b>
    <div class="sub w">${esc(O.premiereSession)} ${O.quantite?`Calendriers mis en vente : <b>${ent(O.quantite)}</b>.`:`<b style="color:var(--orange)">${esc(O.quantiteNote)}</b>`}</div>
+   ${O.sessions?`<div class="tw" style="margin-top:8px"><table class="t"><tr><th>Samedi</th><th class="n">Calendriers</th><th>Pourquoi</th></tr>${O.sessions.map(x=>`<tr${x[0]===O.date?' style="font-weight:700"':''}><td>${dfr(x[0])}</td><td class="n">${x[1]?ent(x[1]):'—'}</td><td class="sub w">${esc(x[2])}</td></tr>`).join('')}<tr><td><b>Total</b></td><td class="n"><b>${ent(O.sessions.reduce((t,x)=>t+x[1],0))}</b>${O.stock?' / '+ent(O.stock):''}</td><td></td></tr></table></div><div class="sub w" style="margin-top:4px">${esc(O.sessionsRegle||'')}</div>`:''}
    ${prochaine?`<div style="margin-top:6px;font-size:14px">Par quoi commencer : <b>${esc(prochaine.ou)}</b> — ${esc(prochaine.txt.split(' : ')[0].split('. ')[0])}</div>`:'<div style="margin-top:6px"><b class="pos">Toutes les étapes sont faites ✓</b></div>'}
    <div class="sub" style="margin-top:6px">${faits}/${et.length} étapes faites · cochez au fur et à mesure (visible sur téléphone et ordinateur)</div>
    <div style="margin-top:6px">${et.map(lig).join('')}</div></div>

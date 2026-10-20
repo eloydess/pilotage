@@ -245,8 +245,8 @@
   "titre": "Calendrier de l'Avent — 2e session",
   "date": "2026-10-24",
   "heure": "14h30",
-  "quantite": null,
-  "quantiteNote": "Nombre de calendriers mis en vente : à confirmer par Pierre.",
+  "quantite": 30,
+  "quantiteNote": "30 calendriers ce samedi (stock total : 132, chiffre donné par Pierre).",
   "premiereSession": "Samedi 10 octobre 2026 : 20 calendriers vendus en 20 minutes (chiffre donné par Pierre).",
   "etapes": [
    {
@@ -254,7 +254,7 @@
     "quand": "2026-10-20T18:00",
     "ou": "Instagram",
     "impact": 1,
-    "txt": "Reel d'annonce datée : « Il est de retour ! Samedi 24 octobre dès 14h30 — quantité limitée, un calendrier par personne. » + story avec l'autocollant « Compte à rebours » réglé sur samedi 14h30 (les abonnés qui le touchent reçoivent un rappel d'Instagram au moment de la vente)."
+    "txt": "Reel d'annonce (10 à 15 s) sur l'extrait chanté « Allô ? Il est arrivé ? » de la chanson du 1er reel : photos du calendrier en zoom, texte à l'écran « Il est de retour ! · Samedi 24 octobre · dès 14h30 · quantité limitée, 1 par personne », fin sur l'adresse ; légende avec les prochaines dates (7, 14, 21 et 28 novembre). + story avec l'autocollant « Compte à rebours » réglé sur samedi 14h30."
    },
    {
     "id": "e2",
@@ -344,6 +344,40 @@
     "avant": "samedi 17/10 : à relever (Vindilis)",
     "apres": ""
    }
-  ]
+  ],
+  "stock": 132,
+  "sessions": [
+   [
+    "2026-10-24",
+    30,
+    "Vacances de la Toussaint ; vente déjà prévue"
+   ],
+   [
+    "2026-10-31",
+    0,
+    "Pas de vente : Halloween et week-end de la Toussaint (1er novembre), dernier week-end des vacances"
+   ],
+   [
+    "2026-11-07",
+    30,
+    "1er samedi du mois : plus forte affluence"
+   ],
+   [
+    "2026-11-14",
+    30,
+    "2e samedi du mois : plus forte affluence"
+   ],
+   [
+    "2026-11-21",
+    22,
+    ""
+   ],
+   [
+    "2026-11-28",
+    20,
+    "Dernière vente : week-end du Black Friday, 3 jours avant le 1er décembre"
+   ]
+  ],
+  "sessionsRegle": "Ce qui n'est pas vendu un samedi reste en vente jusqu'à 20h, puis s'ajoute au samedi suivant. Pas de vente après le 28 novembre : le calendrier s'ouvre le 1er décembre."
  }
 }
