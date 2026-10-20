@@ -163,7 +163,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.46';
+const APP_V='6.47';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -3224,7 +3224,9 @@ rendre(); chargerAudit(); charger(!!D);
 /* 6.46 : sur iPhone, l'application « refermée » reste souvent en mémoire avec l'ancienne version.
    À chaque ouverture ou retour sur l'application, on vérifie la version en ligne et on recharge seule si elle a changé (sauf saisie en cours). */
 async function verifVersion(){try{const t=await fetch('index.html?frais='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'');const m=/const APP_V='([0-9.]+)'/.exec(t);
-  if(m&&m[1]!==APP_V){const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.value)return;location.replace(location.pathname+'?frais='+Date.now()+location.hash)}}catch(e){}}
+  const plus=(x,y)=>{const A=x.split('.').map(Number),B=y.split('.').map(Number);for(let i=0;i<Math.max(A.length,B.length);i++){if((A[i]||0)!==(B[i]||0))return (A[i]||0)>(B[i]||0)}return false};
+  let der=0;try{der=+sessionStorage.getItem('pil_rech')||0}catch(e){}
+  if(m&&plus(m[1],APP_V)&&Date.now()-der>60e3){try{sessionStorage.setItem('pil_rech',Date.now())}catch(e){}const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.value)return;location.replace(location.pathname+'?frais='+Date.now()+location.hash)}}catch(e){}}
 setTimeout(verifVersion,1500);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')verifVersion()});
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='maj'){const b=document.getElementById('majApp');if(b)return;document.body.insertAdjacentHTML('beforeend','<div id="majApp" style="position:fixed;left:12px;right:12px;bottom:12px;z-index:99;background:var(--vert2);color:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,.25);font-size:14px">Nouvelle version prête. <b style="text-decoration:underline;cursor:pointer" onclick="location.reload()">Toucher pour l’appliquer</b></div>')}});
 // Ouverture directe d'une fiche depuis la vue 3D : index.html?ouvrir=SURFACE_VENTE&cle=TG01
