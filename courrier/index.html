@@ -298,22 +298,23 @@ function copieLocale(){
 }
 function bandeauMaj(txt){ var b = document.getElementById('majInfo'); if (!b) { b = document.createElement('div'); b.id = 'majInfo'; b.style.cssText = 'font-size:12px;color:#667085;padding:4px 2px'; var l = document.getElementById('liste'); l.parentNode.insertBefore(b, l); } b.textContent = txt || ''; b.style.display = txt ? '' : 'none'; }
 function charger(){
-  if (!FICHES || !FICHES.length) {
-    var c = copieLocale();
-    if (c) {
-      COPIE_LOCALE = true; FICHES = c.fiches.slice(); if (c.treso && !TRESO) TRESO = c.treso;
-      FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
-      afficher();
-      bandeauMaj('⏳ Mise à jour en cours… (affichage de la copie du ' + new Date(c.t || Date.now()).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')');
-    }
+  var c = (!FICHES || !FICHES.length) ? copieLocale() : null;
+  if (c) {
+    COPIE_LOCALE = true; FICHES = c.fiches.slice(); if (c.treso && !TRESO) TRESO = c.treso;
+    if (c.decisions && c.decisions.length) DECISIONS = c.decisions;
+    FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
+    afficher();
+    /* 6.44 : copie complète lue par Pilotage il y a moins de 3 minutes → pas de nouveau chargement de toute la base */
+    if (!c.allege && c.t && Date.now() - c.t < 3*60e3 && DECISIONS && DECISIONS.length) { COPIE_LOCALE = false; bandeauMaj(''); if (!TRESO) appel('mob_tresorerie', [JETON], function(t){ TRESO = t; afficher(); }, function(){}); return; }
+    bandeauMaj('⏳ Mise à jour en cours… (affichage de la copie du ' + new Date(c.t || Date.now()).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) + ')');
   }
+  /* les deux lectures partent en même temps (avant : l'une après l'autre) */
+  if (!TRESO) appel('mob_tresorerie', [JETON], function(t){ TRESO = t; if (FICHES && FICHES.length && !COPIE_LOCALE) afficher(); }, function(){});
   appel('mob_liste', [JETON], function(r){
     bandeauMaj(''); COPIE_LOCALE = false;
     FICHES = r.fiches; DECISIONS = r.decisions;
     FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
     afficher();
-    // le suivi RJ sert aussi à repérer les doublons (relance d'une facture déjà comptée)
-    if (!TRESO) appel('mob_tresorerie', [JETON], function(t){ TRESO = t; afficher(); }, function(){});
   });
 }
 

@@ -20,7 +20,7 @@ header{position:sticky;top:0;z-index:5;background:var(--vert);color:#fff;padding
 header h1{font-size:17px;margin:0;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius:8px;padding:6px 10px;font-size:14px}
 #maj{font-size:11px;opacity:.85;white-space:nowrap}
-main{padding:12px 16px;max-width:760px;margin:auto}
+main{padding:12px 16px;max-width:760px;margin:auto}#crHold{padding:0 16px;max-width:760px;margin:-12px auto 0}
 .fige{position:sticky;top:var(--hh,52px);z-index:4;background:var(--fond);margin:0 -16px;padding:8px 16px 2px;box-shadow:0 6px 8px -8px rgba(0,0,0,.35)}.fige>.carte{margin-top:0}.fige .titre{margin:6px 0 4px}
 .leg{font-size:12px;color:var(--doux);white-space:normal;line-height:1.6}
 nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(6,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
@@ -118,6 +118,7 @@ nav#nav button .pst{position:static;margin-left:auto}
 nav::before{content:"Pilotage pharmacie";position:absolute;top:22px;left:24px;font-weight:800;color:var(--vert2);font-size:16px}
 main{max-width:1500px;padding:20px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:0 16px;align-items:start}
 main>*{grid-column:1/-1}
+#crHold{max-width:1500px;padding:0 28px;margin-top:-20px}
 main>.item,main>.reco,main>.op,main>.demi{grid-column:auto}
 .kpis{grid-template-columns:repeat(4,1fr)}
 .tuiles{grid-template-columns:repeat(4,1fr)}
@@ -157,12 +158,12 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 </head>
 <body>
 <header><h1 id="ht">Pilotage</h1><span id="maj"></span><button id="bRech" aria-label="Rechercher" onclick="if(D)rechercheGlobale()">🔍</button><button id="bMsg" aria-label="Laisser une remarque ou une idée" onclick="panneauMsg()">💬</button><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
-<div id="fil" style="padding:0 12px"></div><main id="m"></main>
+<div id="fil" style="padding:0 12px"></div><main id="m"></main><div id="crHold" style="display:none"></div>
 <nav id="nav"></nav>
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.43';
+const APP_V='6.44';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -263,7 +264,7 @@ const opsMin=()=>{const v=num(ETAT&&ETAT.ops_min);return v===null?1000:v},opsMas
 function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;if(!D._opsTout)D._opsTout=D.operations.slice();D.operations=D._opsTout.slice();const ok={},M=opsMasq();(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>=opsMin()&&!M.includes(l['Laboratoire']))ok[l['Laboratoire']]=1});
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
 function libererCarte(){if(typeof MAPC!=='undefined'&&MAPC){try{MAPC._onZoomTransitionEnd=()=>{};MAPC._animatingZoom=false;MAPC.stop();MAPC.off();MAPC.remove()}catch(e){}MAPC=null}}
-function rendre(){libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
+function rendre(){const h=document.getElementById('crHold');if(h)h.style.display='none';libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
   try{const f=document.getElementById('fil');if(f)f.innerHTML=vue==='cfg'?'':filRouge();if(f)brancherLiens()}catch(e){}
   ({acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,pas:passifV,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
 
@@ -988,31 +989,53 @@ const CR_API='https://script.google.com/macros/s/AKfycbxaL37ZTZwlNcn9G5Cf_BjdiQk
 let CR=(()=>{try{return JSON.parse(ls.get('pil_cr')||'null')}catch(e){return null}})(),crErr='',crEnCours=false,sousCou='tri';
 const crJeton=()=>{try{const j=JSON.parse(localStorage.getItem('triRJ_jeton')||'null');return j&&j.exp>Date.now()?j.v:null}catch(e){return null}};
 const crAppel=(fn,args)=>fetch(CR_API+'?t='+Date.now(),{method:'POST',cache:'no-store',body:JSON.stringify({fn,args}),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.json()).then(r=>{if(!r.ok)throw new Error(r.erreur||'Erreur');return r.data});
-function crSauver(){try{ls.set('pil_cr',JSON.stringify(CR))}catch(e){}}
+/* 6.44 : la copie du courrier ne doit jamais être perdue (sinon : rechargement complet à chaque ouverture, soldes absents).
+   Si l'appareil manque de place, on garde une copie allégée : fiches à traiter + 60 derniers jours, textes longs raccourcis. */
+function crSauver(){if(!CR)return false;const ecrire=o=>{try{localStorage.setItem('pil_cr',JSON.stringify(o));return true}catch(e){return false}};
+  if(ecrire(CR))return true;try{localStorage.removeItem('pil_cr')}catch(e){}
+  const lim=new Date(Date.now()-60*864e5).toISOString().slice(0,10),court=f=>{const o={};for(const k in f){const v=f[k];o[k]=typeof v==='string'&&v.length>600?v.slice(0,600)+'…':v}return o};
+  const F=(CR.fiches||[]).filter(f=>f['Statut']==='À valider'||(crISO(f['Date mail'])||'9999')>=lim||(crISO(f['Date validation'])||'')>=lim).map(court);
+  if(ecrire({...CR,fiches:F,allege:true}))return true;return ecrire({...CR,fiches:F.filter(f=>f['Statut']==='À valider'),allege:true})}
 /* Soldes saisis directement dans Pilotage (carte « Ce que vous pouvez payer ») */
 const reRendre=()=>{const y=scrollY;rendre();scrollTo(0,y)};
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='slBp'){(async()=>{if(await majEtat('tr_param',JSON.stringify({...trParam(),payBpgo:e.target.checked})))reRendre()})()}});
-document.addEventListener('click',e=>{if(!e.target||e.target.id!=='slOk')return;const b=e.target;(async()=>{const j=crJeton();if(!j){toast('Code Tri & RJ à entrer dans Courrier & paiements');return}
-  const R=capacite()||{},vals=[['CEBPL',crNb($('#slC').value),R.solCE],['BPGO',crNb($('#slB').value),R.solB]].filter(x=>x[1]!=null&&Math.abs(x[1]-(x[2]||0))>=0.005);
-  if(!vals.length){toast('Soldes inchangés');return}b.disabled=true;b.textContent='Enregistrement…';
-  try{for(const [bk,n] of vals){const r=await crAppel('mob_solde',[j,bk,String(n),'saisi dans Pilotage']);CR=CR||{};CR.treso=CR.treso||{lignes:[],soldes:{}};CR.treso.soldes=CR.treso.soldes||{};CR.treso.soldes[bk]={montant:r&&r.montant!=null?r.montant:n,date:r&&r.date||new Date().toLocaleString('fr-FR')}}
-    crSauver();toast('Soldes enregistrés — tout est recalculé');reRendre();chargerCR(true)}
-  catch(err){toast('Erreur : '+(err.message||err));b.disabled=false;b.textContent='Enregistrer les soldes'}})()});
+let SOLDE_TS=0,SOLDE_LOC={};
+const crConnecter=async code=>{const az={'&':'1','é':'2','"':'3',"'":'4','(':'5','-':'6','è':'7','_':'8','ç':'9','à':'0'};code=String(code||'').replace(/\s/g,'').replace(/[&é"'(\-è_çà]/g,c=>az[c]);if(!code)throw new Error('Tapez le code Tri & RJ');
+  const j=await crAppel('mob_connexion',[code]);try{localStorage.setItem('triRJ_jeton',JSON.stringify({v:j,exp:Date.now()+5.5*3600*1000}))}catch(e){}if(crErr==='code')crErr='';return j};
+document.addEventListener('click',e=>{if(!e.target||e.target.id!=='slOk')return;const b=e.target;(async()=>{
+  const vals=[['CEBPL',crNb($('#slC').value)],['BPGO',crNb($('#slB').value)]].filter(x=>x[1]!=null);
+  if(!vals.length){toast('Tapez au moins un solde (le montant affiché par votre banque)');return}
+  b.disabled=true;b.textContent='Enregistrement…';const fin=()=>{b.disabled=false;b.textContent='Enregistrer les soldes'};
+  try{let j=crJeton();if(!j){const c=$('#slCode');j=await crConnecter(c&&c.value)}
+    for(const [bk,n] of vals){let r;try{r=await crAppel('mob_solde',[j,bk,String(n),'saisi dans Pilotage'])}
+      catch(err){if(/SESSION_EXPIREE/.test(String(err&&err.message))){try{localStorage.removeItem('triRJ_jeton')}catch(_){}toast('Code Tri & RJ expiré : retapez-le dans le cadre des soldes');reRendre();return}throw err}
+      const o={montant:r&&r.montant!=null?r.montant:n,saisi:r&&r.montant!=null?r.montant:n,date:r&&r.date||new Date().toLocaleString('fr-FR')};
+      CR=CR||{};CR.treso=CR.treso||{lignes:[],soldes:{}};CR.treso.soldes=Object.assign({},CR.treso.soldes||{});CR.treso.soldes[bk]=o;SOLDE_LOC[bk]=o;SOLDE_TS=Date.now()}
+    crSauver();toast('✅ Soldes enregistrés — tout est recalculé');reRendre();if(crEnCours){/* le chargement en cours relira après coup */}else chargerCR(true)}
+  catch(err){toast('Non enregistré : '+(err.message||err));fin()}})()});
 document.addEventListener('change',e=>{const t=e.target;if(!t)return;if(t.id==='cbP1'||t.id==='cbP2'){const k=cibleCfg();k[t.id==='cbP1'?'p1':'p2']=+t.value||0;majEtat('ca_cible',JSON.stringify(k))}else if(t.id==='cbAuto'){sauverCfg({planAuto:t.checked})}});
 /* appelé par la page courrier/ à chaque mise à jour (décision, paiement, solde) */
 window.crDepuisCadre=function(d){if(!d)return;CR=Object.assign({},CR||{},{t:Date.now(),ts:Date.now()});if(d.fiches&&d.fiches.length)CR.fiches=d.fiches;if(d.treso)CR.treso=d.treso;crSauver();pastilles();
   if(vue==='acc'||vue==='stk'||vue==='pas'||(vue==='cou'&&sousCou==='syn')){const y=scrollY;rendre();scrollTo(0,y)}};
 async function chargerCR(force){const j=crJeton();if(!j){crErr='code';return false}if(crEnCours)return false;if(CR&&CR.t&&!force&&Date.now()-CR.t<2*60e3)return false;
-  crEnCours=true;try{const [l,t]=await Promise.all([crAppel('mob_liste',[j]),crAppel('mob_tresorerie',[j])]);CR={t:Date.now(),ts:Date.now(),fiches:l.fiches||[],treso:t};crErr='';crSauver()}
+  crEnCours=true;const t0=Date.now();let rejouer=false;try{let [l,t]=await Promise.all([crAppel('mob_liste',[j]),crAppel('mob_tresorerie',[j])]);
+    /* un solde enregistré pendant ce chargement est plus récent que ce que le serveur vient de renvoyer : on le garde et on relit */
+    if(SOLDE_TS>t0&&CR&&CR.treso&&CR.treso.soldes){t=t||{};t.soldes=Object.assign({},t.soldes||{});for(const bk in SOLDE_LOC)t.soldes[bk]=SOLDE_LOC[bk];rejouer=true}
+    CR={t:Date.now(),ts:Date.now(),fiches:l.fiches||[],decisions:l.decisions||[],treso:t};crErr='';crSauver()}
   catch(e){crErr=String(e&&e.message||e);if(/SESSION_EXPIREE/.test(crErr)){try{localStorage.removeItem('triRJ_jeton')}catch(_){}crErr='code'}}
-  crEnCours=false;pastilles();if(vue==='acc'||(vue==='cou'&&(sousCou==='syn'||sousCou==='tri'))||(vue==='stk'&&sousStk==='tre')){const y=scrollY;rendre();scrollTo(0,y)}return true}
+  crEnCours=false;pastilles();if(vue==='acc'||(vue==='cou'&&(sousCou==='syn'||sousCou==='tri'))||(vue==='stk'&&sousStk==='tre')||vue==='pas'){const y=scrollY;rendre();scrollTo(0,y)}if(rejouer)setTimeout(()=>chargerCR(true),1500);return true}
 const crNb=v=>{if(v==null||v==='')return null;if(typeof v==='number')return v;let s=String(v).replace(/\s|€/g,'');if(s.lastIndexOf(',')>s.lastIndexOf('.'))s=s.replace(/\./g,'').replace(',','.');else s=s.replace(/,/g,'');const n=parseFloat(s);return isNaN(n)?null:n};
 const crISO=v=>{const s=String(v||'');let m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s);if(m)return m[0];m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(s);return m?m[3]+'-'+m[2]+'-'+m[1]:''};
 const crProche=(a,b)=>{const n=x=>String(x||'').toUpperCase().normalize('NFD').replace(/[^A-Z]/g,'');a=n(a);b=n(b);return !!a&&!!b&&a.length>=4&&b.length>=4&&(a.indexOf(b.slice(0,5))>=0||b.indexOf(a.slice(0,5))>=0)};
 /* Solde estimé maintenant = solde saisi − virements faits APRÈS le jour de la saisie.
    Un virement daté d'avant la saisie était déjà débité : on ne le retire pas une 2e fois (même s'il a été noté plus tard). */
-function soldeReel(s){if(!s)return null;const base=s.saisi!=null?+s.saisi:(s.montant!=null?+s.montant:null);if(s.actuel==null||!s.depuis||!Array.isArray(s.depuis.liste))return s.actuel!=null?s.actuel:base;
-  const dS=crISO(s.date)||'';const ded=s.depuis.liste.filter(v=>{const dv=crISO(v.quand)||crISO(v.date)||'';return !dS||!dv||dv>=dS}).reduce((t,v)=>t+(+v.montant||0),0);return base-ded}
+const crTs=v=>{const x=String(v||'');let m=/^(\d{2})\/(\d{2})\/(\d{4})(?:[ ,T]+(\d{1,2}):(\d{2}))?/.exec(x);if(m)return new Date(+m[3],+m[2]-1,+m[1],+(m[4]||0),+(m[5]||0)).getTime();m=/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/.exec(x);return m?new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0)).getTime():null};
+/* Virements à retirer du solde saisi : seulement ceux partis APRÈS la saisie.
+   Un virement daté d'un jour d'avant la saisie était déjà débité (même noté plus tard). Le jour même : retiré seulement s'il a été enregistré après l'heure de la saisie. */
+function soldeDeduits(s){if(!s||!s.depuis||!Array.isArray(s.depuis.liste))return [];const dS=crISO(s.date)||'',tS=crTs(s.date);
+  return s.depuis.liste.filter(v=>{const dv=crISO(v.date)||crISO(v.quand)||'';if(!dS||!dv)return true;if(dv>dS)return true;if(dv<dS)return false;const tq=crTs(v.quand);return tS==null||tq==null||tq>tS})}
+function soldeReel(s){if(!s)return null;const base=s.saisi!=null?+s.saisi:(s.montant!=null?+s.montant:null);if(base==null)return s.actuel!=null?+s.actuel:null;
+  if(!s.depuis||!Array.isArray(s.depuis.liste))return base;return base-soldeDeduits(s).reduce((t,v)=>t+(+v.montant||0),0)}
 /* Synthèse unique utilisée par tous les onglets */
 function crSyn(){if(!CR||!CR.fiches)return null;const F=CR.fiches,T=CR.treso||{lignes:[],soldes:{}},av=F.filter(f=>f['Statut']==='À valider'),today=auj();
   const pr={Urgente:0,Haute:0,Moyenne:0,Basse:0};av.forEach(f=>{pr[f['Priorité']]=(pr[f['Priorité']]||0)+1});
@@ -1064,12 +1087,13 @@ function vueSynCourrier(){const S=crSyn();if(!S)return `<div class="carte"><b>Sy
    <div class="sub w">Données du classeur Tri & RJ ${S.maj?'(paiements mis à jour '+esc(S.maj)+')':''}, lues à ${new Date(S.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}. <span class="lien" id="crRel">Actualiser</span></div>`}
 const barre=r=>`<div style="height:8px;border-radius:4px;background:var(--ligne);margin:8px 0 4px;overflow:hidden"><div style="height:100%;width:${Math.round(Math.max(0,Math.min(1,r))*100)}%;background:var(--vert2)"></div></div>`;
 /* L'onglet : sous-onglets Boîte mail / Paiements / Courrier (page courrier/) et Synthèse (Pilotage) */
-function courrier(){$('#ht').textContent='Courrier & paiements';fab(null);
+function courrier(){$('#ht').textContent='Courrier & paiements';fab(null);{const h=$('#crHold');if(h)h.style.display='none'}
   const nav=sousNav('cs',[['tri','⚡ Traiter en série'],['mail','📬 Boîte mail'],['rj','💶 Paiements RJ'],['cr','📮 Courrier / PDF'],['syn','🧭 Synthèse et liens']],sousCou);
   if(sousCou==='tri'){if(!crJeton())crErr='code';else if(crErr==='code')crErr='';$('#m').innerHTML=nav+vueTriSerie();brancherTriSerie();chargerCR(!CR||!CR.ts||Date.now()-CR.ts>2*60e3);}
   else if(sousCou==='syn'){$('#m').innerHTML=nav+vueSynCourrier();chargerCR();}
-  else{$('#m').innerHTML=nav+`<iframe id="crF" src="courrier/?v=${APP_V}" title="Courrier et paiements" style="width:100%;border:0;display:block;background:var(--fond)"></iframe>`;
-    const f=$('#crF');f.onload=()=>{try{if(f.contentWindow.vue&&sousCou!=='mail')f.contentWindow.vue(sousCou)}catch(e){}};taillerCadre()}
+  else{$('#m').innerHTML=nav;const h=$('#crHold');let f=$('#crF');h.style.display='';
+    if(!f){h.innerHTML=`<iframe id="crF" src="courrier/?v=${APP_V}" title="Courrier et paiements" style="width:100%;border:0;display:block;background:var(--fond)"></iframe>`;f=$('#crF');f.onload=()=>{try{if(f.contentWindow.vue&&sousCou!=='mail')f.contentWindow.vue(sousCou)}catch(e){}}}
+    else{try{f.contentWindow.vue(sousCou)}catch(e){}}taillerCadre()}
   document.querySelectorAll('#cs button').forEach(b=>b.onclick=()=>{const k=b.dataset.k,f=$('#crF');
     if(k!=='syn'&&k!=='tri'&&f&&sousCou!=='syn'&&sousCou!=='tri'){sousCou=k;document.querySelectorAll('#cs button').forEach(x=>x.classList.toggle('on',x.dataset.k===k));try{f.contentWindow.vue(k)}catch(e){}return}
     sousCou=k;courrier();scrollTo(0,0)});
@@ -1440,7 +1464,11 @@ document.addEventListener('click',e=>{const t=e.target;if(!t||!t.classList)retur
     if(ty==='depart'){P.push({id,type:'depart',qui:sansAcc(qui).split(/\s+/)[0].toUpperCase(),nomC:qui,poste,lib:'Départ de '+qui+(poste?' ('+poste+')':'')+' : salaire en moins',debut:d,jour:25,montant:mt,src:'Ajouté par vous'});evtMaj('_perso',P);return}
     P.push(ty==='ponctuel'?{id,type:'ponctuel',lib,date:d,montant:mt,src:'Ajouté par vous'}:ty==='eco'?{id,type:'depart',lib,debut:d,jour:+d.slice(8)||25,montant:mt,src:'Ajouté par vous'}:{id,type:'mensuel',lib,debut:d,jour:+d.slice(8)||1,montant:mt,src:'Ajouté par vous'});evtMaj('_perso',P)}});
 document.addEventListener('change',e=>{const t=e.target;if(t&&t.classList&&t.classList.contains('evMt')){const v=crNb(t.value);if(v!=null)evtMaj(t.dataset.id,{montant:v})}});
-function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return null;
+/* 6.44 : soldes saisis lus directement dans la copie du classeur Tri & RJ, même si les fiches ne sont pas chargées */
+function crSoldes(){const T=CR&&CR.treso,So=T&&T.soldes;if(!So)return null;const c=So.CEBPL,b=So.BPGO;if(!c&&!b)return null;
+  const det=x=>{if(!x)return null;const base=x.saisi!=null?+x.saisi:(x.montant!=null?+x.montant:null),act=soldeReel(x);return {base,act,date:x.date||'',ded:base!=null&&act!=null?Math.round((base-act)*100)/100:0,liste:soldeDeduits(x)}};
+  const C=det(c),B=det(b);return {tot:1,sC:C?C.act||0:0,sB:B?B.act||0:0,dateC:C?C.date:'',dateB:B?B.date:'',C,B}}
+function capacite(){const S0=crSyn(),S=crSoldes()?Object.assign({},S0||{},crSoldes()):S0,P=trParam(),QB=bqAgg(),V=V6();if(!QB)return null;
   /* Paiements depuis la seule Caisse d'Épargne : la BPGO accumule la trésorerie et n'est pas utilisée */
   const solB=S&&S.tot?(S.sB||0):(V&&V.tresor?V.tresor.soldes.filter(s=>/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
   const sol=S&&S.tot?(S.sC||0):(V&&V.tresor?V.tresor.soldes.filter(s=>!/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
@@ -1463,12 +1491,18 @@ function capacite(){const S=crSyn(),P=trParam(),QB=bqAgg(),V=V6();if(!QB)return 
   const F=(S&&S.L||[]).filter(l=>(+l.du||0)>0).map(l=>({tiers:l.tiers,du:+l.du,p1:/1/.test(String(l.priorite||'')),val:!!String(l.validation||'').trim()||/valid/i.test(l.statut||''),dt:dIso(l.dateCommande||l.date)||'9999',statut:l.statut||''}))
     .sort((a,b)=>(b.p1-a.p1)||(b.val-a.val)||String(a.dt).localeCompare(String(b.dt)));
   let cum=0;F.forEach(f=>{cum+=f.du;f.cum=cum;let kk=-1;for(let k=0;k<N;k++){if(capAt(k)>=cum){kk=k;break}}f.des=kk});
-  return {sol,solCE,solT,inclB,solB,encCEm,dSol,dSolB:S&&S.tot?(S.dateB||''):'',J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
-function soldesEditeur(R){const j=crJeton(),v=x=>x==null?'':String(Math.round(x*100)/100).replace('.',',');
-  return `<div style="background:var(--fond2,#f6f7f9);border-radius:10px;padding:8px;margin:6px 0"><b>🏦 Vos soldes du jour</b> <span class="sub">— changez-les ici : tout se recalcule aussitôt (ce montant, la trésorerie sur 13 semaines, la synthèse, Paiements RJ)</span>
-   <div class="g2" style="margin-top:6px"><div><label>Caisse d'Épargne${R.dSol?` <span class="sub">(saisi le ${esc(String(R.dSol).slice(0,16))})</span>`:''}</label><input id="slC" inputmode="decimal" value="${v(R.solCE)}"></div><div><label>BPGO, total des 2 comptes${R.dSolB?` <span class="sub">(saisi le ${esc(String(R.dSolB).slice(0,16))})</span>`:''}</label><input id="slB" inputmode="decimal" value="${v(R.solB)}"></div></div>
+  return {sol,solCE,solT,inclB,solB,encCEm,dSol,dSolB:S&&S.tot?(S.dateB||''):'',srcSol:S&&S.tot?'saisi':'ancien',detC:S&&S.C,detB:S&&S.B,J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
+function soldesEditeur(R){const j=crJeton(),d10=x=>esc(String(x||'').slice(0,16));
+  const ligne=(nom,D,act)=>{if(!D)return `<div class="sub w">${nom} : <b class="neg">aucun solde saisi</b></div>`;
+    return `<div class="sub w">${nom} : saisi <b style="color:var(--txt)">${eur2(D.base)}</b> le ${d10(D.date)}${D.liste.length?` − ${D.liste.length} virement(s) parti(s) depuis (${eur2(D.ded)}) <details style="display:inline"><summary class="lien">détail</summary>${D.liste.map(v=>`<div>• ${esc(v.tiers||'')} — ${eur2(v.montant)} <span class="sub">(${esc(String(v.date||v.quand||'').slice(0,10))})</span></div>`).join('')}</details>`:' — aucun virement depuis'} → <b style="color:var(--txt)">${eur2(act)} aujourd'hui</b></div>`};
+  const vieux=R.srcSol!=='saisi';
+  return `<div style="background:var(--fond2,#f6f7f9);border-radius:10px;padding:8px;margin:6px 0;${vieux?'border:2px solid var(--orange)':''}"><b>🏦 Vos soldes du jour</b>
+   ${vieux?`<div class="sub w" style="color:var(--orange);font-weight:600">⚠ Vos soldes saisis ne sont pas chargés : le calcul utilise d'anciens soldes. Tapez vos soldes du jour ci-dessous.</div>`:`${ligne("Caisse d'Épargne",R.detC,R.solCE)}${ligne('BPGO (2 comptes)',R.detB,R.solB)}`}
+   <div class="g2" style="margin-top:6px"><div><label>Nouveau solde Caisse d'Épargne</label><input id="slC" inputmode="decimal" placeholder="ex. 16 740,73"></div><div><label>Nouveau solde BPGO, total des 2 comptes</label><input id="slB" inputmode="decimal" placeholder="ex. 62 076,70"></div></div>
+   ${j?'':`<div style="margin-top:6px"><label>Code Tri & RJ (demandé environ toutes les 5 h)</label><input id="slCode" inputmode="numeric" autocomplete="off" type="password"></div>`}
    <label class="sub w" style="display:block;margin-top:4px"><input type="checkbox" id="slBp" ${R.inclB?'checked':''}> Compter aussi la BPGO (vous ferez un virement BPGO → Caisse d'Épargne si besoin)</label>
-   ${j?`<button class="btn" id="slOk" style="margin-top:6px">Enregistrer les soldes</button>`:`<div class="sub w" style="margin-top:6px">Pour enregistrer : ouvrez une fois « Courrier & paiements » et entrez le code de Tri & RJ.</div>`}</div>`}
+   <button class="btn" id="slOk" style="margin-top:6px">Enregistrer les soldes</button>
+   <div class="sub w">Tapez le solde affiché par la banque au moment où vous le regardez. Les virements que vous enregistrez ensuite sont retirés automatiquement ; ceux déjà partis avant ne sont pas retirés une 2ᵉ fois.</div></div>`}
 function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,P}=R,d0=J[0].d;
   const fin=mn.d,encJ=J.filter(x=>x.d<=fin).reduce((s,x)=>s+x.enc,0),evJ=J.filter(x=>x.d<=fin).flatMap(x=>x.ev.map(e=>[x.d,...e])),outJ=evJ.reduce((s,x)=>s+x[2],0);
   const ok=cap>0;const grand=ok?eur(Math.floor(cap/100)*100):'0 €';
