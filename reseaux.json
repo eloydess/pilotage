@@ -1,0 +1,349 @@
+{
+ "releve": "2026-10-20",
+ "releveLib": "mardi 20 octobre 2026, 14h",
+ "source": "Relevé par Claude dans les statistiques Instagram (tableau de bord professionnel) et TikTok Studio, compte de la pharmacie connecté dans Chrome.",
+ "instagram": {
+  "compte": "grande_pharmacie_du_centre_sud",
+  "abonnes": 758,
+  "abonnesAvant": [
+   [
+    "avant le 10/10",
+    712,
+    "chiffre donné par Pierre, date exacte non précisée"
+   ],
+   [
+    "16/10",
+    753,
+    "chiffre donné par Pierre"
+   ],
+   [
+    "20/10",
+    758,
+    "relevé"
+   ]
+  ],
+  "j30": {
+   "vues": 2570,
+   "vuesFollowersPct": 35.4,
+   "vuesNonFollowersPct": 64.6,
+   "spectateurs": 624,
+   "parType": {
+    "Reels": 80.9,
+    "Publications": 13.1,
+    "Stories": 5.3,
+    "Vidéos": 0.7
+   },
+   "interactions": 78,
+   "comptesInteragi": 38,
+   "visitesProfil": 533,
+   "appuisLiens": 33
+  },
+  "j90": {
+   "vues": 3563,
+   "vuesFollowersPct": 30,
+   "vuesNonFollowersPct": 70,
+   "spectateurs": 657,
+   "interactions": 81,
+   "comptesInteragi": 40,
+   "visitesProfil": 623,
+   "appuisLiens": 36,
+   "contenus": 1
+  },
+  "reelCalendrier": {
+   "date": "2026-10-09",
+   "titre": "Allô ? Il est arrivé ? — calendrier de l'Avent, vente du samedi 10 octobre",
+   "vues": 1042,
+   "nonFollowersPct": 71.2,
+   "spectateurs": 584,
+   "interactions": 47,
+   "jaime": 16,
+   "commentaires": 12,
+   "enregistrements": 1,
+   "partages": 0,
+   "comptesInteragi": 30,
+   "abonnesGagnes": 10,
+   "ecart": "Instagram annonce 47 interactions mais le détail affiché (16 + 12 + 1 + 0) fait 29 ; la vidéo elle-même affiche 0 commentaire."
+  },
+  "heures": {
+   "note": "Abonnés actifs par tranche de 3 h (moyenne des 30 derniers jours). Instagram affiche les tranches 0h, 3h… 21h avec un creux à 15h–18h, impossible pour une clientèle du Mans : ces heures sont très probablement à l'heure du Pacifique (9 h de décalage avec Paris en octobre). Les heures ci-dessous sont converties en heure de Paris (+9 h) — interprétation de Claude, non indiquée par Instagram. Avec ce décalage, les tranches de 0h à 9h affichées pour un jour correspondent en réalité à la nuit et au matin du lendemain.",
+   "tranchesParis": [
+    "9h",
+    "12h",
+    "15h",
+    "18h",
+    "21h",
+    "0h",
+    "3h",
+    "6h"
+   ],
+   "jours": {
+    "Lundi": [
+     132,
+     149,
+     138,
+     158,
+     158,
+     34,
+     16,
+     103
+    ],
+    "Mardi": [
+     129,
+     151,
+     147,
+     166,
+     158,
+     36,
+     15,
+     100
+    ],
+    "Mercredi": [
+     130,
+     157,
+     144,
+     159,
+     155,
+     38,
+     17,
+     106
+    ],
+    "Jeudi": [
+     135,
+     152,
+     145,
+     160,
+     151,
+     38,
+     16,
+     106
+    ],
+    "Vendredi": [
+     136,
+     147,
+     146,
+     155,
+     142,
+     49,
+     17,
+     76
+    ],
+    "Samedi": [
+     131,
+     143,
+     145,
+     150,
+     147,
+     60,
+     19,
+     63
+    ],
+    "Dimanche": [
+     133,
+     138,
+     145,
+     166,
+     150,
+     37,
+     17,
+     99
+    ]
+   }
+  }
+ },
+ "tiktok": {
+  "compte": "pharmacie.centre.sud",
+  "abonnes": 80,
+  "publications": 9,
+  "publicationsLues": 8,
+  "j7": {
+   "vues": 184,
+   "vuesProfil": 11
+  },
+  "j60": {
+   "vues": "1,8 K",
+   "vuesProfil": 47,
+   "jaime": 11,
+   "commentaires": 0,
+   "partages": 7
+  },
+  "heuresNote": "TikTok n'affiche les heures d'activité des abonnés qu'à partir de 100 abonnés (80 aujourd'hui).",
+  "videos": [
+   {
+    "date": "2026-10-09",
+    "vues": 941,
+    "jaime": 4,
+    "com": 0,
+    "type": "annonce",
+    "texte": "Allô ? Il est arrivé ? — calendrier de l'Avent, samedi 10 octobre dès 14h30"
+   },
+   {
+    "date": "2026-03-05",
+    "vues": 14000,
+    "vuesLib": "14K",
+    "jaime": 712,
+    "com": 14,
+    "type": "humour",
+    "texte": "« Je suis… et je ne suis pas là pour… » Chaque soin a sa mission (#humour #trend)"
+   },
+   {
+    "date": "2026-02-24",
+    "vues": 1106,
+    "jaime": 2,
+    "com": 0,
+    "type": "produit",
+    "texte": "Le stick solaire : l'indispensable de votre été"
+   },
+   {
+    "date": "2026-02-24",
+    "vues": 3660,
+    "jaime": 60,
+    "com": 1,
+    "type": "idée reçue",
+    "texte": "Idée reçue : les sticks solaires ne protègent pas vraiment… FAUX !"
+   },
+   {
+    "date": "2026-02-24",
+    "vues": 622,
+    "jaime": 18,
+    "com": 0,
+    "type": "produit",
+    "texte": "La trousse anti-âge Alphanova"
+   },
+   {
+    "date": "2026-01-08",
+    "vues": 4815,
+    "jaime": 142,
+    "com": 0,
+    "type": "humour",
+    "texte": "Heureusement que tous nos clients ne sont pas comme ça !"
+   },
+   {
+    "date": "2025-11-15",
+    "vues": 1623,
+    "jaime": 48,
+    "com": 1,
+    "type": "produit",
+    "texte": "Biotherm Aqua Source Vitamine Glow / Aqua Gelée Autobronzante"
+   },
+   {
+    "date": "2025-11-12",
+    "vues": 1196,
+    "jaime": 9,
+    "com": 1,
+    "type": "annonce",
+    "texte": "Les calendriers de l'Avent Apothical font leur grand retour dès le samedi 22 novembre"
+   }
+  ]
+ },
+ "lecture": [
+  "Instagram n'existe presque que par le calendrier : 1 seule publication en 90 jours (le reel du 9/10), qui fait 1 042 des 3 563 vues des 90 derniers jours et 71,2 % de non-abonnés : le calendrier fait venir de nouvelles personnes.",
+  "Vos abonnés Instagram sont actifs toute la journée (environ 130 à 166 en même temps de 9h à 24h, heure de Paris) avec un pic de 18h à 21h ; presque personne de 0h à 6h.",
+  "TikTok : l'humour et les tendances avec l'équipe font 5 à 15 fois plus de vues que les annonces produit (14 000 et 4 815 vues contre 600 à 1 600) ; l'annonce du calendrier n'y a fait que 941 vues et 4 J'aime."
+ ],
+ "operation": {
+  "id": "cal2",
+  "titre": "Calendrier de l'Avent — 2e session",
+  "date": "2026-10-24",
+  "heure": "14h30",
+  "quantite": null,
+  "quantiteNote": "Nombre de calendriers mis en vente : à confirmer par Pierre.",
+  "premiereSession": "Samedi 10 octobre 2026 : 20 calendriers vendus en 20 minutes (chiffre donné par Pierre).",
+  "etapes": [
+   {
+    "id": "e1",
+    "quand": "2026-10-20T18:00",
+    "ou": "Instagram",
+    "impact": 1,
+    "txt": "Reel d'annonce datée : « Il est de retour ! Samedi 24 octobre dès 14h30 — quantité limitée, un calendrier par personne. » + story avec l'autocollant « Compte à rebours » réglé sur samedi 14h30 (les abonnés qui le touchent reçoivent un rappel d'Instagram au moment de la vente)."
+   },
+   {
+    "id": "e2",
+    "quand": "2026-10-20T18:00",
+    "ou": "Magasin",
+    "impact": 1,
+    "txt": "Annoncer en magasin dès aujourd'hui : écrans (dont l'écran INSTAGRAM), affiche vitrine et côté galerie Carrefour, une phrase de l'équipe en caisse."
+   },
+   {
+    "id": "e3",
+    "quand": "2026-10-21T19:30",
+    "ou": "TikTok",
+    "impact": 2,
+    "txt": "Vidéo d'humour avec l'équipe (pas l'annonce produit), ex. « Quand tu arrives à 14h31 et qu'il n'en reste plus », date et heure en texte à l'écran ; à tourner avec Dylan, publier mercredi ou jeudi vers 19h–20h."
+   },
+   {
+    "id": "e4",
+    "quand": "2026-10-22T18:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Story « plus que 2 jours » (repartager le compte à rebours)."
+   },
+   {
+    "id": "e5",
+    "quand": "2026-10-23T18:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Story ou court reel « c'est demain, dès 14h30 »."
+   },
+   {
+    "id": "e6",
+    "quand": "2026-10-24T12:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Story « dans 2 h 30 »."
+   },
+   {
+    "id": "e7",
+    "quand": "2026-10-24T14:30",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Stories en direct : la file et le départ de la vente, puis « plus que X calendriers », puis « tout est parti » (preuve de succès pour la session suivante)."
+   },
+   {
+    "id": "e8",
+    "quand": "2026-10-24T14:30",
+    "ou": "Magasin",
+    "impact": 1,
+    "txt": "Transformer l'affluence en chiffre : offre beauté pour ceux qui repartent sans calendrier (Flash Beauté, Octobre Rose) et annonce sur place de la date de la session suivante (« abonnez-vous pour être prévenu »)."
+   },
+   {
+    "id": "e9",
+    "quand": "2026-10-26T10:00",
+    "ou": "Mesure",
+    "impact": 1,
+    "txt": "Point de retour : relever abonnés Instagram et TikTok, vues du reel d'annonce, temps pour écouler le stock, entrées 14h–16h (compteurs) et CA/marge du samedi après-midi hors calendriers, comparés au samedi 17 octobre."
+   }
+  ],
+  "mesure": [
+   {
+    "k": "Abonnés Instagram",
+    "avant": "758 (20/10)",
+    "apres": ""
+   },
+   {
+    "k": "Abonnés TikTok",
+    "avant": "80 (20/10)",
+    "apres": ""
+   },
+   {
+    "k": "Vues du reel d'annonce",
+    "avant": "1 042 (reel du 9/10)",
+    "apres": ""
+   },
+   {
+    "k": "Temps pour écouler le stock",
+    "avant": "20 min pour 20 calendriers (10/10)",
+    "apres": ""
+   },
+   {
+    "k": "Entrées 14h–16h (compteurs)",
+    "avant": "samedi 17/10 : à relever",
+    "apres": ""
+   },
+   {
+    "k": "CA et marge du samedi après-midi, hors calendriers",
+    "avant": "samedi 17/10 : à relever (Vindilis)",
+    "apres": ""
+   }
+  ]
+ }
+}
