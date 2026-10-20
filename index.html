@@ -163,7 +163,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.49';
+const APP_V='6.50';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1000,24 +1000,18 @@ function crSauver(){if(!CR)return false;const ecrire=o=>{try{localStorage.setIte
 const reRendre=()=>{const y=scrollY;rendre();scrollTo(0,y)};
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='slRes'){const v=Math.max(0,+e.target.value||0);(async()=>{if(await majEtat('tr_param',JSON.stringify({...trParam(),reserve:v,res645:true}))){toast('Réserve : '+eur(v)+' — tout est recalculé');reRendre()}})()}});
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='slBp'){(async()=>{if(await majEtat('tr_param',JSON.stringify({...trParam(),payBpgo:e.target.checked})))reRendre()})()}});
-let SOLDE_TS=0,SOLDE_LOC={};const BPGO_C=['BPGO compte …4943','BPGO compte …5541'];
+let SOLDE_TS=0,SOLDE_LOC={};
 const crConnecter=async code=>{const az={'&':'1','é':'2','"':'3',"'":'4','(':'5','-':'6','è':'7','_':'8','ç':'9','à':'0'};code=String(code||'').replace(/\s/g,'').replace(/[&é"'(\-è_çà]/g,c=>az[c]);if(!code)throw new Error('Tapez le code Tri & RJ');
   const j=await crAppel('mob_connexion',[code]);try{localStorage.setItem('triRJ_jeton',JSON.stringify({v:j,exp:Date.now()+5.5*3600*1000}))}catch(e){}if(crErr==='code')crErr='';return j};
 document.addEventListener('click',e=>{if(!e.target||e.target.id!=='slOk')return;const b=e.target;(async()=>{
-  /* BPGO : un solde par compte ; Pilotage fait le total. Un compte laissé vide garde son dernier solde saisi. */
-  const B0=jsonEt('soldes_bpgo',{}),b1=crNb($('#slB1').value),b2=crNb($('#slB2').value);let bp=null,detB=null;
-  if(b1!=null||b2!=null){const v1=b1!=null?b1:B0.b1,v2=b2!=null?b2:B0.b2;
-    if(v1==null||v2==null){toast('Première fois : tapez le solde des deux comptes BPGO');return}
-    bp=Math.round((+v1+ +v2)*100)/100;const now=new Date().toLocaleString('fr-FR');detB={b1:+v1,b2:+v2,d1:b1!=null?now:B0.d1,d2:b2!=null?now:B0.d2,tot:bp}}
-  const vals=[['CEBPL',crNb($('#slC').value)],['BPGO',bp]].filter(x=>x[1]!=null);
+  const vals=[['CEBPL',crNb($('#slC').value)],['BPGO',crNb($('#slB').value)]].filter(x=>x[1]!=null);
   if(!vals.length){toast('Tapez au moins un solde (le montant affiché par votre banque)');return}
   b.disabled=true;b.textContent='Enregistrement…';const fin=()=>{b.disabled=false;b.textContent='Enregistrer les soldes'};
   try{let j=crJeton();if(!j){const c=$('#slCode');j=await crConnecter(c&&c.value)}
-    for(const [bk,n] of vals){let r;try{r=await crAppel('mob_solde',[j,bk,String(n),bk==='BPGO'&&detB?`saisi dans Pilotage — ${BPGO_C[0]} : ${detB.b1} ; ${BPGO_C[1]} : ${detB.b2}`:'saisi dans Pilotage'])}
+    for(const [bk,n] of vals){let r;try{r=await crAppel('mob_solde',[j,bk,String(n),'saisi dans Pilotage'])}
       catch(err){if(/SESSION_EXPIREE/.test(String(err&&err.message))){try{localStorage.removeItem('triRJ_jeton')}catch(_){}toast('Code Tri & RJ expiré : retapez-le dans le cadre des soldes');reRendre();return}throw err}
       const o={montant:r&&r.montant!=null?r.montant:n,saisi:r&&r.montant!=null?r.montant:n,date:r&&r.date||new Date().toLocaleString('fr-FR')};
       CR=CR||{};CR.treso=CR.treso||{lignes:[],soldes:{}};CR.treso.soldes=Object.assign({},CR.treso.soldes||{});CR.treso.soldes[bk]=o;SOLDE_LOC[bk]=o;SOLDE_TS=Date.now()}
-    if(detB)await majEtat('soldes_bpgo',JSON.stringify(detB));
     crSauver();toast('✅ Soldes enregistrés — tout est recalculé');reRendre();if(crEnCours){/* le chargement en cours relira après coup */}else chargerCR(true)}
   catch(err){toast('Non enregistré : '+(err.message||err));fin()}})()});
 document.addEventListener('change',e=>{const t=e.target;if(!t)return;if(t.id==='cbP1'||t.id==='cbP2'){const k=cibleCfg();k[t.id==='cbP1'?'p1':'p2']=+t.value||0;majEtat('ca_cible',JSON.stringify(k))}else if(t.id==='cbAuto'){sauverCfg({planAuto:t.checked})}});
@@ -1499,15 +1493,13 @@ function capacite(){const S0=crSyn(),S=crSoldes()?Object.assign({},S0||{},crSold
     .sort((a,b)=>(b.p1-a.p1)||(b.val-a.val)||String(a.dt).localeCompare(String(b.dt)));
   let cum=0;F.forEach(f=>{cum+=f.du;f.cum=cum;let kk=-1;for(let k=0;k<N;k++){if(capAt(k)>=cum){kk=k;break}}f.des=kk});
   return {sol,solCE,solT,inclB,solB,encCEm,dSol,dSolB:S&&S.tot?(S.dateB||''):'',srcSol:S&&S.tot?'saisi':'ancien',detC:S&&S.C,detB:S&&S.B,J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
-function soldesEditeur(R){const j=crJeton(),d10=x=>esc(String(x||'').slice(0,16)),BD=jsonEt('soldes_bpgo',{});
+function soldesEditeur(R){const j=crJeton(),d10=x=>esc(String(x||'').slice(0,16));
   const ligne=(nom,D,act)=>{if(!D)return `<div class="sub w">${nom} : <b class="neg">aucun solde saisi</b></div>`;
     return `<div class="sub w">${nom} : saisi <b style="color:var(--txt)">${eur2(D.base)}</b> le ${d10(D.date)}${D.liste.length?` − ${D.liste.length} virement(s) parti(s) depuis (${eur2(D.ded)}) <details style="display:inline"><summary class="lien">détail</summary>${D.liste.map(v=>`<div>• ${esc(v.tiers||'')} — ${eur2(v.montant)} <span class="sub">(${esc(String(v.date||v.quand||'').slice(0,10))})</span></div>`).join('')}</details>`:' — aucun virement depuis'} → <b style="color:var(--txt)">${eur2(act)} aujourd'hui</b></div>`};
   const vieux=R.srcSol!=='saisi';
   return `<div style="background:var(--fond2,#f6f7f9);border-radius:10px;padding:8px;margin:6px 0;${vieux?'border:2px solid var(--orange)':''}"><b>🏦 Vos soldes du jour</b>
-   ${vieux?`<div class="sub w" style="color:var(--orange);font-weight:600">⚠ Vos soldes saisis ne sont pas chargés : le calcul utilise d'anciens soldes. Tapez vos soldes du jour ci-dessous.</div>`:`${ligne("Caisse d'Épargne",R.detC,R.solCE)}${ligne('BPGO (total des 2 comptes)',R.detB,R.solB)}${BD.tot!=null&&R.detB&&Math.abs(BD.tot-R.detB.base)<0.01?`<div class="sub w" style="padding-left:12px">dont ${BPGO_C[0]} : ${eur2(BD.b1)} (${d10(BD.d1)}) · ${BPGO_C[1]} : ${eur2(BD.b2)} (${d10(BD.d2)})</div>`:''}`}
-   <div class="g2" style="margin-top:6px"><div><label>Nouveau solde Caisse d'Épargne</label><input id="slC" inputmode="decimal" placeholder="ex. 16 740,73"></div></div>
-   <div class="g2" style="margin-top:6px"><div><label>Nouveau solde ${BPGO_C[0]}</label><input id="slB1" inputmode="decimal" placeholder="${BD.b1!=null?'dernier : '+eur2(BD.b1):'ex. 50 750,33'}"></div><div><label>Nouveau solde ${BPGO_C[1]}</label><input id="slB2" inputmode="decimal" placeholder="${BD.b2!=null?'dernier : '+eur2(BD.b2):'ex. 11 326,37'}"></div></div>
-   <div class="sub w">Pilotage additionne les deux comptes BPGO. Un compte laissé vide garde son dernier solde.</div>
+   ${vieux?`<div class="sub w" style="color:var(--orange);font-weight:600">⚠ Vos soldes saisis ne sont pas chargés : le calcul utilise d'anciens soldes. Tapez vos soldes du jour ci-dessous.</div>`:`${ligne("Caisse d'Épargne",R.detC,R.solCE)}${ligne('BPGO (2 comptes)',R.detB,R.solB)}`}
+   <div class="g2" style="margin-top:6px"><div><label>Nouveau solde Caisse d'Épargne</label><input id="slC" inputmode="decimal" placeholder="ex. 16 740,73"></div><div><label>Nouveau solde BPGO (total de vos 2 comptes BPGO)</label><input id="slB" inputmode="decimal" placeholder="ex. 62 076,70"></div></div>
    ${j?'':`<div style="margin-top:6px"><label>Code Tri & RJ (demandé environ toutes les 5 h)</label><input id="slCode" inputmode="numeric" autocomplete="off" type="password"></div>`}
    <div style="margin-top:6px;max-width:260px"><label>Réserve de sécurité, à ne jamais entamer (€) <span class="sub">· v${APP_V}</span></label><input id="slRes" type="number" step="500" min="0" value="${R.P.reserve}"></div>
    <label class="sub w" style="display:block;margin-top:4px"><input type="checkbox" id="slBp" ${R.inclB?'checked':''}> Compter aussi la BPGO (vous ferez un virement BPGO → Caisse d'Épargne si besoin)</label>
