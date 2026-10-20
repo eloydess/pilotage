@@ -163,7 +163,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.47';
+const APP_V='6.48';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -3234,7 +3234,7 @@ if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=
   const l=sh==='SURFACE_VENTE'?D.surface:sh==='ECRANS'?D.ecrans:null;if(!l)return;
   const x=l.find(r=>String(r[CLES[sh]])===k);vue='ecr';sousEcr=sh==='SURFACE_VENTE'?'ray':'ecr';navig();formulaire(sh,x||Object.fromEntries([[CLES[sh],k]]));
   history.replaceState(null,'','index.html');}catch(e){}})();
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{try{r.update()}catch(e){}document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')try{r.update()}catch(e){}})}).catch(()=>{});
 </script>
 </body>
 </html>
