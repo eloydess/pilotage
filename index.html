@@ -163,7 +163,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.44';
+const APP_V='6.45';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -980,7 +980,7 @@ const CATS=[['sal','Salaires et charges sociales',1],['imp','Impôts et taxes',2
 const catNom=k=>(CATS.find(c=>c[0]===k)||[k,k])[1];const PRIO=['sal','imp','loy','det','pro'];
 const lundi=d=>{const x=new Date(d+'T12:00:00');const j=(x.getDay()+6)%7;x.setDate(x.getDate()-j);return x.toISOString().slice(0,10)};
 const FRAIS_DEF=0.9;
-const trParam=()=>({bpgo:true,reserve:15000,scenario:0,enc:null,ach:null,tva:false,tvaSem:4,...jsonEt('tr_param',{})});
+const trParam=()=>{const p={bpgo:true,reserve:5000,scenario:0,enc:null,ach:null,tva:false,tvaSem:4,...jsonEt('tr_param',{})};if(!p.res645&&+p.reserve===15000)p.reserve=5000;return p};
 
 /* ---------- 📬 Courrier & paiements : données vivantes du classeur « Tri boîte mail et Paiements RJ » ----------
    L'écran de traitement (fiches, paiements, courriers) est la page courrier/ (même site, même code d'accès que Tri & RJ).
@@ -998,6 +998,7 @@ function crSauver(){if(!CR)return false;const ecrire=o=>{try{localStorage.setIte
   if(ecrire({...CR,fiches:F,allege:true}))return true;return ecrire({...CR,fiches:F.filter(f=>f['Statut']==='À valider'),allege:true})}
 /* Soldes saisis directement dans Pilotage (carte « Ce que vous pouvez payer ») */
 const reRendre=()=>{const y=scrollY;rendre();scrollTo(0,y)};
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='slRes'){const v=Math.max(0,+e.target.value||0);(async()=>{if(await majEtat('tr_param',JSON.stringify({...trParam(),reserve:v,res645:true}))){toast('Réserve : '+eur(v)+' — tout est recalculé');reRendre()}})()}});
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='slBp'){(async()=>{if(await majEtat('tr_param',JSON.stringify({...trParam(),payBpgo:e.target.checked})))reRendre()})()}});
 let SOLDE_TS=0,SOLDE_LOC={};
 const crConnecter=async code=>{const az={'&':'1','é':'2','"':'3',"'":'4','(':'5','-':'6','è':'7','_':'8','ç':'9','à':'0'};code=String(code||'').replace(/\s/g,'').replace(/[&é"'(\-è_çà]/g,c=>az[c]);if(!code)throw new Error('Tapez le code Tri & RJ');
@@ -1500,6 +1501,7 @@ function soldesEditeur(R){const j=crJeton(),d10=x=>esc(String(x||'').slice(0,16)
    ${vieux?`<div class="sub w" style="color:var(--orange);font-weight:600">⚠ Vos soldes saisis ne sont pas chargés : le calcul utilise d'anciens soldes. Tapez vos soldes du jour ci-dessous.</div>`:`${ligne("Caisse d'Épargne",R.detC,R.solCE)}${ligne('BPGO (2 comptes)',R.detB,R.solB)}`}
    <div class="g2" style="margin-top:6px"><div><label>Nouveau solde Caisse d'Épargne</label><input id="slC" inputmode="decimal" placeholder="ex. 16 740,73"></div><div><label>Nouveau solde BPGO, total des 2 comptes</label><input id="slB" inputmode="decimal" placeholder="ex. 62 076,70"></div></div>
    ${j?'':`<div style="margin-top:6px"><label>Code Tri & RJ (demandé environ toutes les 5 h)</label><input id="slCode" inputmode="numeric" autocomplete="off" type="password"></div>`}
+   <div style="margin-top:6px;max-width:260px"><label>Réserve de sécurité, à ne jamais entamer (€)</label><input id="slRes" type="number" step="500" min="0" value="${R.P.reserve}"></div>
    <label class="sub w" style="display:block;margin-top:4px"><input type="checkbox" id="slBp" ${R.inclB?'checked':''}> Compter aussi la BPGO (vous ferez un virement BPGO → Caisse d'Épargne si besoin)</label>
    <button class="btn" id="slOk" style="margin-top:6px">Enregistrer les soldes</button>
    <div class="sub w">Tapez le solde affiché par la banque au moment où vous le regardez. Les virements que vous enregistrez ensuite sont retirés automatiquement ; ceux déjà partis avant ne sont pas retirés une 2ᵉ fois.</div></div>`}
@@ -1625,7 +1627,7 @@ function brancherTresorerie(){const P=trParam(),sv=async m=>{if(await majEtat('t
   const n=id=>$('#'+id);if(!n('trRes'))return;
   const cc=n('cpCerp');if(cc)cc.onchange=e=>sv({cerp:e.target.value===''?null:+e.target.value});
   const bR=n('trReel');if(bR)bR.onclick=()=>{const Q=bqAgg();if(Q)sv({enc:Math.round(Q.eMoy/4.33),ach:Math.round(Q.march/4.33)})};
-  n('trEnc').onchange=e=>sv({enc:e.target.value===''?null:+e.target.value});n('trAch').onchange=e=>sv({ach:e.target.value===''?null:+e.target.value});n('trRes').onchange=e=>sv({reserve:+e.target.value||0});
+  n('trEnc').onchange=e=>sv({enc:e.target.value===''?null:+e.target.value});n('trAch').onchange=e=>sv({ach:e.target.value===''?null:+e.target.value});n('trRes').onchange=e=>sv({reserve:+e.target.value||0,res645:true});
   n('trSc').onchange=e=>sv({scenario:+e.target.value});n('trBp').onchange=e=>sv({bpgo:e.target.checked});n('trTva').onchange=e=>sv({tva:e.target.checked});n('trTvaS').onchange=e=>sv({tvaSem:+e.target.value||0});
   n('chAdd').onclick=async()=>{const lib=n('chLib').value.trim(),mt=num(n('chMt').value);if(!lib||mt===null){toast('Libellé et montant obligatoires');return}
     const ch=jsonEt('tr_charges',[]);ch.push({lib,cat:n('chCat').value,jour:Math.min(31,Math.max(1,+n('chJour').value||1)),montant:mt});if(await majEtat('tr_charges',JSON.stringify(ch))){toast('Charge ajoutée');const y=scrollY;stock();scrollTo(0,y)}};
