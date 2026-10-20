@@ -163,7 +163,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.45';
+const APP_V='6.46';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1501,7 +1501,7 @@ function soldesEditeur(R){const j=crJeton(),d10=x=>esc(String(x||'').slice(0,16)
    ${vieux?`<div class="sub w" style="color:var(--orange);font-weight:600">⚠ Vos soldes saisis ne sont pas chargés : le calcul utilise d'anciens soldes. Tapez vos soldes du jour ci-dessous.</div>`:`${ligne("Caisse d'Épargne",R.detC,R.solCE)}${ligne('BPGO (2 comptes)',R.detB,R.solB)}`}
    <div class="g2" style="margin-top:6px"><div><label>Nouveau solde Caisse d'Épargne</label><input id="slC" inputmode="decimal" placeholder="ex. 16 740,73"></div><div><label>Nouveau solde BPGO, total des 2 comptes</label><input id="slB" inputmode="decimal" placeholder="ex. 62 076,70"></div></div>
    ${j?'':`<div style="margin-top:6px"><label>Code Tri & RJ (demandé environ toutes les 5 h)</label><input id="slCode" inputmode="numeric" autocomplete="off" type="password"></div>`}
-   <div style="margin-top:6px;max-width:260px"><label>Réserve de sécurité, à ne jamais entamer (€)</label><input id="slRes" type="number" step="500" min="0" value="${R.P.reserve}"></div>
+   <div style="margin-top:6px;max-width:260px"><label>Réserve de sécurité, à ne jamais entamer (€) <span class="sub">· v${APP_V}</span></label><input id="slRes" type="number" step="500" min="0" value="${R.P.reserve}"></div>
    <label class="sub w" style="display:block;margin-top:4px"><input type="checkbox" id="slBp" ${R.inclB?'checked':''}> Compter aussi la BPGO (vous ferez un virement BPGO → Caisse d'Épargne si besoin)</label>
    <button class="btn" id="slOk" style="margin-top:6px">Enregistrer les soldes</button>
    <div class="sub w">Tapez le solde affiché par la banque au moment où vous le regardez. Les virements que vous enregistrez ensuite sont retirés automatiquement ; ceux déjà partis avant ne sont pas retirés une 2ᵉ fois.</div></div>`}
@@ -3221,6 +3221,11 @@ function formulaire(sheet,x){
 $('#bRef').onclick=()=>charger();
 try{const c=ls.get('pil_cache'); if(c)D=JSON.parse(c)}catch(e){}
 rendre(); chargerAudit(); charger(!!D);
+/* 6.46 : sur iPhone, l'application « refermée » reste souvent en mémoire avec l'ancienne version.
+   À chaque ouverture ou retour sur l'application, on vérifie la version en ligne et on recharge seule si elle a changé (sauf saisie en cours). */
+async function verifVersion(){try{const t=await fetch('index.html?frais='+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.text():'');const m=/const APP_V='([0-9.]+)'/.exec(t);
+  if(m&&m[1]!==APP_V){const a=document.activeElement;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.value)return;location.replace(location.pathname+'?frais='+Date.now()+location.hash)}}catch(e){}}
+setTimeout(verifVersion,1500);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')verifVersion()});
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='maj'){const b=document.getElementById('majApp');if(b)return;document.body.insertAdjacentHTML('beforeend','<div id="majApp" style="position:fixed;left:12px;right:12px;bottom:12px;z-index:99;background:var(--vert2);color:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 4px 16px rgba(0,0,0,.25);font-size:14px">Nouvelle version prête. <b style="text-decoration:underline;cursor:pointer" onclick="location.reload()">Toucher pour l’appliquer</b></div>')}});
 // Ouverture directe d'une fiche depuis la vue 3D : index.html?ouvrir=SURFACE_VENTE&cle=TG01
 (function(){try{const q=new URLSearchParams(location.search),sh=q.get('ouvrir'),k=q.get('cle');if(!D||!sh||!k)return;
