@@ -163,7 +163,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.52';
+const APP_V='6.53';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1455,7 +1455,7 @@ function carteChangements(court){const L=evts(),inc=L.filter(e=>e.inconnu),net=e
     <button class="btn" id="evAdd" style="margin-top:6px">Ajouter</button></details></div>`}
 async function evtMaj(id,patch){const S=evtEtat();if(id==='_perso')S._perso=patch;else S[id]={...(S[id]||{}),...patch};if(await majEtat('evts',JSON.stringify(S)))toast('Recalculé partout')}
 document.addEventListener('click',e=>{const t=e.target;if(!t||!t.classList)return;
-  if(t.classList.contains('evFait')){const x=evts().find(z=>z.id===t.dataset.id);evtMaj(t.dataset.id,{fait:!(x&&x.fait)})}
+  if(t.classList.contains('evFait')){const x=evts().find(z=>z.id===t.dataset.id);const vers=!(x&&x.fait);const q=x?`« ${x.lib} » (${eur(x.montant)})`:'cette sortie';if(!confirm(vers?`Confirmer que ${q} est DÉJÀ PAYÉ (sorti du compte) ?\n\nLa sortie sera retirée du calcul « Ce que vous pouvez payer ». Vous pourrez annuler.`:`Remettre ${q} en « pas encore payé » ?\n\nLa sortie sera de nouveau comptée dans le calcul.`))return;evtMaj(t.dataset.id,{fait:vers})}
   else if(t.classList.contains('evOff')){if(confirm('Retirer ce changement des calculs ?'))evtMaj(t.dataset.id,{off:true})}
   else if(t.id==='evAdd'){const lib=$('#evLib').value.trim(),mt=crNb($('#evMtN').value),ty=$('#evTyp').value,d=$('#evDt').value||auj();if(mt==null||(!lib&&!['embauche','depart','augm'].includes(ty))){toast('Libellé et montant obligatoires');return}
     const P=(evtEtat()._perso||[]).slice();const id='p'+Date.now();const qui=($('#evQui')&&$('#evQui').value.trim())||'',poste=($('#evPoste')&&$('#evPoste').value.trim())||'';
@@ -1525,6 +1525,8 @@ function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,
      const L=Object.values(g).sort((a,b)=>b.mt-a.mt);if(!L.length)return '';
      return `<details style="margin-top:6px"><summary class="lien"><b>Vérifier ce qui est compté en sortie d'ici le ${dfr(fin)} (${eur(outJ)})</b></summary><div class="sub w">Si une ligne est déjà sortie du compte AVANT la date de votre solde, elle est comptée deux fois : cochez « déjà payé » (pour les lignes qui le permettent) ou dites-le-moi.</div>
        <div class="tw"><table class="t">${L.map(x=>`<tr><td>${esc(x.lib)}<div class="sub">${x.n>1?x.n+' fois : ':''}${x.d.slice(0,6).join(', ')}</div></td><td class="n">${eur(x.mt)}</td><td>${x.id?`<button class="mini evFait" data-id="${esc(x.id)}">déjà payé ✓</button>`:''}</td></tr>`).join('')}</table></div></details>`})()}
+   ${(()=>{let F=[];try{const lim=new Date(Date.now()-45*864e5).toISOString().slice(0,10);F=evts().filter(e=>e.type==='ponctuel'&&e.fait&&!e.off&&(e.date||'')>=lim)}catch(e){return ''}if(!F.length)return '';
+     return `<div class="carte" style="margin:8px 0 0;padding:8px 10px;background:var(--fond)"><b>✅ Marqués « déjà payé » (retirés du calcul)</b><div class="sub w">Coché par erreur ? Touchez « Pas encore payé » : la sortie est remise dans le calcul, partout.</div><div class="tw"><table class="t">${F.map(e=>`<tr><td>${esc(e.lib)}</td><td class="n">${eur(e.montant)}</td><td><button class="mini evFait" data-id="${esc(e.id)}">↺ Pas encore payé</button></td></tr>`).join('')}</table></div></div>`})()}
    <div class="sub w">Moment le plus tendu : <b style="color:var(--txt)">${jsem(fin)} ${dfr(fin)}</b>, solde Caisse d'Épargne prévu ${eur(mn.bal)} avant tout nouveau paiement. Après cette date, la marge de manœuvre remonte. Si une facture urgente dépasse ce montant : virement depuis la BPGO (${eur(R.solB)} disponibles), à décider au cas par cas.</div>
    ${R.cerpAtt>1000?`<div class="al o" style="margin-top:6px;padding:6px 10px;border-radius:8px"><b>⚠ Commandes CERP encore non livrées : ≈ ${eur(R.cerpAtt)}</b><div class="sub w">Les commandes des 13–15/10 ne sont presque pas livrées. Si elles arrivent avant le prochain relevé, elles seront prélevées en plus : votre capacité tomberait à ${R.capRisque>0?eur(R.capRisque):'zéro (il manquerait '+eur(-R.capRisque)+')'}. À vérifier avec la CERP (action A1) avant de payer de gros montants.</div></div>`:''}
    ${court?carteChangements(true):''}
