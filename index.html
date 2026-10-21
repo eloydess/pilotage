@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.58';
+const APP_V='6.59';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1403,6 +1403,8 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
   brancherLiens()}
 
 /* ================= 6.10 : COMBIEN JE PEUX PAYER AUJOURD'HUI (jour par jour, 3 semaines) ================= */
+/* 21/10/2026 : les 4 commandes CERP des 13–15/10 non livrées sont abandonnées sur décision du titulaire (elles ne seront pas réceptionnées) : retirées de tous les calculs. */
+const CERP_CMD_ANNULEES='2026-10-21';
 const CERP_CONNUS={'2026-10-19':37936.29};/* débits déjà connus (relevé CERP du 15/10 reçu par mail) */
 const CERP_HIST=[['2026-08-04',46194.52],['2026-08-11',36233.25],['2026-08-18',23120.69],['2026-08-25',29682.35],['2026-09-03',49231.94],['2026-09-10',50162.09],['2026-09-17',32888.48],['2026-09-24',36403.80],['2026-10-05',38684.89],['2026-10-12',37435.04]];/* relevé Caisse d'Épargne */
 const JSEM=['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
@@ -1479,7 +1481,7 @@ function capacite(){const S0=crSyn(),S=crSoldes()?Object.assign({},S0||{},crSold
   const inclB=!!P.payBpgo;const solCE=sol;const solT=inclB?sol+solB:sol;
   const dSol=S&&S.tot?(S.dateC||''):'';const N=36,d0=auj(),enc=encCEm/21.7*0.9*margeFacteur(),ch=jsonEt('tr_charges',[]);
   const gros=(QB.S.find(x=>x.cat==='grossiste')||{moy:0}).moy,cerpM=P.cerp!=null&&P.cerp!==''?+P.cerp:Math.round(CERP_HIST.slice(-6).reduce((s,x)=>s+x[1],0)/6/100)*100;
-  const C=A&&A.cerp,cerpAtt=C?C.lignes.reduce((s,l)=>s+Math.max(0,(+l[2]||0)-(+l[4]||0)),0)*1.021:0;
+  const C=A&&A.cerp&&!CERP_CMD_ANNULEES?A.cerp:null,cerpAtt=C?C.lignes.reduce((s,l)=>s+Math.max(0,(+l[2]||0)-(+l[4]||0)),0)*1.021:0;
   const cd=cerpDates(d0,N);const J=[];let b=solT;
   for(let k=0;k<N;k++){const d=ajJ(d0,k),wd=new Date(d+'T12:00:00').getDay(),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');const ev=[];
     const e=(wd>=1&&wd<=5&&k>0)?enc:0;
@@ -1784,7 +1786,7 @@ function carteBilanSemaine(){if(!A)return '';const d7=ajJ(auj(),-7);const T=tout
 /* ---------- ACCUEIL ---------- */
 function alertes(){const L=[];
   if(A){const c=A.cerp,t=c.lignes.reduce((s,x)=>s+x[2],0),r=c.lignes.reduce((s,x)=>s+x[4],0);
-    L.push(['','Commandes CERP du 13 au 15/10 : '+eur2(t)+' HT, '+eur2(r)+' reçus','Aucune commande CERP n\'avait dépassé '+eur2(c.maxDepuisMai)+' depuis mai. À vérifier avant toute autre commande (auteur, transmission, paiement).','stk:rec']);
+    if(!CERP_CMD_ANNULEES)L.push(['','Commandes CERP du 13 au 15/10 : '+eur2(t)+' HT, '+eur2(r)+' reçus','Aucune commande CERP n\'avait dépassé '+eur2(c.maxDepuisMai)+' depuis mai. À vérifier avant toute autre commande (auteur, transmission, paiement).','stk:rec']);
     const b=A.stock.filter(s=>s.decision==='commander');
     L.push(['o','À commander : '+b.map(s=>s.nom).join(' et ')+' ('+eur2(b.reduce((s,x)=>s+x.besoin,0))+')',b.reduce((s,x)=>s+x.nRupt,0)+' références en rupture, '+eur(b.reduce((s,x)=>s+x.margePerdue,0))+' de marge perdue par mois. Ce sont les seuls labos sans commande en attente.','stk:rec']);
     L.push(['o','Promotions : '+A.opeazManquantes.length+' opérations Opeaz d\'octobre absentes de Vindilis','Et novembre n\'est presque pas prêt. À créer avant le 31/10, après votre validation.','pro:oct']);}
@@ -2853,7 +2855,7 @@ function stock(){$('#ht').textContent='Stock & trésorerie';fab(null);
   if(!A){$('#m').innerHTML=nav+pasAudit();bind();return}
   const T=A.tresorerie,dispo=T.bpgo+T.cebpl-T.suiviRJ,cerpT=A.cerp.lignes.reduce((s,x)=>s+x[2],0);
   if(sousStk==='cerp'){
-    $('#m').innerHTML=nav+`<div class="carte al"><b class="t">4 commandes CERP créées les 13 et 15/10 : ${eur2(cerpT)} HT</b><div class="sub w">Depuis mai, aucune commande CERP n'avait dépassé ${eur2(A.cerp.maxDepuisMai)}. Elles n'ont pas été créées par Claude (lecture seule dans Vindilis). À confirmer : auteur, transmission, paiement. Le détail des lignes ne s'ouvre pas dans Vindilis (« le contenu ne peut pas être chargé »).</div></div>
+    $('#m').innerHTML=nav+(CERP_CMD_ANNULEES?`<div class="carte al v"><b class="t">✅ Commandes CERP des 13–15/10 abandonnées le ${dfr(CERP_CMD_ANNULEES)}</b><div class="sub w">Elles ne seront pas réceptionnées : elles sont retirées de tous les calculs de l'application (trésorerie, « Ce que vous pouvez payer », alertes). Le tableau ci-dessous est gardé pour mémoire.</div></div>`:'')+`<div class="carte al${CERP_CMD_ANNULEES?' o':''}"><b class="t">4 commandes CERP créées les 13 et 15/10 : ${eur2(cerpT)} HT${CERP_CMD_ANNULEES?' — abandonnées':''}</b><div class="sub w">Depuis mai, aucune commande CERP n'avait dépassé ${eur2(A.cerp.maxDepuisMai)}. Elles n'ont pas été créées par Claude (lecture seule dans Vindilis). À confirmer : auteur, transmission, paiement. Le détail des lignes ne s'ouvre pas dans Vindilis (« le contenu ne peut pas être chargé »).</div></div>
      <div class="carte"><div class="tw"><table class="t"><tr><th>Créée le</th><th>Compte</th><th class="n">Montant HT</th><th class="n">Reçu / attendu</th><th class="n">Reçu</th></tr>${A.cerp.lignes.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td class="n">${eur2(r[2])}</td><td class="n">${esc(r[3])}</td><td class="n">${r[4]?eur2(r[4]):'—'}</td></tr>`).join('')}
      <tr class="tot"><td colspan="2">Total</td><td class="n">${eur2(cerpT)}</td><td></td><td class="n">${eur2(A.cerp.lignes.reduce((s,x)=>s+x[4],0))}</td></tr></table></div>
      <div class="sub w" style="margin-top:6px">CERP par mois (commandé / reçu) : septembre ${eur2(A.cerp.moisSep[0])} / ${eur2(A.cerp.moisSep[1])} ; octobre au 15 ${eur2(A.cerp.moisOct[0])} / ${eur2(A.cerp.moisOct[1])}.</div></div>
@@ -2861,7 +2863,7 @@ function stock(){$('#ht').textContent='Stock & trésorerie';fab(null);
       <div class="ligne"><span>BPGO + CEBPL</span><b>${eur2(T.bpgo+T.cebpl)}</b></div><div class="ligne"><span>− Factures en cours (suivi RJ)</span><b>− ${eur2(T.suiviRJ)}</b></div>
       <div class="ligne"><span><b>= Disponible avant nouvelles commandes</b></span><b>${eur2(dispo)}</b></div>
       <div class="ligne"><span>Commandes directes en attente (≥ 200 €, depuis le 15/08)</span><b>${eur2(T.attenteDirect)}</b></div>
-      <div class="ligne"><span>Commandes CERP 13–15/10 non reçues</span><b class="neg">${eur2(cerpT)}</b></div>
+      ${CERP_CMD_ANNULEES?'':`<div class="ligne"><span>Commandes CERP 13–15/10 non reçues</span><b class="neg">${eur2(cerpT)}</b></div>`}
       <div class="sub w" style="margin-top:6px">Le calendrier de paiement de la CERP pendant la procédure n'est pas connu de l'application : [MANQUANT]. Toute commande reste soumise à votre validation puis à celle de l'administrateur judiciaire.</div></div>`;
     bind();return}
   const S=A.stock.slice().sort((a,b)=>({commander:0,completer:1,bloque:2,option:3}[a.decision]-{commander:0,completer:1,bloque:2,option:3}[b.decision])||b.margePerdue-a.margePerdue);
