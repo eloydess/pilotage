@@ -380,23 +380,27 @@ function vue(v){
   if (v === 'rj') chargerTreso();
 }
 
+/* 21/10/2026 : fiches déjà décidées (refusées, ou validées « à vérifier ») dont le mail n'a jamais été rangé : il reste dans la boîte de réception. */
+function nonRange(f){ return f['Statut'] !== 'À valider' && !/^C-/.test(f['ID'] || '') && !String(f['Date application'] || '').trim(); }
 function afficher(){
-  var nb = function(s){ return FICHES.filter(function(f){ return s === 'Traités' ? f['Statut'] !== 'À valider' : f['Statut'] === s; }).length; };
-  var choix = ['À valider', 'Traités'];
+  var garde = function(s, f){ return s === 'Traités' ? f['Statut'] !== 'À valider' : s === 'Restés en boîte' ? nonRange(f) : f['Statut'] === s; };
+  var nb = function(s){ return FICHES.filter(function(f){ return garde(s, f); }).length; };
+  var choix = ['À valider', 'Restés en boîte', 'Traités'];
   document.getElementById('filtres').innerHTML = choix.map(function(c){
     return '<button class="' + (c === FILTRE ? 'actif' : '') + '" onclick="FILTRE=\'' + c + '\';afficher()">' + c + ' (' + nb(c) + ')</button>';
   }).join('');
-  var l = FICHES.filter(function(f){ return FILTRE === 'Traités' ? f['Statut'] !== 'À valider' : f['Statut'] === FILTRE; });
+  var l = FICHES.filter(function(f){ return garde(FILTRE, f); });
   if (ECRAN_PC && RECHERCHE) {
     var q = RECHERCHE.toLowerCase();
     l = l.filter(function(f){ return [f['Tiers'], f['Références'], f['Objet'], f['Type'], f['Montant TTC'], f['Note de Claude']].join(' ').toLowerCase().indexOf(q) >= 0; });
   }
   VISIBLES = l; notifierParent();
-  if (!l.length) { document.getElementById('liste').innerHTML = (ECRAN_PC ? barrePC() : '') + '<div class="vide">' + (RECHERCHE ? 'Aucune fiche ne correspond à « ' + esc(RECHERCHE) + ' ».' : FILTRE === 'À valider' ? '✅ Tout est traité pour ce lot.' : 'Aucune fiche traitée.') + '</div>'; return; }
+  if (!l.length) { document.getElementById('liste').innerHTML = (ECRAN_PC ? barrePC() : '') + '<div class="vide">' + (RECHERCHE ? 'Aucune fiche ne correspond à « ' + esc(RECHERCHE) + ' ».' : FILTRE === 'À valider' ? '✅ Tout est traité pour ce lot.' : FILTRE === 'Restés en boîte' ? '✅ Aucun mail décidé n\'est resté dans la boîte de réception.' : 'Aucune fiche traitée.') + '</div>'; return; }
   if (!ECRAN_PC) {
     var cle = FILTRE + '|' + RECHERCHE; if (cle !== LIM_CLE) { LIM_CLE = cle; LIMITE = 30; }
     var reste = l.length - LIMITE;
-    document.getElementById('liste').innerHTML = l.slice(0, LIMITE).map(carte).join('') +
+    var aideRB = FILTRE === 'Restés en boîte' ? '<div class="carte" style="border-left:4px solid var(--orange)"><b>Mails restés dans la boîte de réception</b><div class="meta">Vous avez déjà décidé ces fiches (refusées, ou validées sans rangement), mais le mail n\'a pas été rangé. Touchez « ↩︎ Annuler ma décision » : la fiche revient dans « À valider » et vous choisissez de nouveau (rangement, corbeille, suivi RJ…).</div></div>' : '';
+    document.getElementById('liste').innerHTML = aideRB + l.slice(0, LIMITE).map(carte).join('') +
       (reste > 0 ? '<button class="btn b-voir" style="width:100%;margin:8px 0" onclick="LIMITE+=30;afficher()">Afficher ' + Math.min(30, reste) + ' fiches de plus (encore ' + reste + ')</button>' : '');
     return;
   }
