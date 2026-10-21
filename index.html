@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.56';
+const APP_V='6.57';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -2181,7 +2181,7 @@ function concurrence(){libererCarte();fab(null);$('#ht').textContent='Concurrenc
    pas des volumes entre officines. 0 = fermée (ou personne) à cette heure. */
 let AFF=null,affRayon='3',affJour='moy',affSel='';
 async function chargerAff(){if(AFF)return AFF;try{AFF=await (await fetch('affluence.json?frais=1')).json()}catch(e){AFF=null}return AFF}
-const AFF_H=[8,9,10,11,12,13,14,15,16,17,18,19,20],AFF_J=[1,2,3,4,5],AFF_JC=['','Lun','Mar','Mer','Jeu','Ven'],AFF_JL=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+const AFF_H=[8,9,10,11,12,13,14,15,16,17,18,19,20],AFF_J=[1,2,3,4,5],AFF_JC=['','Lun','Mar','Mer','Jeu','Ven','Sam'],AFF_JL=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const affNb=(k,n,s1,sp)=>k===0?`aucune des ${n} officines n'${s1.replace('déjà','encore')}`:`${k} officine${k>1?'s':''} sur ${n} ${k>1?sp:s1}`;
 const affV=(e,j,h)=>{const a=e&&e.j&&e.j[j];return a?(a[h-6]||0):null};
 function affStats(e){const S={pk:{v:-1},cr:{v:999},tot:[0,0,0,0,0,0],midiF:0,soirF:0,n:0,mat:0,apm:0};
@@ -2202,21 +2202,51 @@ function affNousStats(N){const S={pk:{v:-1},cr:{v:999},tot:[0,0,0,0,0,0,0],mat:0
   return S}
 function affGrilleN(N,S){const r1=v=>String(Math.round(v*10)/10).replace('.',',');
   return `<div class="affg"><div></div>${AFF_H.map(h=>`<div class="affh">${h}</div>`).join('')}${AFF_JN.map(j=>`<div class="affj">${AFF_JCN[j]}</div>${AFF_H.map(h=>{const v=affNV(N,j,h),p=S.pct(j,h),pk=S.pk.j===j&&S.pk.h===h;return v<0.5?`<div class="affc" style="background:transparent;border:1px dashed var(--ligne)" title="moins d'une vente par heure"></div>`:`<div class="affc" style="background:rgba(46,125,50,${(0.1+0.9*p/100).toFixed(2)})${pk?';outline:2px solid var(--txt);outline-offset:-1px':''}" title="${r1(v)} ventes/h (${p} %)"></div>`}).join('')}`).join('')}</div>`}
+/* 6.57 : comparer UNE officine avec la vôtre (heure par heure, jour par jour, samedi compris).
+   Elle : % de SON heure la plus chargée (Google). Vous : % de VOTRE heure la plus chargée (Vindilis). On compare des formes de courbes. */
+let affCmp='',affCmpJ='moy';try{affCmp=ls.get('pil_affCmp')||''}catch(e){}
+function affCompare(o,e,N,sel){if(!N||!N.j)return '';const NS=affNousStats(N),JS=affCmpJ==='moy'?AFF_JN:[+affCmpJ];
+  const r1=v=>String(Math.round(v*10)/10).replace('.',','),jl=j=>AFF_JL[j];
+  const eH=h=>{let s=0,n=0;JS.forEach(j=>{const v=affV(e,j,h);if(v==null)return;s+=v;n++});return n?Math.round(s/n):null};
+  const nH=h=>Math.round(JS.reduce((s,j)=>s+NS.pct(j,h),0)/JS.length),nV=h=>JS.reduce((s,j)=>s+affNV(N,j,h),0)/JS.length;
+  const sansJ=JS.filter(j=>!e.j[j]);
+  const bars=`<div class="affb">${AFF_H.map(h=>{const a=eH(h),b=nH(h);return `<div class="affbc"><div class="affbv duo" title="${esc(o.nom)} : ${a==null?'—':a+' %'} · vous : ${b} % (${r1(nV(h))} ventes/h)"><div style="height:${a||0}%"></div><div class="n" style="height:${b}%"></div></div><div class="affh">${h}</div><div class="sub" style="font-size:10px;text-align:center;line-height:1.25"><span style="color:var(--orange)">${a==null?'·':a}</span><br><span style="color:var(--vert2)">${b}</span></div></div>`}).join('')}</div>`;
+  const HH=AFF_H.filter(h=>h>=9&&h<=19);
+  const pkE=HH.reduce((a,h)=>(eH(h)||0)>(eH(a)||0)?h:a,HH[0]),pkN=HH.reduce((a,h)=>nH(h)>nH(a)?h:a,HH[0]);
+  const ferm=e.proxy?[]:HH.filter(h=>eH(h)===0&&nV(h)>=1);
+  const opp=HH.filter(h=>(eH(h)||0)>=70&&nH(h)<=60),pleinsTous=HH.filter(h=>(eH(h)||0)>=70&&nH(h)>=70);
+  const S=affStats(e);let tE=0;AFF_JN.forEach(j=>{if(e.j[j])AFF_H.forEach(h=>tE+=affV(e,j,h)||0)});
+  const jE=AFF_JN.filter(j=>e.j[j]).map(j=>[j,AFF_H.reduce((s,h)=>s+(affV(e,j,h)||0),0)]).sort((a,b)=>b[1]-a[1]),jN=AFF_JN.map(j=>[j,NS.tot[j]]).sort((a,b)=>b[1]-a[1]);
+  const tN=AFF_JN.reduce((s,j)=>s+NS.tot[j],0),partE=j=>{const x=jE.find(y=>y[0]===j);return x&&tE?Math.round(x[1]/tE*100):null},partN=j=>Math.round(NS.tot[j]/tN*100);
+  const choix=sel?`<label class="sub" for="affCmpSel" style="display:block;margin:6px 0 4px">Officine à comparer</label><select id="affCmpSel" style="width:100%;font-size:16px;padding:8px;border-radius:8px;border:1px solid var(--ligne);background:var(--carte);color:var(--txt)">${sel.map(x=>`<option value="${esc(x.o.nom)}"${x.o.nom===o.nom?' selected':''}>${esc(x.o.nom)} — ${kmFr(x.o.dist)} km${x.e.proxy?' (courbe du centre commercial)':''}</option>`).join('')}</select>`:'';
+  const btnJ=`<div class="filtres" id="fcj" style="margin-top:8px">${[['moy','Lun → sam']].concat(AFF_JN.map(j=>[String(j),AFF_JCN[j]])).map(([k,l])=>`<button data-f="${k}" class="${k===affCmpJ?'on':''}">${l}</button>`).join('')}</div>`;
+  return `<div class="carte" style="border-left:6px solid var(--vert2)"><b>⚖️ ${sel?'Comparer une officine avec la vôtre':'Comparée à votre pharmacie'}</b>${choix}${btnJ}
+   ${sansJ.length?`<div class="sub w" style="margin-top:6px">⚠ Google n'a pas de courbe pour ${esc(o.nom)} le ${sansJ.map(jl).join(', ')} (fermée ou trop peu de passages).</div>`:''}
+   ${bars}<div class="sub w"><span class="affleg" style="background:rgba(230,81,0,.75);margin-left:0"></span>${esc(o.nom.replace(/\s*\(.*?\)/,''))} (Google)<span class="affleg" style="background:var(--vert2)"></span>vous (Vindilis). Chiffres sous les barres : % de l'heure la plus chargée de chacun${affCmpJ==='moy'?', en moyenne du lundi au samedi':', le '+jl(+affCmpJ)}.</div>
+   <div style="margin-top:8px;font-size:14px">
+   • <b>Heure de pointe : ${pkE} h chez elle, ${pkN} h chez vous.</b><br>
+   ${affCmpJ==='moy'&&jE.length?`• Jour le plus chargé : <b>${jl(jE[0][0])} chez elle</b> (${partE(jE[0][0])} % de sa semaine), <b>${jl(jN[0][0])} chez vous</b> (${partN(jN[0][0])} %). Le samedi : ${partE(6)==null?'pas de courbe chez elle':partE(6)+' % de sa semaine'}, ${partN(6)} % de la vôtre.<br>`:''}
+   ${ferm.length?`• <b>Elle est fermée à ${ferm.map(h=>h+' h').join(', ')}</b> pendant que vous faites ${ferm.map(h=>r1(nV(h))).join(', ')} ventes/h : ses clients pressés à ces heures-là peuvent venir chez vous.<br>`:''}
+   ${opp.length?`• <b>À aller chercher : ${opp.map(h=>h+' h').join(', ')}</b> — elle est pleine (≥ 70 % de son maximum) et vous êtes plus calme (≤ 60 % du vôtre).<br>`:'• Pas de créneau où elle est pleine alors que vous êtes calme.<br>'}
+   ${pleinsTous.length?`• Pleins tous les deux à ${pleinsTous.map(h=>h+' h').join(', ')} : à ces heures, c'est l'accueil et l'attente qui font la différence (caisses ouvertes, personnel en surface).`:''}</div>
+   ${e.proxy?`<div class="sub w" style="margin-top:6px">⚠ ${esc(e.note||'')}</div>`:''}
+   <div class="sub w" style="margin-top:6px">On compare la forme des journées, pas le nombre de clients : Google mesure des passages de téléphones, Vindilis vos ventes — ${esc(N.periode)}.</div></div>`}
 const AFF_MOIS=k=>{const [a,m]=k.split('-');return ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][+m-1]+' '+a};
-function affGrille(e,S){
-  return `<div class="affg"><div></div>${AFF_H.map(h=>`<div class="affh">${h}</div>`).join('')}${AFF_J.map(j=>`<div class="affj">${AFF_JC[j]}</div>${AFF_H.map(h=>{const v=affV(e,j,h);return v==null?'<div class="affc"></div>':affCase(v,S&&S.pk.j===j&&S.pk.h===h)}).join('')}`).join('')}</div>`}
+function affGrille(e,S,JJ){
+  return `<div class="affg"><div></div>${AFF_H.map(h=>`<div class="affh">${h}</div>`).join('')}${(JJ||AFF_J).map(j=>`<div class="affj">${AFF_JC[j]}</div>${AFF_H.map(h=>{const v=affV(e,j,h);return v==null?'<div class="affc"></div>':affCase(v,S&&S.pk.j===j&&S.pk.h===h)}).join('')}`).join('')}</div>`}
 function affCarte(o,e){const S=affStats(e);return `<div class="carte demi"><div style="display:flex;gap:8px;align-items:baseline"><div style="flex:1;min-width:0"><b>${o.analyse?`<span style="color:${NIVC(o.analyse.niveau)}">${o.analyse.rang}.</span> `:''}${esc(o.nom)}</b><div class="sub">${esc((o.commune||'').replace(/^\d+ /,''))} · <b>${kmFr(o.dist)} km</b> · Google : « ${esc(e.google)} », ${e.avis} avis</div></div></div>
-    ${affGrille(e,S)}
+    ${affGrille(e,S,AFF_JN.filter(j=>e.j[j]))}
     <div class="sub w" style="margin-top:4px">Pic : <b style="color:var(--txt)">${AFF_JL[S.pk.j]} ${S.pk.h} h</b> · jour le plus chargé : <b style="color:var(--txt)">${AFF_JL[S.jMax]}</b>${S.cr.v<999?` · le plus calme : ${AFF_JL[S.cr.j]} ${S.cr.h} h (${S.cr.v} %)`:''}<br>Matin ${S.pMat} % · après-midi ${100-S.pMat} % de l'affluence · ${S.midiF===S.n?'fermée de 13 h à 14 h':S.midiF?'fermée de 13 h à 14 h certains jours':'<b class="neg">ouverte entre midi et deux</b>'} · ${S.fin?`dernière heure fréquentée : ${S.fin} h – ${S.fin+1} h`:''}</div>
     ${e.note?`<div class="sub w" style="margin-top:4px">⚠ ${esc(e.note)}</div>`:''}
     <button class="lien vf" data-n="${esc(o.nom)}" style="background:none;border:0;padding:0;font-size:14px;margin-top:6px;color:var(--vert2);font-weight:600">Ouvrir la fiche et la carte ›</button></div>`}
 async function vueAffluence(O,F){const D=await chargerAff();if(!D)return '<div class="carte al"><b class="t">Données d\'affluence indisponibles</b><div class="sub w">Le fichier n\'a pas pu être chargé (réseau). Réessayez dans un instant.</div></div>';
   const TOUS=O.map(o=>({o,e:D.off[o.nom]})).filter(x=>x.e&&x.e.statut==='ok').sort((a,b)=>a.o.dist-b.o.dist);
-  if(affSel){const x=TOUS.find(y=>y.o.nom===affSel);if(x)return `<button class="btn sec" id="affRet" style="margin-bottom:8px">‹ Retour à la liste des officines</button>`+affCarte(x.o,x.e)+`<div class="sub w" style="margin:4px">Relevé Google Maps du ${dfr(D.releve)}. 100 % = l'heure la plus chargée de cette officine. Case pointillée = fermée.</div>`;affSel=''}
-  const liste=`<details class="carte" id="affListe"${ls.get('pil_affListe')==='0'?'':' open'}><summary style="cursor:pointer"><b>📋 Les ${TOUS.length} officines dont Google mesure le passage</b> <span class="sub">(sur ${O.length})</span></summary><div class="sub w">Touchez une officine pour voir sa courbe, du lundi au vendredi.</div>${TOUS.map(({o,e})=>{const S=affStats(e);return `<div class="ligne affOuv" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${o.analyse?`<b style="color:${NIVC(o.analyse.niveau)}">${o.analyse.rang}.</b> `:''}${esc(o.nom)}<div class="sub">${kmFr(o.dist)} km · pic ${AFF_JL[S.pk.j]} ${S.pk.h} h · ${S.midiF===S.n?'fermée 13 h – 14 h':'ouverte entre midi et deux'}</div></span><span>›</span></div>`}).join('')}</details>`;
+  if(affSel){const x=TOUS.find(y=>y.o.nom===affSel);if(x)return `<button class="btn sec" id="affRet" style="margin-bottom:8px">‹ Retour à la liste des officines</button>`+affCarte(x.o,x.e)+affCompare(x.o,x.e,D.nous)+`<div class="sub w" style="margin:4px">Relevé Google Maps du ${dfr(D.releve)}. 100 % = l'heure la plus chargée de cette officine. Case pointillée = fermée.</div>`;affSel=''}
+  const cmpX=TOUS.find(x=>x.o.nom===affCmp)||TOUS[0],cmp=cmpX?affCompare(cmpX.o,cmpX.e,D.nous,TOUS):'';
+  const liste=`<details class="carte" id="affListe"${ls.get('pil_affListe')==='0'?'':' open'}><summary style="cursor:pointer"><b>📋 Les ${TOUS.length} officines dont Google mesure le passage</b> <span class="sub">(sur ${O.length}${TOUS.some(x=>x.e.proxy)?', dont '+TOUS.filter(x=>x.e.proxy).length+' par son centre commercial':''})</span></summary><div class="sub w">Touchez une officine pour voir sa courbe et la comparer à la vôtre.</div>${TOUS.map(({o,e})=>{const S=affStats(e);return `<div class="ligne affOuv" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${o.analyse?`<b style="color:${NIVC(o.analyse.niveau)}">${o.analyse.rang}.</b> `:''}${esc(o.nom)}<div class="sub">${kmFr(o.dist)} km${e.proxy?' · courbe du centre commercial':''} · pic ${AFF_JL[S.pk.j]} ${S.pk.h} h · ${S.midiF===S.n?'fermée 13 h – 14 h':'ouverte entre midi et deux'}</div></span><span>›</span></div>`}).join('')}</details>`;
   const lim={'1':1,'3':3,'Toutes':99}[affRayon];
   const T=O.filter(o=>o.dist<=lim).map(o=>({o,e:D.off[o.nom]||{statut:'absente'}}));
-  const AV=T.filter(x=>x.e.statut==='ok').sort((a,b)=>a.o.dist-b.o.dist),SANS=T.filter(x=>x.e.statut==='sans'||x.e.statut==='introuvable'||x.e.statut==='absente'),FG=T.filter(x=>x.e.statut==='fermee');
+  const AV=T.filter(x=>x.e.statut==='ok'&&!x.e.proxy).sort((a,b)=>a.o.dist-b.o.dist),SANS=T.filter(x=>x.e.statut==='sans'||x.e.statut==='introuvable'||x.e.statut==='absente'),FG=T.filter(x=>x.e.statut==='fermee');
   const jours=affJour==='moy'?AFF_J:[+affJour];
   /* synthèse : pour chaque heure, combien d'officines ouvertes et leur remplissage moyen */
   const syn=AFF_H.map(h=>{let ouv=0,s=0,n=0;AV.forEach(x=>jours.forEach(j=>{const v=affV(x.e,j,h);if(v==null)return;n++;if(v>0){ouv++;s+=v}}));return {h,ouv:n?ouv/jours.length:0,tot:n/jours.length,moy:ouv?Math.round(s/ouv):0}});
@@ -2230,7 +2260,7 @@ async function vueAffluence(O,F){const D=await chargerAff();if(!D)return '<div c
   const tete=`<div class="carte"><b>Baromètre d'affluence des concurrents, du lundi au vendredi</b>
     <div class="sub w" style="margin-top:4px">Relevé Google Maps du ${dfr(D.releve)}. <b style="color:var(--txt)">${nb} officine${nb>1?'s':''} sur ${T.length}</b> ${affRayon==='Toutes'?'':'à moins de '+affRayon+' km '}ont une courbe d'affluence sur Google. Pour les autres, Google n'a pas assez de passages enregistrés.</div>
     <div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Comment lire :</b> 100 % = l'heure la plus chargée <u>de cette officine</u>. Les pourcentages comparent les heures et les jours d'une même officine, pas la taille des officines entre elles. Case pointillée = fermée.</div></div>`;
-  if(!nb)return liste+filt+tete;
+  if(!nb)return cmp+liste+filt+tete;
   const N=D.nous&&D.nous.j?D.nous:null,NS=N?affNousStats(N):null;
   const nH=h=>NS?Math.round(jours.reduce((s,j)=>s+NS.pct(j,h),0)/jours.length):0,nV=h=>N?jours.reduce((s,j)=>s+affNV(N,j,h),0)/jours.length:0;
   const bars=`<div class="affb">${syn.map(x=>`<div class="affbc"><div class="affbv${N?' duo':''}" title="Concurrents ${x.moy} %${N?' · vous '+nH(x.h)+' % ('+r1(nV(x.h))+' ventes/h)':''}"><div style="height:${x.moy}%"></div>${N?`<div class="n" style="height:${nH(x.h)}%"></div>`:''}</div><div class="affh">${x.h}</div><div class="sub" style="font-size:10px;text-align:center">${Math.round(x.ouv)}/${Math.round(x.tot)}</div></div>`).join('')}</div>`;
@@ -2264,8 +2294,10 @@ async function vueAffluence(O,F){const D=await chargerAff();if(!D)return '<div c
   const reste=`${FG.length?`<div class="carte al"><b class="t">Google les indique « définitivement fermées » (${FG.length})</b><div class="sub w">Notre liste les compte encore comme ouvertes : à vérifier sur place ou au Répertoire des officines.</div>${FG.map(({o})=>`<div class="ligne vf" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${esc(o.nom)} <span class="sub">${kmFr(o.dist)} km</span></span><span>›</span></div>`).join('')}</div>`:''}
     ${SANS.length?`<details class="carte"><summary style="cursor:pointer"><b>Sans courbe d'affluence sur Google (${SANS.length})</b></summary><div class="sub w">Trop peu de passages enregistrés par Google pour publier une courbe : souvent des officines de quartier, plus petites.</div>${SANS.map(({o,e})=>`<div class="ligne vf" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${esc(o.nom)} <span class="sub">${kmFr(o.dist)} km${e.note?' · '+esc(e.note):''}</span></span><span>›</span></div>`).join('')}</details>`:''}
     <div class="sub w" style="margin:4px">Prochain relevé conseillé : ${dfr(new Date(new Date(D.releve).getTime()+31*864e5).toISOString().slice(0,10))}, pour voir avant / après si les heures de pointe des concurrents bougent (et si nos actions sur le créneau de midi en prennent une part). ${esc(D.source)}</div>`;
-  return liste+`<div class="titre">Synthèse par heure</div>`+filt+tete+filtJ+syncarte+nous+`<div class="titre">Officine par officine (de la plus proche à la plus éloignée)</div>`+cartes+reste}
-function brancherAff(){document.querySelectorAll('.affOuv').forEach(b=>b.onclick=()=>{affSel=b.dataset.n;concurrence();scrollTo(0,0)});const r=document.getElementById('affRet');if(r)r.onclick=()=>{affSel='';concurrence();setTimeout(()=>{const l=document.getElementById('affListe');if(l)l.scrollIntoView()},60)};const dl=document.getElementById('affListe');if(dl)dl.ontoggle=()=>{try{ls.set('pil_affListe',dl.open?'1':'0')}catch(e){}};document.querySelectorAll('#faf button').forEach(b=>b.onclick=()=>{affRayon=b.dataset.f;concurrence()});document.querySelectorAll('#fjf button').forEach(b=>b.onclick=()=>{affJour=b.dataset.f;const y=scrollY;concurrence();setTimeout(()=>scrollTo(0,y),60)})}
+  return cmp+liste+`<div class="titre">Synthèse par heure</div>`+filt+tete+filtJ+syncarte+nous+`<div class="titre">Officine par officine (de la plus proche à la plus éloignée)</div>`+cartes+reste}
+function brancherCmp(){const s=document.getElementById('affCmpSel');if(s)s.onchange=()=>{affCmp=s.value;try{ls.set('pil_affCmp',affCmp)}catch(e){}const y=scrollY;concurrence();setTimeout(()=>scrollTo(0,y),60)};
+  document.querySelectorAll('#fcj button').forEach(b=>b.onclick=()=>{affCmpJ=b.dataset.f;const y=scrollY;concurrence();setTimeout(()=>scrollTo(0,y),60)})}
+function brancherAff(){brancherCmp();document.querySelectorAll('.affOuv').forEach(b=>b.onclick=()=>{affSel=b.dataset.n;concurrence();scrollTo(0,0)});const r=document.getElementById('affRet');if(r)r.onclick=()=>{affSel='';concurrence();setTimeout(()=>{const l=document.getElementById('affListe');if(l)l.scrollIntoView()},60)};const dl=document.getElementById('affListe');if(dl)dl.ontoggle=()=>{try{ls.set('pil_affListe',dl.open?'1':'0')}catch(e){}};document.querySelectorAll('#faf button').forEach(b=>b.onclick=()=>{affRayon=b.dataset.f;concurrence()});document.querySelectorAll('#fjf button').forEach(b=>b.onclick=()=>{affJour=b.dataset.f;const y=scrollY;concurrence();setTimeout(()=>scrollTo(0,y),60)})}
 function bindCon(){document.querySelectorAll('[data-aff-liste]').forEach(b=>b.onclick=()=>{affSel='';sousCon='aff';try{ls.set('pil_affListe','1')}catch(e){}concurrence();scrollTo(0,0)});document.querySelectorAll('[data-aff]').forEach(b=>b.onclick=()=>{affSel=b.dataset.aff;sousCon='aff';concurrence();scrollTo(0,0)});document.querySelectorAll('.vf').forEach(b=>b.onclick=()=>ouvrirFicheCon(b.dataset.n));document.querySelectorAll('#scn button').forEach(b=>b.onclick=()=>{sousCon=b.dataset.k;concurrence();scrollTo(0,0)});
   document.querySelectorAll('#rcn button').forEach(b=>b.onclick=()=>{rayonCon=+b.dataset.r;concurrence()});
   document.querySelectorAll('#fcn button').forEach(b=>b.onclick=()=>{filtreCon=b.dataset.f;concurrence()});
@@ -2357,8 +2389,8 @@ async function vueFicheCon(){await chargerGeo();await chargerAff();const C=A.con
   const g=geoDe(o),a=analyseDe(o),cp=comptes(g),fer=o.statut==='fermée',coul=NIVC(a.niveau);
   const d=g&&CGEO?distKm(CGEO.nous,g):o.dist;
   const ca=cp.ca?`<b>${mEur(cp.ca)}</b> <span class="sub">publié (exercice ${cp.anneeCa})</span>`:cp.estim?`<b>${kmFr(cp.estim[0])} à ${kmFr(cp.estim[1])} M€</b> <span class="sub">estimation (${esc(cp.tranche)})</span>`:'<b>non publié</b> <span class="sub">et effectif non déclaré : pas d\'estimation possible</span>';
-  const affE=AFF&&AFF.off[o.nom],affH=affE&&affE.statut==='ok'?`<div class="carte"><b>📈 Affluence relevée par Google (lundi → vendredi)</b>${affGrille(affE,affStats(affE))}<div class="sub w">Relevé du ${dfr(AFF.releve)}. 100 % = son heure la plus chargée. Case pointillée = fermée. <span class="lien" data-aff="${esc(o.nom)}" style="cursor:pointer">Voir le détail ›</span></div></div>`:AFF&&affE?`<div class="sub w" style="margin:0 4px 8px">📈 Affluence : ${affE.statut==='fermee'?'Google indique cette officine « définitivement fermée ».':'Google ne publie pas de courbe d\'affluence pour cette officine.'}</div>`:'';
-  return `<button class="btn sec" id="retCon" style="margin:0 0 10px">← Retour</button>${affH}
+  const affE=AFF&&AFF.off[o.nom],affH=affE&&affE.statut==='ok'?`<div class="carte"><b>📈 Affluence relevée par Google${affE.proxy?' (centre commercial)':''}</b>${affGrille(affE,affStats(affE),AFF_JN.filter(j=>affE.j[j]))}<div class="sub w">Relevé du ${dfr(AFF.releve)}. 100 % = son heure la plus chargée. Case pointillée = fermée. <span class="lien" data-aff="${esc(o.nom)}" style="cursor:pointer">Voir le détail ›</span></div></div>`:AFF&&affE?`<div class="sub w" style="margin:0 4px 8px">📈 Affluence : ${affE.statut==='fermee'?'Google indique cette officine « définitivement fermée ».':'Google ne publie pas de courbe d\'affluence pour cette officine.'}</div>`:'';
+  return `<button class="btn sec" id="retCon" style="margin:0 0 10px">← Retour</button>${affH}${affE&&affE.statut==='ok'?affCompare(o,affE,AFF.nous):''}
   <div class="carte" style="border-left:6px solid ${fer?'#000':coul}"><div style="display:flex;gap:10px;align-items:baseline">${a.rang?`<b style="font-size:24px;color:${coul}">${a.rang}</b>`:''}<div style="flex:1"><b style="font-size:17px">${esc(o.nom)}</b>
    <div class="sub w">${esc(o.adresse||'')}, ${esc(o.commune)}</div></div></div>
    <div class="kpis" style="margin-top:10px;grid-template-columns:repeat(3,1fr)"><div><div class="sub">Distance</div><b>${kmFr((+d).toFixed(1))} km</b></div><div><div class="sub">Menace</div><b style="color:${fer?'#000':coul}">${fer?'fermée':esc(a.niveau)}</b></div><div><div class="sub">Groupement</div><b>${esc(o.groupement||'—')}</b></div></div>
@@ -2383,7 +2415,7 @@ async function vueFicheCon(){await chargerGeo();await chargerAff();const C=A.con
   ${o.actualite&&!fer?`<div class="carte"><b>Actualité</b><div class="sub w" style="margin-top:4px">${esc(o.actualite)}</div></div>`:''}
   ${o.incertitudes?`<div class="carte al o"><b class="t">Points à vérifier</b><div class="sub w">${esc(o.incertitudes)}</div></div>`:''}
   <div class="sub w" style="margin:4px">Sources : ${(o.sources||[]).map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`).join(' · ')}${g?' · position '+esc(g.src):''}</div>`}
-async function brancherFicheCon(){const r=$('#retCon');if(r)r.onclick=()=>{sousCon=sousConAvant||'carte';concurrence();scrollTo(0,0)};
+async function brancherFicheCon(){brancherCmp();const r=$('#retCon');if(r)r.onclick=()=>{sousCon=sousConAvant||'carte';concurrence();scrollTo(0,0)};
   document.querySelectorAll('#ffond button').forEach(b=>b.onclick=()=>{carteFond=b.dataset.f;concurrence()});
   const el=document.getElementById('fcarte');if(!el)return;const o=A.concurrence.officines.find(x=>x.nom===ficheCon),g=geoDe(o);let L;
   try{L=await chargerLeaflet()}catch(e){el.innerHTML='<p class="vide">Carte indisponible.</p>';return}
