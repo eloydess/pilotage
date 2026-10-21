@@ -57,7 +57,7 @@ label{display:block;font-size:12px;color:var(--doux);margin:10px 0 4px}
 #toast{position:fixed;left:50%;bottom:calc(124px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#263238;color:#fff;padding:9px 16px;border-radius:20px;font-size:14px;opacity:0;transition:.3s;pointer-events:none;z-index:9;max-width:90%}
 #toast.on{opacity:1}
 .vide{color:var(--doux);text-align:center;padding:24px 0}
-.affg{display:grid;grid-template-columns:30px repeat(13,minmax(0,1fr));gap:2px;margin-top:8px}.affc{height:20px;border-radius:3px}.affh{font-size:10px;color:var(--doux);text-align:center}.affj{font-size:11px;color:var(--doux);align-self:center}.affb{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:3px;margin-top:10px}.affbv{height:90px;display:flex;align-items:flex-end;background:var(--fond);border-radius:4px;overflow:hidden}.affbv>div{width:100%;background:rgba(230,81,0,.75);border-radius:4px 4px 0 0}
+.affg{display:grid;grid-template-columns:30px repeat(13,minmax(0,1fr));gap:2px;margin-top:8px}.affc{height:20px;border-radius:3px}.affh{font-size:10px;color:var(--doux);text-align:center}.affj{font-size:11px;color:var(--doux);align-self:center}.affb{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:3px;margin-top:10px}.affbv{height:90px;display:flex;align-items:flex-end;background:var(--fond);border-radius:4px;overflow:hidden}.affbv>div{width:100%;background:rgba(230,81,0,.75);border-radius:4px 4px 0 0}.affbv.duo{gap:1px}.affbv.duo>div{width:50%}.affbv.duo>div.n{background:var(--vert2)}.affleg{display:inline-block;width:10px;height:10px;border-radius:2px;margin:0 4px 0 8px;vertical-align:-1px}
 .ico{font-size:20px;width:26px;text-align:center;flex:none}
 .barre{height:10px;border-radius:5px;background:var(--ligne);overflow:hidden;margin:8px 0 4px;position:relative}.barre i{display:block;height:100%;background:var(--vert2)}
 .tuiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.tuile{background:var(--carte);border:1px solid var(--ligne);border-radius:12px;padding:10px 8px;text-align:center;cursor:pointer}.tuile b{display:block;font-size:22px}.tuile span{font-size:11px;color:var(--doux)}
@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.55';
+const APP_V='6.56';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -2188,6 +2188,21 @@ function affStats(e){const S={pk:{v:-1},cr:{v:999},tot:[0,0,0,0,0,0],midiF:0,soi
   AFF_J.forEach(j=>{if(!e.j[j])return;S.n++;AFF_H.forEach(h=>{const v=affV(e,j,h);S.tot[j]+=v;if(h<=12)S.mat+=v;else if(h>=14)S.apm+=v;if(v>S.pk.v)S.pk={v,j,h};if(v>0&&v<S.cr.v)S.cr={v,j,h}});if(affV(e,j,13)===0)S.midiF++;if(affV(e,j,19)===0)S.soirF++;AFF_H.forEach(h=>{if(affV(e,j,h)>0&&h>(S.fin||0))S.fin=h})});
   let jm=0;AFF_J.forEach(j=>{if(S.tot[j]>(S.tot[jm]||-1))jm=j});S.jMax=jm;const t=S.mat+S.apm;S.pMat=t?Math.round(S.mat/t*100):null;return S}
 const affCase=(v,pk)=>v===0?`<div class="affc" style="background:transparent;border:1px dashed var(--ligne)" title="fermée"></div>`:`<div class="affc" style="background:rgba(230,81,0,${(0.1+0.9*v/100).toFixed(2)})${pk?';outline:2px solid var(--txt);outline-offset:-1px':''}" title="${v} %"></div>`;
+/* 6.56 : courbe d'affluence de VOTRE pharmacie (Vindilis, tickets de caisse hors recyclage, lundi → samedi).
+   D.nous.j[jour][h-6] = ventes moyennes par heure ; on la ramène en % de votre heure la plus chargée pour la comparer aux courbes Google. */
+const AFF_JN=[1,2,3,4,5,6],AFF_JCN=['','Lun','Mar','Mer','Jeu','Ven','Sam'];
+const affNV=(N,j,h)=>{const a=N&&N.j&&N.j[j];return a?(a[h-6]||0):0};
+function affNousStats(N){const S={pk:{v:-1},cr:{v:999},tot:[0,0,0,0,0,0,0],mat:0,apm:0};
+  AFF_JN.forEach(j=>AFF_H.forEach(h=>{const v=affNV(N,j,h);S.tot[j]+=v;if(h<=12)S.mat+=v;else if(h>=14)S.apm+=v;if(v>S.pk.v)S.pk={v,j,h};if(h>=9&&h<=19&&v<S.cr.v)S.cr={v,j,h}}));
+  S.pct=(j,h)=>S.pk.v>0?Math.round(affNV(N,j,h)/S.pk.v*100):0;
+  const ord=AFF_JN.slice().sort((a,b)=>S.tot[b]-S.tot[a]);S.jMax=ord[0];S.j2=ord[1];S.jMin=ord[ord.length-1];
+  S.pMat=Math.round(S.mat/(S.mat+S.apm)*100);
+  const m=N.mois||{},tm=k=>m[k]?AFF_JN.reduce((s,j)=>s+AFF_H.reduce((t,h)=>t+((m[k][j]||[])[h-6]||0),0),0):0;
+  const ks=Object.keys(m).sort();if(ks.length>=2){const a=ks[ks.length-2],b=ks[ks.length-1],va=tm(a),vb=tm(b);if(va)S.tend={a,b,ev:(vb-va)/va*100}}
+  return S}
+function affGrilleN(N,S){const r1=v=>String(Math.round(v*10)/10).replace('.',',');
+  return `<div class="affg"><div></div>${AFF_H.map(h=>`<div class="affh">${h}</div>`).join('')}${AFF_JN.map(j=>`<div class="affj">${AFF_JCN[j]}</div>${AFF_H.map(h=>{const v=affNV(N,j,h),p=S.pct(j,h),pk=S.pk.j===j&&S.pk.h===h;return v<0.5?`<div class="affc" style="background:transparent;border:1px dashed var(--ligne)" title="moins d'une vente par heure"></div>`:`<div class="affc" style="background:rgba(46,125,50,${(0.1+0.9*p/100).toFixed(2)})${pk?';outline:2px solid var(--txt);outline-offset:-1px':''}" title="${r1(v)} ventes/h (${p} %)"></div>`}).join('')}`).join('')}</div>`}
+const AFF_MOIS=k=>{const [a,m]=k.split('-');return ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][+m-1]+' '+a};
 function affGrille(e,S){
   return `<div class="affg"><div></div>${AFF_H.map(h=>`<div class="affh">${h}</div>`).join('')}${AFF_J.map(j=>`<div class="affj">${AFF_JC[j]}</div>${AFF_H.map(h=>{const v=affV(e,j,h);return v==null?'<div class="affc"></div>':affCase(v,S&&S.pk.j===j&&S.pk.h===h)}).join('')}`).join('')}</div>`}
 function affCarte(o,e){const S=affStats(e);return `<div class="carte demi"><div style="display:flex;gap:8px;align-items:baseline"><div style="flex:1;min-width:0"><b>${o.analyse?`<span style="color:${NIVC(o.analyse.niveau)}">${o.analyse.rang}.</span> `:''}${esc(o.nom)}</b><div class="sub">${esc((o.commune||'').replace(/^\d+ /,''))} · <b>${kmFr(o.dist)} km</b> · Google : « ${esc(e.google)} », ${e.avis} avis</div></div></div>
@@ -2216,14 +2231,35 @@ async function vueAffluence(O,F){const D=await chargerAff();if(!D)return '<div c
     <div class="sub w" style="margin-top:4px">Relevé Google Maps du ${dfr(D.releve)}. <b style="color:var(--txt)">${nb} officine${nb>1?'s':''} sur ${T.length}</b> ${affRayon==='Toutes'?'':'à moins de '+affRayon+' km '}ont une courbe d'affluence sur Google. Pour les autres, Google n'a pas assez de passages enregistrés.</div>
     <div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Comment lire :</b> 100 % = l'heure la plus chargée <u>de cette officine</u>. Les pourcentages comparent les heures et les jours d'une même officine, pas la taille des officines entre elles. Case pointillée = fermée.</div></div>`;
   if(!nb)return liste+filt+tete;
-  const bars=`<div class="affb">${syn.map(x=>`<div class="affbc"><div class="affbv" title="${x.moy} %"><div style="height:${x.moy}%"></div></div><div class="affh">${x.h}</div><div class="sub" style="font-size:10px;text-align:center">${Math.round(x.ouv)}/${Math.round(x.tot)}</div></div>`).join('')}</div>`;
-  const syncarte=`<div class="carte" style="border-left:6px solid var(--orange)"><b>Quand vos concurrents sont pleins${affJour==='moy'?' (moyenne du lundi au vendredi)':' le '+AFF_JL[+affJour]}</b>
-    ${bars}<div class="sub w">Hauteur = remplissage moyen des officines ouvertes à cette heure. Sous chaque barre : officines ouvertes / officines suivies.</div>
+  const N=D.nous&&D.nous.j?D.nous:null,NS=N?affNousStats(N):null;
+  const nH=h=>NS?Math.round(jours.reduce((s,j)=>s+NS.pct(j,h),0)/jours.length):0,nV=h=>N?jours.reduce((s,j)=>s+affNV(N,j,h),0)/jours.length:0;
+  const bars=`<div class="affb">${syn.map(x=>`<div class="affbc"><div class="affbv${N?' duo':''}" title="Concurrents ${x.moy} %${N?' · vous '+nH(x.h)+' % ('+r1(nV(x.h))+' ventes/h)':''}"><div style="height:${x.moy}%"></div>${N?`<div class="n" style="height:${nH(x.h)}%"></div>`:''}</div><div class="affh">${x.h}</div><div class="sub" style="font-size:10px;text-align:center">${Math.round(x.ouv)}/${Math.round(x.tot)}</div></div>`).join('')}</div>`;
+  const syncarte=`<div class="carte" style="border-left:6px solid var(--orange)"><b>Quand vos concurrents sont pleins${N?' (et vous)':''}${affJour==='moy'?' (moyenne du lundi au vendredi)':' le '+AFF_JL[+affJour]}</b>
+    ${bars}<div class="sub w">${N?'<span class="affleg" style="background:rgba(230,81,0,.75);margin-left:0"></span>concurrents (Google)<span class="affleg" style="background:var(--vert2)"></span>vous (Vindilis)<br>':''}Hauteur = remplissage en % de l'heure la plus chargée${N?' (pour vous : votre heure de pointe de la semaine, samedi compris)':''} ; concurrents = moyenne des officines ouvertes à cette heure. Sous chaque barre : officines ouvertes / officines suivies.</div>
     <div style="margin-top:8px;font-size:14px">${pic?`• <b>Heure la plus chargée chez eux : ${pic.h} h</b> (${pic.moy} % de leur maximum en moyenne).<br>`:''}
     • <b>De 13 h à 14 h, ${affNb(Math.round(f13.tot-f13.ouv),Math.round(f13.tot),'est fermée','sont fermées')}.</b> Vous êtes ouverts sans coupure : c'est le créneau à faire savoir.<br>
     • <b>Entre 19 h et 20 h, ${affNb(Math.round(f19.tot-f19.ouv),Math.round(f19.tot),'est déjà fermée','sont déjà fermées')}</b> ; celles qui restent ouvertes tournent à ${f19.moy} % de leur maximum. Vous êtes ouverts jusqu'à 20 h.<br>
     ${affJour==='moy'?`• <b>Jour le plus chargé chez eux : ${AFF_JL[jMax]}</b> (${jTot[jMax-1]} % de leur semaine), le plus calme : ${AFF_JL[jMin]} (${jTot[jMin-1]} %). Une semaine parfaitement égale ferait 20 % par jour.`:''}</div></div>`;
-  const nous=`<div class="carte al"><b class="t">Et votre pharmacie ?</b><div class="sub w">Google ne donne pas votre courbe : votre fiche Google est marquée « définitivement fermée » (c'est voulu, pour bloquer les avis). Pour vous comparer, il faudra votre propre courbe heure par heure, à partir des tickets de caisse Vindilis.</div></div>`;
+  let nous;
+  if(!N)nous=`<div class="carte al"><b class="t">Et votre pharmacie ?</b><div class="sub w">Google ne donne pas votre courbe : votre fiche Google est marquée « définitivement fermée » (c'est voulu, pour bloquer les avis). Pour vous comparer, il faudra votre propre courbe heure par heure, à partir des tickets de caisse Vindilis.</div></div>`;
+  else{const S=NS,e0=x=>Math.round(x),jl=j=>AFF_JL[j];
+    /* comparaison sur les jours choisis (lun → ven ou un jour) */
+    const nPk=AFF_H.reduce((a,h)=>nV(h)>nV(a)?h:a,AFF_H[0]),j5=AFF_J.map(j=>S.tot[j]),t5=j5.reduce((a,b)=>a+b,0),nJ=j5.map(v=>Math.round(v/t5*100));
+    const nJMax=AFF_J[j5.indexOf(Math.max(...j5))],nJMin=AFF_J[j5.indexOf(Math.min(...j5))];
+    const calmes=AFF_H.filter(h=>h>=9&&h<=19).map(h=>({h,c:(syn.find(x=>x.h===h)||{}).moy||0,n:nH(h)})).filter(x=>x.c>=60&&x.n<=60).map(x=>x.h);
+    nous=`<div class="carte" style="border-left:6px solid var(--vert2)"><b>Votre pharmacie : ventes heure par heure, du lundi au samedi</b>
+    <div class="sub w" style="margin-top:4px">Tickets de caisse Vindilis, recyclage exclu, ${esc(N.periode)}. Couleur = % de votre heure la plus chargée ; sur ordinateur, survolez une case pour le nombre de ventes.</div>
+    ${affGrilleN(N,S)}
+    <div class="sub w" style="margin-top:6px">Pic : <b style="color:var(--txt)">${jl(S.pk.j)} ${S.pk.h} h</b> (${e0(S.pk.v)} ventes/h) · le plus calme : ${jl(S.cr.j)} ${S.cr.h} h (${e0(S.cr.v)} ventes/h)<br>
+    Ventes par jour : ${AFF_JN.map(j=>`${AFF_JCN[j]} <b style="color:var(--txt)">${e0(S.tot[j])}</b>`).join(' · ')}<br>
+    Matin ${S.pMat} % · après-midi ${100-S.pMat} % des ventes · de 13 h à 14 h : ${e0(AFF_J.reduce((s,j)=>s+affNV(N,j,13),0)/5)} ventes/h en moyenne du lundi au vendredi${S.tend?`<br>Tendance : ${AFF_MOIS(S.tend.b)} ${S.tend.b==='2026-10'?'(jusqu\'au 21) ':''}<b class="${S.tend.ev>=0?'pos':'neg'}">${S.tend.ev>=0?'+':''}${String(Math.round(S.tend.ev*10)/10).replace('.',',')} %</b> de ventes par jour moyen par rapport à ${AFF_MOIS(S.tend.a)}`:''}</div>
+    <div style="margin-top:8px;font-size:14px"><b>Vous face aux concurrents${affJour==='moy'?' (lundi → vendredi)':' le '+jl(+affJour)}</b><br>
+    • Heure la plus chargée : <b>${nPk} h chez vous</b>${pic?`, ${pic.h} h chez eux`:''}.<br>
+    ${affJour==='moy'?`• Jour le plus chargé : <b>${jl(nJMax)} chez vous</b> (${nJ[nJMax-1]} % de votre semaine lun → ven), ${jl(jMax)} chez eux ; le plus calme : ${jl(nJMin)} chez vous, ${jl(jMin)} chez eux.<br>`:''}
+    • De 13 h à 14 h vous faites ${r1(nV(13))} ventes/h (${nH(13)} % de votre pic) pendant que ${affNb(Math.round(f13.tot-f13.ouv),Math.round(f13.tot),'est fermée','sont fermées')}.<br>
+    • De 19 h à 20 h : ${r1(nV(19))} ventes/h chez vous (${nH(19)} % de votre pic).<br>
+    ${calmes.length?`• <b>Créneaux où ils sont pleins (≥ 60 %) et vous plus calme (≤ 60 %) : ${calmes.map(h=>h+' h').join(', ')}</b> — c'est là qu'il y a des clients à aller chercher (écrans, vitrine, offre du créneau).`:'• Aucun créneau où ils sont pleins alors que vous êtes calme : vos heures chargées suivent les leurs.'}</div>
+    <div class="sub w" style="margin-top:6px">Les pourcentages comparent la forme des courbes (heures et jours), pas les volumes : Google mesure des passages de téléphones, Vindilis des ventes. Valeurs arrondies à l'entier par Vindilis. Prochain relevé conseillé : début décembre (novembre complet), pour mesurer l'effet des actions avant / après.</div></div>`}
   const cartes=AV.map(({o,e})=>affCarte(o,e)).join('');
   const reste=`${FG.length?`<div class="carte al"><b class="t">Google les indique « définitivement fermées » (${FG.length})</b><div class="sub w">Notre liste les compte encore comme ouvertes : à vérifier sur place ou au Répertoire des officines.</div>${FG.map(({o})=>`<div class="ligne vf" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${esc(o.nom)} <span class="sub">${kmFr(o.dist)} km</span></span><span>›</span></div>`).join('')}</div>`:''}
     ${SANS.length?`<details class="carte"><summary style="cursor:pointer"><b>Sans courbe d'affluence sur Google (${SANS.length})</b></summary><div class="sub w">Trop peu de passages enregistrés par Google pour publier une courbe : souvent des officines de quartier, plus petites.</div>${SANS.map(({o,e})=>`<div class="ligne vf" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${esc(o.nom)} <span class="sub">${kmFr(o.dist)} km${e.note?' · '+esc(e.note):''}</span></span><span>›</span></div>`).join('')}</details>`:''}
