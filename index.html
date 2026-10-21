@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.57';
+const APP_V='6.58';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -2179,7 +2179,7 @@ function concurrence(){libererCarte();fab(null);$('#ht').textContent='Concurrenc
    Source : affluence.json (relevé du bloc « Horaires d'affluence » de chaque fiche Google Maps).
    Chaque valeur = % de l'heure la plus chargée de LA MÊME officine (100 = son heure de pointe) : on compare des heures,
    pas des volumes entre officines. 0 = fermée (ou personne) à cette heure. */
-let AFF=null,affRayon='3',affJour='moy',affSel='';
+let AFF=null,affRayon='Toutes',affJour='moy',affSel='';
 async function chargerAff(){if(AFF)return AFF;try{AFF=await (await fetch('affluence.json?frais=1')).json()}catch(e){AFF=null}return AFF}
 const AFF_H=[8,9,10,11,12,13,14,15,16,17,18,19,20],AFF_J=[1,2,3,4,5],AFF_JC=['','Lun','Mar','Mer','Jeu','Ven','Sam'],AFF_JL=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
 const affNb=(k,n,s1,sp)=>k===0?`aucune des ${n} officines n'${s1.replace('déjà','encore')}`:`${k} officine${k>1?'s':''} sur ${n} ${k>1?sp:s1}`;
@@ -2255,10 +2255,10 @@ async function vueAffluence(O,F){const D=await chargerAff();if(!D)return '<div c
   const jTot=AFF_J.map(j=>AV.length?Math.round(AV.reduce((s,x)=>{const S=affStats(x.e),t=S.tot.slice(1).reduce((a,b)=>a+b,0);return s+(t?S.tot[j]/t*100:0)},0)/AV.length):0);
   const jMax=jTot.indexOf(Math.max(...jTot))+1,jMin=jTot.indexOf(Math.min(...jTot))+1;
   const r1=v=>String(Math.round(v*10)/10).replace('.',',');
-  const filt=`<div class="filtres" id="faf">${['1','3','Toutes'].map(k=>`<button data-f="${k}" class="${k===affRayon?'on':''}">${/^\d/.test(k)?'< '+k+' km':'Toutes'}</button>`).join('')}</div>`;
+  const filt=`<div class="filtres" id="faf">${['Toutes','3','1'].map(k=>`<button data-f="${k}" class="${k===affRayon?'on':''}">${/^\d/.test(k)?'< '+k+' km':'Les '+O.length+' officines'}</button>`).join('')}</div>`;
   const filtJ=`<div class="filtres" id="fjf">${[['moy','Lun → ven']].concat(AFF_J.map(j=>[String(j),AFF_JL[j][0].toUpperCase()+AFF_JL[j].slice(1)])).map(([k,l])=>`<button data-f="${k}" class="${k===affJour?'on':''}">${l}</button>`).join('')}</div>`;
   const tete=`<div class="carte"><b>Baromètre d'affluence des concurrents, du lundi au vendredi</b>
-    <div class="sub w" style="margin-top:4px">Relevé Google Maps du ${dfr(D.releve)}. <b style="color:var(--txt)">${nb} officine${nb>1?'s':''} sur ${T.length}</b> ${affRayon==='Toutes'?'':'à moins de '+affRayon+' km '}ont une courbe d'affluence sur Google. Pour les autres, Google n'a pas assez de passages enregistrés.</div>
+    <div class="sub w" style="margin-top:4px">Relevé Google Maps du ${dfr(D.releve)}. <b style="color:var(--txt)">${nb} officine${nb>1?'s':''} sur ${T.length}</b> ${affRayon==='Toutes'?'':'à moins de '+affRayon+' km '}ont une courbe d'affluence sur Google${T.some(x=>x.e.proxy)?' (+ '+T.filter(x=>x.e.proxy).map(x=>esc(x.o.nom)).join(', ')+' par la courbe de son centre commercial, hors moyennes)':''}. Pour les autres, Google n'a pas assez de passages enregistrés.</div>
     <div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Comment lire :</b> 100 % = l'heure la plus chargée <u>de cette officine</u>. Les pourcentages comparent les heures et les jours d'une même officine, pas la taille des officines entre elles. Case pointillée = fermée.</div></div>`;
   if(!nb)return cmp+liste+filt+tete;
   const N=D.nous&&D.nous.j?D.nous:null,NS=N?affNousStats(N):null;
@@ -2290,7 +2290,7 @@ async function vueAffluence(O,F){const D=await chargerAff();if(!D)return '<div c
     • De 19 h à 20 h : ${r1(nV(19))} ventes/h chez vous (${nH(19)} % de votre pic).<br>
     ${calmes.length?`• <b>Créneaux où ils sont pleins (≥ 60 %) et vous plus calme (≤ 60 %) : ${calmes.map(h=>h+' h').join(', ')}</b> — c'est là qu'il y a des clients à aller chercher (écrans, vitrine, offre du créneau).`:'• Aucun créneau où ils sont pleins alors que vous êtes calme : vos heures chargées suivent les leurs.'}</div>
     <div class="sub w" style="margin-top:6px">Les pourcentages comparent la forme des courbes (heures et jours), pas les volumes : Google mesure des passages de téléphones, Vindilis des ventes. Valeurs arrondies à l'entier par Vindilis. Prochain relevé conseillé : début décembre (novembre complet), pour mesurer l'effet des actions avant / après.</div></div>`}
-  const cartes=AV.map(({o,e})=>affCarte(o,e)).join('');
+  const PX=T.filter(x=>x.e.statut==='ok'&&x.e.proxy);const cartes=AV.concat(PX).sort((a,b)=>a.o.dist-b.o.dist).map(({o,e})=>affCarte(o,e)).join('');
   const reste=`${FG.length?`<div class="carte al"><b class="t">Google les indique « définitivement fermées » (${FG.length})</b><div class="sub w">Notre liste les compte encore comme ouvertes : à vérifier sur place ou au Répertoire des officines.</div>${FG.map(({o})=>`<div class="ligne vf" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${esc(o.nom)} <span class="sub">${kmFr(o.dist)} km</span></span><span>›</span></div>`).join('')}</div>`:''}
     ${SANS.length?`<details class="carte"><summary style="cursor:pointer"><b>Sans courbe d'affluence sur Google (${SANS.length})</b></summary><div class="sub w">Trop peu de passages enregistrés par Google pour publier une courbe : souvent des officines de quartier, plus petites.</div>${SANS.map(({o,e})=>`<div class="ligne vf" data-n="${esc(o.nom)}" style="cursor:pointer"><span>${esc(o.nom)} <span class="sub">${kmFr(o.dist)} km${e.note?' · '+esc(e.note):''}</span></span><span>›</span></div>`).join('')}</details>`:''}
     <div class="sub w" style="margin:4px">Prochain relevé conseillé : ${dfr(new Date(new Date(D.releve).getTime()+31*864e5).toISOString().slice(0,10))}, pour voir avant / après si les heures de pointe des concurrents bougent (et si nos actions sur le créneau de midi en prennent une part). ${esc(D.source)}</div>`;
