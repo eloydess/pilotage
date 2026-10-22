@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.64';
+const APP_V='6.65';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -560,7 +560,14 @@ async function chargerAudit(){const c=cfg();if(!c.code||_audEnCours)return;_audE
     if(n&&(!o||n.data!==o.data||!A)){try{const a=await dechiffrerVite(n,c.code);A=a;ls.set('pil_audit',JSON.stringify(n));auditErr='';majBandeau();planifierRendu();chargerEtat()}catch(e){if(!A)auditErr='Analyses illisibles avec ce code d\'accès.'}}
     if(!A&&!n&&!o)auditErr='Analyses indisponibles (hors ligne).'}
   finally{_audEnCours=false}}
-function majBandeau(){const m=$('#maj');if(m)m.textContent=A?'Analyses du '+A.majLib.replace(/^\w+ /,'').replace(' 2026',''):''}
+/* 6.65 : le bandeau dit clairement de quand datent les chiffres (CA, marges, prix…) et depuis combien de jours ; en orange au-delà d'un jour */
+function majBandeau(){const m=$('#maj');if(!m)return;if(!A){m.textContent='';return}
+  const d=new Date(A.maj),ok=!isNaN(d),j=ok?Math.floor((new Date().setHours(0,0,0,0)-new Date(d).setHours(0,0,0,0))/864e5):null;
+  const lib=ok?'Chiffres du '+d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+', '+d.getHours()+' h':'Chiffres du '+A.majLib.replace(/^\w+ /,'').replace(' 2026','');
+  m.textContent=lib+(j===null?'':j<=0?' · aujourd\'hui':j===1?' · hier':' · il y a '+j+' jours');
+  m.style.color=j!==null&&j>1?'#ffb74d':'';m.style.fontWeight=j!==null&&j>1?'700':'';
+  m.title='Date de la dernière analyse complète (ventes Vindilis, marges, prix, promotions, marché GERS). Elle ne se met pas à jour toute seule : elle est refaite lors d\'une mise à jour des analyses.'}
+setInterval(majBandeau,36e5);
 const pc1=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %');
 const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
 const eurS=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.round(Math.abs(v)).toLocaleString('fr-FR')+' €');
