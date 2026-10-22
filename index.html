@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.66';
+const APP_V='6.67';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -589,7 +589,7 @@ const pasAudit=()=>`<div class="carte al o"><b class="t">Analyses du 15/10 non c
 /* ---------- État partagé (serveur, onglet ETAT_APPLI) : téléphone et ordinateur voient la même chose ---------- */
 let ETAT=(()=>{try{return JSON.parse(ls.get('pil_etat')||'{}')}catch(e){return {}}})();
 async function chargerEtat(){const c=cfg();if(!c.code)return;try{const r=await fetch(c.url,{method:'POST',body:JSON.stringify({code:c.code,action:'etat_get'})});const j=await r.json();if(!j.ok)return;
-  ETAT=j.etat||{};
+  ETAT=j.etat||{};try{appliquerVives()}catch(e){}
   // reprise des cases cochées sur cet appareil avant la synchronisation
   if(A)for(const a of A.actions){const k='act_'+a.id;if(ls.get('pil_act_'+a.id)==='1'&&!(k in ETAT)){ETAT[k]='1';poster({action:'etat_set',cle:k,valeur:'1'})}}
   ls.set('pil_etat',JSON.stringify(ETAT));majBadgeMsg();pastilles();if(D&&(vue==='act'||vue==='acc'))rendre();else{const b=document.getElementById('blocAct');if(b){const o=b.open;b.remove();injecterBloc();const n=document.getElementById('blocAct');if(n)n.open=o}}}catch(e){}}
@@ -1171,7 +1171,7 @@ const PRI_ORD={Urgente:0,Haute:1,Moyenne:2,Basse:3};
 /* ===== 6.22 : Traiter en série — preuves (banque, doublon, suivi RJ), lecture du mail, proposition modifiable ===== */
 /* Rapprochement bancaire ligne par ligne du 18/10/2026 (Caisse d'Épargne depuis le 01/07, BPGO 1 et 2 depuis fin mai).
    st : paye = payé ; ecart = payé avec un écart ; avant = payé avant le jugement du 30/06 ; non = aucun paiement trouvé ; doute = paiements proches, rien d'exact */
-const BQ_RAP={date:'2026-10-18',perim:"Caisse d'Épargne depuis le 01/07/2026, BPGO (2 comptes) depuis fin mai 2026",
+let BQ_RAP={date:'2026-10-18',perim:"Caisse d'Épargne depuis le 01/07/2026, BPGO (2 comptes) depuis fin mai 2026",
  L:[['TRAJECTOIRE',8495.21,'paye','2026-10-05',8495.21,'virement'],['PERRIGO',4157.51,'paye','2026-09-15',4157.51,''],['ABBOTT',4037.13,'paye','2026-08-26',4037.13,'facture 3303235802'],
  ['PIERRE FABRE',3023.89,'paye','2026-10-08',3023.89,''],['CAUDALIE',2938.41,'paye','2026-09-15',2938.39,'2 centimes d’écart'],['EDF',1985.92,'paye','2026-10-05',1985.92,'prélèvement'],
  ['JANSSEN',1711.19,'paye','2026-09-07',1711.19,''],['SANTE AU TRAVAIL',1233.60,'paye','2026-09-23',1233.60,'virement'],['SANTE AU TRAVAIL',1233.62,'paye','2026-09-23',1233.60,'2 centimes d’écart, même facture'],
@@ -1451,9 +1451,9 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
 
 /* ================= 6.10 : COMBIEN JE PEUX PAYER AUJOURD'HUI (jour par jour, 3 semaines) ================= */
 /* 21/10/2026 : les 4 commandes CERP des 13–15/10 non livrées sont abandonnées sur décision du titulaire (elles ne seront pas réceptionnées) : retirées de tous les calculs. */
-const CERP_CMD_ANNULEES='2026-10-21';
-const CERP_CONNUS={'2026-10-19':37936.29};/* débits déjà connus (relevé CERP du 15/10 reçu par mail) */
-const CERP_HIST=[['2026-08-04',46194.52],['2026-08-11',36233.25],['2026-08-18',23120.69],['2026-08-25',29682.35],['2026-09-03',49231.94],['2026-09-10',50162.09],['2026-09-17',32888.48],['2026-09-24',36403.80],['2026-10-05',38684.89],['2026-10-12',37435.04]];/* relevé Caisse d'Épargne */
+let CERP_CMD_ANNULEES='2026-10-21';
+let CERP_CONNUS={'2026-10-19':37936.29};let CERP_RELEVE='2026-10-15';/* débits déjà connus (relevé CERP du 15/10 reçu par mail) */
+let CERP_HIST=[['2026-08-04',46194.52],['2026-08-11',36233.25],['2026-08-18',23120.69],['2026-08-25',29682.35],['2026-09-03',49231.94],['2026-09-10',50162.09],['2026-09-17',32888.48],['2026-09-24',36403.80],['2026-10-05',38684.89],['2026-10-12',37435.04]];/* relevé Caisse d'Épargne */
 const JSEM=['dim.','lun.','mar.','mer.','jeu.','ven.','sam.'];
 const jsem=d=>JSEM[new Date(d+'T12:00:00').getDay()];
 function cerpDates(d0,n){/* CERP : prélèvement chaque lundi depuis octobre (05/10, 12/10 ; le relevé du jeudi est débité le lundi suivant) */const out=[];
@@ -1537,7 +1537,7 @@ function capacite(){const S0=crSyn(),S=crSoldes()?Object.assign({},S0||{},crSold
     ch.forEach(c=>{const cj=Math.min(+c.jour,fm);if(cj===j&&k>0)ev.push([c.lib.replace(/\s*\(.*$/,''),+c.montant||0,c.cat])});
     if(k>0)evtJour(d,k===1).forEach(x=>ev.push(x));
     if(k>0)Object.values(jsonEt('eng',{})).forEach(e=>{if(!e||e.statut!=='valide')return;const de=e.echeance||e.date;if(de===d||(k===1&&de&&de<d))ev.push([(e.tiers||'Engagement')+' (engagement validé)',+e.ttc||0,e.cat||'aut'])});
-    cd.filter(x=>x.prlv===d&&k>0).forEach(x=>{const kn=CERP_CONNUS[x.prlv];ev.push(['CERP'+(kn?' (relevé du 15/10, montant exact)':' (estimé)'),kn||cerpM,'mes'])});
+    cd.filter(x=>x.prlv===d&&k>0).forEach(x=>{const kn=CERP_CONNUS[x.prlv];ev.push(['CERP'+(kn?' (relevé du '+dfr(CERP_RELEVE).slice(0,5)+', montant exact)':' (estimé)'),kn||cerpM,'mes'])});
     const out=ev.reduce((s,x)=>s+x[1],0);b=b+e-out;J.push({d,k,enc:e,ev,out,bal:b})}
   const capAt=k=>Math.min(...J.slice(k).map(x=>x.bal))-P.reserve;const mn=J.reduce((m,x)=>x.bal<m.bal?x:m,J[0]);
   const cap=capAt(0),capRisque=cap-cerpAtt;
@@ -1583,7 +1583,7 @@ function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,
    ${R.cerpAtt>1000?`<div class="al o" style="margin-top:6px;padding:6px 10px;border-radius:8px"><b>⚠ Commandes CERP encore non livrées : ≈ ${eur(R.cerpAtt)}</b><div class="sub w">Les commandes des 13–15/10 ne sont presque pas livrées. Si elles arrivent avant le prochain relevé, elles seront prélevées en plus : votre capacité tomberait à ${R.capRisque>0?eur(R.capRisque):'zéro (il manquerait '+eur(-R.capRisque)+')'}. À vérifier avec la CERP (action A1) avant de payer de gros montants.</div></div>`:''}
    ${court?carteChangements(true):''}
    ${court?`<button class="btn sec" data-go="stk:tre">Voir ce qui va tomber, jour par jour, et les factures payables</button>`:''}</div>
-  ${court?'':`<div class="carte"><b>Ce qui va tomber dans les 5 semaines</b><div class="sub w">Prélèvements et charges fixes (Trésorerie › Charges mensuelles, issues de vos relevés) et prélèvements CERP. La CERP est prélevée <b>chaque lundi</b> depuis octobre (05/10 : 38 684,89 € ; 12/10 : 37 435,04 €). Lundi 19/10 : 37 936,29 €, montant exact du relevé du 15/10. Les lundis suivants sont estimés à ≈ ${eur(R.cerpM)}, la moyenne des 6 derniers prélèvements (de 32 888 € à 50 162 €).</div>
+  ${court?'':`<div class="carte"><b>Ce qui va tomber dans les 5 semaines</b><div class="sub w">Prélèvements et charges fixes (Trésorerie › Charges mensuelles, issues de vos relevés) et prélèvements CERP. La CERP est prélevée <b>chaque lundi</b>. Derniers prélèvements : ${CERP_HIST.slice(-3).map(x=>dfr(x[0]).slice(0,5)+' : '+eur2(x[1])).join(' ; ')}.${(()=>{const K=Object.keys(CERP_CONNUS).filter(d=>d>=auj()).sort();return K.length?' Montant exact connu : '+K.map(d=>'lundi '+dfr(d).slice(0,5)+' : '+eur2(CERP_CONNUS[d])).join(' ; ')+' (relevé du '+dfr(CERP_RELEVE).slice(0,5)+').':''})()} Les autres lundis sont estimés à ≈ ${eur(R.cerpM)}, la moyenne des 6 derniers prélèvements (de ${eur(Math.min(...CERP_HIST.slice(-6).map(x=>x[1])))} à ${eur(Math.max(...CERP_HIST.slice(-6).map(x=>x[1])))}).</div>
    <div class="g2" style="margin-top:6px"><div><label>Montant CERP par lundi (€)</label><input id="cpCerp" type="number" step="500" value="${P.cerp??''}" placeholder="${R.cerpM}"></div></div>
    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Date</th><th>Ce qui tombe</th><th class="n">Montant</th><th class="n">Solde prévu le soir</th></tr>
     ${J.filter(x=>x.ev.length).map(x=>x.ev.map((e,i)=>`<tr${x.d===fin?' style="background:rgba(229,57,53,.07)"':''}><td>${i?'':jsem(x.d)+' '+dfr(x.d)}</td><td>${esc(e[0])}</td><td class="n">${eur(e[1])}</td><td class="n ${x.bal<P.reserve?'neg':''}">${i===x.ev.length-1?'<b>'+eur(x.bal)+'</b>':''}</td></tr>`).join('')).join('')}</table></div>
@@ -2957,7 +2957,21 @@ function infosBloc(id,E){const e=E[id]||{};const saisi=String(e.labos||'').split
   const pr=A&&A.pourquoi&&e.promo?A.pourquoi.promos.find(x=>x.nom===e.promo):null;return {e,labs,m,pr,zon}}
 /* ---------- ÉVÉNEMENTS (mesurés sur une journée) et ÉCRANS (mesurés sur la durée) : deux menus, le plan du magasin en commun ---------- */
 let sousEve='mes',sousEcr='ecr';
-const MANQUANTS=[['Ligue 72 — Octobre Rose','2026-10-19','Place centrale 13 h 30–16 h 30, atelier 16 h 30–17 h 30'],['Campagne de vaccination grippe','2026-10-13','Écran extérieur : un seul message à la fois'],['Calendrier de l\'Avent','2026-10-10','Lancé le 10/10']];
+let MANQUANTS=[['Ligue 72 — Octobre Rose','2026-10-19','Place centrale 13 h 30–16 h 30, atelier 16 h 30–17 h 30'],['Campagne de vaccination grippe','2026-10-13','Écran extérieur : un seul message à la fois'],['Calendrier de l\'Avent','2026-10-10','Lancé le 10/10']];
+/* 6.67 : DONNÉES VIVES — les chiffres saisis jusqu'ici en dur dans le code (CERP, rapprochement bancaire, événements manquants)
+   se complètent ou se remplacent par la clé ETAT donnees_vives, sans republier l'application :
+   {"cerp":{"connus":{"AAAA-MM-JJ":montant},"hist":[["AAAA-MM-JJ",montant]],"releve":"AAAA-MM-JJ","cmdAnnulees":"AAAA-MM-JJ"|""},
+    "bq_rap":{"date":"AAAA-MM-JJ","perim":"…","L":[[tiers,montant,statut,date,payé,note]]},
+    "manquants":[[nom,date,note]]} */
+const _VIVES0={connus:{...CERP_CONNUS},hist:CERP_HIST.slice(),cmd:CERP_CMD_ANNULEES,rel:CERP_RELEVE,bq:{...BQ_RAP,L:BQ_RAP.L.slice()},man:MANQUANTS.slice()};
+function appliquerVives(){let v={};try{v=JSON.parse((typeof ETAT!=='undefined'&&ETAT.donnees_vives)||'{}')}catch(e){v={}}
+  const c=v.cerp||{};CERP_CONNUS={..._VIVES0.connus,...(c.connus||{})};
+  const H={};_VIVES0.hist.concat(c.hist||[]).forEach(x=>{if(x&&x[0])H[x[0]]=+x[1]});CERP_HIST=Object.keys(H).sort().map(d=>[d,H[d]]);
+  CERP_CMD_ANNULEES=('cmdAnnulees' in c)?c.cmdAnnulees:_VIVES0.cmd;CERP_RELEVE=c.releve||_VIVES0.rel;
+  const b=v.bq_rap;BQ_RAP=b?{date:b.date||_VIVES0.bq.date,perim:b.perim||_VIVES0.bq.perim,L:(b.L||[]).concat(_VIVES0.bq.L)}:{..._VIVES0.bq,L:_VIVES0.bq.L.slice()};
+  MANQUANTS=Array.isArray(v.manquants)?v.manquants:_VIVES0.man.slice()}
+appliquerVives();
+
 const REP_MARGE_VENTE=7,REP_TAUX=0.23;
 const mesuresSaisies=()=>{try{return JSON.parse(ETAT.evenements_mesures||'[]')}catch(e){return []}};
 function verdictEv(m){const mv=m.ventes?m.marge/m.ventes:0,t=m.ht?m.marge/m.ht:0;
