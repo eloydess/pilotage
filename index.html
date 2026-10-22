@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.65';
+const APP_V='6.66';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -568,6 +568,16 @@ function majBandeau(){const m=$('#maj');if(!m)return;if(!A){m.textContent='';ret
   m.style.color=j!==null&&j>1?'#ffb74d':'';m.style.fontWeight=j!==null&&j>1?'700':'';
   m.title='Date de la dernière analyse complète (ventes Vindilis, marges, prix, promotions, marché GERS). Elle ne se met pas à jour toute seule : elle est refaite lors d\'une mise à jour des analyses.'}
 setInterval(majBandeau,36e5);
+/* 6.66 : signale en tête de chaque sous-onglet alimenté par l'analyse figée (audit) la date de ses chiffres */
+const FIGES={stk:['rec','sur','cerp','att','rel'],pas:['syn','ctr','lea','cre','ban','plan','bil','proc'],lab:['prio','mar','rep'],pro:['why','oct','eff'],act:['av'],ecr:['ecr'],con:['carte','cls','tous','cli','opp'],col:['chal','ventes']};
+function sousFige(){try{return {stk:sousStk,pas:sousPas,lab:sousLab,pro:sousPro,act:sousAct,ecr:typeof sousEcr!=='undefined'?sousEcr:'',con:sousCon,col:sousCol}[vue]}catch(e){return ''}}
+function bandeauFige(){const m=document.getElementById('m');if(!m||!A||document.getElementById('bFige'))return;const L=FIGES[vue];if(!L||!L.includes(sousFige()))return;
+  const d=new Date(A.maj),ok=!isNaN(d),j=ok?Math.floor((new Date().setHours(0,0,0,0)-new Date(d).setHours(0,0,0,0))/864e5):null;
+  const dl=ok?d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}):(A.majLib||'');
+  const h=`<div id="bFige" class="carte" style="border-left:6px solid #ffb74d;padding:8px 12px"><b>📌 Chiffres de l'analyse du ${esc(dl)}${j!=null?' (il y a '+j+' jour'+(j>1?'s':'')+')':''}</b><div class="sub w">Cette partie ne se met pas à jour seule : elle bouge quand l'analyse est refaite. La trésorerie, le courrier, la paie et les données du classeur sont, elles, en direct.</div></div>`;
+  const f=m.querySelector('.filtres');if(f)f.insertAdjacentHTML('afterend',h);else m.insertAdjacentHTML('afterbegin',h)}
+let _bfT=null;new MutationObserver(()=>{clearTimeout(_bfT);_bfT=setTimeout(()=>{try{bandeauFige()}catch(e){}},80)}).observe(document.getElementById('m')||document.body,{childList:true});
+
 const pc1=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %');
 const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
 const eurS=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.round(Math.abs(v)).toLocaleString('fr-FR')+' €');
@@ -1473,7 +1483,7 @@ const EVTS_DEF=[
  {id:'anaveo-juil',type:'ponctuel',lib:'Anaveo : factures de juillet AN-FCS-26072719 (1 010,83 €) et RM-FCS-26070872 (273,68 €)',date:'2026-10-20',montant:1284.51,src:'Prélèvements rejetés ; les factures d’avril sont antérieures (passif, ne pas payer)'}];
 const evtEtat=()=>jsonEt('evts',{});
 function coutPaie(k){if(!PAIE)return null;const L=PAIE.filter(r=>sansAcc(r['Collaborateur']||'').toUpperCase().split(/\s+/).includes(k)).map(r=>({m:isoMois(r['Mois']),k:num(r['Coût employeur'])||0})).filter(r=>r.m&&r.k>0).sort((a,b)=>a.m.localeCompare(b.m));
-  const pleins=L.filter(r=>r.m<'2026-10-01').slice(-3);return pleins.length?pleins.reduce((s,r)=>s+r.k,0)/pleins.length:null}
+  const dp=(typeof departsTous==='function'?departsTous():DEPARTS)[k],lim=dp&&dp.d?String(dp.d).slice(0,7)+'-01':new Date().toISOString().slice(0,7)+'-01';const pleins=L.filter(r=>r.m<lim).slice(-3);return pleins.length?pleins.reduce((s,r)=>s+r.k,0)/pleins.length:null}
 function evts(){const S=evtEtat(),perso=(S._perso||[]);return EVTS_DEF.concat(perso).map(e=>{const o=S[e.id]||{};const x={...e,...(o.montant!=null?{montant:o.montant}:{}),...(o.date?{date:o.date}:{}),fait:!!o.fait,off:!!o.off};
   if(x.type==='depart'){const c=o.montant!=null?o.montant:(e.montant!=null?e.montant:coutPaie(x.qui));x.montant=c;x.inconnu=c==null}return x}).filter(e=>!e.off)}
 /* montant qui sort (positif) ou économie (négatif) un jour donné ; retard = ponctuels non faits dont la date est passée */
@@ -2502,7 +2512,10 @@ function vueNuage(){if(!NUAGE)NUAGE=calculNuage();const N=NUAGE,P=PLAN,[x0,y0,x1
   return {couche,leg}}
 
 /* ---------- Collaborateurs : équipe par année, fiches, organigramme ---------- */
-async function chargerRhx(code2){if(RHX)return RHX;try{const r=await fetch('rh.enc.json?t='+Date.now());if(!r.ok)return null;RHX=await dechiffrer(await r.json(),code2)}catch(e){RHX=null}return RHX}
+async function chargerRhx(code2){if(RHX)return RHX;try{const r=await fetch('rh.enc.json?t='+Date.now());if(!r.ok)return null;RHX=await dechiffrer(await r.json(),code2);if(RHX&&RHX.fiches){const H=horsEquipe();RHX.fiches=RHX.fiches.filter(f=>!H.includes(sansAcc(f.prenom||'').split(/\s+/)[0]))}}catch(e){RHX=null}return RHX}
+/* 6.66 : personnes à ne plus afficher (parties sans bulletin, ou fiche Sivan erronée) ; complétable par la clé ETAT hors_equipe = ["prenom"] */
+const HORS_EQUIPE=['sonia','zoe'];
+function horsEquipe(){let x=[];try{x=JSON.parse(ETAT.hors_equipe||'[]')}catch(e){}return HORS_EQUIPE.concat(x.map(v=>sansAcc(v)))}
 function equipeAnnees(P){const parC={};P.forEach(r=>{const x=parC[r.c]=parC[r.c]||{c:r.c,mois:new Set(),f:'',ct:'',k:{}};x.mois.add(r.m);x.f=r.f||x.f;x.ct=r.ct||x.ct;const a=r.m.slice(0,4);x.k[a]=(x.k[a]||0)+r.k});
   const der=P.reduce((s,r)=>r.m>s?r.m:s,'');Object.values(parC).forEach(x=>{const m=[...x.mois].sort();x.entree=m[0];x.sortie=m[m.length-1]<der?m[m.length-1]:null});return {parC,der}}
 const ficheRh=n=>{if(!RHX||!RHX.fiches)return null;const t=sansAcc(n),w=t.split(/\s+/);return RHX.fiches.find(f=>sansAcc((f.prenom||'')+' '+(f.nom||''))===t)||RHX.fiches.find(f=>sansAcc(f.prenom||'')===w[0]&&(w.length<2||sansAcc(f.nom||'').startsWith(w[1].slice(0,3))))||(RHX.fiches.filter(f=>sansAcc(f.prenom||'')===w[0]).length===1?RHX.fiches.find(f=>sansAcc(f.prenom||'')===w[0]):null)};
@@ -2712,7 +2725,7 @@ function blocIncidences(t){const I=incidences().filter(i=>i.to.includes(t)),R=re
    ${ouvertes.map(i=>ligneInc(i,t)).join('')||'<div class="sub" style="padding:6px 0">Rien à traiter dans cet onglet. ✅</div>'}
    ${hist.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">🗂 Historique du suivi (${hist.length})</summary>${hist.slice(0,40).map(([k,v])=>`<div class="ligne"><span><b style="font-size:11px;color:${ST_INC[v.st][1]}">${ST_INC[v.st][0]} le ${dfr(v.le)}</b> <span class="sub w">${esc(v.txt)}</span>${I.some(i=>i.id===k)?' <span class="badge">toujours présente dans les données</span>':' <span class="badge A">résolue</span>'}</span>${I.some(i=>i.id===k)?`<button class="mini" data-rouvre="${esc(k)}">↩</button>`:''}</div>`).join('')}</details>`:''}
    ${R.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">📋 ${R.length} signal(aux) automatique(s) de la semaine (${[...new Set(R.map(r=>r['Domaine']))].join(', ')})</summary>${R.slice(0,30).map(carteReco).join('')}${R.length>30?`<div class="sub">… et ${R.length-30} autres, les moins prioritaires.</div>`:''}</details>`:''}</div>`}
-function injecterIncidences(){const m=$('#m');if(!m||!D||document.getElementById('crF')||document.getElementById('blocInc')||document.getElementById('retCon')||document.getElementById('retCol')||document.getElementById('na_t'))return;
+function injecterIncidences(){const m=$('#m');if(!m||!D||(vue==='cou'&&$('#crHold')&&$('#crHold').style.display!=='none')||document.getElementById('blocInc')||document.getElementById('retCon')||document.getElementById('retCol')||document.getElementById('na_t'))return;
   if(!m.firstElementChild||/^Chargement/.test(m.textContent.trim()))return;if(vue==='act'||vue==='cfg'||(vue==='cou'&&sousCou==='tri'))return;const html=vue==='acc'?vueIncidencesAccueil():blocIncidences(vue);if(!html)return;
   const ba=document.getElementById('blocAct'),f=m.firstElementChild,pa=document.getElementById('prioAcc');if(vue==='acc'&&pa)pa.insertAdjacentHTML('afterend',html);else if(ba)ba.insertAdjacentHTML('afterend',html);else if(f&&f.classList.contains('filtres'))f.insertAdjacentHTML('afterend',html);else m.insertAdjacentHTML('afterbegin',html);
   const b=document.getElementById('blocInc');if(!b)return;const t=vue,refaire=()=>{const y=scrollY,o=b.querySelector('details[open]')?1:0;b.remove();injecterIncidences();const n=document.getElementById('blocInc');if(n&&o){const d=n.querySelector('details');if(d)d.open=true}scrollTo(0,y)};
