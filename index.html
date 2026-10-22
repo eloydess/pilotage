@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.62';
+const APP_V='6.63';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1222,6 +1222,16 @@ function trAnalyse(f,F,L,ALL){const mt=trMt(f),bq=trBanque(f['Tiers'],mt);let db
   else if(dec0==='Suivi RJ'&&db.some(x=>!x.suivi&&x.pourquoi!=='fiche citée par le contrôle du tri')){dec='Doublon';pourquoi='Nouvelle proposition : une fiche plus ancienne porte déjà cette pièce (détail ci-dessous).'}
   if(bq&&bq.st==='non'&&/^(Doublon|Information|Sans intérêt)$/.test(dec)&&mt>=50)alerte=(alerte?alerte+' ':'')+`⚠ ${eur2(mt)} réclamés et aucun paiement trouvé en banque : vérifiez que l'original est bien suivi.`;
   const ch=TRS.c[f.ID]||dec;return {f,mt,bq,db,dec0,dec,ch,pourquoi,alerte,info,com:TRS.m[f.ID]!=null?TRS.m[f.ID]:com,lot:TR_L1.test(ch)?1:TR_L2.test(ch)?2:3}}
+/* 6.63 : regroupement par expéditeur (nom du tiers) et tri par date d'arrivée — mêmes règles que l'écran Boîte mail */
+const EXP_VIDES=new Set(['SAS','SASU','SA','SARL','SNC','EURL','SCA','SE','GMBH','LTD','INC','FRANCE','FR','LABORATOIRE','LABORATOIRES','LABO','LABOS','LAB','LABS','STE','SOCIETE','GROUPE','CIE','ET','THE','LE','LA','LES','DE','DU','DES','L','D']);
+const expCle=t=>{const s=trNorm(t);return s.split(' ').filter(w=>w&&!EXP_VIDES.has(w)).join(' ')||s||'SANS NOM'};
+function expGroupes(items,tiersDe){const brut={},G={},par={};items.forEach(it=>{const c=expCle(tiersDe(it));(brut[c]=brut[c]||[]).push(it)});
+  const cles=Object.keys(brut).sort((a,b)=>a.length-b.length||a.localeCompare(b));
+  cles.forEach(c=>{let p=null;for(const g of cles){if(g.length>=c.length)break;if(G[g]&&g.length>=4&&c.indexOf(g+' ')===0){p=g;break}}const k=p||c;par[c]=k;G[k]=G[k]||{cle:k,noms:{},n:0};
+    brut[c].forEach(it=>{const n=String(tiersDe(it)||'').trim()||'(sans nom)';G[k].noms[n]=(G[k].noms[n]||0)+1;G[k].n++})});
+  const liste=Object.values(G).map(g=>{const noms=Object.keys(g.noms).sort((a,b)=>g.noms[b]-g.noms[a]||(expCle(a)===g.cle?0:1)-(expCle(b)===g.cle?0:1)||a.length-b.length||a.localeCompare(b));return {cle:g.cle,nom:String(noms[0]).toUpperCase(),noms,n:g.n}}).sort((a,b)=>a.nom.localeCompare(b.nom,'fr'));
+  const parCle={};liste.forEach(g=>parCle[g.cle]=g);return {liste,parCle,cleDe:it=>par[expCle(tiersDe(it))]}}
+const dCle=v=>{const s=String(v==null?'':v);let m=/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/.exec(s);if(m)return m[1]+m[2]+m[3]+(m[4]||'00')+(m[5]||'00');m=/^(\d{2})\/(\d{2})\/(\d{4})(?:\D+(\d{1,2})[:h](\d{2}))?/.exec(s);return m?m[3]+m[2]+m[1]+('0'+(m[4]||'0')).slice(-2)+(m[5]||'00'):''};
 /* 6.62 : fiches déjà décidées (refusées, ou validées sans rangement) dont le mail est resté dans la boîte de réception : on les remet dans la liste pour arriver à zéro mail. */
 const trReste=f=>f['Statut']!=='À valider'&&!/^C-/.test(f.ID||'')&&!String(f['Date application']||'').trim();
 function trTout(){const S=crSyn();if(!S)return null;const F=S.F,L=S.L||[],av=F.filter(f=>f['Statut']==='À valider'||trReste(f));TR_CODES=null;
@@ -1306,19 +1316,31 @@ function trChaineH(a){const f=a.f,id=esc(f.ID),gs=/^C-/.test(f.ID)?'':trGmailChe
 function vueTriSerie(){trReprendre();const T=trTout();if(!T)return `<div class="carte"><b>Courrier non chargé</b><div class="sub w">Ouvrez « 📬 Boîte mail » et entrez le code de Tri & RJ.</div></div>`;
   const A=T.A,n=k=>A.filter(k).length,paye=a=>a.ch==='Déjà payé',dbl=a=>a.db.length>0||/^(Doublon|Déjà au suivi RJ)$/.test(a.ch),alr=a=>!!a.alerte,nouv=a=>!!a.pourquoi;
   const FL=[['l1','1. Rien à faire',a=>a.lot===1],['l2','2. À payer / suivi RJ',a=>a.lot===2],['l3','3. À vérifier / action',a=>a.lot===3],['paye','✅ Déjà payé',paye],['dbl','🔁 Doublons / déjà suivis',dbl],['nouv','🆕 Proposition changée',nouv],['alr','⚠ À regarder',alr],['dem','📝 Mes demandes',a=>trDem(a.f)||trRep(a.f)],['reste','↩ Restés dans la boîte',a=>a.reste],['tout','Toutes',a=>true]];
-  const fl=FL.find(x=>x[0]===TRS.f)||FL[0],q=trNorm(TRS.q||''),V=A.filter(fl[2]).filter(a=>!q||trNorm([a.f.Tiers,a.f.Objet,a.f['Références'],a.f['Montant TTC']].join(' ')).indexOf(q)>=0);
+  const fl=FL.find(x=>x[0]===TRS.f)||FL[0],q=trNorm(TRS.q||''),parQ=a=>!q||trNorm([a.f.Tiers,a.f.Objet,a.f['Références'],a.f['Montant TTC']].join(' ')).indexOf(q)>=0;
+  /* 6.63 : un expéditeur choisi montre TOUS ses mails à décider, quel que soit le lot ; tri au choix (priorité, date d'arrivée, expéditeur) */
+  const GX=expGroupes(A,a=>a.f.Tiers);if(TRS.x&&!GX.parCle[TRS.x])TRS.x='';
+  const so=TRS.so||'prio',dA=a=>dCle(a.f['Date mail']),nomG=a=>GX.parCle[GX.cleDe(a)].nom;
+  let V=TRS.x?A.filter(a=>GX.cleDe(a)===TRS.x).filter(parQ):A.filter(fl[2]).filter(parQ);
+  if(so==='recent')V=V.slice().sort((a,b)=>dA(b).localeCompare(dA(a)));else if(so==='ancien')V=V.slice().sort((a,b)=>dA(a).localeCompare(dA(b)));else if(so==='exp')V=V.slice().sort((a,b)=>nomG(a).localeCompare(nomG(b),'fr')||dA(b).localeCompare(dA(a)));
+  const nbX={};(TRS.x?A.filter(parQ):A.filter(fl[2]).filter(parQ)).forEach(a=>{const c=GX.cleDe(a);nbX[c]=(nbX[c]||0)+1});
+  const gSel=TRS.x?GX.parCle[TRS.x]:null,totSel=V.reduce((s,a)=>s+(a.mt<1e5?a.mt:0),0);
+  let prec=null;const enTetes=so==='exp'&&!TRS.x,ligneV=a=>{const c=GX.cleDe(a);let h='';if(enTetes&&c!==prec){prec=c;const g=GX.parCle[c];h=`<div class="trGrp" data-x="${esc(c)}" style="display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--fond2,rgba(127,127,127,.12));border-radius:8px;padding:7px 10px;margin:12px 0 4px;font-weight:600;cursor:pointer"><span>🏢 ${esc(g.nom)} <span class="sub" style="font-weight:400">— ${nbX[c]||0} mail(s) dans cette liste</span></span><span class="sub">tout voir ›</span></div>`}return h+trCarte(a)};
+  const barreX=`<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 6px" id="trSo"><span class="sub">Trier :</span>${[['prio','⚡ Priorité'],['recent','📅 Arrivée : récents d\'abord'],['ancien','📅 Arrivée : anciens d\'abord'],['exp','🏢 Par expéditeur']].map(t=>`<button class="mini" data-so="${t[0]}" style="${t[0]===so?'background:var(--txt);color:var(--fond)':''}">${t[1]}</button>`).join('')}
+    <select id="trX" style="max-width:100%"><option value="">🏢 Tous les expéditeurs (${GX.liste.filter(g=>nbX[g.cle]).length})</option>${GX.liste.filter(g=>nbX[g.cle]||g.cle===TRS.x).map(g=>`<option value="${esc(g.cle)}"${g.cle===TRS.x?' selected':''}>${esc(g.nom)} (${nbX[g.cle]||0})</option>`).join('')}</select></div>
+   ${gSel?`<div class="carte" style="border-left:6px solid var(--bleu,#1f3a5f);margin:0 0 6px"><b>🏢 ${esc(gSel.nom)}</b> — ${V.length} mail(s) à décider${totSel?' · '+eur(totSel)+' réclamés':''}<div class="sub w">Tous les mails non traités de cet expéditeur, quel que soit le lot (1, 2 ou 3). « Tout cocher » ne coche que ceux-ci.${gSel.noms.length>1?'<br>Regroupe les noms : '+gSel.noms.map(esc).join(' · '):''}</div><button class="mini" id="trXoff" style="margin-top:6px">✕ Revenir à tous les expéditeurs</button></div>`:''}`;
   const tot2=A.filter(a=>a.lot===2&&a.mt<1e5).reduce((s,a)=>s+a.mt,0);
   const age=CR&&CR.ts?Math.round((Date.now()-CR.ts)/60e3):null,etat=crErr==='code'?`<div class="carte" style="border-left:6px solid var(--orange)"><b>⚠ Liste non mise à jour : votre code a expiré.</b><div class="sub w">Ouvrez « 📬 Boîte mail », entrez votre code, puis revenez ici. Les chiffres ci-dessous datent ${CR&&CR.ts?'du '+new Date(CR.ts).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'d\'une ancienne copie'}.</div></div>`:
     `<div class="sub w" style="margin:4px 0">${crEnCours?'⏳ Mise à jour en cours…':age===null?'Copie ancienne : mise à jour en cours…':'Liste à jour '+(age<1?'à l\'instant':'il y a '+age+' min')} · <button class="mini" id="trMaj">↻ Actualiser</button></div>`;
   return `${etat}<div class="carte al b"><b class="t">${A.length} mails à décider</b>${n(a=>a.reste)?` <span class="sub">dont ${n(a=>a.reste)} déjà décidés mais restés dans la boîte de réception (filtre « ↩ Restés dans la boîte »)</span>`:''}<div class="sub w">Chaque fiche montre ce que j'ai vérifié : <b>banque</b> (rapprochement ligne par ligne du ${dfr(BQ_RAP.date)} : ${esc(BQ_RAP.perim)}), <b>autre exemplaire</b> (fiche ou dossier du suivi RJ, avec le lien), et le contrôle fait au tri. Vous pouvez <b>changer la décision</b> de chaque fiche, <b>lire le mail en entier</b> (sans le marquer comme lu), puis valider en masse les fiches cochées. Rien n'est supprimé.</div>
    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">1. Rien à faire</div><div class="v">${n(a=>a.lot===1)}</div><div class="sub">dont ${n(paye)} déjà payés</div></div><div class="kpi"><div class="l">2. À payer / suivi RJ</div><div class="v">${n(a=>a.lot===2)}</div><div class="sub">${eur(tot2)}</div></div><div class="kpi"><div class="l">3. À vérifier / action</div><div class="v">${n(a=>a.lot===3)}</div></div></div></div>
-  <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0" id="trF">${FL.map(x=>`<button class="mini${x[0]===fl[0]?' on':''}" data-f="${x[0]}" style="${x[0]===fl[0]?'background:var(--txt);color:var(--fond)':''}">${x[1]} (${n(x[2])})</button>`).join('')}</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0" id="trF">${FL.map(x=>`<button class="mini${x[0]===fl[0]&&!TRS.x?' on':''}" data-f="${x[0]}" style="${x[0]===fl[0]&&!TRS.x?'background:var(--txt);color:var(--fond)':''}">${x[1]} (${n(x[2])})</button>`).join('')}</div>
   <input id="trQ" placeholder="Rechercher un tiers, une référence, un montant…" value="${esc(TRS.q||'')}" style="width:100%;margin-bottom:6px">
   <div class="carte prc" style="position:sticky;top:0;z-index:5"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn" id="mL1">✓ Valider les <span id="mN">0</span> fiches cochées</button><button class="btn sec" id="mTout">Tout cocher / décocher (cette liste)</button></div>
    <div class="sub w">Chaque fiche cochée est validée avec la décision affichée sur sa ligne (et son commentaire), puis son mail est rangé ou laissé dans la boîte de réception selon votre choix. « Déjà payé » est enregistré comme « Information » avec la preuve de paiement en commentaire.</div><div id="mProg" class="sub"></div></div>
   <datalist id="trEtL">${(TR_ETQ||[...new Set(A.map(a=>a.f['Étiquette proposée']).concat(A.map(a=>a.f['Étiquette actuelle'])).filter(e=>e&&e!=='(aucune)'&&/\//.test(e)))].sort()).map(e=>`<option value="${esc(e)}">`).join('')}</datalist>
-  <div class="titre">${esc(fl[1])} (${V.length})</div>
-  <div class="carte prc">${V.slice(0,TRS.n||25).map(trCarte).join('')||'<div class="sub">Aucune fiche.</div>'}${V.length>(TRS.n||25)?`<button class="btn sec" id="trPlus" style="width:100%;margin-top:8px">Afficher ${Math.min(25,V.length-(TRS.n||25))} fiches de plus (encore ${V.length-(TRS.n||25)})</button>`:''}</div>`}
+  ${barreX}
+  <div class="titre">${gSel?'🏢 '+esc(gSel.nom):esc(fl[1])} (${V.length})</div>
+  <div class="carte prc">${V.slice(0,TRS.n||25).map(ligneV).join('')||'<div class="sub">Aucune fiche.</div>'}${V.length>(TRS.n||25)?`<button class="btn sec" id="trPlus" style="width:100%;margin-top:8px">Afficher ${Math.min(25,V.length-(TRS.n||25))} fiches de plus (encore ${V.length-(TRS.n||25)})</button>`:''}</div>`}
 async function trLire(id,cible){const z=document.getElementById('trm_'+cible);if(!z)return;if(z.dataset.ouvert===id){z.innerHTML='';z.dataset.ouvert='';return}z.dataset.ouvert=id;
   if(/^C-/.test(id)){z.innerHTML=`<div class="sub w">Courrier papier scanné : <button class="mini" data-go="cou:cr">ouvrir Courrier / PDF ›</button></div>`;brancherLiens();return}
   const J=crJeton();if(!J){z.innerHTML='<div class="sub w">Entrez d\'abord le code dans « 📬 Boîte mail ».</div>';return}
@@ -1337,7 +1359,11 @@ async function trPdf(o,zone){if(!window.pdfjsLib)await new Promise((ok,ko)=>{con
   for(let n=1;n<=doc.numPages;n++){const pg=await doc.getPage(n),vp=pg.getViewport({scale:1.6}),c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;c.style.width='100%';zone.appendChild(c);await pg.render({canvasContext:c.getContext('2d'),viewport:vp}).promise}}
 function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.mCh:checked').length,e=$('#mN');if(e)e.textContent=n};maj();
   const re=()=>{const y=scrollY;courrier();scrollTo(0,y)};
-  document.querySelectorAll('#trF button').forEach(b=>b.onclick=()=>{TRS.f=b.dataset.f;TRS.n=25;trSauver();courrier()});
+  document.querySelectorAll('#trF button').forEach(b=>b.onclick=()=>{TRS.f=b.dataset.f;TRS.x='';TRS.n=25;trSauver();courrier()});
+  document.querySelectorAll('#trSo button').forEach(b=>b.onclick=()=>{TRS.so=b.dataset.so;TRS.n=25;trSauver();courrier()});
+  const choisirX=c=>{TRS.x=c||'';TRS.n=25;trSauver();courrier();const t=$('#trSo');if(t)t.scrollIntoView({block:'start'})};
+  const tx=$('#trX');if(tx)tx.onchange=()=>choisirX(tx.value);const txo=$('#trXoff');if(txo)txo.onclick=()=>choisirX('');
+  document.querySelectorAll('.trGrp').forEach(d=>d.onclick=()=>choisirX(d.dataset.x));
   const mj=$('#trMaj');if(mj)mj.onclick=()=>{toast('Actualisation…');chargerCR(true)};
   const pl=$('#trPlus');if(pl)pl.onclick=()=>{TRS.n=(TRS.n||25)+25;re()};
   const q=$('#trQ');if(q)q.onchange=()=>{TRS.q=q.value;TRS.n=25;trSauver();re()};

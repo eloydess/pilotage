@@ -59,7 +59,16 @@
     #vCR{display:grid;grid-template-columns:420px 1fr;gap:16px;align-items:start}
     .modal .boite{max-width:900px;margin:0 auto}
   }
-  .filtres{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto}
+  .filtres{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+  .triExp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:-2px 0 10px}
+  .triExp button{border:1px solid var(--bord);background:#fff;border-radius:16px;padding:5px 11px;font-size:13px;white-space:nowrap}
+  .triExp button.actif{background:var(--txt);color:#fff;border-color:var(--txt)}
+  .triExp select{border:1px solid var(--bord);border-radius:8px;padding:6px 8px;font-size:14px;max-width:100%;background:#fff}
+  .triExp .lbl{font-size:12px;color:var(--doux)}
+  .expSel{background:#eef4ff;border:1px solid #c7d7f5;border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:14px}
+  .grpExp{display:flex;justify-content:space-between;gap:8px;align-items:center;background:#f2f4f7;border:1px solid var(--bord);border-radius:8px;padding:7px 10px;margin:12px 0 6px;font-weight:600;cursor:pointer}
+  .grpExp .meta{font-weight:400;margin:0}
+  .lignes .grpExp{margin:0;border-radius:0;border-width:0 0 1px 0}
   .filtres button{border:1px solid var(--bord);background:#fff;border-radius:16px;padding:6px 12px;white-space:nowrap}
   .filtres button.actif{background:var(--bleu);color:#fff;border-color:var(--bleu)}
   .carte{background:var(--carte);border:1px solid var(--bord);border-radius:12px;padding:12px;margin-bottom:10px}
@@ -163,6 +172,7 @@
   <main>
     <section id="vMail">
       <div class="filtres" id="filtres"></div>
+      <div class="triExp" id="triExp"></div>
       <div id="liste"><div class="chargement">Chargement…</div></div>
     </section>
     <section id="vRJ" style="display:none">
@@ -228,6 +238,63 @@ var FAIRE = {
   'Doublon': "Le même document est déjà dans une autre fiche. Appuyez sur « D'accord ».",
   'Sans intérêt': "Rien à faire. Appuyez sur « D'accord »."
 };
+/* ---------- 6.63 : tri par date d'arrivée ou par expéditeur, et regroupement de tous les mails d'un même expéditeur ---------- */
+var EXP_MOTS_VIDES = ['SAS','SASU','SA','SARL','SNC','EURL','SCA','SE','GMBH','LTD','INC','FRANCE','FR','LABORATOIRE','LABORATOIRES','LABO','LABOS','LAB','LABS','STE','SOCIETE','GROUPE','CIE','ET','THE','LE','LA','LES','DE','DU','DES','L','D'];
+function expCle(t){
+  var s = String(t == null ? '' : t).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]+/g, ' ').trim();
+  var w = s.split(' ').filter(function(x){ return x && EXP_MOTS_VIDES.indexOf(x) < 0; });
+  return w.join(' ') || s || 'SANS NOM';
+}
+/* Regroupe les éléments par expéditeur. Deux noms sont réunis quand l'un commence par l'autre (ex. « BIOCODEX » et « BIOCODEX ALLOGA ») ; les noms réunis restent affichés pour contrôle. */
+function expGroupes(items, tiersDe){
+  var brut = {}, G = {}, parent = {};
+  items.forEach(function(it){ var c = expCle(tiersDe(it)); (brut[c] = brut[c] || []).push(it); });
+  var cles = Object.keys(brut).sort(function(a, b){ return a.length - b.length || a.localeCompare(b); });
+  cles.forEach(function(c){
+    var p = null;
+    for (var i = 0; i < cles.length; i++) { var g = cles[i]; if (g.length >= c.length) break; if (G[g] && g.length >= 4 && c.indexOf(g + ' ') === 0) { p = g; break; } }
+    var k = p || c; parent[c] = k; if (!G[k]) G[k] = { cle: k, items: [], noms: {} };
+    brut[c].forEach(function(it){ G[k].items.push(it); var n = String(tiersDe(it) || '').trim() || '(sans nom)'; G[k].noms[n] = (G[k].noms[n] || 0) + 1; });
+  });
+  var liste = Object.keys(G).map(function(k){
+    var g = G[k], noms = Object.keys(g.noms).sort(function(a, b){ return g.noms[b] - g.noms[a] || (expCle(a) === k ? 0 : 1) - (expCle(b) === k ? 0 : 1) || a.length - b.length || a.localeCompare(b); });
+    return { cle: k, nom: String(noms[0]).toUpperCase(), noms: noms, n: g.items.length };
+  }).sort(function(a, b){ return a.nom.localeCompare(b.nom, 'fr'); });
+  var parCle = {}; liste.forEach(function(g){ parCle[g.cle] = g; });
+  return { liste: liste, parCle: parCle, cleDe: function(it){ return parent[expCle(tiersDe(it))]; } };
+}
+/* Date triable (aaaammjjhhmm) depuis « 2026-10-21 08:12 », « 2026-10-21T08:12 » ou « 21/10/2026 08:12 » */
+function dCle(v){
+  var s = String(v == null ? '' : v), m = /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/.exec(s);
+  if (m) return m[1] + m[2] + m[3] + (m[4] || '00') + (m[5] || '00');
+  m = /^(\d{2})\/(\d{2})\/(\d{4})(?:\D+(\d{1,2})[:h](\d{2}))?/.exec(s);
+  if (m) return m[3] + m[2] + m[1] + ('0' + (m[4] || '0')).slice(-2) + (m[5] || '00');
+  return '';
+}
+function lsLire(k, d){ try { var v = localStorage.getItem(k); return v == null ? d : v; } catch(e) { return d; } }
+function lsEcrire(k, v){ try { localStorage.setItem(k, v); } catch(e) {} }
+var TRI_M = lsLire('cr_triM', 'prio'), EXP_M = lsLire('cr_expM', ''), TRI_R = lsLire('cr_triR', 'prio'), EXP_R = lsLire('cr_expR', '');
+function choisirTriM(t){ TRI_M = t; lsEcrire('cr_triM', t); LIM_CLE = ''; afficher(); window.scrollTo(0, 0); }
+function choisirExpM(c){ EXP_M = c || ''; lsEcrire('cr_expM', EXP_M); LIM_CLE = ''; SEL = null; POS_SEL = 0; afficher(); window.scrollTo(0, 0); }
+function choisirTriR(t){ TRI_R = t; lsEcrire('cr_triR', t); afficherTreso(); }
+function choisirExpR(c){ EXP_R = c || ''; lsEcrire('cr_expR', EXP_R); afficherTreso(); var e = document.getElementById('triRJ'); if (e && e.scrollIntoView) e.scrollIntoView({ block: 'start' }); }
+/* Barre commune : boutons de tri + liste déroulante des expéditeurs (avec le nombre d'éléments de chacun dans la liste affichée) */
+function barreTriExp(o){
+  var h = '<span class="lbl">Trier :</span>' + o.tris.map(function(t){ return '<button class="' + (t[0] === o.tri ? 'actif' : '') + '" onclick="' + o.fnTri + '(\'' + t[0] + '\')">' + t[1] + '</button>'; }).join('');
+  var vus = o.groupes.filter(function(g){ return g.nb > 0 || g.cle === o.exp; });
+  h += '<select onchange="' + o.fnExp + '(this.value)" aria-label="Choisir un expéditeur"><option value="">🏢 Tous les ' + o.mot + ' (' + vus.length + ')</option>' +
+    vus.map(function(g){ return '<option value="' + esc(g.cle) + '"' + (g.cle === o.exp ? ' selected' : '') + '>' + esc(g.nom) + ' (' + g.nb + ')</option>'; }).join('') + '</select>';
+  return h;
+}
+function bandeauExp(g, n, quoi, fnExp){
+  if (!g) return '';
+  return '<div class="expSel">🏢 <b>' + esc(g.nom) + '</b> — ' + n + ' ' + quoi +
+    (g.noms.length > 1 ? '<div class="meta">Regroupe les noms : ' + g.noms.map(esc).join(' · ') + '</div>' : '') +
+    '<div style="margin-top:6px"><button class="btn b-voir" onclick="' + fnExp + '(\'\')">✕ Revenir à tous les expéditeurs</button></div></div>';
+}
+function enteteGroupe(g, n, quoi, fnExp){
+  return '<div class="grpExp" onclick="' + fnExp + '(\'' + esc(g.cle) + '\')"><span>🏢 ' + esc(g.nom) + ' <span class="meta">— ' + n + ' ' + quoi + '</span></span><span class="meta">tout voir ›</span></div>';
+}
 function lib(d){ return LIB[d] || d; }
 function rang(f){ var pp = Number(f['Priorité Pierre']); if (pp >= 1 && pp <= 3) return pp - 10; var r = ORDRE[f['Priorité']]; return r === undefined ? 9 : r; }
 
@@ -394,20 +461,41 @@ function afficher(){
     var q = RECHERCHE.toLowerCase();
     l = l.filter(function(f){ return [f['Tiers'], f['Références'], f['Objet'], f['Type'], f['Montant TTC'], f['Note de Claude']].join(' ').toLowerCase().indexOf(q) >= 0; });
   }
+  /* 6.63 : expéditeurs (calculés sur toutes les fiches pour que le regroupement reste stable d'un filtre à l'autre) + tri choisi */
+  var GX = expGroupes(FICHES, function(f){ return f['Tiers']; });
+  if (EXP_M && !GX.parCle[EXP_M]) { EXP_M = ''; lsEcrire('cr_expM', ''); }
+  var nbParExp = {}; l.forEach(function(f){ var c = GX.cleDe(f); nbParExp[c] = (nbParExp[c] || 0) + 1; });
+  var quoi = FILTRE === 'À valider' ? 'mail(s) à valider' : FILTRE === 'Restés en boîte' ? 'mail(s) restés dans la boîte' : 'fiche(s) traitée(s)';
+  document.getElementById('triExp').innerHTML = barreTriExp({ tri: TRI_M, fnTri: 'choisirTriM', fnExp: 'choisirExpM', exp: EXP_M, mot: 'expéditeurs',
+    tris: [['prio', '⚡ Priorité'], ['recent', '📅 Arrivée : récents d\'abord'], ['ancien', '📅 Arrivée : anciens d\'abord'], ['exp', '🏢 Par expéditeur']],
+    groupes: GX.liste.map(function(g){ return { cle: g.cle, nom: g.nom, nb: nbParExp[g.cle] || 0 }; }) });
+  if (EXP_M) l = l.filter(function(f){ return GX.cleDe(f) === EXP_M; });
+  var dA = function(f){ return dCle(f['Date mail']); };
+  if (TRI_M === 'recent') l = l.slice().sort(function(a, b){ return dA(b).localeCompare(dA(a)); });
+  else if (TRI_M === 'ancien') l = l.slice().sort(function(a, b){ return dA(a).localeCompare(dA(b)); });
+  else if (TRI_M === 'exp') l = l.slice().sort(function(a, b){ return GX.parCle[GX.cleDe(a)].nom.localeCompare(GX.parCle[GX.cleDe(b)].nom, 'fr') || dA(b).localeCompare(dA(a)); });
+  var avecEntetes = TRI_M === 'exp' && !EXP_M;
+  var rendreListe = function(liste, fn){
+    var prec = null;
+    return liste.map(function(f){ var c = GX.cleDe(f), h = '';
+      if (avecEntetes && c !== prec) { h = enteteGroupe(GX.parCle[c], nbParExp[c] || 0, quoi, 'choisirExpM'); prec = c; }
+      return h + fn(f); }).join('');
+  };
+  var bandeau = EXP_M ? bandeauExp(GX.parCle[EXP_M], l.length, quoi, 'choisirExpM') : '';
   VISIBLES = l; notifierParent();
-  if (!l.length) { document.getElementById('liste').innerHTML = (ECRAN_PC ? barrePC() : '') + '<div class="vide">' + (RECHERCHE ? 'Aucune fiche ne correspond à « ' + esc(RECHERCHE) + ' ».' : FILTRE === 'À valider' ? '✅ Tout est traité pour ce lot.' : FILTRE === 'Restés en boîte' ? '✅ Aucun mail décidé n\'est resté dans la boîte de réception.' : 'Aucune fiche traitée.') + '</div>'; return; }
+  if (!l.length) { document.getElementById('liste').innerHTML = bandeau + (ECRAN_PC ? barrePC() : '') + '<div class="vide">' + (RECHERCHE ? 'Aucune fiche ne correspond à « ' + esc(RECHERCHE) + ' ».' : EXP_M ? 'Aucune fiche de cet expéditeur dans « ' + esc(FILTRE) + ' ».' : FILTRE === 'À valider' ? '✅ Tout est traité pour ce lot.' : FILTRE === 'Restés en boîte' ? '✅ Aucun mail décidé n\'est resté dans la boîte de réception.' : 'Aucune fiche traitée.') + '</div>'; return; }
   if (!ECRAN_PC) {
-    var cle = FILTRE + '|' + RECHERCHE; if (cle !== LIM_CLE) { LIM_CLE = cle; LIMITE = 30; }
+    var cle = FILTRE + '|' + RECHERCHE + '|' + TRI_M + '|' + EXP_M; if (cle !== LIM_CLE) { LIM_CLE = cle; LIMITE = 30; }
     var reste = l.length - LIMITE;
     var aideRB = FILTRE === 'Restés en boîte' ? '<div class="carte" style="border-left:4px solid var(--orange)"><b>Mails restés dans la boîte de réception</b><div class="meta">Vous avez déjà décidé ces fiches (refusées, ou validées sans rangement), mais le mail n\'a pas été rangé. Touchez « ↩︎ Annuler ma décision » : la fiche revient dans « À valider » et vous choisissez de nouveau (rangement, corbeille, suivi RJ…).</div></div>' : '';
-    document.getElementById('liste').innerHTML = aideRB + l.slice(0, LIMITE).map(carte).join('') +
+    document.getElementById('liste').innerHTML = bandeau + aideRB + rendreListe(l.slice(0, LIMITE), carte) +
       (reste > 0 ? '<button class="btn b-voir" style="width:100%;margin:8px 0" onclick="LIMITE+=30;afficher()">Afficher ' + Math.min(30, reste) + ' fiches de plus (encore ' + reste + ')</button>' : '');
     return;
   }
   var pos = l.map(function(f){ return f['ID']; }).indexOf(SEL);
   if (pos < 0) { pos = Math.min(POS_SEL, l.length - 1); SEL = l[pos]['ID']; }   // après une décision : la fiche suivante
   POS_SEL = pos;
-  document.getElementById('liste').innerHTML = '<div class="maitre">' + barrePC() + '<div class="lignes">' + l.map(lignePC).join('') + '</div></div>' +
+  document.getElementById('liste').innerHTML = bandeau + '<div class="maitre">' + barrePC() + '<div class="lignes">' + rendreListe(l, lignePC) + '</div></div>' +
     '<div class="detail" id="detail">' + carte(trouver(SEL)) + '</div>';
   var actif = document.querySelector('.lignePC.sel'); if (actif && actif.scrollIntoViewIfNeeded) actif.scrollIntoViewIfNeeded(false);
 }
@@ -916,10 +1004,27 @@ function afficherTreso(){
       '<button class="btn b-voir" style="width:100%;margin-top:6px"' + (FACT_AUTO.enCours ? ' disabled' : '') + ' onclick="facturesManquantes(true)">🔎 Rechercher les factures manquantes</button></div>' +
     (ECRAN_PC ? '<p class="meta raccourcis">Astuce : cochez les factures à droite ; le total se met à jour ici.</p>' : '') + '</div><div class="rjListe">';
   var ordre = { '1': 0, '2': 1, '3': 2, '': 3 };
-  var l = TRESO.lignes.slice().sort(function(a, b){ return (b.choisi - a.choisi) || (ordre[a.priorite] - ordre[b.priorite]) || ((b.du || 0) - (a.du || 0)); });
+  /* 6.63 : tri par date ou par fournisseur, et regroupement de tous les dossiers d'un même fournisseur */
+  var GR = expGroupes(TRESO.lignes, function(x){ return x.tiers; });
+  if (EXP_R && !GR.parCle[EXP_R]) { EXP_R = ''; lsEcrire('cr_expR', ''); }
+  var nbR = {}, duR = {}; TRESO.lignes.forEach(function(x){ var c = GR.cleDe(x); nbR[c] = (nbR[c] || 0) + 1; duR[c] = (duR[c] || 0) + (x.du || 0); });
+  var dR = function(x){ return dCle(x.dateFacture || x.date); };
+  var l = TRESO.lignes.slice();
+  if (EXP_R) l = l.filter(function(x){ return GR.cleDe(x) === EXP_R; });
+  if (TRI_R === 'recent') l.sort(function(a, b){ return dR(b).localeCompare(dR(a)) || ((b.du || 0) - (a.du || 0)); });
+  else if (TRI_R === 'ancien') l.sort(function(a, b){ return (dR(a) || '9').localeCompare(dR(b) || '9') || ((b.du || 0) - (a.du || 0)); });
+  else if (TRI_R === 'exp') l.sort(function(a, b){ return GR.parCle[GR.cleDe(a)].nom.localeCompare(GR.parCle[GR.cleDe(b)].nom, 'fr') || dR(b).localeCompare(dR(a)); });
+  else l.sort(function(a, b){ return (b.choisi - a.choisi) || (ordre[a.priorite] - ordre[b.priorite]) || ((b.du || 0) - (a.du || 0)); });
+  var gSel = EXP_R ? GR.parCle[EXP_R] : null, duSel = l.reduce(function(s2, x){ return s2 + (x.du || 0); }, 0);
+  h += '<div id="triRJ"><div class="triExp">' + barreTriExp({ tri: TRI_R, fnTri: 'choisirTriR', fnExp: 'choisirExpR', exp: EXP_R, mot: 'fournisseurs',
+      tris: [['prio', '⚡ Priorité'], ['recent', '📅 Date : récents d\'abord'], ['ancien', '📅 Date : anciens d\'abord'], ['exp', '🏢 Par fournisseur']],
+      groupes: GR.liste.map(function(g){ return { cle: g.cle, nom: g.nom, nb: nbR[g.cle] || 0 }; }) }) + '</div>' +
+    (gSel ? bandeauExp(gSel, l.length, 'dossier(s) · reste dû ' + eur(duSel), 'choisirExpR') : '') + '</div>';
+  var precR = null;
   h += l.map(function(x){
-    var i = TRESO.lignes.indexOf(x);
-    return '<div class="carte' + (x.choisi ? ' choisi' : '') + '"><div class="lv">' +
+    var i = TRESO.lignes.indexOf(x), cR = GR.cleDe(x), entete = '';
+    if (TRI_R === 'exp' && !EXP_R && cR !== precR) { precR = cR; entete = enteteGroupe(GR.parCle[cR], nbR[cR], 'dossier(s) · reste dû ' + eur(duR[cR]), 'choisirExpR'); }
+    return entete + '<div class="carte' + (x.choisi ? ' choisi' : '') + '"><div class="lv">' +
       '<input type="checkbox"' + (x.choisi ? ' checked' : '') + ' onchange="cocher(' + i + ', this.checked)">' +
       '<div class="corpsL"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + eur(x.du) + '</span></div>' +
       '<div class="meta">' + esc(x.refs) + (x.date ? ' · ' + esc(x.date) : '') + '</div>' +
