@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.73';
+const APP_V='6.74';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1441,7 +1441,7 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
     const r=await crAppel('mob_decider',[J,id,st,d,st==='Validé'&&rg==='ranger'?et:'',m]);
     if(st==='Validé'&&rg==='corbeille'&&!/^C-/.test(id)){const f0=(CR.fiches||[]).find(x=>x['ID']===id);if(!f0||!/^🗑/.test(f0['Date application']||'')){const rr=await crAppel('mob_corbeille',[J,id]);if(f0)f0['Date application']=rr&&rr.note||'🗑 corbeille'}}
     if(st==='Validé'&&rg==='ranger'&&et&&!/^C-/.test(id)){const f0=(CR.fiches||[]).find(x=>x['ID']===id);if(!f0||!trRange(f0))await ranger(id,et)}const f=(CR.fiches||[]).find(x=>x['ID']===id);if(f){f['Statut']=r&&r.statut||st;f['Décision finale']=r&&r.finale||d;f['Commentaire Pierre']=m}
-    TRS.ok=TRS.ok||{};TRS.ok[id]=1;const el=document.getElementById('tr_'+id);if(el)el.style.opacity='.35'};
+    TRS.ok=TRS.ok||{};TRS.ok[id]=1;const el=document.getElementById('tr_'+id);if(el)el.style.opacity='.35';try{pastilles()}catch(e){}};
   const b=$('#mL1');if(b)b.onclick=async()=>{const ids=[...document.querySelectorAll('.mCh:checked')].map(c=>c.dataset.id);if(!ids.length)return;
     const rgx=id=>((document.querySelector(`.trRg[data-id="${CSS.escape(id)}"]`)||{}).value),etx=id=>(((document.querySelector(`.trEt[data-id="${CSS.escape(id)}"]`)||{}).value)||'').trim();
     const sansEt=ids.filter(id=>rgx(id)==='ranger'&&!etx(id)&&!/^C-/.test(id));if(sansEt.length){toast(sansEt.length+' fiche(s) à ranger sans étiquette : choisissez l\'étiquette ou « Laisser dans la boîte de réception »');const e=document.getElementById('tr_'+sansEt[0]);if(e){e.scrollIntoView({block:'start'});e.style.outline='3px solid var(--orange)'}return}
@@ -2717,6 +2717,11 @@ const aTraiter=i=>!incEtat()[i.id];
 const enCoursInc=i=>{const e=incEtat()[i.id];return !e||e.st==='vu'};
 let _rhAuto=false;function pastilles(){if(!D)return;if(!_rhAuto&&ss.get('pil_code2')&&!PAIE){_rhAuto=true;const c2=ss.get('pil_code2');chargerPaie(c2).then(ok=>ok&&chargerRhx(c2)).then(()=>pastilles())}
   const I=incidences();document.querySelectorAll('#nav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(aTraiter).length,vu=L.filter(i=>(incEtat()[i.id]||{}).st==='vu').length;let p=b.querySelector('.pst');if(p)p.remove();if(t==='act'){let n=0;try{n=prioListe().filter(x=>!x.claude&&x.j>=0).length}catch(e){}if(n){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${n} priorité(s) urgente(s) ou en retard">${n}</i>`)}return}
+   if(t==='cou'){/* 6.74 : la pastille de Courrier & paiements compte les MAILS à traiter ; les alertes (livraisons, commandes en attente) n'apparaissent qu'en gris quand il n'y a plus de mail */
+     let m=0;try{const T=trTout();m=T?T.A.filter(a=>!(TRS.ok&&TRS.ok[a.f.ID]&&!a.reste)).length:0}catch(e){}
+     if(m){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${m} mail(s) à traiter${nv||vu?' · '+(nv||vu)+' alerte(s) livraisons / commandes dans l\'onglet':''}">${m}</i>`)}
+     else if(nv||vu){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst" title="Aucun mail à traiter. ${nv||vu} alerte(s) livraisons / commandes en attente (bloc « Ce qui vient des autres onglets »)">⚠${nv||vu}</i>`)}
+     return}
    if(nv||vu){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst ${nv?'nv':''}" title="${nv} à traiter, ${vu} vue(s) non corrigée(s)">${nv||vu}</i>`)}})}
 function ligneInc(i,t){const e=incEtat()[i.id],s=e&&e.st;
   return `<div class="inc ${i.sev}" data-iid="${esc(i.id)}"><span class="pt" style="background:${i.sev==='rouge'?'var(--rouge)':'var(--orange)'}"></span><span class="grow">${!s?'<b class="nouv">À TRAITER</b> ':`<b style="font-size:11px;color:${ST_INC[s][1]}">${ST_INC[s][0].toUpperCase()} le ${dfr(e.le)}</b> `}<span class="badge">${i.src===t?'Cet onglet':'Depuis '+esc(NOM_ONG[i.src]||i.src)}</span> ${esc(i.txt)}
