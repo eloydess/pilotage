@@ -340,7 +340,7 @@ function connexion(){
   document.getElementById('errConn').textContent = code ? 'Connexion…' : 'Tapez le code.';
   if (!code) return;
   appel('mob_connexion', [code], function(j){
-    JETON = j; try { localStorage.setItem('triRJ_jeton', JSON.stringify({ v: j, exp: Date.now() + 5.5*3600*1000 })); } catch(e) {}
+    JETON = j; try { localStorage.setItem('triRJ_jeton', JSON.stringify({ v: j, exp: Date.now() + 3650*864e5 })); } catch(e) {}
     demarrer();
   }, function(m){ document.getElementById('errConn').textContent = m; });
 }

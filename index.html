@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.69';
+const APP_V='6.70';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1021,7 +1021,7 @@ document.addEventListener('change',e=>{if(e.target&&e.target.id==='slRes'){const
 document.addEventListener('change',e=>{if(e.target&&e.target.id==='slBp'){(async()=>{if(await majEtat('tr_param',JSON.stringify({...trParam(),payBpgo:e.target.checked})))reRendre()})()}});
 let SOLDE_TS=0,SOLDE_LOC={};
 const crConnecter=async code=>{const az={'&':'1','é':'2','"':'3',"'":'4','(':'5','-':'6','è':'7','_':'8','ç':'9','à':'0'};code=String(code||'').replace(/\s/g,'').replace(/[&é"'(\-è_çà]/g,c=>az[c]);if(!code)throw new Error('Tapez le code Tri & RJ');
-  const j=await crAppel('mob_connexion',[code]);try{localStorage.setItem('triRJ_jeton',JSON.stringify({v:j,exp:Date.now()+5.5*3600*1000}))}catch(e){}if(crErr==='code')crErr='';return j};
+  const j=await crAppel('mob_connexion',[code]);try{localStorage.setItem('triRJ_jeton',JSON.stringify({v:j,exp:Date.now()+3650*864e5}))}catch(e){}if(crErr==='code')crErr='';return j};
 document.addEventListener('click',e=>{if(!e.target||e.target.id!=='slOk')return;const b=e.target;(async()=>{
   const vals=[['CEBPL',crNb($('#slC').value)],['BPGO',crNb($('#slB').value)]].filter(x=>x[1]!=null);
   if(!vals.length){toast('Tapez au moins un solde (le montant affiché par votre banque)');return}
