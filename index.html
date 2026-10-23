@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.74';
+const APP_V='6.75';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1012,7 +1012,9 @@ const trParam=()=>{const p={bpgo:true,reserve:5000,scenario:0,enc:null,ach:null,
 const CR_API='https://script.google.com/macros/s/AKfycbxaL37ZTZwlNcn9G5Cf_BjdiQkJ4rgpxpskiJ3TkNgqfmWMcFzrLI-sSedImWCBj_E/exec';
 let CR=(()=>{try{return JSON.parse(ls.get('pil_cr')||'null')}catch(e){return null}})(),crErr='',crEnCours=false,sousCou='tri';
 const crJeton=()=>{try{const j=JSON.parse(localStorage.getItem('triRJ_jeton')||'null');return j&&j.exp>Date.now()?j.v:null}catch(e){return null}};
-const crAppel=(fn,args)=>fetch(CR_API+'?t='+Date.now(),{method:'POST',cache:'no-store',body:JSON.stringify({fn,args}),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.json()).then(r=>{if(!r.ok)throw new Error(r.erreur||'Erreur');return r.data});
+/* 6.75 : « Failed to fetch » = coupure réseau passagère ou réponse du serveur perdue : on réessaie automatiquement 2 fois (après 2 s puis 5 s). Les opérations du serveur supportent d'être refaites (décision, rangement, corbeille). */
+const crAppel1=(fn,args)=>fetch(CR_API+'?t='+Date.now(),{method:'POST',cache:'no-store',body:JSON.stringify({fn,args}),headers:{'Content-Type':'text/plain;charset=utf-8'}}).then(r=>r.json()).then(r=>{if(!r.ok){const e=new Error(r.erreur||'Erreur');e.serveur=true;throw e}return r.data});
+const crAppel=async(fn,args)=>{for(const att of [0,2000,5000]){if(att)await new Promise(r=>setTimeout(r,att));try{return await crAppel1(fn,args)}catch(e){if(e.serveur||att===5000)throw (e.serveur?e:new Error('connexion au serveur impossible (réseau) — réessayez dans un instant'))}}};
 /* 6.44 : la copie du courrier ne doit jamais être perdue (sinon : rechargement complet à chaque ouverture, soldes absents).
    Si l'appareil manque de place, on garde une copie allégée : fiches à traiter + 60 derniers jours, textes longs raccourcis. */
 function crSauver(){if(!CR)return false;const ecrire=o=>{try{localStorage.setItem('pil_cr',JSON.stringify(o));return true}catch(e){return false}};
