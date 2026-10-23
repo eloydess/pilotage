@@ -555,7 +555,7 @@ function carte(f){
       (FAIRE[f['Décision proposée']] ? '<div class="meta">👉 ' + esc(FAIRE[f['Décision proposée']]) + '</div>' : '') +
       '<div class="meta">Étiquette Gmail proposée : ' + esc(f['Étiquette proposée']) + '</div>' + etiq + '</div>' +
     (f['Vérification'] ? '<div class="verif">🔎 <b>Déjà payé ?</b> ' + esc(f['Vérification']) + '</div>' : '') +
-    '<div class="note">' + esc(f['Note de Claude']) + '</div>' +
+    '<div class="note">' + esc(String(f['Note de Claude'] || '').replace(/⟦MAJ[\s\S]*?⟧/g, '').trim()) + '</div>' +
     '<details><summary>Résumé du mail</summary><p>' + esc(f['Résumé']) + '</p>' +
       (f['Déjà fait'] ? '<p><b>Déjà fait :</b> ' + esc(f['Déjà fait']) + '</p>' : '') +
       '<p><b>Antériorité :</b> ' + esc(f['Antériorité']) + (f['Date pièce'] ? ' · pièce du ' + esc(f['Date pièce']) : '') + '</p></details>' +

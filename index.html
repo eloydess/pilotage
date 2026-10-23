@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.67';
+const APP_V='6.68';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1305,7 +1305,7 @@ const trDem=f=>/^DEMANDE/i.test(String(f['Commentaire Pierre']||'')),trRep=f=>/R
 function trDemandeH(f){const id=esc(f.ID),d=trDem(f),r=trRep(f);
   return `<div style="margin-top:6px;padding:6px;border:1px solid var(--bleu,#2e6fd8);border-radius:8px">
    ${d?`<div class="w">📝 <b>Votre demande :</b> ${esc(String(f['Commentaire Pierre']).replace(/^DEMANDE[^:]*:\s*/i,''))}</div><div class="sub w">${r?'':'⏳ En attente : traitée au prochain passage automatique (8 h 25, 12 h 25, 17 h 25), ou tout de suite si vous me dites « traite les demandes ».'}</div>`:''}
-   ${r?`<div class="w" style="margin-top:4px;color:var(--vert2)">💬 <b>Ma réponse :</b> ${esc(String(f['Note de Claude']).replace(/^.*?RÉPONSE À VOTRE DEMANDE/i,'RÉPONSE À VOTRE DEMANDE'))}</div>`:''}
+   ${r?`<div class="w" style="margin-top:4px;color:var(--vert2)">💬 <b>Ma réponse :</b> ${esc(majSansBalise(f['Note de Claude']).replace(/^.*?RÉPONSE À VOTRE DEMANDE/i,'RÉPONSE À VOTRE DEMANDE'))}</div>`:''}
    <details${d&&!r?'':''}><summary style="cursor:pointer;font-weight:600">📝 ${d?'Modifier ma demande':'Demander quelque chose à Claude sur ce mail'}</summary>
     <div class="sub w">Écrivez ou dictez (micro du clavier, ou 🎤) ce que vous voulez : « recherche si cette facture a déjà été payée », « prépare une réponse au comptable », « vérifie le contrat »… Le mail reste à traiter tant que vous ne l'avez pas validé.</div>
     <textarea class="trDemT" data-id="${id}" rows="3" style="width:100%;margin-top:4px" placeholder="Votre demande…"></textarea>
@@ -2134,7 +2134,7 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);setTimeout((
   const nA=A?toutes().filter(a=>!actFaite(a.id)).length:null;
   const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur '+(A?toutes().length:'—'),'act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
   const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
-  $('#m').innerHTML=`${(()=>{try{return cartePayer(true)}catch(e){return ''}})()}${(()=>{try{return carteTropPercus(true)}catch(e){return ''}})()}${(()=>{try{return cartePassifAccueil()}catch(e){return ''}})()}${cartePrioAccueil()}${alertes()}${carteCourrier()}${(()=>{try{return carteReel(true)}catch(e){return ""}})()}${carteSemaine()}${carteBilanSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
+  $('#m').innerHTML=`${(()=>{try{return carteMaj()}catch(e){return ''}})()}${(()=>{try{return cartePayer(true)}catch(e){return ''}})()}${(()=>{try{return carteTropPercus(true)}catch(e){return ''}})()}${(()=>{try{return cartePassifAccueil()}catch(e){return ''}})()}${cartePrioAccueil()}${alertes()}${carteCourrier()}${(()=>{try{return carteReel(true)}catch(e){return ""}})()}${carteSemaine()}${carteBilanSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
    <div class="titre">Mois en cours</div>${carteEnCours()}${carteMarche()}
    <details class="plusAcc"${ls.get('pil_plusAcc')==='1'?' open':''}><summary class="titre" style="cursor:pointer">▸ Plus d'analyses : mois complets, exercice, contexte</summary>
    <div class="titre">Mois complets (Vindilis, chargés dans l'application)</div>
@@ -2971,6 +2971,68 @@ function appliquerVives(){let v={};try{v=JSON.parse((typeof ETAT!=='undefined'&&
   const b=v.bq_rap;BQ_RAP=b?{date:b.date||_VIVES0.bq.date,perim:b.perim||_VIVES0.bq.perim,L:(b.L||[]).concat(_VIVES0.bq.L)}:{..._VIVES0.bq,L:_VIVES0.bq.L.slice()};
   MANQUANTS=Array.isArray(v.manquants)?v.manquants:_VIVES0.man.slice()}
 appliquerVives();
+
+/* ================= 6.68 : MISES À JOUR PROPOSÉES PAR LES PASSAGES AUTOMATIQUES — bouton Valider / Refuser / Annuler =================
+   Le passage de la boîte achat ajoute à la fin de « Note de Claude » une balise ⟦MAJ [ {op:…}, … ]⟧ (JSON).
+   Opérations autorisées (liste blanche) : cerp_connu, cerp_hist, charge, charge_suppr, evt, evt_fait, evt_montant, bq_paye, manquant, presence, action, engagement.
+   Chaque décision est gardée dans la clé ETAT maj_dec = {id:{st:'ok'|'non'|'annule',d,prev:{cle:valeur avant},op}} : historique + annulation. */
+const MAJ_OPS={cerp_connu:'Prélèvement CERP exact',cerp_hist:'Prélèvement CERP passé',charge:'Charge mensuelle',charge_suppr:'Charge mensuelle supprimée',evt:'Changement de gestion',evt_fait:'Sortie déjà payée',evt_montant:'Montant d\'un changement',bq_paye:'Paiement vu en banque',manquant:'Événement à mettre au calendrier',presence:'Présence d\'un collaborateur',action:'Nouvelle action',engagement:'Engagement de dépense'};
+const majDec=()=>jsonEt('maj_dec',{});
+function majProposees(){if(!CR||!CR.fiches)return [];const D0=majDec(),out=[];
+  CR.fiches.forEach(f=>{const n=String(f['Note de Claude']||''),m=n.match(/⟦MAJ\s*([\s\S]*?)⟧/);if(!m)return;let L=[];try{L=JSON.parse(m[1])}catch(e){return}if(!Array.isArray(L))L=[L];
+    L.forEach((o,i)=>{if(!o||!MAJ_OPS[o.op])return;const id=String(f.ID)+'#'+i;out.push({id,o,f,dec:D0[id]||null})})});
+  return out}
+const majSansBalise=t=>String(t||'').replace(/⟦MAJ[\s\S]*?⟧/g,'').trim();
+function majVives(){let v={};try{v=JSON.parse(ETAT.donnees_vives||'{}')}catch(e){}return v}
+/* calcule la nouvelle valeur des clés touchées ; ne rien écrire ici */
+function majCalcul(o){const R={};
+  if(o.op==='cerp_connu'||o.op==='cerp_hist'||o.op==='bq_paye'||o.op==='manquant'){const v=majVives();
+    if(o.op==='cerp_connu'){v.cerp=v.cerp||{};v.cerp.connus={...(v.cerp.connus||{}),[o.date]:+o.montant};if(o.releve)v.cerp.releve=o.releve}
+    if(o.op==='cerp_hist'){v.cerp=v.cerp||{};v.cerp.hist=(v.cerp.hist||[]).filter(x=>x[0]!==o.date).concat([[o.date,+o.montant]])}
+    if(o.op==='bq_paye'){v.bq_rap=v.bq_rap||{};v.bq_rap.L=(v.bq_rap.L||[]).concat([[String(o.tiers||'').toUpperCase(),+o.montant,'paye',o.date,+(o.paye??o.montant),o.note||'']]);v.bq_rap.date=o.date>(v.bq_rap.date||'')?o.date:v.bq_rap.date}
+    if(o.op==='manquant'){v.manquants=(Array.isArray(v.manquants)?v.manquants:MANQUANTS.slice()).concat([[o.nom,o.date,o.note||'']])}
+    R.donnees_vives=JSON.stringify(v)}
+  else if(o.op==='charge'||o.op==='charge_suppr'){let L=jsonEt('tr_charges',[]).slice();const k=sansAcc(o.remplace||o.match||'');const i=k?L.findIndex(c=>sansAcc(c.lib).includes(k)):-1;
+    if(o.op==='charge_suppr'){if(i<0)return null;L.splice(i,1)}else{const c={lib:o.lib,cat:o.cat||'aut',jour:+o.jour||1,montant:+o.montant};if(i>=0)L[i]=c;else L.push(c)}R.tr_charges=JSON.stringify(L)}
+  else if(o.op==='evt'||o.op==='evt_fait'||o.op==='evt_montant'){const S={...evtEtat()};
+    if(o.op==='evt'){const P=(S._perso||[]).slice();const e={id:'m'+Date.now(),type:o.type||'ponctuel',lib:o.lib,montant:+o.montant,src:o.src||'Mise à jour proposée'};if(e.type==='ponctuel')e.date=o.date;else{e.debut=o.debut||o.date;e.jour=+o.jour||25}if(o.qui){e.qui=sansAcc(o.qui).split(/\s+/)[0].toUpperCase();e.nomC=o.qui}if(o.cat)e.cat=o.cat;P.push(e);S._perso=P}
+    else{const x=evts().find(e=>e.id===o.id||(o.match&&sansAcc(e.lib).includes(sansAcc(o.match))));if(!x)return null;if(String(x.id).startsWith('m')||String(x.id).startsWith('p')){S._perso=(S._perso||[]).map(e=>e.id===x.id?{...e,...(o.op==='evt_fait'?{fait:true}:{montant:+o.montant})}:e)}S[x.id]={...(S[x.id]||{}),...(o.op==='evt_fait'?{fait:true}:{montant:+o.montant})}}
+    R.evts=JSON.stringify(S)}
+  else if(o.op==='presence'){let c={};try{c=JSON.parse(ETAT.obj_cfg||'{}')}catch(e){}c.pres={...(c.pres||{}),[sansAcc(o.prenom).split(/\s+/)[0].toUpperCase()]:o.statut};R.obj_cfg=JSON.stringify(c)}
+  else if(o.op==='action'){const L=actPerso().slice(),n=L.reduce((m,x)=>Math.max(m,+String(x.id).slice(1)||0),0)+1;L.push({id:'P'+n,perso:1,theme:o.theme||THEMES_DEF[0],titre:o.titre,qui:o.qui||'',quand:o.quand||'',enjeu:o.enjeu||'—',etapes:[],mesure:o.mesure||'—',go:o.go||'act',cree:auj()});R.actx=JSON.stringify(L)}
+  else if(o.op==='engagement'){const E={...jsonEt('eng',{})},id='e'+Date.now();E[id]={date:auj(),tiers:o.tiers,cat:o.cat||'mes',ttc:+o.ttc,echeance:o.echeance||'',qui:'Claude',note:o.note||'',statut:'avalider'};R.eng=JSON.stringify(E)}
+  return R}
+function majTexte(o){const e=v=>eur2(+v);switch(o.op){
+  case 'cerp_connu':return `CERP du ${jsem(o.date)} ${dfr(o.date)} : ${CERP_CONNUS[o.date]!=null?e(CERP_CONNUS[o.date])+' (déjà saisi)':'estimé'} → <b>${e(o.montant)}</b> exact${o.releve?' (relevé du '+dfr(o.releve)+')':''}`;
+  case 'cerp_hist':return `Prélèvement CERP du ${dfr(o.date)} : <b>${e(o.montant)}</b> (sert à l'estimation des lundis suivants)`;
+  case 'charge':{const L=jsonEt('tr_charges',[]),k=sansAcc(o.remplace||''),c=k?L.find(x=>sansAcc(x.lib).includes(k)):null;return `${c?esc(c.lib)+' : '+e(c.montant)+' le '+c.jour+' → ':'Nouvelle charge : '}<b>${esc(o.lib)} : ${e(o.montant)} le ${o.jour}</b>`}
+  case 'charge_suppr':return `Retirer la charge « ${esc(o.match)} »`;
+  case 'evt':return `${o.type==='depart'?'Départ / économie':o.type==='mensuel'?'Charge mensuelle':'À payer une fois'} : <b>${esc(o.lib)}</b> — ${e(o.montant)}${o.type==='ponctuel'?' le '+dfr(o.date):' / mois à partir du '+dfr(o.debut||o.date)}`;
+  case 'evt_fait':return `Marquer comme payé : <b>${esc(o.match||o.id)}</b>`;
+  case 'evt_montant':return `Nouveau montant pour « ${esc(o.match||o.id)} » : <b>${e(o.montant)}</b>`;
+  case 'bq_paye':return `Paiement vu en banque : <b>${esc(o.tiers)} ${e(o.montant)}</b> le ${dfr(o.date)}`;
+  case 'manquant':return `Mettre au calendrier : <b>${esc(o.nom)}</b> (${dfr(o.date)})`;
+  case 'presence':return `${esc(o.prenom)} : présence <b>${esc(o.statut)}</b> dans les objectifs`;
+  case 'action':return `Nouvelle action : <b>${esc(o.titre)}</b>${o.quand?' (pour le '+dfr(o.quand)+')':''}`;
+  case 'engagement':return `Engagement : <b>${esc(o.tiers)} ${e(o.ttc)}</b>${o.echeance?' échéance '+dfr(o.echeance):''}`}return esc(o.op)}
+async function majDecider(id,st){const P=majProposees().find(x=>x.id===id);if(!P)return;const D0={...majDec()};
+  if(st==='non'){D0[id]={st:'non',d:new Date().toISOString(),op:P.o};if(await majEtat('maj_dec',JSON.stringify(D0)))toast('Proposition refusée');return}
+  const R=majCalcul(P.o);if(!R||!Object.keys(R).length){toast('Impossible d\'appliquer : élément introuvable. Refusez-la ou demandez-moi.');return}
+  const prev={};for(const k in R)prev[k]=ETAT[k]===undefined?null:ETAT[k];
+  for(const k in R){if(!(await majEtat(k,R[k]))){toast('Échec de l\'écriture : rien n\'a été changé pour « '+k+' »');return}if(k==='donnees_vives')appliquerVives()}
+  D0[id]={st:'ok',d:new Date().toISOString(),prev,op:P.o};if(await majEtat('maj_dec',JSON.stringify(D0)))toast('Mis à jour — tout est recalculé')}
+async function majAnnuler(id){const D0={...majDec()},x=D0[id];if(!x||x.st!=='ok'||!x.prev)return;if(!confirm('Revenir à la valeur d\'avant pour cette mise à jour ?\n\nAttention : une autre modification faite depuis sur la même donnée serait aussi annulée.'))return;
+  for(const k in x.prev){if(!(await majEtat(k,x.prev[k]===null?'':x.prev[k]))){toast('Échec de l\'annulation');return}if(k==='donnees_vives')appliquerVives()}
+  D0[id]={...x,st:'annule',da:new Date().toISOString()};if(await majEtat('maj_dec',JSON.stringify(D0)))toast('Annulé — valeurs d\'avant remises')}
+function carteMaj(){const L=majProposees();if(!L.length)return '';const att=L.filter(x=>!x.dec),hist=L.filter(x=>x.dec).sort((a,b)=>String(b.dec.d).localeCompare(String(a.dec.d))).slice(0,8);
+  const src=x=>`<div class="sub">Source : ${esc(x.f['Tiers']||'')} — ${esc(x.f['Objet']||'').slice(0,80)} (${dfr(crISO(x.f['Date mail']))})${x.f['Lien Gmail']?` · <a href="${esc(x.f['Lien Gmail'])}" target="_blank" rel="noopener">voir le mail</a>`:''}${x.o.pourquoi?' · '+esc(x.o.pourquoi):''}</div>`;
+  return `<div class="carte" id="cMaj" style="border-left:6px solid var(--violet,#7b4fd6)"><b>📊 Mises à jour proposées par la lecture des mails${att.length?' : '+att.length+' à décider':''}</b>
+   <div class="sub w">Chaque ligne vient d'un mail lu par le passage automatique. « Valider » l'écrit dans l'application et tous les onglets se recalculent ; rien ne change tant que vous n'avez pas validé. Une mise à jour validée peut être annulée.</div>
+   ${att.map(x=>`<div class="ligne" style="display:block;padding:6px 0;border-top:1px solid var(--ligne)"><div class="w"><span class="sub">${esc(MAJ_OPS[x.o.op])}</span><br>${majTexte(x.o)}</div>${src(x)}
+     <div style="margin-top:4px"><button class="btn" data-majok="${esc(x.id)}">✅ Valider</button> <button class="btn sec" data-majno="${esc(x.id)}">Refuser</button></div></div>`).join('')||'<div class="sub w" style="margin-top:4px">Rien à décider pour l\'instant.</div>'}
+   ${hist.length?`<details style="margin-top:6px"><summary>Historique (${hist.length} dernières)</summary>${hist.map(x=>`<div class="ligne" style="display:block;padding:4px 0"><div class="w">${x.dec.st==='ok'?'✅ Validée':x.dec.st==='non'?'🚫 Refusée':'↩️ Annulée'} le ${dfr(String(x.dec.d).slice(0,10))} — ${majTexte(x.o)}</div>${x.dec.st==='ok'?`<button class="mini" data-majann="${esc(x.id)}">Annuler</button>`:''}</div>`).join('')}</details>`:''}</div>`}
+document.addEventListener('click',e=>{const t=e.target;if(!t||!t.dataset)return;
+  if(t.dataset.majok){t.disabled=true;majDecider(t.dataset.majok,'ok')}else if(t.dataset.majno){t.disabled=true;majDecider(t.dataset.majno,'non')}else if(t.dataset.majann){majAnnuler(t.dataset.majann)}});
 
 const REP_MARGE_VENTE=7,REP_TAUX=0.23;
 const mesuresSaisies=()=>{try{return JSON.parse(ETAT.evenements_mesures||'[]')}catch(e){return []}};
