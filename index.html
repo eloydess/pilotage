@@ -1941,7 +1941,7 @@ function vuePasBan(){const P=PA(),R=P.ant.filter(x=>x.paye);
    ${R.map(x=>`<div class="ligne" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(x.n)}</b><b>${eur2(x.paye.m)}</b></div><div class="sub w">${esc(x.paye.d)} · ${esc(x.paye.lib)}</div><div class="sub w">${x.paye.q==='sur'?'<b style="color:var(--bleu,#2e6fd8)">Correspondance nette</b> : à retirer ou déduire de la créance déclarée.':'<b style="color:var(--orange)">[AMBIGU]</b> même montant, lien non prouvé : à vérifier.'}</div></div>`).join('')}
    <div class="sub w" style="margin-top:6px">⚠ Payer une créance antérieure après le jugement est en principe interdit sans autorisation (art. L. 622-7). Ces virements sont passés par la validation de l’administrateur : signalez-les au mandataire pour que la créance soit réduite d’autant.</div></div>
    <div class="carte"><b>Créances postérieures déclarées impayées</b>${P.post.map(x=>`<div class="ligne" style="display:block"><div style="display:flex;justify-content:space-between"><b>${esc(x.n)} (n° ${esc(x.num)})</b><b>${eur2(x.m)}</b></div><div class="sub w">${x.paye?`Payée le ${esc(x.paye.d)} (${esc(x.paye.lib)}) : demander au mandataire de la solder.`:'Aucun paiement de ce montant trouvé : à payer (créance née après le jugement, payable à l’échéance).'}</div></div>`).join('')}</div>`}
-function vuePasLea(){const P=PA(),Lz=P.leasing;if(!Lz)return '<p class="vide">Analyse non chargée</p>';const C=Lz.contrats;const tot=C.reduce((s,c)=>s+c.site,0),imp=C.reduce((s,c)=>s+c.impaye,0),fr=C.reduce((s,c)=>s+c.frais.filter(f=>!/si résiliation/.test(f[0])).reduce((a,f)=>a+f[1],0),0);
+function vuePasLeaDecl(){const P=PA(),Lz=P.leasing;if(!Lz)return '<p class="vide">Analyse non chargée</p>';const C=Lz.contrats;const tot=C.reduce((s,c)=>s+c.site,0),imp=C.reduce((s,c)=>s+c.impaye,0),fr=C.reduce((s,c)=>s+c.frais.filter(f=>!/si résiliation/.test(f[0])).reduce((a,f)=>a+f[1],0),0);
   const ST={resilie:['Résilié','var(--rouge)'],poursuivi:['Poursuivi','var(--vert2)'],indicatif:['À titre indicatif','var(--vert2)'],conditionnel:['Conditionnel','var(--orange)'],mixte:['Mixte','var(--orange)'],pret:['Prêt','var(--doux)']};
   return `<div class="carte"><b>🧾 Crédit-bail : contrat par contrat</b><div class="sub w">${esc(Lz.methode)}</div>
    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Déclaré (site)</div><div class="v">${eur(tot)}</div></div><div class="kpi"><div class="l">Vrais impayés au 30/06</div><div class="v">${eur2(imp)}</div></div><div class="kpi"><div class="l">Frais et pénalités ajoutés</div><div class="v">${eur2(fr)}</div></div><div class="kpi"><div class="l">En jeu</div><div class="v">${eur(tot-imp)}</div></div></div>
@@ -1951,6 +1951,92 @@ function vuePasLea(){const P=PA(),Lz=P.leasing;if(!Lz)return '<p class="vide">An
     <div class="sub w">Contrats : ${esc(c.contrats)}</div><div class="sub w" style="margin-top:4px">${esc(c.detail)}</div>
     ${c.frais.length?`<div class="sub w" style="margin-top:4px"><b style="color:var(--rouge)">Ajouté :</b> ${c.frais.map(f=>esc(f[0])+' '+eur2(f[1])).join(' ; ')}</div>`:''}
     <div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Position :</b> ${esc(c.arg)}</div></div>`}).join('')}`}
+/* ================= 6.40 : CRÉDIT-BAIL MODIFIABLE (24/10/2026) =================
+   Registre des contrats de location financière gardé dans la clé ETAT cb_reg (modifiable dans l'application) :
+   statut, loyer HT/mois, paliers de réaménagement, date de fin, VALEUR D'ORIGINE DES BIENS (demandée par l'expert-comptable).
+   Point de départ : récapitulatif des 25 contrats envoyé à l'administrateur le 16/07/2026 (v3) + réaménagements connus. */
+const CB_STATUTS={poursuivi:['Poursuivi','var(--vert2)'],reamenage:['Poursuivi, réaménagé','var(--vert2)'],resilie_garde:['Résilié, matériel gardé (à étaler)','var(--orange)'],resilie_rendu:['Résilié, matériel rendu','var(--rouge)'],termine:['Terminé','var(--doux)'],a_verifier:['Statut à vérifier','var(--doux)']};
+const CB_SEED=[
+ {n:'24-BU3-195692',loueur:'Leasecom',mat:'Agencement / mobilier (fournisseur Nanceo)',loyer:3588,per:'mois',duree:'72 mois',statut:'poursuivi',val:206000,valSrc:'Accord Nanceo (contrat transmis par le cabinet SAPEC le 23/10/2026)',note:'Remis en service le 16/10/2026 ; réaménagement (mensualités réduites, durée allongée) demandé'},
+ {n:'222L168962',loueur:'Leasecom',mat:'Matériel non décrit (fournisseur Finalize)',loyer:369,per:'mois',duree:'36 mois',statut:'a_verifier',note:'Durée initiale échue 03/2025 selon le comptable'},
+ {n:'Écrans',loueur:'Eurolease',mat:'Écrans d’affichage (Dynamiz Pharma)',loyer:1743,per:'mois',duree:'63 mois',statut:'a_verifier',note:'Stratégie : non-poursuite, rachat des écrans à prix symbolique'},
+ {n:'152-35898',loueur:'Grenke',mat:'Rideaux métalliques — Les Ateliers Michel (site 257)',loyer:692.80,per:'trim',duree:'96 mois',statut:'a_verifier'},
+ {n:'152-36664',loueur:'Grenke',mat:'Climatisation — Anvolia 44',loyer:1587.20,per:'trim',duree:'96 mois',statut:'a_verifier'},
+ {n:'152-37576',loueur:'Grenke',mat:'Rideau métallique — Les Ateliers Michel (site 309)',loyer:45.64,per:'trim',duree:'96 mois',statut:'a_verifier'},
+ {n:'152-37876',loueur:'Grenke',mat:'Plomberie — Anvolia 44',loyer:243.20,per:'trim',duree:'96 mois',statut:'a_verifier'},
+ {n:'152-38248',loueur:'Grenke',mat:'Lot climatisation (complément) — Anvolia 44',loyer:201.76,per:'trim',duree:'96 mois',statut:'a_verifier'},
+ {n:'152-38547',loueur:'Grenke',mat:'Transport tube pneumatique — Aerocom & Co',loyer:188.16,per:'trim',duree:'96 mois',statut:'a_verifier'},
+ {n:'152-38757',loueur:'Grenke',mat:'Rideau métallique — Les Ateliers Michel',loyer:62.27,per:'trim',duree:'96 mois',statut:'a_verifier'},
+ {n:'152-40472',loueur:'Grenke',mat:'Rideau métallique — Les Ateliers Michel',loyer:70.40,per:'trim',duree:'96 mois',statut:'a_verifier'},
+ {n:'GM6286600',loueur:'Mutualease (CM-CIC)',mat:'Antennes antivol — Portillons Thoonsen',loyer:800,per:'trim',duree:'',statut:'a_verifier'},
+ {n:'N84465',loueur:'Nanceo',mat:'Agencement RETIF',loyer:1458.41,per:'mois',duree:'72 mois',statut:'a_verifier'},
+ {n:'N84278',loueur:'Nanceo',mat:'Informatique divers (Tensator, Medprice)',loyer:612.11,per:'mois',duree:'60 mois',statut:'a_verifier'},
+ {n:'82138524',loueur:'Pharmalease (Cegelease)',mat:'Enseigne (habillage, textes LED, croix animée)',loyer:381,per:'mois',duree:'84 mois',statut:'reamenage',fin:'2029-03-31',paliers:[{du:'2026-10-01',loyer:114.30},{du:'2027-04-01',loyer:364.68}],note:'Réaménagement accepté le 23/10/2026 : −70 % d’octobre 2026 à mars 2027, +6 mois (fin au lieu du 30/09/2028). Virement avant le 10. Avenants à renvoyer avant le 06/11/2026'},
+ {n:'82409328',loueur:'Pharmalease (Cegelease)',mat:'Monnayeur automatique CK + onduleur + switch',loyer:193,per:'mois',duree:'60 mois',statut:'reamenage',fin:'2030-07-31',paliers:[{du:'2026-10-01',loyer:57.90},{du:'2027-04-01',loyer:169.07}],note:'Réaménagement accepté le 23/10/2026 : −70 % d’octobre 2026 à mars 2027, +12 mois (fin au lieu du 31/07/2029). Virement avant le 10'},
+ {n:'82410209',loueur:'Pharmalease (Cegelease)',mat:'Robot Meditech (+ pneumatique Aerocom : périmètre à confirmer)',loyer:2735.52,per:'mois',duree:'96 mois',statut:'a_verifier'},
+ {n:'82511351',loueur:'Pharmalease (Cegelease)',mat:'Étiquettes électroniques ASCA (12 000+ unités)',loyer:2049,per:'mois',duree:'72 mois',statut:'a_verifier'},
+ {n:'82511659',loueur:'Pharmalease (Cegelease)',mat:'Informatique postes Vindilis',loyer:325.60,per:'mois',duree:'',fin:'2030-05-31',statut:'a_verifier'},
+ {n:'A30052752',loueur:'Siemens Lease (ex-Anaveo)',mat:'Vidéosurveillance',loyer:1850,per:'trim',duree:'60 mois',statut:'a_verifier'},
+ {n:'A30121817',loueur:'Siemens Lease (ex-Anaveo)',mat:'Alarme',loyer:520,per:'trim',duree:'60 mois',statut:'a_verifier'},
+ {n:'A30125508',loueur:'Siemens Lease (ex-Anaveo)',mat:'Vidéosurveillance',loyer:135,per:'trim',duree:'60 mois',statut:'a_verifier'},
+ {n:'A30125512',loueur:'Siemens Lease (ex-Anaveo)',mat:'Alarme',loyer:190,per:'trim',duree:'60 mois',statut:'a_verifier'},
+ {n:'A1S80148',loueur:'BNP Paribas Leasing',mat:'Informatique Dell Precision 3680',loyer:368.79,per:'mois',duree:'',statut:'a_verifier'},
+ {n:'77750456097',loueur:'DLL (De Lage Landen)',mat:'Borne de téléconsultation Medadom',loyer:159,per:'mois',duree:'36 mois',statut:'a_verifier',val:5724,valSrc:'Échéancier Medidan / DLL (contrat transmis par le cabinet SAPEC le 23/10/2026)'}
+];
+/* Loyers en « équivalent HT par mois » (les loyers trimestriels du récapitulatif sont déjà divisés par 3). */
+function cbReg(){const R=jsonEt('cb_reg',null);if(Array.isArray(R)&&R.length)return R;
+  let C=[];try{C=((PA()||{}).leasing||{}).contrats||[]}catch(e){}
+  return CB_SEED.map((c,i)=>{const a=C.find(x=>(x.n||[]).some(k=>String(k).replace(/\W/g,'').includes(c.n.replace(/\W/g,''))));
+    const st=c.statut!=='a_verifier'?c.statut:a&&a.statut==='poursuivi'?'poursuivi':a&&a.statut==='resilie'?'resilie_garde':'a_verifier';
+    return {id:'cb'+(i+1),val:null,valSrc:'',fin:'',paliers:[],note:'',...c,statut:st}})}
+const cbActif=c=>['poursuivi','reamenage'].includes(c.statut);
+/* loyer HT/mois en vigueur à une date (AAAA-MM-JJ) */
+function cbLoyer(c,d){if(c.fin&&d>c.fin)return 0;const P=(c.paliers||[]).filter(p=>p.du<=d).sort((a,b)=>a.du<b.du?-1:1);return P.length?+P[P.length-1].loyer:+c.loyer||0}
+function cbMois(n){const d=new Date(),o=[];for(let k=0;k<n;k++){const x=new Date(d.getFullYear(),d.getMonth()+k,1);o.push(x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-01')}return o}
+function cbCalc(){const R=cbReg(),A=R.filter(cbActif),M=cbMois(48),d=auj();
+  const mens=A.reduce((s,c)=>s+cbLoyer(c,d),0),ech=M.map(m=>[m,A.reduce((s,c)=>s+cbLoyer(c,m),0)]);
+  const reste=A.filter(c=>c.fin).reduce((s,c)=>s+cbMois(240).filter(m=>m<=c.fin).reduce((a,m)=>a+cbLoyer(c,m),0),0);
+  const sansFin=A.filter(c=>!c.fin).length,val=R.reduce((s,c)=>s+(+c.val||0),0),valManq=R.filter(c=>!(+c.val)).length;
+  /* ce qui est saisi dans Trésorerie › Charges mensuelles et Changements pour le crédit-bail (TTC) */
+  const re=/cr[ée]dit-bail|leas|pharmalease|cegelease|grenke|nanceo|anaveo|siemens|eurolease|dll|cm-cic|mutualease/i;
+  const tre=jsonEt('tr_charges',[]).filter(c=>re.test(c.lib||'')).reduce((s,c)=>s+(+c.montant||0),0)+evts().filter(e=>e.type==='mensuel'&&re.test(e.lib||'')&&(e.debut||'')<=d).reduce((s,e)=>s+(+e.montant||0),0);
+  return {R,A,mens,ttc:mens*1.2,ech,reste,sansFin,val,valManq,tre}}
+function vuePasLea(){const K=cbCalc(),d=auj();
+  const chg=[];let prev=null;K.ech.forEach(([m,v])=>{if(prev===null||Math.abs(v-prev)>0.5)chg.push([m,v]);prev=v});
+  const ordre=['reamenage','poursuivi','resilie_garde','a_verifier','resilie_rendu','termine'];
+  const L=K.R.slice().sort((a,b)=>ordre.indexOf(a.statut)-ordre.indexOf(b.statut)||cbLoyer(b,d)-cbLoyer(a,d));
+  const opt=v=>Object.entries(CB_STATUTS).map(([k,s])=>`<option value="${k}"${k===v?' selected':''}>${s[0]}</option>`).join('');
+  return `<div class="carte"><b>🧾 Crédit-bail : vos contrats (modifiables)</b><div class="sub w">Chaque contrat se modifie ici (statut, loyer, réaménagement, date de fin, valeur des biens). Les loyers sont en <b>HT par mois</b> (trimestriels divisés par 3). Seuls les contrats poursuivis comptent dans les loyers à payer.</div>
+   <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Loyers à payer ce mois</div><div class="v">${eur(K.mens)} HT</div><div class="sub">${eur(K.ttc)} TTC · ${K.A.length} contrats poursuivis</div></div>
+   <div class="kpi"><div class="l">Reste à payer jusqu’à la fin</div><div class="v">${eur(K.reste)} HT</div><div class="sub">${K.sansFin?K.sansFin+' contrat(s) poursuivi(s) sans date de fin, non comptés':'tous les contrats poursuivis ont une date de fin'}</div></div>
+   <div class="kpi"><div class="l">Valeur d’origine des biens</div><div class="v">${eur(K.val)} HT</div><div class="sub">${K.valManq?K.valManq+' contrat(s) sans valeur saisie':'complète'}</div></div></div>
+   <div class="sub w" style="margin-top:8px"><b style="color:var(--txt)">Lien avec la Trésorerie :</b> crédit-bail saisi dans Charges mensuelles et Changements ce mois-ci ≈ ${eur(K.tre)} TTC ; registre ≈ ${eur(K.ttc)} TTC${Math.abs(K.tre-K.ttc)>50?` → <b style="color:var(--orange)">écart de ${eur(K.tre-K.ttc)}</b> : vérifiez les statuts ci-dessous ou les charges de la Trésorerie`:' → cohérent'}.</div>
+   ${chg.length>1?`<div class="sub w" style="margin-top:6px"><b style="color:var(--txt)">Évolution des loyers HT/mois :</b> ${chg.map(([m,v])=>dfr(m).slice(3)+' : '+eur(v)).join(' → ')}</div>`:''}
+   <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="cbCopie">📋 Copier le tableau pour l’expert-comptable</button><button class="btn" id="cbAjout">➕ Ajouter un contrat</button></div></div>
+   ${L.map(c=>{const st=CB_STATUTS[c.statut]||CB_STATUTS.a_verifier,l=cbLoyer(c,d);return `<details class="carte" data-cb="${esc(c.id)}"${pasOuv==='cb_'+c.id?' open':''}><summary style="cursor:pointer"><div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(c.loueur)} · ${esc(c.n)}</b><b>${eur2(l)} HT/mois</b></div>
+     <div class="prm"><span style="color:${st[1]};font-weight:600">${st[0]}</span><span>${esc(c.mat)}</span>${c.fin?`<span>fin ${dfr(c.fin)}</span>`:''}<span>valeur : ${+c.val?`<b style="color:var(--txt)">${eur(c.val)} HT</b>`:'<span style="color:var(--orange)">à saisir</span>'}</span></div>
+     ${(c.paliers||[]).length?`<div class="sub w">Paliers : ${c.paliers.map(p=>dfr(p.du)+' → '+eur2(p.loyer)).join(' ; ')} (loyer initial ${eur2(c.loyer)})</div>`:''}${c.note?`<div class="sub w">${esc(c.note)}</div>`:''}</summary>
+     <div class="g2" style="margin-top:8px"><div><label>Statut</label><select data-f="statut">${opt(c.statut)}</select></div><div><label>Loyer initial HT/mois</label><input type="number" step="0.01" data-f="loyer" value="${esc(c.loyer)}"></div>
+     <div><label>Valeur d’origine des biens HT</label><input type="number" step="0.01" data-f="val" value="${esc(c.val??'')}"></div><div><label>Source de la valeur</label><input data-f="valSrc" value="${esc(c.valSrc||'')}" placeholder="ex. facture fournisseur, contrat p. 2"></div>
+     <div><label>Date de fin</label><input type="date" data-f="fin" value="${esc(c.fin||'')}"></div><div><label>Paliers (date=loyer HT ; …)</label><input data-f="paliers" value="${esc((c.paliers||[]).map(p=>p.du+'='+p.loyer).join('; '))}" placeholder="2026-10-01=57.90; 2027-04-01=169.07"></div>
+     <div><label>Loueur</label><input data-f="loueur" value="${esc(c.loueur)}"></div><div><label>N° de contrat</label><input data-f="n" value="${esc(c.n)}"></div>
+     <div><label>Matériel</label><input data-f="mat" value="${esc(c.mat)}"></div><div><label>Note</label><input data-f="note" value="${esc(c.note||'')}"></div></div>
+     <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" data-cbsave="${esc(c.id)}">💾 Enregistrer</button><button class="btn" data-cbdel="${esc(c.id)}" style="opacity:.7">Retirer</button></div></details>`}).join('')}
+   <details class="carte"><summary style="cursor:pointer"><b>📑 Créances déclarées par les loueurs (analyse du site du mandataire)</b></summary>${vuePasLeaDecl()}</details>`}
+async function cbSauve(R,msg){if(await majEtat('cb_reg',JSON.stringify(R)))toast(msg||'Enregistré — tout est recalculé')}
+function cbBind(re){
+  document.querySelectorAll('[data-cb]').forEach(e=>e.addEventListener('toggle',()=>{if(e.open)pasOuv='cb_'+e.dataset.cb}));
+  document.querySelectorAll('[data-cbsave]').forEach(b=>b.onclick=async()=>{const id=b.dataset.cbsave,box=document.querySelector(`[data-cb="${id}"]`),R=cbReg().map(c=>({...c}));const c=R.find(x=>x.id===id);if(!c)return;
+    box.querySelectorAll('[data-f]').forEach(i=>{const f=i.dataset.f,v=i.value.trim();
+      if(f==='loyer')c.loyer=+v.replace(',','.')||0;else if(f==='val')c.val=v===''?null:+v.replace(',','.');
+      else if(f==='paliers')c.paliers=v?v.split(';').map(s=>s.split('=')).filter(p=>p.length===2&&/^\d{4}-\d{2}-\d{2}$/.test(p[0].trim())).map(p=>({du:p[0].trim(),loyer:+p[1].trim().replace(',','.')})):[];
+      else c[f]=v});
+    pasOuv='cb_'+id;await cbSauve(R);re()});
+  document.querySelectorAll('[data-cbdel]').forEach(b=>b.onclick=async()=>{const R=cbReg().filter(c=>c.id!==b.dataset.cbdel);await cbSauve(R,'Contrat retiré');re()});
+  const a=$('#cbAjout');if(a)a.onclick=async()=>{const R=cbReg().map(c=>({...c})),id='cb'+Date.now();R.push({id,n:'',loueur:'Nouveau loueur',mat:'',loyer:0,per:'mois',duree:'',statut:'a_verifier',val:null,valSrc:'',fin:'',paliers:[],note:''});pasOuv='cb_'+id;await cbSauve(R,'Contrat ajouté');re()};
+  const cp=$('#cbCopie');if(cp)cp.onclick=async()=>{const R=cbReg(),t=[['Loueur','N° de contrat','Matériel','Valeur d’origine HT','Source','Loyer HT/mois','Durée','Fin','Statut']].concat(R.map(c=>[c.loueur,c.n,c.mat,c.val??'',c.valSrc||'',c.loyer,c.duree||'',c.fin?dfr(c.fin):'',(CB_STATUTS[c.statut]||[''])[0]])).map(r=>r.join('\t')).join('\n');
+    try{await navigator.clipboard.writeText(t);toast('Tableau copié : collez-le dans un mail ou un tableur')}catch(e){toast('Copie impossible sur cet appareil')}};
+}
 let pasSim=null,pasFin=null;
 const PAS_DEF={niv:3,cca:true,rem:0,acc:0,caPct:0,mPts:0,charges:0,loyer:true,apport:0,coussin:0};
 /* ================= 6.36 : FIL ROUGE — le chiffre d'affaires relie tous les onglets =================
@@ -2127,6 +2213,7 @@ function passifV(){$('#ht').textContent='Passif & plan';fab(null);const P=PA();i
   const f={syn:vuePasSyn,ctr:vuePasCtr,lea:vuePasLea,cre:vuePasCre,ban:vuePasBan,plan:vuePasPlan,bil:vuePasBil,proc:vuePasProc}[sousPas]||vuePasSyn;
   $('#m').innerHTML=nav+f();
   const re=()=>{const y=scrollY;passifV();scrollTo(0,y)};
+  if(sousPas==='lea')cbBind(re);
   document.querySelectorAll('#pasn button').forEach(b=>b.onclick=()=>{sousPas=b.dataset.k;passifV();scrollTo(0,0)});
   document.querySelectorAll('#pasfv button').forEach(b=>b.onclick=()=>{filtrePasV=b.dataset.k;re()});
   document.querySelectorAll('#pasfc button').forEach(b=>b.onclick=()=>{filtrePasC=b.dataset.k;re()});
