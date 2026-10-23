@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.71';
+const APP_V='6.72';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1227,7 +1227,7 @@ const TR_L1=/^(Déjà payé|Information|Sans intérêt|Doublon|Déjà au suivi R
 let TRS=(()=>{try{return JSON.parse(localStorage.getItem('pil_tri')||'{}')}catch(e){return {}}})();TRS.c=TRS.c||{};TRS.k=TRS.k||{};TRS.m=TRS.m||{};TRS.r=TRS.r||{};TRS.e=TRS.e||{};TRS.f=TRS.f||'l1';
 /* Vos choix (cases cochées, décisions, commentaires, rangement) sont gardés sur l'appareil ET dans le classeur : ils survivent au changement d'onglet, à la fermeture de l'application et passent d'un appareil à l'autre */
 let TR_SYNC=null;
-function trSauver(){TRS.t=Date.now();const av=CR&&CR.fiches?new Set(CR.fiches.filter(f=>f['Statut']==='À valider').map(f=>f.ID)):null;
+function trSauver(){TRS.t=Date.now();const av=CR&&CR.fiches?new Set(CR.fiches.filter(f=>f['Statut']==='À valider'||trReste(f)).map(f=>f.ID)):null;/* 6.72 : on garde aussi les choix des mails déjà décidés mais restés dans la boîte de réception */
   if(av)['c','k','m','r','e'].forEach(x=>Object.keys(TRS[x]).forEach(id=>{if(!av.has(id))delete TRS[x][id]}));
   const j=JSON.stringify(TRS);try{localStorage.setItem('pil_tri',j)}catch(e){try{localStorage.removeItem('pil_cr');localStorage.setItem('pil_tri',j)}catch(_){}}
   clearTimeout(TR_SYNC);TR_SYNC=setTimeout(()=>{majEtat('tri_choix',JSON.stringify({c:TRS.c,k:TRS.k,m:TRS.m,r:TRS.r,e:TRS.e,t:TRS.t})).catch(()=>{})},1500)}
