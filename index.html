@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.72';
+const APP_V='6.73';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1273,7 +1273,7 @@ function trCarte(a){const f=a.f,id=esc(f.ID),coche=TRS.k[f.ID]!=null?TRS.k[f.ID]
       <div class="prb"><button class="mini" data-go="cou:rj">Voir dans Paiements RJ ›</button>${x.l.lien?`<a class="mini" href="${esc(x.l.lien)}" target="_blank" rel="noopener" style="text-decoration:none">Pièce du dossier ›</a>`:''}</div></div>`
     :`<div class="w" style="margin-top:4px">🔁 <b>${x.pourquoi==='fiche citée par le contrôle du tri'?'Fiche liée':'Autre exemplaire'}</b> (${esc(x.pourquoi)}) : fiche reçue le ${esc(String(x.g['Date mail']).slice(0,10))} — ${esc(x.g['Tiers'])} — ${esc(x.g['Type']||'')} ${x.g['Montant TTC']?'— '+esc(x.g['Montant TTC']):''} ${x.g['Statut']!=='À valider'?'('+esc(x.g['Statut'])+', '+esc(x.g['Décision finale']||'')+')':''}<div class="sub w">${esc(String(x.g['Objet']||'').slice(0,140))}</div>
       <div class="prb">${x.g['Statut']==='À valider'?`<button class="mini trVoir" data-id="${esc(x.g.ID)}">Voir cette fiche ›</button>`:''}<button class="mini trLire" data-id="${esc(x.g.ID)}" data-cible="${id}">📧 Lire ce mail</button></div></div>`).join('');
-  return `<div class="prl trC" data-mid="${id}" id="tr_${id}" style="display:block;${TRS.ok&&TRS.ok[f.ID]?'opacity:.35':''}"><div style="display:flex;gap:8px;align-items:flex-start">
+  return `<div class="prl trC" data-mid="${id}" id="tr_${id}" style="display:block;${TRS.ok&&TRS.ok[f.ID]&&!trReste(f)?'opacity:.35':''}"><div style="display:flex;gap:8px;align-items:flex-start">
    <input type="checkbox" class="mCh" data-id="${id}" ${coche?'checked':''} style="width:22px;height:22px;margin-top:2px;flex:none">
    <div class="grow">${a.reste?`<div class="sub w" style="color:var(--orange)">↩ Déjà décidé le ${esc(String(f['Date validation']||'').slice(0,10))} (${esc(f['Statut'])}${f['Décision finale']?' : '+esc(f['Décision finale']):''}), mais le mail est resté dans la boîte de réception. Choisissez à nouveau ci-dessous.</div>`:''}<b>${esc(f['Tiers']||'—')}</b> <span class="badge">${esc(f['Type']||'')}</span>${/Urgente|Haute/.test(f['Priorité'])?` <span class="badge" style="color:var(--rouge);border-color:var(--rouge)">${esc(f['Priorité'])}</span>`:''}
     <div class="sub w">${esc(String(f['Objet']||''))}${f['Montant TTC']?' · <b style="color:var(--txt)">'+esc(f['Montant TTC'])+'</b>':''} · reçu ${esc(String(f['Date mail']||'').slice(0,10))}${f['Références']?' · réf. '+esc(f['Références']):''}${f['Antériorité']?' · '+esc(f['Antériorité']):''}</div></div></div>
