@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.68';
+const APP_V='6.69';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1528,16 +1528,16 @@ function capacite(){const S0=crSyn(),S=crSoldes()?Object.assign({},S0||{},crSold
   const sol=S&&S.tot?(S.sC||0):(V&&V.tresor?V.tresor.soldes.filter(s=>!/BPGO/i.test(s.banque)).reduce((s,x)=>s+(x.solde||0),0):0);
   const encCEm=(()=>{const L=QB.B.lignes.filter(l=>l.s==='E'&&/caisse/i.test(l.compte||'')&&l.cat!=='exceptionnel');const R=QB.B.ref||[1,2];return R.reduce((s,i)=>s+L.reduce((a,l)=>a+(l.m[i]||0),0),0)/R.length})();
   const inclB=!!P.payBpgo;const solCE=sol;const solT=inclB?sol+solB:sol;
-  const dSol=S&&S.tot?(S.dateC||''):'';const N=36,d0=auj(),enc=encCEm/21.7*0.9*margeFacteur(),ch=jsonEt('tr_charges',[]);
+  const dSol=S&&S.tot?(S.dateC||''):'';const dSolI=(()=>{const m=/^(\d{2})\/(\d{2})\/(\d{4})/.exec(dSol||'');return m?m[3]+'-'+m[2]+'-'+m[1]:(/^\d{4}-\d{2}-\d{2}/.test(dSol||'')?dSol.slice(0,10):'')})();const apres=(d,k)=>dSolI?d>dSolI:k>0;let prem=true;const N=36,d0=auj(),enc=encCEm/21.7*0.9*margeFacteur(),ch=jsonEt('tr_charges',[]);
   const gros=(QB.S.find(x=>x.cat==='grossiste')||{moy:0}).moy,cerpM=P.cerp!=null&&P.cerp!==''?+P.cerp:Math.round(CERP_HIST.slice(-6).reduce((s,x)=>s+x[1],0)/6/100)*100;
   const C=A&&A.cerp&&!CERP_CMD_ANNULEES?A.cerp:null,cerpAtt=C?C.lignes.reduce((s,l)=>s+Math.max(0,(+l[2]||0)-(+l[4]||0)),0)*1.021:0;
   const cd=cerpDates(d0,N);const J=[];let b=solT;
   for(let k=0;k<N;k++){const d=ajJ(d0,k),wd=new Date(d+'T12:00:00').getDay(),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');const ev=[];
-    const e=(wd>=1&&wd<=5&&k>0)?enc:0;
-    ch.forEach(c=>{const cj=Math.min(+c.jour,fm);if(cj===j&&k>0)ev.push([c.lib.replace(/\s*\(.*$/,''),+c.montant||0,c.cat])});
-    if(k>0)evtJour(d,k===1).forEach(x=>ev.push(x));
-    if(k>0)Object.values(jsonEt('eng',{})).forEach(e=>{if(!e||e.statut!=='valide')return;const de=e.echeance||e.date;if(de===d||(k===1&&de&&de<d))ev.push([(e.tiers||'Engagement')+' (engagement validé)',+e.ttc||0,e.cat||'aut'])});
-    cd.filter(x=>x.prlv===d&&k>0).forEach(x=>{const kn=CERP_CONNUS[x.prlv];ev.push(['CERP'+(kn?' (relevé du '+dfr(CERP_RELEVE).slice(0,5)+', montant exact)':' (estimé)'),kn||cerpM,'mes'])});
+    const inc=apres(d,k),e=(wd>=1&&wd<=5&&inc)?enc:0;const ret=inc&&prem;if(inc)prem=false;
+    ch.forEach(c=>{const cj=Math.min(+c.jour,fm);if(cj===j&&inc)ev.push([c.lib.replace(/\s*\(.*$/,''),+c.montant||0,c.cat])});
+    if(inc)evtJour(d,ret).forEach(x=>ev.push(x));
+    if(inc)Object.values(jsonEt('eng',{})).forEach(e=>{if(!e||e.statut!=='valide')return;const de=e.echeance||e.date;if(de===d||(ret&&de&&de<d))ev.push([(e.tiers||'Engagement')+' (engagement validé)',+e.ttc||0,e.cat||'aut'])});
+    cd.filter(x=>x.prlv===d&&inc).forEach(x=>{const kn=CERP_CONNUS[x.prlv];ev.push(['CERP'+(kn?' (relevé du '+dfr(CERP_RELEVE).slice(0,5)+', montant exact)':' (estimé)'),kn||cerpM,'mes'])});
     const out=ev.reduce((s,x)=>s+x[1],0);b=b+e-out;J.push({d,k,enc:e,ev,out,bal:b})}
   const capAt=k=>Math.min(...J.slice(k).map(x=>x.bal))-P.reserve;const mn=J.reduce((m,x)=>x.bal<m.bal?x:m,J[0]);
   const cap=capAt(0),capRisque=cap-cerpAtt;
@@ -1545,7 +1545,7 @@ function capacite(){const S0=crSyn(),S=crSoldes()?Object.assign({},S0||{},crSold
   const F=(S&&S.L||[]).filter(l=>(+l.du||0)>0).map(l=>({tiers:l.tiers,du:+l.du,p1:/1/.test(String(l.priorite||'')),val:!!String(l.validation||'').trim()||/valid/i.test(l.statut||''),dt:dIso(l.dateCommande||l.date)||'9999',statut:l.statut||''}))
     .sort((a,b)=>(b.p1-a.p1)||(b.val-a.val)||String(a.dt).localeCompare(String(b.dt)));
   let cum=0;F.forEach(f=>{cum+=f.du;f.cum=cum;let kk=-1;for(let k=0;k<N;k++){if(capAt(k)>=cum){kk=k;break}}f.des=kk});
-  return {sol,solCE,solT,inclB,solB,encCEm,dSol,dSolB:S&&S.tot?(S.dateB||''):'',srcSol:S&&S.tot?'saisi':'ancien',detC:S&&S.C,detB:S&&S.B,J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
+  return {sol,solCE,solT,inclB,solB,encCEm,dSol,dSolI,dSolB:S&&S.tot?(S.dateB||''):'',srcSol:S&&S.tot?'saisi':'ancien',detC:S&&S.C,detB:S&&S.B,J,mn,cap,capRisque,cerpM,cerpAtt,F,P,enc,cd,N,QB}}
 function soldesEditeur(R){const j=crJeton(),d10=x=>esc(String(x||'').slice(0,16));
   const ligne=(nom,D,act)=>{if(!D)return `<div class="sub w">${nom} : <b class="neg">aucun solde saisi</b></div>`;
     return `<div class="sub w">${nom} : saisi <b style="color:var(--txt)">${eur2(D.base)}</b> le ${d10(D.date)}${D.liste.length?` − ${D.liste.length} virement(s) parti(s) depuis (${eur2(D.ded)}) <details style="display:inline"><summary class="lien">détail</summary>${D.liste.map(v=>`<div>• ${esc(v.tiers||'')} — ${eur2(v.montant)} <span class="sub">(${esc(String(v.date||v.quand||'').slice(0,10))})</span></div>`).join('')}</details>`:' — aucun virement depuis'} → <b style="color:var(--txt)">${eur2(act)} aujourd'hui</b></div>`};
@@ -1569,7 +1569,7 @@ function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,
    <div class="sub w">de factures (laboratoires, dossiers du suivi RJ, autres) <b style="color:var(--txt)">sans que le compte Caisse d'Épargne passe sous la réserve de ${eur(P.reserve)}</b> dans les 5 prochaines semaines (un mois complet de charges : chaque salaire, loyer et prélèvement compte au moins une fois), en tenant compte de tout ce qui va y tomber. ${R.inclB?`La BPGO est comptée (${eur(R.solB)}) : un virement BPGO → Caisse d'Épargne sera nécessaire.`:`La BPGO n'est pas comptée : elle accumule la trésorerie (${eur(R.solB)}).`}${!ok?` Il manquerait ${eur(-cap)} au moment le plus tendu : ne payer que l'indispensable, ou prévoir un virement depuis la BPGO.`:''}</div>
    <div class="tw" style="margin-top:8px"><table class="t">
     <tr><td>Sur la Caisse d'Épargne${R.dSol?' (solde du '+esc(R.dSol.slice(0,10))+', virements faits depuis déduits)':''}</td><td class="n"><b>${eur(R.solCE)}</b></td></tr>${R.inclB?`<tr><td>+ BPGO (à virer sur la Caisse d'Épargne au besoin)</td><td class="n"><b>${eur(R.solB)}</b></td></tr>`:''}
-    <tr><td>+ Ce qui va rentrer d'ici le ${jsem(fin)} ${dfr(fin)} sur la Caisse d'Épargne (≈ ${eur(R.enc)} par jour ouvré : assurance maladie, mutuelles, cartes ; ${eur(R.encCEm)} par mois en août-septembre, réduits de 10 % par prudence)</td><td class="n pos">+ ${eur(encJ)}</td></tr>
+    <tr><td>+ Ce qui va rentrer d'ici le ${jsem(fin)} ${dfr(fin)} sur la Caisse d'Épargne (≈ ${eur(R.enc)} par jour ouvré${R.dSolI?' à partir du '+dfr(ajJ(R.dSolI,1))+', lendemain de la saisie du solde':''} : assurance maladie, mutuelles, cartes, espèces déposées ; ${eur(R.encCEm)} par mois en août-septembre, réduits de 10 % par prudence)</td><td class="n pos">+ ${eur(encJ)}</td></tr>
     <tr><td>− Ce qui va tomber d'ici là (détail ci-dessous)</td><td class="n neg">− ${eur(outJ)}</td></tr>
     <tr><td>− Réserve de sécurité, à ne jamais entamer</td><td class="n neg">− ${eur(P.reserve)}</td></tr>
     <tr class="tot"><td>= Vous pouvez payer maintenant</td><td class="n ${ok?'pos':'neg'}">${ok?eur(cap):'− '+eur(-cap)}</td></tr></table></div>
