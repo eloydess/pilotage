@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.70';
+const APP_V='6.71';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -267,7 +267,12 @@ function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;if(!D._opsTout
 function libererCarte(){if(typeof MAPC!=='undefined'&&MAPC){try{MAPC._onZoomTransitionEnd=()=>{};MAPC._animatingZoom=false;MAPC.stop();MAPC.off();MAPC.remove()}catch(e){}MAPC=null}}
 function rendre(){const h=document.getElementById('crHold');if(h)h.style.display='none';libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
   try{const f=document.getElementById('fil');if(f)f.innerHTML=vue==='cfg'?'':filRouge();if(f)brancherLiens()}catch(e){}
-  ({acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,pas:passifV,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();}
+  ({acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,pas:passifV,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();try{restaurerSaisies()}catch(e){}}
+/* 6.71 : les montants et le code tapés mais pas encore enregistrés ne sont plus effacés quand l'application se recalcule (chargement du courrier, synchronisation…) */
+const SAISIES={};const SAISIE_IDS=['slC','slB','slCode','slRes','cpCerp','trEnc','trAch','trRes'];
+document.addEventListener('input',e=>{const t=e.target;if(t&&SAISIE_IDS.includes(t.id))SAISIES[t.id]=t.value});
+function restaurerSaisies(){let foc=null;for(const id in SAISIES){const el=document.getElementById(id);if(el&&SAISIES[id]!==''&&el.value!==SAISIES[id]){el.value=SAISIES[id];el.style.outline='2px solid var(--orange,#e69500)';if(!foc)foc=el}}}
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='slOk')setTimeout(()=>{['slC','slB','slCode'].forEach(k=>delete SAISIES[k])},4000)},true);
 
 const ouverte=r=>r['Statut']!=='Fait'&&r['Statut']!=='Ignoré';
 function allerReco(r){if(!r)return;const d=r['Domaine'],c=r['Cible'],labo=(D.labos||[]).some(l=>l['Laboratoire']===c);
