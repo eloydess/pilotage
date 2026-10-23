@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141210">
+<title>Black Friday 3D</title>
+<script type="module">
+import './model-viewer.min.js';
+customElements.get('model-viewer').meshoptDecoderLocation = new URL('meshopt_decoder.js', location.href).href;
+customElements.get('model-viewer').dracoDecoderLocation = new URL('./', location.href).href;
+document.getElementById('mv').setAttribute('src','pharmacie.glb?v=2');
+</script>
+<style>
+:root{--noir:#141210;--or:#c9a24a;--or2:#e8cf8a;--papier:#f6f3ec}
+*{box-sizing:border-box}html,body{margin:0;height:100%;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--noir);color:var(--papier)}
+header{position:fixed;top:0;left:0;right:0;z-index:5;background:var(--noir);padding:calc(8px + env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) 8px max(12px,env(safe-area-inset-left));display:flex;align-items:center;gap:10px;border-bottom:1px solid #3a3226}
+header h1{font-size:16px;margin:0;flex:1;letter-spacing:.04em}header h1 b{color:var(--or)}
+header a{color:var(--papier);text-decoration:none;background:#2a241c;border-radius:8px;padding:6px 10px;font-size:14px}
+model-viewer{position:fixed;top:calc(48px + env(safe-area-inset-top));bottom:0;left:0;right:0;width:100%;height:auto;background:#d9dcd8;--poster-color:#d9dcd8}
+.barre{position:fixed;left:8px;right:8px;top:calc(56px + env(safe-area-inset-top));z-index:4;display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.barre button{flex:none;border:0;border-radius:16px;padding:6px 11px;font-size:13px;background:rgba(20,18,16,.88);color:var(--papier);box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:pointer}
+.barre button b{color:var(--or);margin-right:4px}.barre button.on{background:var(--or);color:var(--noir)}.barre button.on b{color:var(--noir)}
+.hs{pointer-events:none;position:relative;--min-hotspot-opacity:.25;width:0;height:0}
+.hs>.k{position:absolute;left:0;top:0;transform:scale(var(--k,1));transform-origin:0 0}
+.hs:not([data-visible]){opacity:.25}
+.b{position:absolute;border-radius:50%;box-shadow:inset -3px -4px 6px rgba(0,0,0,.35),0 2px 4px rgba(0,0,0,.35)}
+.b.n{background:radial-gradient(circle at 35% 30%,#555 0,#151515 45%,#000 100%)}
+.b.o{background:radial-gradient(circle at 35% 30%,#fff3c4 0,#d9b35a 40%,#8a6a1e 100%)}
+.b.c{background:radial-gradient(circle at 35% 30%,#fff 0,#e9e3d6 50%,#bbb 100%)}
+.b.c::after{content:"";position:absolute;inset:20%;background:radial-gradient(#c9a24a 18%,transparent 20%) 0 0/6px 6px}
+.geant{width:46px;height:52px;border-radius:50% 50% 48% 48%;background:radial-gradient(circle at 35% 30%,#555 0,#151515 45%,#000 100%);color:#fff;font:800 8px/1 sans-serif;display:flex;align-items:center;justify-content:center;text-align:center;letter-spacing:.04em;box-shadow:0 3px 8px rgba(0,0,0,.45);transform:translateY(-50%)}
+.aff{width:18px;height:40px;background:linear-gradient(#141210 0 62%,#c9a24a 62% 66%,#141210 66%);border:1px solid #c9a24a;color:#c9a24a;font:800 5px/1 sans-serif;writing-mode:vertical-rl;display:flex;align-items:center;justify-content:center}
+.affh{width:44px;height:16px;background:#141210;border:1px solid #c9a24a;color:#e8cf8a;font:800 6px/14px sans-serif;text-align:center;letter-spacing:.06em}
+.band{width:58px;height:7px;background:repeating-linear-gradient(90deg,#141210 0 9px,#d9b35a 9px 18px);box-shadow:0 1px 3px rgba(0,0,0,.4)}
+.rid{width:34px;height:30px;background:repeating-linear-gradient(90deg,#f3dc8e 0 2px,#a8822c 2px 3px,transparent 3px 4px);box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.ecr{width:30px;height:19px;border:2px solid #222;border-radius:3px;background:#141210;color:#c9a24a;font:800 6px/15px sans-serif;text-align:center}
+.tag{position:absolute;left:50%;top:-14px;transform:translate(-50%,-100%);background:#c9a24a;color:#141210;font:800 11px/18px sans-serif;width:20px;height:20px;border-radius:50%;text-align:center;border:2px solid #141210}
+#info{position:fixed;left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));bottom:calc(10px + env(safe-area-inset-bottom));z-index:6;background:rgba(20,18,16,.94);border:1px solid #3a3226;border-radius:12px;padding:10px 14px;max-width:560px;margin:auto;font-size:14px}
+#info b{color:var(--or)}
+.chargement{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#37474f;font-size:14px;gap:8px}
+.chargement .pb{width:180px;height:6px;background:#b0bec5;border-radius:3px;overflow:hidden}.chargement .pb span{display:block;height:100%;width:0;background:#8a6a1e}
+</style>
+</head>
+<body>
+<header><a href="index.html">←</a><h1><b>BLACK FRIDAY</b> · novembre 2026 · implantation 3D</h1></header>
+<model-viewer id="mv" camera-orbit="35deg 58deg 58m" camera-target="33m 0m -22m" camera-controls touch-action="none" interaction-prompt="none" shadow-intensity="0" exposure="1.05"
+  min-camera-orbit="auto 0deg 2m" max-camera-orbit="auto 180deg 90m" interpolation-decay="120" field-of-view="40deg">
+  <div slot="progress-bar"></div>
+  <div class="chargement" slot="poster" id="poster"><div>Chargement de la maquette (5 Mo)…</div><div class="pb"><span id="pb"></span></div></div>
+</model-viewer>
+<div class="barre" id="barre"></div>
+<div id="info">Touchez une zone ci-dessus pour vous y placer. Faites glisser pour tourner, pincez pour zoomer.</div>
+<script>
+'use strict';
+/* Black Friday 2026 — données d'implantation communes (plan 2D et maquette 3D).
+   Coordonnées en mètres dans le repère de la maquette : x (gauche→droite), z (haut→bas du plan), h = hauteur. */
+const BF_ARCHE=(()=>{const a=[11.95,-34.35],b=[14.35,-36.75],o=[0.55,0.55],n=11,p=[];
+  for(let i=0;i<n;i++){const t=i/(n-1);p.push([+(a[0]+t*(b[0]-a[0])+o[0]).toFixed(2),+(0.25+2.35*Math.sin(Math.PI*t)).toFixed(2),+(a[1]+t*(b[1]-a[1])+o[1]).toFixed(2)])}return p})();
+const BF_ZONES=[
+ {n:1,nom:'Entrée principale A',court:'Arche d\'entrée',pos:[13.1,-35.6],
+  role:'Premier contact : le client passe sous l\'arche et sait tout de suite que l\'opération a commencé.',
+  pose:['Gonfler à la pompe les 132 ballons des 2 kits (4 tailles) : 1 h 15 environ.','Monter la guirlande organique sur la ficelle fournie, en grappes de 4 ballons, en alternant noir, or et confettis.','Fixer la guirlande en demi-cercle autour de la porte, côté intérieur, sur les montants du vitrage (pastilles adhésives du kit).','Poser le ballon géant BLACK FRIDAY à droite de la porte, lesté au sol, hors du passage.'],
+  regle:'Laisser 1,40 m de passage libre minimum ; ne rien accrocher au détecteur ni aux portes automatiques.',
+  qui:'Christel + 1 collaborateur, samedi 31/10 après la fermeture',duree:'1 h 45',
+  items:['vegaoo-arche','rouxel-geant'],dessin:'arche'},
+ {n:2,nom:'Vitrine de l\'entrée A',court:'Vitrine',pos:[11.4,-35.9],
+  role:'Visible depuis la rue avant même d\'entrer : le message doit se lire à 10 m.',
+  pose:['Suspendre les 2 affiches verticales 42 × 115 cm derrière le vitrage, une de chaque côté de la porte, au fil nylon par les perforations.','Tendre 7 m de banderole effet miroir noir/or en haut du vitrage, à 2,20 m environ, d\'un bout à l\'autre de la façade.','Garder les 3 m restants pour l\'entrée B.'],
+  regle:'Ne pas masquer la croix verte, les horaires ni l\'affichage de la pharmacie de garde.',
+  qui:'Christel, samedi 31/10',duree:'40 min',
+  items:['rouxel-affiche-v','rouxel-banderole'],dessin:'vitrine'},
+ {n:3,nom:'Îlot Promotions / Saisonnier',court:'Îlot promo',pos:[13.2,-27.1],
+  role:'Le meuble qui encaisse : c\'est là que sont les offres Black Friday validées. Toute la décoration y conduit.',
+  pose:['Monter l\'arche or Action (structure fournie) au-dessus de la tête de gondole TG 1.','Accrocher 1 rideau fil alu doré en fond de tête de gondole (coupé à la hauteur du meuble).','Poser 1 affiche 70 × 25 cm en fronton.','Ranger les produits en promotion de face, prix visibles, une seule offre par tablette.'],
+  regle:'Uniquement de la parapharmacie et des produits sans prescription non remboursés ; aucun médicament mis en avant.',
+  qui:'Christel ; offres validées par la Directrice Générale',duree:'45 min',
+  items:['action-arche','gifi-rideau','rouxel-affiche-h'],dessin:'ilot'},
+ {n:4,nom:'Bacs soldeurs',court:'Bacs',pos:[18.1,-21.7],
+  role:'Achat d\'impulsion sur le chemin : on attire l\'œil sans encombrer l\'allée.',
+  pose:['Gonfler 8 ballons BLACK FRIDAY 30 cm.','Attacher 2 ballons par groupe de bacs (4 groupes), au-dessus du bac, sur le montant.','Une affichette de prix imprimée en noir et or par bac (modèle à faire à la pharmacie).'],
+  regle:'Écrire « Black Friday » ou « Offre », jamais « Soldes » : ce mot est réservé aux périodes légales de soldes.',
+  qui:'Christel, samedi 31/10',duree:'20 min',
+  items:['rouxel-lot8'],dessin:'bacs'},
+ {n:5,nom:'Arbre central',court:'Arbre',pos:[36.3,-16.6],
+  role:'Point de repère au milieu du magasin, vu depuis les deux entrées : il relie la zone beauté au comptoir.',
+  pose:['Suspendre 8 ballons BLACK FRIDAY 30 cm aux branches, à des hauteurs différentes.','Accrocher le 2e ballon géant au-dessus, à 2,80 m environ, au fil nylon.'],
+  regle:'Rien sous 2 m au-dessus du passage.',
+  qui:'Christel + 1 collaborateur',duree:'25 min',
+  items:['rouxel-lot8','rouxel-geant'],dessin:'arbre'},
+ {n:6,nom:'Entrée B',court:'Entrée B',pos:[18.5,-12.2],
+  role:'Deuxième accès, en bas à gauche du plan : même signal qu\'en A, en plus léger. À faire seulement si cette porte est ouverte au public.',
+  pose:['Monter la 2e arche or Action côté intérieur de la porte.','Poser les 3 m de banderole restants en haut du vitrage.','Poser 1 affiche 70 × 25 cm à hauteur des yeux.'],
+  regle:'Passage libre de 1,40 m minimum.',
+  qui:'Christel',duree:'35 min',
+  items:['action-arche','rouxel-banderole','rouxel-affiche-h'],dessin:'entreeB'},
+ {n:7,nom:'Comptoirs Ordonnances & Conseils',court:'Comptoirs',pos:[55.4,-20.1],
+  role:'Le client attend et paie ici : on rappelle l\'offre au moment où il sort son moyen de paiement.',
+  pose:['Couper le 2e rideau fil alu doré en 2 morceaux de 1 m × 1 m.','Les fixer sur la façade côté client de 2 postes du milieu, au ruban adhésif double face.','Poser 1 affiche 70 × 25 cm sur le poteau bois central, à hauteur des yeux.'],
+  regle:'Pas de ballons en latex aux comptoirs (clients allergiques au latex) ; rien sur le plan de travail ni sur les écrans de délivrance.',
+  qui:'Christel',duree:'20 min',
+  items:['gifi-rideau','rouxel-affiche-h'],dessin:'comptoir'},
+ {n:8,nom:'Écrans (7)',court:'Écrans',pos:[33.2,-27.4],
+  role:'Gratuit et déjà en place : les écrans portent le message partout dans le magasin.',
+  pose:['Créer un visuel noir et or « Black Friday — tout le mois de novembre » au format des écrans.','Le diffuser en boucle sur les 7 écrans, en alternance avec les offres du mois.','Mettre le visuel dans l\'onglet Médias de l\'application.'],
+  regle:'Les visuels citent des produits de parapharmacie, jamais un médicament.',
+  qui:'Christel ; visuel validé par la Directrice Générale',duree:'30 min',
+  items:[],dessin:'ecran'}
+];
+/* Objets posés dans la maquette (pour les points du plan et les repères 3D) */
+const BF_OBJETS=[
+ ...BF_ARCHE.map(p=>({z:1,t:'grappe',x:p[0],h:p[1],y:p[2]})),
+ {z:1,t:'geant',x:14.9,h:0.95,y:-35.2},
+ {z:2,t:'affiche',x:10.1,h:1.5,y:-34.6},{z:2,t:'affiche',x:13.9,h:1.5,y:-38.0},
+ {z:2,t:'banderole',x:9.6,h:2.2,y:-34.0},{z:2,t:'banderole',x:11.9,h:2.2,y:-36.3},{z:2,t:'banderole',x:14.1,h:2.2,y:-38.5},
+ {z:3,t:'arche-or',x:13.2,h:2.1,y:-27.1},{z:3,t:'rideau',x:13.2,h:1.1,y:-27.3},{z:3,t:'affiche',x:13.2,h:1.7,y:-26.9},
+ {z:4,t:'ballons2',x:17.85,h:1.25,y:-23.95},{z:4,t:'ballons2',x:17.85,h:1.25,y:-22.2},{z:4,t:'ballons2',x:18.48,h:1.25,y:-21.2},{z:4,t:'ballons2',x:18.48,h:1.25,y:-19.45},
+ {z:5,t:'ballons8',x:36.3,h:2.0,y:-16.6},{z:5,t:'geant',x:36.3,h:2.85,y:-16.6},
+ {z:6,t:'arche-or',x:18.5,h:2.1,y:-12.2},{z:6,t:'banderole',x:18.5,h:2.3,y:-11.5},{z:6,t:'affiche',x:17.2,h:1.5,y:-11.7},
+ {z:7,t:'rideau',x:55.6,h:0.6,y:-22.6},{z:7,t:'rideau',x:55.6,h:0.6,y:-17.6},{z:7,t:'affiche',x:55.3,h:1.4,y:-20.1},
+ {z:8,t:'ecran',x:43.67,h:1.9,y:-12.99},{z:8,t:'ecran',x:11.06,h:1.9,y:-23.71},{z:8,t:'ecran',x:33.19,h:1.9,y:-27.44},{z:8,t:'ecran',x:26.87,h:1.9,y:-27.47},{z:8,t:'ecran',x:25.55,h:1.9,y:-10.57},{z:8,t:'ecran',x:33.81,h:1.9,y:-17.91},{z:8,t:'ecran',x:31.93,h:1.9,y:-17.93}
+];
+const mv=document.getElementById('mv');
+const html={
+ grappe:()=>{const s=[['n',22,0,0],['o',18,14,-6],['c',15,-12,-8],['n',14,6,12]];return s.map(([c,d,x,y])=>`<i class="b ${c}" style="width:${d}px;height:${d}px;left:${x-d/2}px;top:${y-d/2}px"></i>`).join('')},
+ 'arche-or':()=>{let r='';for(let i=0;i<9;i++){const a=Math.PI*i/8,x=-Math.cos(a)*34,y=-Math.sin(a)*30+12;r+=`<i class="b o" style="width:14px;height:14px;left:${x-7}px;top:${y-7}px"></i>`}return r},
+ ballons2:()=>`<i class="b n" style="width:18px;height:20px;left:-16px;top:-12px"></i><i class="b n" style="width:18px;height:20px;left:-2px;top:-16px"></i>`,
+ ballons8:()=>{let r='';for(let i=0;i<8;i++){const x=Math.cos(i*0.8)*22,y=Math.sin(i*1.3)*14;r+=`<i class="b n" style="width:16px;height:18px;left:${x-8}px;top:${y-9}px"></i>`}return r},
+ geant:()=>`<div class="geant" style="position:absolute;left:-23px;top:0">BLACK<br>FRIDAY</div>`,
+ affiche:o=>o.z===2?`<div class="aff" style="position:absolute;left:-9px;top:-20px">BLACK FRIDAY</div>`:`<div class="affh" style="position:absolute;left:-22px;top:-8px">BLACK FRIDAY</div>`,
+ banderole:()=>`<div class="band" style="position:absolute;left:-29px;top:-3px"></div>`,
+ rideau:()=>`<div class="rid" style="position:absolute;left:-17px;top:-15px"></div>`,
+ ecran:()=>`<div class="ecr" style="position:absolute;left:-15px;top:-10px">BLACK FRIDAY</div>`
+};
+BF_OBJETS.forEach((o,i)=>{const d=document.createElement('div');d.className='hs';d.slot='hotspot-o'+i;d.dataset.position=`${o.x}m ${o.h}m ${o.y}m`;d.dataset.visibilityAttribute='visible';d.innerHTML='<div class="k">'+html[o.t](o)+'</div>';mv.appendChild(d)});
+BF_ZONES.forEach(z=>{const d=document.createElement('div');d.className='hs';d.slot='hotspot-z'+z.n;d.dataset.position=`${z.pos[0]}m 2.9m ${z.pos[1]}m`;d.innerHTML=`<span class="tag">${z.n}</span>`;mv.appendChild(d)});
+const vue={1:['225deg 60deg 12m','12.5m 1m -35.5m'],2:['225deg 76deg 9m','12m 1.5m -36.2m'],3:['200deg 62deg 9m','13.5m 1m -26.5m'],4:['260deg 55deg 10m','18m 0.8m -21.7m'],5:['180deg 65deg 12m','36m 1.8m -16.6m'],6:['180deg 65deg 11m','18.5m 1m -11.5m'],7:['270deg 62deg 14m','55m 0.8m -20m'],8:['35deg 50deg 30m','28m 1m -20m']};
+const B=document.getElementById('barre');
+B.innerHTML='<button data-z="0" class="on">Vue d\'ensemble</button>'+BF_ZONES.map(z=>`<button data-z="${z.n}"><b>${z.n}</b>${z.court}</button>`).join('')+'<button data-z="h">Dessus</button>';
+B.onclick=e=>{const b=e.target.closest('button');if(!b)return;B.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));const k=b.dataset.z,I=document.getElementById('info');
+ if(k==='0'){mv.cameraOrbit='35deg 58deg 58m';mv.cameraTarget='33m 0m -22m';I.innerHTML='Vue d\'ensemble : les 8 zones, de l\'entrée A (en haut à gauche du plan) aux comptoirs.';return}
+ if(k==='h'){mv.cameraOrbit='0deg 0deg 48m';mv.cameraTarget='33m 0m -22m';I.innerHTML='Vue de dessus (entrée A en haut à gauche).';return}
+ const z=BF_ZONES.find(x=>x.n==+k);mv.cameraOrbit=vue[k][0];mv.cameraTarget=vue[k][1];I.innerHTML=`<b>${z.n}. ${z.nom}</b> — ${z.role}`};
+const echelle=()=>{try{const r=mv.getCameraOrbit().radius,f=mv.getFieldOfView()*Math.PI/180;const k=Math.max(.3,Math.min(1.6,9/(r*Math.tan(f/2))));mv.style.setProperty('--k',k.toFixed(3))}catch(e){}};
+mv.addEventListener('camera-change',echelle);mv.addEventListener('load',echelle);
+mv.addEventListener('progress',e=>{const p=document.getElementById('pb');if(p)p.style.width=Math.round(e.detail.totalProgress*100)+'%'});
+</script>
+</body>
+</html>
