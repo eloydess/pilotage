@@ -1,0 +1,1111 @@
+{
+ "maj": "2026-10-24",
+ "version": "1",
+ "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
+ "constat": [
+  "D'avril à septembre 2026 : 62 776 clients contre 65 796 en 2025 (−4,6 %), soit 503 clients de moins par mois. La marge par client tient (7,22 € contre 7,20 €) : le problème est le nombre de clients, pas les prix.",
+  "Vous captez environ 3,2 % des 3,9 millions de visiteurs annuels du centre commercial (≈ 125 000 clients par an). Le dossier de transfert visait 7 %. Il suffit qu'un passant de plus sur 650 entre pour retrouver les 503 clients par mois.",
+  "Les nouvelles cartes de fidélité ont chuté de 43 % (996 contre 1 754 en 12 mois) et 1 347 clients fidélité sont dormants ou en passe de l'être. Aucune campagne SMS n'a jamais été envoyée.",
+  "La seule fiche Google visible annonce une pharmacie « définitivement fermée », à l'ancienne adresse."
+ ],
+ "objectifs": {
+  "regle": "Battre chaque mois le même mois de l'an dernier, en clients réels (ventes − 2 × recyclage) ET en marge €.",
+  "base": {
+   "mois": "2026-09",
+   "clients": 10201,
+   "marge": 73800
+  },
+  "mois": [
+   {
+    "m": "2026-10",
+    "clients": null,
+    "marge": null,
+    "note": "Octobre 2025 : non chargé dans PERFORMANCE"
+   },
+   {
+    "m": "2026-11",
+    "clients": 11434,
+    "marge": 80286,
+    "jour": 21,
+    "calc": "Au rythme de septembre 2026 (10 201 clients) corrigé de la saison 2025 (septembre → novembre : +6,9 %), novembre 2026 ferait ≈ 10 900 clients ; il en faut 11 434, soit ≈ 530 de plus sur 25 jours d'ouverture."
+   },
+   {
+    "m": "2026-12",
+    "clients": 13492,
+    "marge": 92545,
+    "jour": 24,
+    "calc": "Au rythme de septembre 2026 corrigé de la saison 2025 (septembre → décembre : +26 %), décembre 2026 ferait ≈ 12 860 clients ; il en faut 13 492, soit ≈ 630 de plus sur 26 jours d'ouverture."
+   },
+   {
+    "m": "2027-01",
+    "clients": 12452,
+    "marge": 89990
+   },
+   {
+    "m": "2027-02",
+    "clients": 10449,
+    "marge": 78937
+   },
+   {
+    "m": "2027-03",
+    "clients": 10918,
+    "marge": 81429
+   },
+   {
+    "m": "2027-04",
+    "clients": 10676,
+    "marge": 77106
+   }
+  ],
+  "lecture": "Novembre 2025 a fait 11 434 clients. Au rythme de septembre (10 201) corrigé de la saison, novembre 2026 ferait environ 10 900 : il faut aller chercher ≈ 530 clients de plus, soit ≈ 21 par jour d'ouverture. En décembre, l'écart est d'environ 630."
+ },
+ "piliers": [
+  {
+   "k": "capter",
+   "ico": "🧲",
+   "nom": "Capter le flux qui passe devant",
+   "pour": "100 % des clients Carrefour passent devant la pharmacie : la vitrine, les écrans de la galerie et l'accueil décident s'ils entrent."
+  },
+  {
+   "k": "revenir",
+   "ico": "🔁",
+   "nom": "Faire revenir ceux qui nous connaissent",
+   "pour": "3 303 cartes, dont 1 347 dormantes ou sur le départ : c'est le flux le moins cher à récupérer."
+  },
+  {
+   "k": "trouve",
+   "ico": "📍",
+   "nom": "Être trouvé",
+   "pour": "Google, site, rendez-vous en ligne, Instagram : qui cherche une pharmacie au Mans sud doit nous trouver, ouverte."
+  },
+  {
+   "k": "raison",
+   "ico": "📅",
+   "nom": "Donner une raison de venir",
+   "pour": "Samedis événements, calendrier de l'Avent en vagues, vaccination, entretiens, Noël."
+  },
+  {
+   "k": "transformer",
+   "ico": "🛒",
+   "nom": "Transformer et augmenter le panier",
+   "pour": "Produits disponibles, image prix, conseil associé, marque exclusive, carte à chaque passage."
+  }
+ ],
+ "priorites": [
+  {
+   "id": "P1",
+   "rang": 1,
+   "pil": "capter",
+   "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
+   "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
+   "qui": "Titulaire",
+   "quand": "Avant le samedi 7/11",
+   "base": "Boucle de l'écran galerie : 341 s ; aucune personne à l'accueil",
+   "obj": "Boucle < 60 s ; table « bons plans » à 5–6 m de la porte ; accueil le samedi 10h–13h et 15h–19h",
+   "mesure": "Entrées (compteurs) et tickets du samedi vs même samedi 2025",
+   "gain": 80,
+   "cout": 0
+  },
+  {
+   "id": "P2",
+   "rang": 2,
+   "pil": "revenir",
+   "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
+   "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
+   "qui": "Directrice Générale",
+   "quand": "Mercredi 4/11 à 8h",
+   "base": "0 campagne envoyée ; ≈ 1 040 joignables par SMS",
+   "obj": "83 retours en caisse sous 30 jours (8 %)",
+   "mesure": "ZeFid : clients ciblés revenus",
+   "gain": 83,
+   "cout": 80
+  },
+  {
+   "id": "P3",
+   "rang": 3,
+   "pil": "trouve",
+   "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
+   "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
+   "qui": "Titulaire",
+   "quand": "Décision semaine du 26/10",
+   "base": "Fiche « fermée » à l'ancienne adresse ; pas de site actif",
+   "obj": "Fiche active au 309 ; rendez-vous vaccination en ligne",
+   "mesure": "Itinéraires et appels Google ; rendez-vous en ligne",
+   "gain": 120,
+   "cout": 0
+  },
+  {
+   "id": "P4",
+   "rang": 4,
+   "pil": "raison",
+   "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
+   "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
+   "qui": "Directrice Générale",
+   "quand": "7, 14, 21, 28/11 puis 5/12",
+   "base": "Samedi 24/10 : 19 tickets sur 20 sans autre achat",
+   "obj": "+25 clients par samedi ; 30 % des tickets calendrier avec un autre article",
+   "mesure": "Tickets du samedi vs même samedi 2025 ; bons de retour repris",
+   "gain": 100,
+   "cout": 300
+  },
+  {
+   "id": "P5",
+   "rang": 5,
+   "pil": "transformer",
+   "titre": "Les produits qui font venir doivent être en rayon : payer en premier les laboratoires qui amènent des clients",
+   "pourquoi": "Un produit absent, c'est un client renvoyé chez le concurrent (disponibilité physique, B. Sharp).",
+   "qui": "Titulaire",
+   "quand": "Chaque lundi",
+   "base": "Ruptures sur des best-sellers (ex. Physiodose, n° 1 du réseau en volume)",
+   "obj": "0 rupture sur les 50 produits qui font le plus de tickets",
+   "mesure": "Ruptures du lundi (Vindilis)",
+   "gain": 0,
+   "cout": 0
+  },
+  {
+   "id": "P6",
+   "rang": 6,
+   "pil": "transformer",
+   "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
+   "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
+   "qui": "Directrice Générale",
+   "quand": "Dès lundi 26/10",
+   "base": "83 cartes par mois ; 20 % sans code vendeur",
+   "obj": "150 cartes par mois ; 0 % sans code",
+   "mesure": "ZeFid : cartes par code vendeur",
+   "gain": 0,
+   "cout": 0
+  },
+  {
+   "id": "P7",
+   "rang": 7,
+   "pil": "capter",
+   "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
+   "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
+   "qui": "Titulaire",
+   "quand": "Rendez-vous avant le 6/11",
+   "base": "Aucune présence dans la galerie hors vitrine",
+   "obj": "Totem ou stand du 28/11 au 24/12",
+   "mesure": "Bons à code repris en caisse",
+   "gain": 80,
+   "cout": 0
+  },
+  {
+   "id": "P8",
+   "rang": 8,
+   "pil": "raison",
+   "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
+   "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
+   "qui": "Référente campagnes & vaccination",
+   "quand": "Novembre",
+   "base": "500 doses commandées ; pas de rendez-vous en ligne",
+   "obj": "+60 nouveaux patients par mois",
+   "mesure": "Actes facturés (Vindilis), patients sans historique",
+   "gain": 60,
+   "cout": 0
+  },
+  {
+   "id": "P9",
+   "rang": 9,
+   "pil": "trouve",
+   "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
+   "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
+   "qui": "Directrice Générale",
+   "quand": "Continu",
+   "base": "758 abonnés ; 726 vues par reel",
+   "obj": "1 500 vues par reel ; 1 000 abonnés fin décembre",
+   "mesure": "Statistiques Instagram chaque lundi",
+   "gain": 40,
+   "cout": 0
+  },
+  {
+   "id": "P10",
+   "rang": 10,
+   "pil": "transformer",
+   "titre": "Panier : conseil associé systématique + marque exclusive Apothical en caisse",
+   "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
+   "qui": "Toute l'équipe",
+   "quand": "Novembre",
+   "base": "Panier moyen carte : 36,62 €",
+   "obj": "+1 € de marge par client",
+   "mesure": "Marge par client (PERFORMANCE)",
+   "gain": 0,
+   "cout": 750
+  }
+ ],
+ "semaines": [
+  {
+   "n": 1,
+   "du": "2026-10-26",
+   "au": "2026-10-31",
+   "theme": "Préparer novembre : tout est prêt avant le samedi 7/11",
+   "jours": [
+    {
+     "d": "2026-10-26",
+     "t": [
+      {
+       "id": "s1a",
+       "txt": "Valider la liste des campagnes écrans à arrêter (préparée par Claude) pour passer chaque boucle sous 60 s",
+       "qui": "Titulaire",
+       "mesure": "Boucle < 60 s"
+      },
+      {
+       "id": "s1b",
+       "txt": "Réunion d'équipe de 10 min, debout : le but (+21 clients par jour), carte à chaque passage avec code vendeur, classement chaque lundi",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      },
+      {
+       "id": "s1c",
+       "txt": "Signaler à Dynamiz l'écran extérieur petit hors ligne depuis 5 jours",
+       "qui": "Titulaire",
+       "mesure": ""
+      },
+      {
+       "id": "s1d",
+       "txt": "Décider : fiche Google au 309 en test 3 mois avec Myli",
+       "qui": "Titulaire",
+       "mesure": ""
+      },
+      {
+       "id": "s1e",
+       "txt": "Commander les best-sellers en rupture (liste croisée top 100 réseau × stock, préparée par Claude)",
+       "qui": "Titulaire",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-10-27",
+     "t": [
+      {
+       "id": "s1f",
+       "txt": "Rédiger le SMS ZeFid du 4/11 et la liste des cibles (dormants + futurs inactifs)",
+       "qui": "Claude",
+       "mesure": ""
+      },
+      {
+       "id": "s1g",
+       "txt": "Relancer les laboratoires pour leurs offres Black Friday ; tableau des offres pour vendredi",
+       "qui": "Administratif & caisse rapide",
+       "mesure": ""
+      },
+      {
+       "id": "s1h",
+       "txt": "Poser les cadres de couleur uniquement sur les produits en promotion du mois",
+       "qui": "Rayonniste (étiquettes)",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-10-28",
+     "t": [
+      {
+       "id": "s1i",
+       "txt": "Tournage : annonce du samedi 7/11 (diagnostic + calendrier) et « 3 bons plans de novembre »",
+       "qui": "Préparateur vidéo + volontaires",
+       "mesure": ""
+      },
+      {
+       "id": "s1j",
+       "txt": "Appeler Carmila : dates de la campagne de Noël, totems, stand dans la galerie",
+       "qui": "Titulaire",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-10-29",
+     "t": [
+      {
+       "id": "s1k",
+       "txt": "Préparer les visuels écrans de novembre : 4 messages par écran (bon plan du mois, samedi qui vient, carte fidélité, marque phare)",
+       "qui": "Claude",
+       "mesure": ""
+      },
+      {
+       "id": "s1l",
+       "txt": "meSoigner : retrouver le contrat et l'accès, ouvrir la prise de rendez-vous vaccination",
+       "qui": "Titulaire",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-10-30",
+     "t": [
+      {
+       "id": "s1m",
+       "txt": "Charger les programmes de novembre dans Cenareo et MagicInfo (ceux d'octobre expirent les 30 et 31/10)",
+       "qui": "Titulaire",
+       "mesure": ""
+      },
+      {
+       "id": "s1n",
+       "txt": "Valider le SMS du 4/11",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-10-31",
+     "t": [
+      {
+       "id": "s1o",
+       "txt": "Mesure témoin : entrées (compteurs) et tickets heure par heure",
+       "qui": "Titulaire",
+       "mesure": "Base « avant »"
+      },
+      {
+       "id": "s1p",
+       "txt": "Une personne à l'accueil 10h–13h et 15h–19h",
+       "qui": "Toute l'équipe",
+       "mesure": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 2,
+   "du": "2026-11-02",
+   "au": "2026-11-07",
+   "theme": "Lancement : SMS aux dormants + samedi 7/11 (diagnostic Caudalie, calendrier session 3)",
+   "jours": [
+    {
+     "d": "2026-11-02",
+     "t": [
+      {
+       "id": "s2a",
+       "txt": "Point flux de la semaine et classement des cartes par code vendeur",
+       "qui": "Claude",
+       "mesure": ""
+      },
+      {
+       "id": "s2b",
+       "txt": "Afficher le classement en salle de pause (sans montant, en dynamique de progrès)",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-03",
+     "t": [
+      {
+       "id": "s2c",
+       "txt": "Publier l'annonce du 7/11 sur Instagram et TikTok",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-04",
+     "t": [
+      {
+       "id": "s2d",
+       "txt": "Envoi du SMS ZeFid à 8h00 (≈ 1 040 clients)",
+       "qui": "Directrice Générale",
+       "mesure": "Retours sous 30 jours"
+      }
+     ]
+    },
+    {
+     "d": "2026-11-05",
+     "t": [
+      {
+       "id": "s2e",
+       "txt": "Rappel en story ; imprimer les bons de retour (visuel préparé par Claude)",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-06",
+     "t": [
+      {
+       "id": "s2f",
+       "txt": "Briefing du samedi : accueil, diagnostic, calendrier, caisse (carte + bon de retour)",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-07",
+     "t": [
+      {
+       "id": "s2g",
+       "txt": "Journée diagnostic Caudalie + calendrier session 3 (30) à l'heure annoncée, carte obligatoire, bon de retour",
+       "qui": "Toute l'équipe",
+       "mesure": "Tickets vs samedi 8/11/2025"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 3,
+   "du": "2026-11-09",
+   "au": "2026-11-14",
+   "theme": "Nuhanciam 14/11 + calendrier session 4 ; premier bilan du SMS",
+   "jours": [
+    {
+     "d": "2026-11-09",
+     "t": [
+      {
+       "id": "s3a",
+       "txt": "Bilan du samedi 7/11 et des retours SMS ; corriger ce qui n'a pas marché",
+       "qui": "Claude",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-10",
+     "t": [
+      {
+       "id": "s3b",
+       "txt": "Annonce du 14/11 (Instagram, TikTok, écrans)",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-12",
+     "t": [
+      {
+       "id": "s3c",
+       "txt": "Black Friday : choisir les offres (sélection de laboratoires seulement), commander le stock juste nécessaire",
+       "qui": "Titulaire",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-14",
+     "t": [
+      {
+       "id": "s3d",
+       "txt": "Animation Nuhanciam + calendrier session 4 (30)",
+       "qui": "Toute l'équipe",
+       "mesure": "Tickets vs samedi 15/11/2025"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 4,
+   "du": "2026-11-16",
+   "au": "2026-11-21",
+   "theme": "Calendrier session 5 + préparation du Black Friday",
+   "jours": [
+    {
+     "d": "2026-11-16",
+     "t": [
+      {
+       "id": "s4a",
+       "txt": "Point flux ; SMS de relance aux nouveaux clients (403 créés cette année) : venez découvrir…",
+       "qui": "Claude",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-18",
+     "t": [
+      {
+       "id": "s4b",
+       "txt": "Tournage Black Friday (offres, table noir et or)",
+       "qui": "Préparateur vidéo + volontaires",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-21",
+     "t": [
+      {
+       "id": "s4c",
+       "txt": "Calendrier session 5 (25) + annonce Black Friday en caisse",
+       "qui": "Toute l'équipe",
+       "mesure": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 5,
+   "du": "2026-11-23",
+   "au": "2026-11-28",
+   "theme": "Black Friday 27–28/11 + calendrier session 6",
+   "jours": [
+    {
+     "d": "2026-11-25",
+     "t": [
+      {
+       "id": "s5a",
+       "txt": "SMS Black Friday aux porteurs de carte (8h00)",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-26",
+     "t": [
+      {
+       "id": "s5b",
+       "txt": "Installer la table et l'arche noir et or",
+       "qui": "Administratif & caisse rapide",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-11-27",
+     "t": [
+      {
+       "id": "s5c",
+       "txt": "Black Friday jour 1",
+       "qui": "Toute l'équipe",
+       "mesure": "Marge du jour vs 28/11/2025"
+      }
+     ]
+    },
+    {
+     "d": "2026-11-28",
+     "t": [
+      {
+       "id": "s5d",
+       "txt": "Black Friday jour 2 + calendrier session 6 (25)",
+       "qui": "Toute l'équipe",
+       "mesure": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 6,
+   "du": "2026-11-30",
+   "au": "2026-12-05",
+   "theme": "Lancement de Noël : coffrets, cartes cadeaux, Nuxe le 5/12",
+   "jours": [
+    {
+     "d": "2026-11-30",
+     "t": [
+      {
+       "id": "s6a",
+       "txt": "Bilan de novembre vs novembre 2025 (11 434 clients, 80 286 € de marge)",
+       "qui": "Claude",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-12-01",
+     "t": [
+      {
+       "id": "s6b",
+       "txt": "Espace coffrets juste après l'entrée, prix visibles ; carte cadeau mise en avant en caisse",
+       "qui": "Rayonniste (étiquettes)",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-12-05",
+     "t": [
+      {
+       "id": "s6c",
+       "txt": "Journée Nuxe",
+       "qui": "Toute l'équipe",
+       "mesure": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 7,
+   "du": "2026-12-07",
+   "au": "2026-12-12",
+   "theme": "Noël : idées cadeaux par budget (moins de 20 €, 30 €, 50 €)",
+   "jours": [
+    {
+     "d": "2026-12-07",
+     "t": [
+      {
+       "id": "s7a",
+       "txt": "Point flux ; réassort des coffrets qui partent",
+       "qui": "Titulaire",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-12-09",
+     "t": [
+      {
+       "id": "s7b",
+       "txt": "Vidéo « idées cadeaux par budget »",
+       "qui": "Préparateur vidéo + volontaires",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-12-12",
+     "t": [
+      {
+       "id": "s7c",
+       "txt": "Samedi cadeaux : emballage offert",
+       "qui": "Toute l'équipe",
+       "mesure": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 8,
+   "du": "2026-12-14",
+   "au": "2026-12-19",
+   "theme": "Pic de Noël",
+   "jours": [
+    {
+     "d": "2026-12-15",
+     "t": [
+      {
+       "id": "s8a",
+       "txt": "SMS « dernière semaine avant Noël » aux porteurs de carte",
+       "qui": "Directrice Générale",
+       "mesure": ""
+      }
+     ]
+    },
+    {
+     "d": "2026-12-19",
+     "t": [
+      {
+       "id": "s8b",
+       "txt": "Samedi : tout le monde au comptoir et en rayon",
+       "qui": "Toute l'équipe",
+       "mesure": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 9,
+   "du": "2026-12-21",
+   "au": "2026-12-26",
+   "theme": "Derniers achats",
+   "jours": [
+    {
+     "d": "2026-12-24",
+     "t": [
+      {
+       "id": "s9a",
+       "txt": "Horaires de fêtes affichés partout (écrans, Instagram, vitrine)",
+       "qui": "Titulaire",
+       "mesure": ""
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "n": 10,
+   "du": "2026-12-28",
+   "au": "2027-01-02",
+   "theme": "Bilan et plan de janvier",
+   "jours": [
+    {
+     "d": "2026-12-28",
+     "t": [
+      {
+       "id": "s10a",
+       "txt": "Bilan de décembre vs décembre 2025 (13 492 clients, 92 545 €) ; plan de janvier",
+       "qui": "Claude",
+       "mesure": ""
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "tresorerie": {
+  "soldes": "Soldes saisis le 24/10/2026 : Caisse d'Épargne 71 552,51 € ; BPGO 62 863,42 €.",
+  "lecture": "Cette trésorerie vient surtout du gel des dettes d'avant le 30/06/2026, pas d'un bénéfice : la marge mensuelle (≈ 74 000 à 80 000 €) couvre à peine les charges fixes enregistrées (≈ 82 000 € par mois avec l'embauche d'Alban). C'est l'argent qui prouvera au tribunal votre capacité à tenir un plan.",
+  "regles": [
+   "La BPGO reste la réserve du plan : on n'y touche pas pour le flux.",
+   "Le flux se crée surtout avec des actions gratuites (écrans, SMS, Google, accueil, Carmila, équipe) : pas besoin de cet argent pour démarrer.",
+   "Le vrai levier financier, c'est le stock qui fait venir : on paie en priorité les laboratoires dont les produits amènent des clients et de la marge (les 20 % de laboratoires qui font 80 % de la marge), et le stock de Noël juste nécessaire (décembre est le meilleur mois).",
+   "Enveloppe flux novembre–décembre : 2 400 € maximum sur la Caisse d'Épargne, ligne par ligne ci-dessous, avec l'accord de l'administrateur pour les dépenses nouvelles.",
+   "Règle de retour : chaque euro dépensé doit rapporter au moins 2 € de marge en 90 jours ; une ligne qui ne rapporte rien au bout de 3 semaines est arrêtée."
+  ],
+  "enveloppe": [
+   [
+    "SMS ZeFid (≈ 2 000 envois sur 2 mois)",
+    150,
+    "Tarif ZeFid à confirmer"
+   ],
+   [
+    "Marque exclusive Apothical (pack 13 références)",
+    753,
+    "627,24 € HT ; marge 3,65 € à 13,87 € par boîte"
+   ],
+   [
+    "Black Friday + Noël : décor, PLV",
+    300,
+    "Espèces remises à l'administratif"
+   ],
+   [
+    "Impressions locales : bons de retour, affiches galerie",
+    300,
+    ""
+   ],
+   [
+    "Publications sponsorisées Instagram (locales)",
+    400,
+    "À vérifier : la publicité payante n'est pas précisée par le décret de mars 2026"
+   ],
+   [
+    "Réserve de test",
+    497,
+    "Ce qui marche le mieux"
+   ]
+  ]
+ },
+ "methode": [
+  {
+   "p": "La zone de décompression",
+   "src": "Paco Underhill, Why We Buy (1999)",
+   "ici": "Les 3 à 5 premiers mètres ne sont pas regardés : aucune promotion ni affiche fidélité collée à la porte. La table « bons plans » se place juste après, au premier point de décision."
+  },
+  {
+   "p": "Grandir par la pénétration",
+   "src": "Byron Sharp, How Brands Grow (2010)",
+   "ici": "On grandit en attirant plus d'acheteurs, pas seulement en faisant acheter plus les fidèles : être vu (galerie, Google, Instagram) et disponible (pas de rupture)."
+  },
+  {
+   "p": "La valeur d'un client gardé",
+   "src": "Frederick Reichheld, Bain & Company, The Loyalty Effect (1996)",
+   "ici": "Réactiver les 1 347 clients dormants avant de chercher des inconnus."
+  },
+  {
+   "p": "Récence, fréquence, montant (RFM)",
+   "src": "Segmentation utilisée par ZeFid et Apothical",
+   "ici": "Message différent pour dormants, nouveaux et fidèles."
+  },
+  {
+   "p": "Rareté et preuve sociale",
+   "src": "Robert Cialdini, Influence (1984)",
+   "ici": "Calendrier en vagues annoncées, « places limitées » au diagnostic, avis Google gérés."
+  },
+  {
+   "p": "Image prix",
+   "src": "Hermann Simon (Simon-Kucher), Confessions of the Pricing Man (2015)",
+   "ici": "Les clients jugent les prix sur quelques produits connus : être bien placés sur ceux-là, marger sur la longue traîne."
+  },
+  {
+   "p": "Planifier, faire, vérifier, corriger",
+   "src": "W. Edwards Deming (roue PDCA)",
+   "ici": "Chaque action a sa mesure avant / après ; on garde ce qui marche, on arrête le reste chaque lundi."
+  },
+  {
+   "p": "Ce que dit la déontologie",
+   "src": "Décret n° 2026-156 du 3 mars 2026 (mémo URPS Grand Est)",
+   "ici": "Promotions sur la parapharmacie, fidélité, vitrines et réseaux sociaux sont permis ; communication loyale, sans pousser au médicament, sans comparaison avec d'autres pharmacies."
+  }
+ ],
+ "questions": [
+  {
+   "id": "q1",
+   "q": "Fiche Google au 309 en test de 3 mois, avis gérés par Myli (déjà payé par Apothical) : on y va ?",
+   "reco": "Oui",
+   "opts": [
+    "Oui",
+    "Non"
+   ]
+  },
+  {
+   "id": "q2",
+   "q": "Budget flux de 2 400 € maximum en novembre-décembre sur la Caisse d'Épargne, ligne par ligne : validé ?",
+   "reco": "Oui",
+   "opts": [
+    "Oui",
+    "Non",
+    "À revoir"
+   ]
+  },
+  {
+   "id": "q3",
+   "q": "J'arrête moi-même les campagnes écrans inutiles (liste soumise avant chaque arrêt) ?",
+   "reco": "Oui",
+   "opts": [
+    "Oui",
+    "Non"
+   ]
+  },
+  {
+   "id": "q4",
+   "q": "Je prépare le SMS du 4/11 aux 1 347 clients dormants ou sur le départ, vous validez avant l'envoi ?",
+   "reco": "Oui",
+   "opts": [
+    "Oui",
+    "Non"
+   ]
+  },
+  {
+   "id": "q5",
+   "q": "Marque exclusive Apothical : commande du pack 13 références (627,24 € HT) ?",
+   "reco": "Oui",
+   "opts": [
+    "Oui",
+    "Non",
+    "Plus tard"
+   ]
+  },
+  {
+   "id": "q6",
+   "q": "Compteurs d'entrée : nom du logiciel ou du fournisseur ?",
+   "reco": "",
+   "opts": []
+  },
+  {
+   "id": "q7",
+   "q": "meSoigner : le contrat est-il déjà payé ? Avec quel identifiant ?",
+   "reco": "",
+   "opts": [
+    "Payé",
+    "Non payé",
+    "Je ne sais pas"
+   ]
+  },
+  {
+   "id": "q8",
+   "q": "Cadres d'étiquettes électroniques : combien et de quelles couleurs ?",
+   "reco": "",
+   "opts": []
+  },
+  {
+   "id": "q9",
+   "q": "Sous quel code Vindilis travaille la préparatrice Zoé ? « FRETAULT Suzon » (code 50) est-il bien Susan ? Qui est GOUPIL Sylvie (code 57) ?",
+   "reco": "",
+   "opts": []
+  },
+  {
+   "id": "q10",
+   "q": "Pouvez-vous demander à Carmila les comptages de fréquentation de la galerie, mois par mois, 2025 et 2026 ?",
+   "reco": "Oui",
+   "opts": [
+    "Oui",
+    "Non"
+   ]
+  }
+ ],
+ "cartes": {
+  "periode": "24/10/2025 → 23/10/2026 (ZeFid) ; codes croisés avec la liste des vendeurs Vindilis",
+  "total": 996,
+  "totalN1": 1754,
+  "l": [
+   [
+    "—",
+    "Code non renseigné",
+    199,
+    174,
+    ""
+   ],
+   [
+    "61",
+    "BERTON Jamila",
+    177,
+    1,
+    "partie"
+   ],
+   [
+    "57",
+    "GOUPIL Sylvie",
+    171,
+    102,
+    ""
+   ],
+   [
+    "36",
+    "ZARDET CHRISTEL",
+    127,
+    24,
+    ""
+   ],
+   [
+    "4",
+    "BOURGEON Aline",
+    75,
+    208,
+    "démission"
+   ],
+   [
+    "13",
+    "CHANTELOUBE Sandy",
+    68,
+    326,
+    ""
+   ],
+   [
+    "46",
+    "ROUAULT AMBRE",
+    36,
+    34,
+    "partie"
+   ],
+   [
+    "48",
+    "CARON Mylène",
+    32,
+    1,
+    ""
+   ],
+   [
+    "24",
+    "DASI Sidney",
+    27,
+    98,
+    ""
+   ],
+   [
+    "32",
+    "BOIVIN Antoine",
+    24,
+    39,
+    ""
+   ],
+   [
+    "34",
+    "SHIKH NABI REBER",
+    12,
+    41,
+    "parti"
+   ],
+   [
+    "39",
+    "SALGADO Sonia",
+    12,
+    47,
+    "partie"
+   ],
+   [
+    "42",
+    "LEFRAY AUDREY",
+    11,
+    287,
+    "prestataire"
+   ],
+   [
+    "30",
+    "PALLANY Dylan",
+    10,
+    0,
+    ""
+   ],
+   [
+    "59",
+    "YOUSRI nassim",
+    8,
+    0,
+    ""
+   ],
+   [
+    "35",
+    "MEDJIDOV Gadji",
+    3,
+    25,
+    ""
+   ],
+   [
+    "1",
+    "GOUIN Pierre",
+    1,
+    1,
+    ""
+   ],
+   [
+    "33",
+    "BRUNET MAEL",
+    1,
+    48,
+    ""
+   ],
+   [
+    "51",
+    "TEMBO Océane",
+    1,
+    0,
+    ""
+   ],
+   [
+    "52",
+    "POIRIER Alban",
+    1,
+    0,
+    ""
+   ],
+   [
+    "50",
+    "FRETAULT Suzon",
+    0,
+    null,
+    ""
+   ],
+   [
+    "2",
+    "GOUIN Emmanuella",
+    0,
+    null,
+    ""
+   ]
+  ]
+ },
+ "kpis": [
+  [
+   "clients",
+   "Clients réels de la semaine",
+   "Vindilis : ventes − 2 × recyclage"
+  ],
+  [
+   "marge",
+   "Marge € de la semaine",
+   "Vindilis"
+  ],
+  [
+   "entrees",
+   "Entrées (compteurs)",
+   "Compteurs d'entrée"
+  ],
+  [
+   "cartes",
+   "Nouvelles cartes",
+   "ZeFid"
+  ],
+  [
+   "reactives",
+   "Clients SMS revenus",
+   "ZeFid"
+  ],
+  [
+   "abonnes",
+   "Abonnés Instagram",
+   "Instagram"
+  ]
+ ]
+}

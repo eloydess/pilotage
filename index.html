@@ -23,7 +23,7 @@ header button{background:rgba(255,255,255,.15);border:0;color:#fff;border-radius
 main{padding:12px 16px;max-width:760px;margin:auto}#crHold{padding:0 16px;max-width:760px;margin:-12px auto 0}
 .fige{position:sticky;top:var(--hh,52px);z-index:4;background:var(--fond);margin:0 -16px;padding:8px 16px 2px;box-shadow:0 6px 8px -8px rgba(0,0,0,.35)}.fige>.carte{margin-top:0}.fige .titre{margin:6px 0 4px}
 .leg{font-size:12px;color:var(--doux);white-space:normal;line-height:1.6}
-nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(6,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--carte);border-top:1px solid var(--ligne);display:grid;grid-template-columns:repeat(7,1fr);padding-bottom:env(safe-area-inset-bottom);z-index:5}
 nav button{border:0;background:none;color:var(--doux);padding:5px 0 4px;font-size:10.5px;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:52px;line-height:1.15;text-align:center}
 nav button span{font-size:19px}
 nav button .lc{display:none}
@@ -164,9 +164,9 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.79';
-const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
-let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
+const APP_V='7.0';
+const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
+let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 let _rpT=null;new MutationObserver(()=>{clearTimeout(_rpT);_rpT=setTimeout(()=>{if(!document.getElementById('retCon')&&!document.getElementById('retCol'))replier()},60)}).observe(document.getElementById('m')||document.body,{childList:true});
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -228,7 +228,7 @@ async function charger(silencieux){
     const txt=await r.text();const j=JSON.parse(txt);
     enCours=false;
     if(!j.ok){derniereErreur=j.err||'Erreur';toast(derniereErreur);if(/Code/.test(j.err||'')||!D)reglages();return}
-    derniereErreur='';const pareil=D&&txt===ls.get('pil_cache');if(!pareil){D=j;ls.set('pil_cache',txt)}const etaitCfg=vue==='cfg';if(etaitCfg)vue='acc';
+    derniereErreur='';const pareil=D&&txt===ls.get('pil_cache');if(!pareil){D=j;ls.set('pil_cache',txt)}const etaitCfg=vue==='cfg';if(etaitCfg)vue='flux';
     if(!pareil||etaitCfg)planifierRendu();if(!silencieux)toast('À jour');if(!A)chargerAudit();
   }catch(e){enCours=false;derniereErreur='Connexion impossible au serveur ('+(e&&e.message||e)+').';if(D)toast('Hors ligne : dernières données affichées');else{toast('Connexion impossible');reglages();}}
 }
@@ -249,7 +249,7 @@ function reglages(){
   <button class="btn" id="ok">Enregistrer</button><p style="font-size:12px;color:var(--doux);margin-top:10px">Application v${APP_V}${D&&D.version?' · serveur v'+esc(D.version):''}</p></div>
   <div class="carte"><b>Analyses (Vindilis, GERS, recommandes, promotions)</b><div class="sub w" style="margin-top:4px">${A?'Arrêtées au '+esc(A.majLib)+'. Sources : '+esc(A.sources):esc(auditErr||'Non chargées.')} Ces données sont chiffrées avec votre code d'accès.</div><button class="btn sec" id="bAud">Recharger les analyses</button></div>
   ${blocDefinitions()}${blocSauvegarde()}<div class="carte"><b>Maquette 3D de la pharmacie</b><div class="sub w" style="margin-top:4px">Sortie du menu principal tant que Rayon et Écrans ne sont pas remplis.</div><button class="btn sec" id="b3d">Ouvrir la 3D</button></div>`+(D&&D.fraicheur&&D.fraicheur.length?`<div class="titre">Mises à jour des données</div><div class="carte">${D.fraicheur.map(f=>`<div class="ligne"><span>${f.enRetard?'⚠':'✅'} ${esc(f.source)}<br><small style="color:var(--doux)">${esc(f.frequence)}${f.echec?' · dernier échec '+esc(f.echec):''}</small></span><b class="${f.enRetard?'neg':''}">${esc(f.dernier)}</b></div>`).join('')}</div>`:'');
-  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim()||URL_DEF);$('#ok').textContent='Connexion…';ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='acc';A=null;charger()};
+  $('#ok').onclick=()=>{ls.set('pil_url',$('#u').value.trim()||URL_DEF);$('#ok').textContent='Connexion…';ls.set('pil_code',$('#c').value.trim());if(vue==='cfg')vue='flux';A=null;charger()};
   $('#bAud').onclick=async()=>{toast('Chargement des analyses…');await chargerAudit();toast(A?'Analyses à jour':auditErr||'Échec');if(vue==='cfg')reglages()};
   $('#b3d').onclick=()=>{location.href='3d.html'};brancherSauvegarde();
 }
@@ -267,7 +267,7 @@ function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;if(!D._opsTout
 function libererCarte(){if(typeof MAPC!=='undefined'&&MAPC){try{MAPC._onZoomTransitionEnd=()=>{};MAPC._animatingZoom=false;MAPC.stop();MAPC.off();MAPC.remove()}catch(e){}MAPC=null}}
 function rendre(){const h=document.getElementById('crHold');if(h)h.style.display='none';libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
   try{const f=document.getElementById('fil');if(f)f.innerHTML=vue==='cfg'?'':filRouge();if(f)brancherLiens()}catch(e){}
-  ({acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,pas:passifV,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();try{restaurerSaisies()}catch(e){}}
+  ({flux:fluxV,acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,pas:passifV,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();try{restaurerSaisies()}catch(e){}}
 /* 6.71 : les montants et le code tapés mais pas encore enregistrés ne sont plus effacés quand l'application se recalcule (chargement du courrier, synchronisation…) */
 const SAISIES={};const SAISIE_IDS=['slC','slB','slCode','slRes','cpCerp','trEnc','trAch','trRes'];
 document.addEventListener('input',e=>{const t=e.target;if(t&&SAISIE_IDS.includes(t.id))SAISIES[t.id]=t.value});
@@ -2087,7 +2087,7 @@ function ecoBase(){if(_ecoC&&Date.now()-_ecoT<1500)return _ecoC;const MM=(A&&A.m
   const annu=r.Pp/10,manque=Math.max(0,annu-r.capA),caReq=manque/tx;
   _ecoC={ca,mg,tx,caN1,mgN1,tend:caN1?ca/caN1-1:null,tendM:mgN1?mg/mgN1-1:null,capA:r.capA,annu,manque,caReq,pct:caReq/ca,jour:caReq/300,mgJour:manque/300,P1:r.Pp,p:base,moisDe:L[0].m,moisA:L[n-1].m};_ecoT=Date.now();return _ecoC}
 function ECO(){const b=ecoBase();if(!b)return null;const L=prioListe().filter(x=>x.nat==='marge'||x.nat==='clients');const pot=L.reduce((s,x)=>s+(+x.val||0),0)*12;return {...b,pot,potCA:pot/b.tx,couvre:b.manque?pot/b.manque:null}}
-const ONG_GO={acc:null,act:null,prio:null,cou:'cou',lab:'lab',pro:'pro',stk:'stk',pas:'pas',eve:'eve',ecr:'ecr',con:'con',col:'col',mois:'mois'};
+const ONG_GO={flux:null,acc:null,act:null,prio:null,cou:'cou',lab:'lab',pro:'pro',stk:'stk',pas:'pas',eve:'eve',ecr:'ecr',con:'con',col:'col',mois:'mois'};
 /* ================= 6.37 : CA VISÉ — montée progressive vers le CA du plan (choix du titulaire, 19/10/2026) =================
    Phase 1 (6 premiers mois) +p1 %, phase 2 (6 mois suivants) +p2 %, puis le pourcentage nécessaire au plan.
    Ce CA visé pilote les objectifs de tous les onglets ; les achats et la trésorerie, eux, suivent le CA réel. */
@@ -2287,6 +2287,70 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);setTimeout((
   document.querySelectorAll('.semaine [data-ouvre]').forEach(e=>e.onclick=()=>ouvrirAction(e.dataset.ouvre));
   document.querySelectorAll('.semaine [data-f2]').forEach(e=>e.onclick=()=>{filtreSt=e.dataset.f2;filtreTh='Tous';filtreOng='';sousAct='dix';vue='act';rendre();scrollTo(0,0)});}
 
+
+/* ---------- 7.0 : FLUX — le guide de marche (un seul but : plus de clients, sans baisser la marge par client) ---------- */
+let FLX=null,sousFlx='jour',_flxErr='';
+async function chargerFlux(){try{const r=await fetch('flux.json?frais='+Date.now(),{cache:'no-store'});FLX=await r.json();_flxErr=''}catch(e){_flxErr='Plan introuvable ('+(e&&e.message||e)+')'}if(vue==='flux')rendre()}
+const fJ=k=>{try{return JSON.parse(ETAT[k]||'{}')||{}}catch(e){return {}}};
+const fDate=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+const fQui=q=>`<span class="badge" style="background:var(--bcl);color:var(--bleu)">${esc(q)}</span>`;
+function fSemCour(){const a=auj(),S=FLX.semaines;return S.find(s=>a>=s.du&&a<=s.au)||S.find(s=>s.du>a)||S[S.length-1]}
+function fTache(x,d){const F=fJ('flux_fait'),ok=!!F[x.id];return `<label class="carte demi" style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;${ok?'opacity:.55':''}"><input type="checkbox" class="fxT" data-id="${x.id}" ${ok?'checked':''} style="width:22px;height:22px;margin-top:2px;flex:none"><div style="flex:1"><div style="${ok?'text-decoration:line-through':''}">${esc(x.txt)}</div><div class="sub" style="margin-top:4px">${fQui(x.qui)}${d?' · '+esc(fDate(d)):''}${x.mesure?' · 📏 '+esc(x.mesure):''}${ok?' · fait le '+dfr(F[x.id]):''}</div></div></label>`}
+function fObjMois(){const a=auj().slice(0,7),O=FLX.objectifs.mois.find(m=>m.m===a&&m.clients)||FLX.objectifs.mois.find(m=>m.m>a&&m.clients);return O}
+function fEntete(){const O=fObjMois(),b=FLX.objectifs.base;const nbj=O?new Date(+O.m.slice(0,4),+O.m.slice(5,7),0).getDate():30;
+  return `<div class="carte" style="border-left:6px solid var(--vert2)"><b style="font-size:16px">🚀 ${esc(FLX.but)}</b>
+  ${O?`<div class="kpis" style="margin-top:10px"><div class="carte kpi"><div class="l">Objectif ${esc(moisFr(O.m+'-01'))} : clients</div><div class="v">${ent(O.clients)}</div><div class="e">= même mois l'an dernier · ≈ ${ent(O.clients/nbj*7)} par semaine</div></div><div class="carte kpi"><div class="l">Objectif marge €</div><div class="v">${eur(O.marge)}</div><div class="e">même mois l'an dernier</div></div><div class="carte kpi"><div class="l">Dernier mois connu (${esc(moisFr(b.mois+'-01'))})</div><div class="v">${ent(b.clients)}</div><div class="e">clients · ${eur(b.marge)} de marge</div></div>${O.jour?`<div class="carte kpi"><div class="l">Écart à combler</div><div class="v neg">≈ +${ent(O.jour)} / jour</div><div class="e">clients de plus par jour d'ouverture ${aide(esc(O.calc||''))}</div></div>`:''}</div>`:''}
+  <div class="sub w" style="margin-top:6px">${esc(FLX.objectifs.regle)}</div></div>`}
+function fluxV(){$('#ht').textContent='Flux : le guide';fab(null);
+  const nav=sousNav('sfx',[['jour','📌 Aujourd\'hui'],['sem','🗓️ Semaine par semaine'],['prio','🥇 Priorités 1-2-3'],['bord','📊 Tableau de bord'],['tres','💶 Trésorerie'],['q','❓ Mes questions'],['cartes','💳 Cartes fidélité'],['meth','📚 Méthode']],sousFlx);
+  if(!FLX){$('#m').innerHTML=nav+`<div class="carte">${_flxErr?esc(_flxErr):'Chargement du plan…'}</div>`;if(!_flxErr)chargerFlux();fBind();return}
+  let h='';const F=fJ('flux_fait');
+  if(sousFlx==='jour'){const a=auj(),S=fSemCour();const tous=FLX.semaines.flatMap(s=>s.jours.flatMap(j=>j.t.map(x=>({x,d:j.d}))));
+    const retard=tous.filter(o=>o.d<a&&!F[o.x.id]),ajd=tous.filter(o=>o.d===a),proch=tous.filter(o=>o.d>a).slice(0,1).length?tous.filter(o=>o.d===tous.find(o=>o.d>a).d):[];
+    const faits=tous.filter(o=>F[o.x.id]).length;
+    h=fEntete()+`<div class="carte"><b>Semaine ${S.n} (${dfr(S.du)} → ${dfr(S.au)}) : ${esc(S.theme)}</b><div class="sub" style="margin-top:4px">${faits} action(s) faite(s) sur ${tous.length} au total du plan.</div></div>`
+     +(retard.length?`<div class="titre" style="color:var(--rouge)">En retard (${retard.length})</div>`+retard.map(o=>fTache(o.x,o.d)).join(''):'')
+     +`<div class="titre">Aujourd'hui, ${esc(fDate(a))}</div>`+(ajd.length?ajd.map(o=>fTache(o.x)).join(''):'<div class="carte sub">Rien de prévu aujourd\'hui dans le plan.</div>')
+     +(proch.length?`<div class="titre">Prochain jour : ${esc(fDate(proch[0].d))}</div>`+proch.map(o=>fTache(o.x)).join(''):'')
+     +`<div class="titre">Les 3 priorités du moment</div>`+FLX.priorites.slice(0,3).map(p=>`<div class="carte demi"><b>${p.rang}. ${esc(p.titre)}</b><div class="sub w" style="margin-top:4px">${fQui(p.qui)} · ${esc(p.quand)} · objectif : ${esc(p.obj)}</div></div>`).join('');
+  }else if(sousFlx==='sem'){const a=auj();
+    h=FLX.semaines.map(s=>{const L=s.jours.flatMap(j=>j.t),n=L.filter(x=>F[x.id]).length,cour=s===fSemCour();
+      return `<details class="carte" ${cour?'open':''} style="${cour?'border-left:6px solid var(--vert2)':''}"><summary style="cursor:pointer"><b>Semaine ${s.n} · ${dfr(s.du)} → ${dfr(s.au)}</b> <span class="sub">${n}/${L.length} faites</span><div class="sub w">${esc(s.theme)}</div></summary>
+      ${s.jours.map(j=>`<div class="titre" style="margin-top:10px">${esc(fDate(j.d))}</div>${j.t.map(x=>fTache(x)).join('')}`).join('')}</details>`}).join('');
+  }else if(sousFlx==='prio'){const M=fJ('flux_mes'),PL=Object.fromEntries(FLX.piliers.map(p=>[p.k,p]));
+    h=`<div class="carte"><b>Les 5 piliers du flux</b>${FLX.piliers.map(p=>`<div class="ligne" style="align-items:flex-start"><span>${p.ico} <b>${esc(p.nom)}</b><br><small class="sub">${esc(p.pour)}</small></span></div>`).join('')}</div>
+    <div class="carte"><b>Gain visé si tout est fait : +${ent(FLX.priorites.reduce((s,p)=>s+(p.gain||0),0))} clients par mois</b><div class="sub w">≈ ${eur(FLX.priorites.reduce((s,p)=>s+(p.gain||0),0)*7.22)} de marge par mois (7,22 € par client). Ce sont des objectifs : chacun est mesuré, gardé s'il marche, arrêté sinon.</div></div>`
+    +FLX.priorites.map(p=>`<div class="carte demi" style="border-left:5px solid var(--vert2)"><div style="display:flex;gap:10px;align-items:baseline"><b style="font-size:22px;color:var(--vert2)">${p.rang}</b><div style="flex:1"><b>${esc(p.titre)}</b><div class="sub" style="margin-top:3px">${PL[p.pil]?PL[p.pil].ico+' '+esc(PL[p.pil].nom):''}</div></div></div>
+     <div class="sub w" style="margin-top:6px">📚 ${esc(p.pourquoi)}</div>
+     <div class="kpis" style="margin-top:8px;grid-template-columns:1fr 1fr"><div><div class="sub">Aujourd'hui</div><div style="font-size:14px">${esc(p.base)}</div></div><div><div class="sub">Objectif</div><div style="font-size:14px;font-weight:600">${esc(p.obj)}</div></div></div>
+     <div class="sub w" style="margin-top:6px">${fQui(p.qui)} · 📅 ${esc(p.quand)} · 📏 ${esc(p.mesure)}${p.gain?' · <b>+'+p.gain+' clients/mois visés</b>':''}${p.cout?' · coût ≈ '+eur(p.cout):' · coût 0 €'}</div>
+     <label class="sub" style="display:block;margin-top:8px">Résultat mesuré (après)</label><input class="fxM" data-id="${p.id}" value="${esc(M[p.id]||'')}" placeholder="ex. 64 retours en 30 jours"></div>`).join('');
+  }else if(sousFlx==='bord'){const K=fJ('flux_kpi');
+    h=`<div class="carte"><b>Chaque lundi : les chiffres de la semaine passée</b><div class="sub w" style="margin-top:4px">C'est le seul tableau qui dit si le plan marche. Je le remplis chaque lundi depuis Vindilis et ZeFid ; vous pouvez aussi saisir ou corriger. Objectif de la semaine = même mois l'an dernier ramené à 7 jours.</div></div>`
+    +FLX.semaines.map(s=>{const O=FLX.objectifs.mois.find(m=>m.m===s.du.slice(0,7)&&m.clients),nbj=O?new Date(+O.m.slice(0,4),+O.m.slice(5,7),0).getDate():0,obj=O?Math.round(O.clients/nbj*7):null,v=K[s.du]||{},c=num(v.clients);
+      return `<div class="carte demi"><b>S${s.n} · ${dfr(s.du)} → ${dfr(s.au)}</b>${obj?` <span class="sub">objectif ≈ ${ent(obj)} clients</span>`:''}${c!==null&&obj?` <b class="${c>=obj?'pos':'neg'}">${c>=obj?'✅ atteint':'en dessous : '+ent(c-obj)}</b>`:''}
+      <div class="kpis" style="margin-top:6px;grid-template-columns:repeat(3,1fr)">${FLX.kpis.map(k=>`<div><div class="sub">${esc(k[1])} ${aide(esc(k[2]))}</div><input class="fxK" data-s="${s.du}" data-k="${k[0]}" inputmode="decimal" value="${esc(v[k[0]]??'')}"></div>`).join('')}</div></div>`}).join('');
+  }else if(sousFlx==='tres'){const T=FLX.tresorerie;
+    h=`<div class="carte al o"><b class="t">Ce qu'on fait de la trésorerie</b><div class="sub w">${esc(T.soldes)}</div><div class="sub w" style="margin-top:6px">${esc(T.lecture)}</div></div>
+    <div class="carte"><b>Mes règles</b>${T.regles.map(r=>`<div class="ligne" style="align-items:flex-start"><span>→ ${esc(r)}</span></div>`).join('')}</div>
+    <div class="carte"><b>Enveloppe flux novembre – décembre : ${eur(T.enveloppe.reduce((s,x)=>s+x[1],0))} maximum</b><div class="tw"><table class="t"><tr><th>Ligne</th><th class="n">Montant</th><th>Note</th></tr>${T.enveloppe.map(x=>`<tr><td>${esc(x[0])}</td><td class="n">${eur(x[1])}</td><td class="sub">${esc(x[2])}</td></tr>`).join('')}</table></div></div>`;
+  }else if(sousFlx==='q'){const R=fJ('flux_rep');
+    h=`<div class="carte"><b>Les seules questions dont j'ai besoin</b><div class="sub w" style="margin-top:4px">Touchez une réponse (ou écrivez) : je la lis à mon prochain passage et j'agis. Ma recommandation est marquée ★.</div></div>`
+    +FLX.questions.map(q=>{const r=R[q.id]||{};return `<div class="carte demi" style="${r.r||r.txt?'border-left:5px solid var(--vert2)':'border-left:5px solid var(--orange)'}"><b>${esc(q.q)}</b>
+     ${q.opts.length?`<div class="filtres" style="margin-top:8px">${q.opts.map(o=>`<button class="fxQ ${r.r===o?'on':''}" data-id="${q.id}" data-r="${esc(o)}">${o===q.reco?'★ ':''}${esc(o)}</button>`).join('')}</div>`:''}
+     <input class="fxQt" data-id="${q.id}" placeholder="Votre réponse ou précision" value="${esc(r.txt||'')}" style="margin-top:6px">${r.d?`<div class="sub">répondu le ${dfr(r.d)}</div>`:''}</div>`}).join('');
+  }else if(sousFlx==='cartes'){const C=FLX.cartes,mx=Math.max(...C.l.map(x=>x[2]||0));
+    h=`<div class="carte"><b>Cartes fidélité créées par opérateur</b><div class="sub w" style="margin-top:4px">${esc(C.periode)}. Total ${ent(C.total)} contre ${ent(C.totalN1)} l'année d'avant (${pct(C.total/C.totalN1-1,1)}).</div></div>
+    <div class="carte"><div class="tw"><table class="t"><tr><th>Code</th><th>Opérateur Vindilis</th><th class="n">12 mois</th><th class="n">Année d'avant</th><th></th></tr>${C.l.map(x=>`<tr style="${x[4]?'opacity:.6':''}"><td>${esc(x[0])}</td><td><b>${esc(x[1])}</b>${x[4]?' <span class="sub">('+esc(x[4])+')</span>':''}<div style="height:6px;background:var(--vert2);border-radius:3px;width:${mx?Math.round((x[2]||0)/mx*100):0}%;margin-top:3px"></div></td><td class="n"><b>${ent(x[2])}</b></td><td class="n">${x[3]===null?'—':ent(x[3])}</td><td class="n ${x[3]!==null&&x[2]<x[3]?'neg':'pos'}">${x[3]?pct(x[2]/x[3]-1,1):''}</td></tr>`).join('')}</table></div></div>`;
+  }else if(sousFlx==='meth'){h=`<div class="carte"><b>Ce qui marche depuis toujours, appliqué à votre officine</b></div>`+FLX.methode.map(m=>`<div class="carte demi"><b>${esc(m.p)}</b><div class="sub">${esc(m.src)}</div><div style="margin-top:6px;font-size:14px">→ ${esc(m.ici)}</div></div>`).join('')
+    +`<div class="carte"><b>Le constat</b>${FLX.constat.map(c=>`<div class="ligne" style="align-items:flex-start"><span>• ${esc(c)}</span></div>`).join('')}</div>`}
+  $('#m').innerHTML=nav+`<div id="fxWrap" style="grid-column:1/-1">`+h+`<p class="sub" style="text-align:center;margin:14px 0">Plan du ${dfr(FLX.maj)} · mis à jour par Claude chaque lundi</p></div>`;fBind()}
+function fBind(){document.querySelectorAll('#sfx button').forEach(b=>b.onclick=()=>{sousFlx=b.dataset.k;fluxV();scrollTo(0,0)});
+  document.querySelectorAll('.fxT').forEach(c=>c.onchange=async()=>{const F=fJ('flux_fait');if(c.checked)F[c.dataset.id]=auj();else delete F[c.dataset.id];await majEtat('flux_fait',JSON.stringify(F))});
+  document.querySelectorAll('.fxM').forEach(i=>i.onchange=async()=>{const M=fJ('flux_mes');M[i.dataset.id]=i.value.trim();await majEtat('flux_mes',JSON.stringify(M));toast('Résultat enregistré')});
+  document.querySelectorAll('.fxK').forEach(i=>i.onchange=async()=>{const K=fJ('flux_kpi'),s=i.dataset.s;K[s]=K[s]||{};const v=i.value.trim().replace(/\s/g,'').replace(',','.');if(v==='')delete K[s][i.dataset.k];else K[s][i.dataset.k]=num(v)??v;await majEtat('flux_kpi',JSON.stringify(K));toast('Enregistré')});
+  document.querySelectorAll('.fxQ').forEach(b=>b.onclick=async()=>{const R=fJ('flux_rep'),id=b.dataset.id;R[id]=Object.assign(R[id]||{},{r:b.dataset.r,d:auj()});await majEtat('flux_rep',JSON.stringify(R));toast('Réponse enregistrée')});
+  document.querySelectorAll('.fxQt').forEach(i=>i.onchange=async()=>{const R=fJ('flux_rep'),id=i.dataset.id;R[id]=Object.assign(R[id]||{},{txt:i.value.trim(),d:auj()});await majEtat('flux_rep',JSON.stringify(R));toast('Réponse enregistrée')})}
 
 /* ---------- AVANT / APRÈS : ce qui marche, ce qui ne marche pas ---------- */
 const VERDP={ok:['✅','Volume et marge en hausse'],mitige:['🟡','Volume oui, marge non'],ko:['🔻','Volume en baisse'],attente:['⏳','Stable'],stock:['📦','À juger après réassort'],peu:['·','Trop peu de ventes']};
