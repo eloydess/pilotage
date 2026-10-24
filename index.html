@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.77';
+const APP_V='6.78';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1589,11 +1589,12 @@ function capacite(){const S0=crSyn(),S=crSoldes()?Object.assign({},S0||{},crSold
 function soldesEditeur(R){const j=crJeton(),d10=x=>esc(String(x||'').slice(0,16));
   const ligne=(nom,D,act)=>{if(!D)return `<div class="sub w">${nom} : <b class="neg">aucun solde saisi</b></div>`;
     return `<div class="sub w">${nom} : saisi <b style="color:var(--txt)">${eur2(D.base)}</b> le ${d10(D.date)}${D.liste.length?` − ${D.liste.length} virement(s) parti(s) depuis (${eur2(D.ded)}) <details style="display:inline"><summary class="lien">détail</summary>${D.liste.map(v=>`<div>• ${esc(v.tiers||'')} — ${eur2(v.montant)} <span class="sub">(${esc(String(v.date||v.quand||'').slice(0,10))})</span></div>`).join('')}</details>`:' — aucun virement depuis'} → <b style="color:var(--txt)">${eur2(act)} aujourd'hui</b></div>`};
-  const vieux=R.srcSol!=='saisi';
-  return `<div style="background:var(--fond2,#f6f7f9);border-radius:10px;padding:8px;margin:6px 0;${vieux?'border:2px solid var(--orange)':''}"><b>🏦 Vos soldes du jour</b>
+  const vieux=R.srcSol!=='saisi';const dCR=CR&&CR.ts?new Date(CR.ts):null;
+  const nonCo=!j?`<div class="sub w" style="color:var(--rouge);font-weight:700;margin:4px 0">⚠ Cet ordinateur n'est pas connecté au classeur Tri & RJ : les soldes, le courrier et les paiements affichés ici sont ceux enregistrés sur cet appareil${dCR?' le '+dCR.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' à '+dCR.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):''}, pas ceux saisis depuis vos autres appareils. Tapez votre code Tri & RJ ci-dessous (une seule fois par ordinateur) puis « Enregistrer les soldes » : tout se remettra à jour.</div>`:'';
+  return `<div style="background:var(--fond2,#f6f7f9);border-radius:10px;padding:8px;margin:6px 0;${vieux||!j?'border:2px solid var(--orange)':''}"><b>🏦 Vos soldes du jour</b>${nonCo}
    ${vieux?`<div class="sub w" style="color:var(--orange);font-weight:600">⚠ Vos soldes saisis ne sont pas chargés : le calcul utilise d'anciens soldes. Tapez vos soldes du jour ci-dessous.</div>`:`${ligne("Caisse d'Épargne",R.detC,R.solCE)}${ligne('BPGO (2 comptes)',R.detB,R.solB)}`}
    <div class="g2" style="margin-top:6px"><div><label>Nouveau solde Caisse d'Épargne</label><input id="slC" inputmode="decimal" placeholder="ex. 16 740,73"></div><div><label>Nouveau solde BPGO (total de vos 2 comptes BPGO)</label><input id="slB" inputmode="decimal" placeholder="ex. 62 076,70"></div></div>
-   ${j?'':`<div style="margin-top:6px"><label>Code Tri & RJ (demandé environ toutes les 5 h)</label><input id="slCode" inputmode="numeric" autocomplete="off" type="password"></div>`}
+   ${j?'':`<div style="margin-top:6px"><label>Code Tri & RJ (une seule fois par ordinateur)</label><input id="slCode" inputmode="numeric" autocomplete="off" type="password"></div>`}
    <div style="margin-top:6px;max-width:260px"><label>Réserve de sécurité, à ne jamais entamer (€) <span class="sub">· v${APP_V}</span></label><input id="slRes" type="number" step="500" min="0" value="${R.P.reserve}"></div>
    <label class="sub w" style="display:block;margin-top:4px"><input type="checkbox" id="slBp" ${R.inclB?'checked':''}> Compter aussi la BPGO (vous ferez un virement BPGO → Caisse d'Épargne si besoin)</label>
    <button class="btn" id="slOk" style="margin-top:6px">Enregistrer les soldes</button>
