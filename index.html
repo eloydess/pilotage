@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.78';
+const APP_V='6.79';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1045,7 +1045,10 @@ document.addEventListener('change',e=>{const t=e.target;if(!t)return;if(t.id==='
 window.crDepuisCadre=function(d){if(!d)return;CR=Object.assign({},CR||{},{t:Date.now(),ts:Date.now()});if(d.fiches&&d.fiches.length)CR.fiches=d.fiches;if(d.treso)CR.treso=d.treso;crSauver();pastilles();
   if(vue==='acc'||vue==='stk'||vue==='pas'||(vue==='cou'&&sousCou==='syn')){const y=scrollY;rendre();scrollTo(0,y)}};
 async function chargerCR(force){const j=crJeton();if(!j){crErr='code';return false}if(crEnCours)return false;if(CR&&CR.t&&!force&&Date.now()-CR.t<2*60e3)return false;
-  crEnCours=true;const t0=Date.now();let rejouer=false;try{let [l,t]=await Promise.all([crAppel('mob_liste',[j]),crAppel('mob_tresorerie',[j])]);
+  crEnCours=true;const t0=Date.now();let rejouer=false;try{
+    /* 6.79 : les soldes et paiements (rapides) s'affichent dès qu'ils arrivent, sans attendre la liste des mails (lente) */
+    const pT=crAppel('mob_tresorerie',[j]).then(t=>{if(t&&!(SOLDE_TS>t0)){CR=Object.assign({},CR||{},{treso:t});crSauver();try{pastilles()}catch(e){}if(vue==='acc'||(vue==='stk'&&sousStk==='tre')||vue==='pas'){const y=scrollY;rendre();scrollTo(0,y)}}return t});
+    let [l,t]=await Promise.all([crAppel('mob_liste',[j]),pT]);
     /* un solde enregistré pendant ce chargement est plus récent que ce que le serveur vient de renvoyer : on le garde et on relit */
     if(SOLDE_TS>t0&&CR&&CR.treso&&CR.treso.soldes){t=t||{};t.soldes=Object.assign({},t.soldes||{});for(const bk in SOLDE_LOC)t.soldes[bk]=SOLDE_LOC[bk];rejouer=true}
     CR={t:Date.now(),ts:Date.now(),fiches:l.fiches||[],decisions:l.decisions||[],treso:t};crErr='';crSauver()}
@@ -3645,7 +3648,7 @@ function formulaire(sheet,x){
 }
 
 /* ---------- Démarrage ---------- */
-$('#bRef').onclick=()=>charger();
+$('#bRef').onclick=()=>{charger();if(crJeton()){toast('Actualisation des soldes, du courrier et des paiements…');chargerCR(true)}};
 try{const c=ls.get('pil_cache'); if(c)D=JSON.parse(c)}catch(e){}
 rendre(); chargerAudit(); charger(!!D); chargerRS();
 /* 6.46 : sur iPhone, l'application « refermée » reste souvent en mémoire avec l'ancienne version.
