@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='6.75';
+const APP_V='6.76';
 const ONGLETS=[['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='acc',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1113,12 +1113,40 @@ function vueSynCourrier(){const S=crSyn();if(!S)return `<div class="carte"><b>Sy
    ${S.liv.length?`<div class="carte"><b>📦 Payés, livraison à confirmer (${S.liv.length})</b>${S.liv.map(x=>`<div class="ligne"><span>${esc(x.tiers)}<br><small class="sub">${esc(x.livraison||'livraison non renseignée')}${x.j!=null?' · preuve il y a '+x.j+' j':''}</small></span><b class="${S.livRet.includes(x)?'neg':''}">${x.montant!=null?eur(x.montant):''}</b></div>`).join('')}</div>`:''}
    <div class="sub w">Données du classeur Tri & RJ ${S.maj?'(paiements mis à jour '+esc(S.maj)+')':''}, lues à ${new Date(S.t).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}. <span class="lien" id="crRel">Actualiser</span></div>`}
 const barre=r=>`<div style="height:8px;border-radius:4px;background:var(--ligne);margin:8px 0 4px;overflow:hidden"><div style="height:100%;width:${Math.round(Math.max(0,Math.min(1,r))*100)}%;background:var(--vert2)"></div></div>`;
+/* 6.76 : compteur des dossiers du suivi RJ à traiter (il baisse à chaque étape franchie) */
+function rjCompte(){const L=(CR&&CR.treso&&CR.treso.lignes)||[];if(!CR||!CR.treso)return null;const o=L.filter(l=>!l.preuve&&!/CLÔTUR/i.test(l.statut||''));
+  const ins=o.filter(l=>l.source!=='Fichier RJ'),fr=o.filter(l=>l.source==='Fichier RJ');
+  return {n:o.length,ins:ins.length,dem:fr.filter(l=>!l.demande&&!l.validation).length,adm:fr.filter(l=>l.demande&&!l.validation).length,pay:fr.filter(l=>l.validation).length,du:o.reduce((s,l)=>s+(l.du>0?l.du:0),0)}}
+function triCompte(){try{const T=trTout();return T?T.A.filter(a=>!(TRS.ok&&TRS.ok[a.f.ID]&&!a.reste)).length:null}catch(e){return null}}
+function bandeauRJ(){const c=rjCompte();if(!c)return '';const p=[[c.ins,'à inscrire au suivi'],[c.dem,'à demander à l\'administrateur'],[c.adm,'en attente de sa validation'],[c.pay,'validé(s) : virement / preuve à envoyer']].filter(x=>x[0]);
+  return `<div class="carte" style="border-left:6px solid ${c.n?'var(--orange)':'var(--vert2)'}"><b>💶 Suivi RJ : <span style="color:${c.n?'var(--orange)':'var(--vert2)'}">${c.n} dossier(s) à traiter</span></b>${c.du?` <span class="sub">· ${eur(c.du)} restant dû</span>`:''}
+   <div class="sub w" style="margin-top:4px">${p.map(x=>`<b style="color:var(--txt)">${x[0]}</b> ${x[1]}`).join(' · ')||'Tout est traité. ✅'}</div><div class="sub w">Le chiffre baisse à chaque étape franchie (demande, validation, preuve envoyée).</div></div>`}
+/* 6.76 : fiches mises en paiement RJ (bouton 💶) que le serveur a enregistrées avec une autre décision — à réparer */
+function rjRates(){return ((CR&&CR.fiches)||[]).filter(f=>/Mis en paiement RJ depuis Traiter en série/.test(f['Commentaire Pierre']||'')&&!/^(Suivi RJ|Déjà au suivi RJ)$/.test(f['Décision finale']||''))}
+function carteRjRates(){const L=rjRates();if(!L.length)return '';
+  return `<div class="carte" id="rjRat" style="border-left:6px solid var(--orange)"><b>⚠ ${L.length} mail(s) mis en paiement RJ mais jamais inscrits au suivi</b>
+   <div class="sub w" style="margin:4px 0 6px">Vous aviez touché « 💶 Mettre en paiement RJ », mais un défaut de l'application (corrigé en 6.76) a gardé l'ancienne proposition. Pour chacun, choisissez : l'inscrire au suivi RJ, ou garder la décision actuelle. Les pièces <b>antérieures au 30/06/2026</b> ne doivent pas être payées (elles se déclarent au mandataire) : elles sont décochées par défaut.</div>
+   ${L.map(f=>{const ant=/ant[ée]rieure/i.test(f['Antériorité']||'');return `<div style="border-top:1px solid var(--ligne);padding:6px 0"><label style="display:flex;gap:8px;align-items:flex-start"><input type="checkbox" class="rjRatCh" data-id="${esc(f.ID)}"${ant?'':' checked'}><span><b>${esc(f['Tiers']||'')}</b> · ${esc(f['Type']||'')} · ${esc(f['Montant TTC']||'')}<br><span class="sub w">${esc(String(f['Objet']||'').slice(0,110))}</span><br><span class="sub w">Décision enregistrée : <b>${esc(f['Décision finale']||'—')}</b> · ${esc(f['Antériorité']||'antériorité inconnue')}${ant?' · <b style="color:var(--rouge)">antérieure : ne pas payer</b>':''}</span></span></label>
+    <div class="prb"><button class="mini trLire" data-id="${esc(f.ID)}" data-cible="rj_${esc(f.ID)}">📧 Lire le mail</button>${f['Lien Gmail']?`<a class="mini" href="${esc(f['Lien Gmail'])}" target="_blank" rel="noopener" style="text-decoration:none">Ouvrir dans Gmail ›</a>`:''}</div><div id="trm_rj_${esc(f.ID)}"></div></div>`}).join('')}
+   <div class="prb" style="margin-top:6px"><button class="mini" id="rjRatOk" style="font-weight:600">💶 Inscrire les cochés au suivi RJ</button><button class="mini" id="rjRatGarde">Garder la décision actuelle pour les non cochés</button></div><div class="sub" id="rjRatP"></div></div>`}
+function brancherRjRates(){const box=$('#rjRat');if(!box)return;box.querySelectorAll('.trLire').forEach(b=>b.onclick=()=>trLire(b.dataset.id,b.dataset.cible));
+  const fixe=async(ids,versRJ)=>{const J=crJeton();if(!J){toast('Entrez d\'abord le code dans « 📬 Boîte mail »');return}let ok=0,ko=0,err='';
+    for(const id of ids){const f=(CR.fiches||[]).find(x=>x.ID===id);if(!f)continue;try{const fin=versRJ?'Suivi RJ':(f['Décision finale']||f['Décision proposée']||'Information'),com=versRJ?'Mis au suivi RJ (réparation 6.76)':'Décision « '+fin+' » maintenue (réparation 6.76)';
+      await crAppel('mob_decider',[J,id,'À valider','','','']);const r=await crAppel('mob_decider',[J,id,'Corrigé',fin,f['Étiquette finale']||'',com]);if(!r||r.finale!==fin)throw new Error('non enregistré');f['Statut']='Corrigé';f['Décision finale']=fin;f['Commentaire Pierre']=com;ok++}catch(e){ko++;err=e.message}
+      $('#rjRatP').textContent=(ok+ko)+' / '+ids.length+(ko?' · '+ko+' en erreur : '+err:'')}
+    toast(ok+' fiche(s) réparée(s)'+(ko?' · '+ko+' en erreur':''));setTimeout(()=>chargerCR(true).then(()=>courrier()),300)};
+  $('#rjRatOk').onclick=()=>{const ids=[...box.querySelectorAll('.rjRatCh:checked')].map(c=>c.dataset.id);if(!ids.length){toast('Cochez au moins une fiche');return}
+    const ant=ids.filter(id=>{const f=(CR.fiches||[]).find(x=>x.ID===id);return f&&/ant[ée]rieure/i.test(f['Antériorité']||'')});
+    if(!confirm((ant.length?'⚠ '+ant.length+' pièce(s) cochée(s) sont indiquées ANTÉRIEURES au jugement : elles ne doivent pas être payées.\n\n':'')+ids.length+' fiche(s) seront inscrites au suivi RJ (à payer, après validation de l\'administrateur). Continuer ?'))return;fixe(ids,true)};
+  $('#rjRatGarde').onclick=()=>{const ids=[...box.querySelectorAll('.rjRatCh:not(:checked)')].map(c=>c.dataset.id);if(!ids.length){toast('Aucune fiche non cochée');return}
+    if(!confirm(ids.length+' fiche(s) garderont leur décision actuelle et disparaîtront de cette liste. Continuer ?'))return;fixe(ids,false)}}
 /* L'onglet : sous-onglets Boîte mail / Paiements / Courrier (page courrier/) et Synthèse (Pilotage) */
 function courrier(){$('#ht').textContent='Courrier & paiements';fab(null);{const h=$('#crHold');if(h)h.style.display='none'}
-  const nav=sousNav('cs',[['tri','⚡ Traiter en série'],['mail','📬 Boîte mail'],['rj','💶 Paiements RJ'],['cr','📮 Courrier / PDF'],['syn','🧭 Synthèse et liens']],sousCou);
-  if(sousCou==='tri'){if(!crJeton())crErr='code';else if(crErr==='code')crErr='';$('#m').innerHTML=nav+vueTriSerie();brancherTriSerie();chargerCR(!CR||!CR.ts||Date.now()-CR.ts>2*60e3);}
-  else if(sousCou==='syn'){$('#m').innerHTML=nav+vueSynCourrier();chargerCR();}
-  else{$('#m').innerHTML=nav;const h=$('#crHold');let f=$('#crF');h.style.display='';
+  const nT=triCompte(),cR=rjCompte(),cpt=(n,c)=>n==null?'':` <b style="color:${n?c:'var(--vert2)'}">${n}</b>`;
+  const nav=sousNav('cs',[['tri','⚡ Traiter en série'+cpt(nT,'var(--orange)')],['mail','📬 Boîte mail'],['rj','💶 Paiements RJ'+cpt(cR&&cR.n,'var(--orange)')],['cr','📮 Courrier / PDF'],['syn','🧭 Synthèse et liens']],sousCou)+carteRjRates()+(sousCou==='rj'||sousCou==='syn'?bandeauRJ():'');
+  if(sousCou==='tri'){if(!crJeton())crErr='code';else if(crErr==='code')crErr='';$('#m').innerHTML=nav+vueTriSerie();brancherTriSerie();brancherRjRates();chargerCR(!CR||!CR.ts||Date.now()-CR.ts>2*60e3);}
+  else if(sousCou==='syn'){$('#m').innerHTML=nav+vueSynCourrier();brancherRjRates();chargerCR();}
+  else{$('#m').innerHTML=nav;brancherRjRates();const h=$('#crHold');let f=$('#crF');h.style.display='';
     if(!f){h.innerHTML=`<iframe id="crF" src="courrier/?v=${APP_V}" title="Courrier et paiements" style="width:100%;border:0;display:block;background:var(--fond)"></iframe>`;f=$('#crF');f.onload=()=>{try{if(f.contentWindow.vue&&sousCou!=='mail')f.contentWindow.vue(sousCou)}catch(e){}}}
     else{try{f.contentWindow.vue(sousCou)}catch(e){}}taillerCadre()}
   document.querySelectorAll('#cs button').forEach(b=>b.onclick=()=>{const k=b.dataset.k,f=$('#crF');
@@ -1405,7 +1433,7 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
     const f=(CR.fiches||[]).find(x=>x.ID===id);if(!confirm('Supprimer ce mail ?\n« '+((f&&(f['Objet']||f['Tiers']))||'')+' »\n\nIl part à la corbeille de Gmail : récupérable 30 jours, puis supprimé définitivement par Gmail. La fiche est classée « Sans intérêt ».'))return;
     b.disabled=true;try{const s=document.querySelector(`.trDec[data-id="${CSS.escape(id)}"]`),d=s&&s.value!=='Déjà payé'?s.value:'Sans intérêt',m=((document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`)||{}).value||'').trim();
       if(f&&f['Statut']!=='À valider')await crAppel('mob_decider',[J,id,'À valider','','','']);
-      await crAppel('mob_decider',[J,id,'Validé',d==='Suivi RJ'?'Sans intérêt':d,'',(m?m+' — ':'')+'mail supprimé (corbeille)']);const rr=await crAppel('mob_corbeille',[J,id]);if(f){f['Statut']='Validé';f['Date application']=rr&&rr.note||'🗑 corbeille'}
+      await crAppel('mob_decider',[J,id,'Corrigé',d==='Suivi RJ'?'Sans intérêt':d,'',(m?m+' — ':'')+'mail supprimé (corbeille)']);const rr=await crAppel('mob_corbeille',[J,id]);if(f){f['Statut']='Validé';f['Date application']=rr&&rr.note||'🗑 corbeille'}
       ['c','k','m','r','e'].forEach(k=>delete TRS[k][id]);trSauver();toast('Mail mis à la corbeille');const el=document.getElementById('tr_'+id);if(el)el.style.opacity='.35'}catch(e){toast('Non effectué : '+e.message);b.disabled=false}});
   const envDem=async(id,txt)=>{const J=crJeton();if(!J){toast('Entrez d\'abord le code dans « 📬 Boîte mail »');return false}
     const n=new Date(),dt=n.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit'})+' '+n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
@@ -1428,7 +1456,7 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
     const ant=/ant[ée]rieure/i.test(choisi.f['Antériorité']||'')||choisi.dec0==='Créance antérieure';
     if(!confirm((ant?'⚠ ATTENTION : cette pièce est ANTÉRIEURE au jugement du 30/06/2026. Elle fait partie du passif : elle se déclare au mandataire et ne doit PAS être payée.\n\n':'')+(dejaRJ?'Cette pièce est DÉJÀ dans le suivi RJ : elle ne sera pas ajoutée une 2ᵉ fois.\n\n':'')+'Voici ce qui va être fait :\n'+msg+'\n\nLes mails rangés sortent de la boîte de réception et sont marqués comme lus. Continuer ?'))return;
     b.disabled=true;let ok=0,ko=0,err='';
-    for(const x of plan){try{if(x.dec){const r=await crAppel('mob_decider',[J,x.g.ID,'Validé',x.dec,x.rg?et:'',x.com]);x.g['Statut']=r&&r.statut||'Validé';x.g['Décision finale']=r&&r.finale||x.dec}
+    for(const x of plan){try{if(x.dec){if(x.g['Statut']!=='À valider')await crAppel('mob_decider',[J,x.g.ID,'À valider','','','']);const r=await crAppel('mob_decider',[J,x.g.ID,'Corrigé',x.dec,x.rg?et:'',x.com]);if(!r||r.finale!==x.dec)throw new Error('décision non enregistrée pour '+(x.g['Tiers']||x.g.ID)+' ('+(r&&r.finale||'?')+')');x.g['Statut']=r&&r.statut||'Validé';x.g['Décision finale']=r&&r.finale||x.dec}
       if(x.rg)await ranger(x.g.ID,et);['c','k','m','r','e'].forEach(k=>delete TRS[k][x.g.ID]);ok++}catch(e){ko++;err=e.message}}
     trSauver();toast(ok+' envoi(s) traité(s)'+(ko?' · '+ko+' en erreur : '+err:''));b.disabled=false;setTimeout(()=>{chargerCR(true).then(()=>{if(vue==='cou'&&sousCou==='tri')re()})},300);re()});
   document.querySelectorAll('.trRgUn').forEach(b=>b.onclick=async()=>{const et=(document.querySelector(`.trEt[data-id="${CSS.escape(b.dataset.src)}"]`)||{}).value||'';if(!et){toast('Choisissez d\'abord une étiquette sur cette fiche');return}
@@ -1440,7 +1468,7 @@ function brancherTriSerie(){const maj=()=>{const n=document.querySelectorAll('.m
   const dec=async(id,st)=>{const J=crJeton();if(!J)throw new Error('code Tri & RJ à saisir dans « Boîte mail »');const [d,m]=st==='Validé'?valeur(id):['',(document.querySelector(`.trCom[data-id="${CSS.escape(id)}"]`)||{}).value||''];
     const rg=(document.querySelector(`.trRg[data-id="${CSS.escape(id)}"]`)||{}).value,et=((document.querySelector(`.trEt[data-id="${CSS.escape(id)}"]`)||{}).value||'').trim();
     {const f1=(CR.fiches||[]).find(x=>x['ID']===id);if(f1&&f1['Statut']!=='À valider'){await crAppel('mob_decider',[J,id,'À valider','','','']);f1['Statut']='À valider'}}
-    const r=await crAppel('mob_decider',[J,id,st,d,st==='Validé'&&rg==='ranger'?et:'',m]);
+    const stS=st==='Validé'&&d?'Corrigé':st,r=await crAppel('mob_decider',[J,id,stS,d,st==='Validé'&&rg==='ranger'?et:'',m]);if(stS==='Corrigé'&&(!r||r.finale!==d))throw new Error('décision « '+d+' » non enregistrée (serveur : '+(r&&r.finale||'?')+')');
     if(st==='Validé'&&rg==='corbeille'&&!/^C-/.test(id)){const f0=(CR.fiches||[]).find(x=>x['ID']===id);if(!f0||!/^🗑/.test(f0['Date application']||'')){const rr=await crAppel('mob_corbeille',[J,id]);if(f0)f0['Date application']=rr&&rr.note||'🗑 corbeille'}}
     if(st==='Validé'&&rg==='ranger'&&et&&!/^C-/.test(id)){const f0=(CR.fiches||[]).find(x=>x['ID']===id);if(!f0||!trRange(f0))await ranger(id,et)}const f=(CR.fiches||[]).find(x=>x['ID']===id);if(f){f['Statut']=r&&r.statut||st;f['Décision finale']=r&&r.finale||d;f['Commentaire Pierre']=m}
     TRS.ok=TRS.ok||{};TRS.ok[id]=1;const el=document.getElementById('tr_'+id);if(el)el.style.opacity='.35';try{pastilles()}catch(e){}};
@@ -2808,7 +2836,9 @@ let _rhAuto=false;function pastilles(){if(!D)return;if(!_rhAuto&&ss.get('pil_cod
   const I=incidences();document.querySelectorAll('#nav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(aTraiter).length,vu=L.filter(i=>(incEtat()[i.id]||{}).st==='vu').length;let p=b.querySelector('.pst');if(p)p.remove();if(t==='act'){let n=0;try{n=prioListe().filter(x=>!x.claude&&x.j>=0).length}catch(e){}if(n){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${n} priorité(s) urgente(s) ou en retard">${n}</i>`)}return}
    if(t==='cou'){/* 6.74 : la pastille de Courrier & paiements compte les MAILS à traiter ; les alertes (livraisons, commandes en attente) n'apparaissent qu'en gris quand il n'y a plus de mail */
      let m=0;try{const T=trTout();m=T?T.A.filter(a=>!(TRS.ok&&TRS.ok[a.f.ID]&&!a.reste)).length:0}catch(e){}
-     if(m){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${m} mail(s) à traiter${nv||vu?' · '+(nv||vu)+' alerte(s) livraisons / commandes dans l\'onglet':''}">${m}</i>`)}
+     const rc=rjCompte(),rj=rc?rc.n:0;
+     if(m){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${m} mail(s) à traiter${rj?' · '+rj+' dossier(s) du suivi RJ à traiter':''}${nv||vu?' · '+(nv||vu)+' alerte(s) livraisons / commandes dans l\'onglet':''}">${m}</i>`)}
+     else if(rj){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst" title="Aucun mail à traiter · ${rj} dossier(s) du suivi RJ à traiter (Paiements RJ)">💶${rj}</i>`)}
      else if(nv||vu){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst" title="Aucun mail à traiter. ${nv||vu} alerte(s) livraisons / commandes en attente (bloc « Ce qui vient des autres onglets »)">⚠${nv||vu}</i>`)}
      return}
    if(nv||vu){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst ${nv?'nv':''}" title="${nv} à traiter, ${vu} vue(s) non corrigée(s)">${nv||vu}</i>`)}})}
