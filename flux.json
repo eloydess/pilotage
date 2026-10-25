@@ -4647,6 +4647,187 @@
     "cond": "12 BOITES = 48% AU LIEU DE 35%",
     "marge": 130
    }
-  ]
+  ],
+  "planTG": {
+   "titre": "Plan des têtes de gondole de novembre (proposé)",
+   "lecture": "Positions du zoning Pierre Fabre (version du 17/02/2025, recalée sur la maquette 3D) et opérations Opeaz de novembre. L'entrée porte le trafic et l'image prix (hiver, grandes marques, petits prix) ; ailleurs, chaque tête de gondole est placée à côté du linéaire de sa marque. À confirmer avec les photos du lundi 2/11 : je ne sais pas ce qui est en place aujourd'hui, car l'onglet SURFACE_VENTE du classeur est vide.",
+   "l": [
+    {
+     "zone": "Entrée",
+     "tg": "TG 1",
+     "marque": "Hiver : rhume, toux, gorge, nez",
+     "quoi": "Humex (remise Urgo de novembre), Vicks, Physiodose, Prorhinel (remise Haleon 2 €)",
+     "note": "Seulement quand le stock est revenu (onglet Ruptures). Produit n° 1 de l'hiver, à l'entrée."
+    },
+    {
+     "zone": "Entrée",
+     "tg": "TG 2",
+     "marque": "La Roche-Posay Lipikar",
+     "quoi": "Hygiène 1 L −4 € et soins 400 ml −3 € (TG + remise immédiate, novembre)",
+     "note": "8e laboratoire en marge ; opération rémunérée."
+    },
+    {
+     "zone": "Entrée",
+     "tg": "TG 3",
+     "marque": "Cooper Mag 2 et CB12",
+     "quoi": "TG + remise immédiate (novembre), rayon rempli en profondeur",
+     "note": "6e laboratoire en marge."
+    },
+    {
+     "zone": "Entrée",
+     "tg": "TG 4",
+     "marque": "Bioderma Créaline",
+     "quoi": "Créaline moussant 500 ml et H2O 500 ml −2 €, lot −4 €",
+     "note": "Créaline = n° 4 du TOP 100 du groupement : image prix."
+    },
+    {
+     "zone": "Entrée",
+     "tg": "Bacs soldeurs 1 à 4",
+     "marque": "Petits prix",
+     "quoi": "Neutraderm gel douche 1 L (bon −2 €), Klorane 400 ml (−2 €), crème pieds Eucerin (bac soldeur demandé par le laboratoire)",
+     "note": "Le bac soldeur est le signal « pas cher » le plus fort."
+    },
+    {
+     "zone": "Hygiène",
+     "tg": "TG 7",
+     "marque": "Vichy Dercos",
+     "quoi": "Remises immédiates 5 € et 2 € (novembre)",
+     "note": "À côté du linéaire capillaire (Dercos, Ducray)."
+    },
+    {
+     "zone": "Hygiène",
+     "tg": "TG 10 ou 13",
+     "marque": "SVR Topialyse",
+     "quoi": "TG novembre, remise 25 % (hors litres)",
+     "note": "À côté des savons et gels lavants."
+    },
+    {
+     "zone": "Hygiène",
+     "tg": "TG 13 ou 10",
+     "marque": "Eucerin Aquaphor / hydratants corps",
+     "quoi": "TG + remise (novembre)",
+     "note": ""
+    },
+    {
+     "zone": "Beauté",
+     "tg": "TG 16",
+     "marque": "Avène Soins essentiels",
+     "quoi": "TG + remise (novembre)",
+     "note": ""
+    },
+    {
+     "zone": "Beauté",
+     "tg": "TG 17",
+     "marque": "Uriage Bariéderm",
+     "quoi": "Remise 20 % sur la gamme (novembre)",
+     "note": "Black Friday Uriage du 26 au 28/11."
+    },
+    {
+     "zone": "Beauté",
+     "tg": "TG 18",
+     "marque": "Nuxe",
+     "quoi": "TG Huile Prodigieuse (novembre), offre Black Friday −15 € / −5 € du 23 au 30/11",
+     "note": "Prépare l'animation Nuxe du 5/12 et les coffrets."
+    },
+    {
+     "zone": "Beauté",
+     "tg": "TG 33",
+     "marque": "Topicrem",
+     "quoi": "TG + remises (Nigy, novembre)",
+     "note": "Juste à côté du linéaire Topicrem ; après paiement de la proforma Nigy."
+    },
+    {
+     "zone": "Beauté",
+     "tg": "TG 34",
+     "marque": "Nuhanciam",
+     "quoi": "Mise en avant pour l'animation du samedi 14/11",
+     "note": "Linéaire Nuhanciam dans le même bloc."
+    },
+    {
+     "zone": "Beauté",
+     "tg": "TG 36 ou 37",
+     "marque": "Ducray Dexyane",
+     "quoi": "TG + remise (novembre)",
+     "note": "Linéaire dermatologie dans le même bloc."
+    },
+    {
+     "zone": "Bébé",
+     "tg": "TG 39 ou 40",
+     "marque": "Mustela",
+     "quoi": "Lots ×2 à 13,95 € / 11,95 € (novembre)",
+     "note": "Après le paiement Expanscience (gel lavant 500 ml en rupture)."
+    },
+    {
+     "zone": "Bébé",
+     "tg": "TG 41 ou 42",
+     "marque": "Bepanthen",
+     "quoi": "TG rémunérée novembre (pommade + Tattoo, 30 unités minimum)",
+     "note": "À côté du change."
+    },
+    {
+     "zone": "Bébé",
+     "tg": "TG 43 ou 44",
+     "marque": "Laits Gallia / Guigoz",
+     "quoi": "1 acheté = 1 offert (Gallia), remise 3 € (bio 2 et 3), bipack Guigoz",
+     "note": "Les laits font revenir les parents chaque semaine."
+    },
+    {
+     "zone": "Nutrition",
+     "tg": "TG 21 ou 25",
+     "marque": "Puressentiel respiratoire + Pranarom",
+     "quoi": "TG respiratoire et remise −20 % huiles essentielles (novembre)",
+     "note": "Saison."
+    },
+    {
+     "zone": "Nutrition",
+     "tg": "TG 22",
+     "marque": "Forte Pharma Ruche",
+     "quoi": "TG + remise (novembre)",
+     "note": "Gorge et immunité, à côté d'Aboca."
+    },
+    {
+     "zone": "Nutrition",
+     "tg": "TG 26",
+     "marque": "Havea (Vita Royal, Force G, Acérola)",
+     "quoi": "Remises 1 à 2 € (jusqu'au 30/11)",
+     "note": ""
+    },
+    {
+     "zone": "Hygiène",
+     "tg": "TG 46",
+     "marque": "Oral-B iO2",
+     "quoi": "Mise en avant Procter & Gamble (48 unités, 12 facings)",
+     "note": "Dentaire."
+    },
+    {
+     "zone": "Hygiène",
+     "tg": "TG 47",
+     "marque": "Meridol",
+     "quoi": "TG Gaba novembre",
+     "note": ""
+    },
+    {
+     "zone": "Hygiène",
+     "tg": "TG 48 ou 49",
+     "marque": "Saforelle",
+     "quoi": "TG 48 unités duo 250 ml + remise (Biocodex)",
+     "note": "Hygiène intime, même bloc."
+    },
+    {
+     "zone": "Libre accès",
+     "tg": "TG 52 ou 53",
+     "marque": "Nicorette",
+     "quoi": "Baisse de prix compensée : spray −5 €, gommes −1,50 € (novembre)",
+     "note": "Après réassort (gommes en rupture)."
+    },
+    {
+     "zone": "Comptoirs",
+     "tg": "Racks",
+     "marque": "Donormyl (UPSA)",
+     "quoi": "3 racks + 1 facing, photo obligatoire (accord annuel)",
+     "note": "Rémunéré à l'année."
+    }
+   ]
+  }
  }
 }
