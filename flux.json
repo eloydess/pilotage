@@ -6960,24 +6960,28 @@
     "d": "2026-10-26",
     "jour": "Lun. 26/10",
     "h": "11 h",
-    "titre": "Pierre Fabre Médicament",
-    "resume": "Médicaments Pierre Fabre achetés par la CERP (pas de compte direct dans Vindilis) ; le groupe Pierre Fabre a fortement baissé chez vous en 2026.",
+    "titre": "Pierre Fabre Médicament (« Pierre Fabre Santé Prévention » dans Vindilis)",
+    "resume": "Labo classe A chez vous ; commandes directes en baisse de 31 %, 465,73 € commandés non reçus.",
     "chiffres": [
      [
-      "Pierre Fabre Médicament : ventes 12 mois",
-      "[MANQUANT] : non lisible dans la base Vindilis par laboratoire ce soir"
+      "CA HT 12 mois",
+      "36 902 €"
      ],
      [
-      "Compte direct Pierre Fabre Médicament dans Vindilis",
-      "aucun : achats par la CERP"
+      "Marge 12 mois (taux)",
+      "12 537 € (34 %) — classe A"
      ],
      [
-      "Factures du groupe Pierre Fabre (Digipharmacie, HT, toutes divisions)",
-      "87 860 € en 2025 → 36 338 € en 2026 au 25/10 ; avoirs 6 386 € → 5 448 €"
+      "Commandes directes reçues, 01/01 → 25/10",
+      "2025 : 10 172 € (51 commandes) → 2026 : 7 017 € (21 commandes)"
      ],
      [
-      "Pierre Fabre Santé Prévention : CA / marge 12 mois",
-      "36 902 € / 12 537 € (34 %)"
+      "Commandé en 2026, non reçu",
+      "465,73 €"
+     ],
+     [
+      "Groupe Pierre Fabre, toutes divisions (Digipharmacie, HT)",
+      "87 860 € en 2025 → 36 338 € en 2026 au 25/10"
      ],
      [
       "RFA 1er semestre du groupe (cloud Apothical)",
@@ -6985,13 +6989,15 @@
      ]
     ],
     "obtenir": [
-     "Ses conditions s'il existe une offre « direct » Pierre Fabre Médicament (remise, franco, paiement à réception) plus intéressante que la CERP",
-     "Le recalage des objectifs 2026 du groupe sur la période depuis le redressement judiciaire",
-     "Les opérations d'hiver médication (gorge, toux, douleur) avec leur compensation"
+     "La livraison (ou l'annulation) des 465,73 € commandés non reçus",
+     "Des conditions de paiement à réception ou à 30 jours pour revenir à des commandes directes régulières (21 commandes en 2026 contre 51 en 2025)",
+     "Le recalage des objectifs 2026 sur la période depuis le redressement judiciaire",
+     "Les opérations d'hiver (gorge, toux, douleur) avec leur compensation sur Opeaz"
     ],
     "dire": [
      "Vous êtes la plus grande pharmacie des Pays de la Loire : 1 000 m², 2 entrées",
-     "Demandez-lui le chiffre d'affaires Pierre Fabre Médicament de la pharmacie qu'il suit, 2025 et 2026 : c'est la base pour négocier"
+     "Pierre Fabre Santé Prévention fait 34 % de marge chez vous, mieux qu'A-Derma (23 %) ou Ducray (25 %) : vous voulez développer cette gamme",
+     "Demandez-lui votre chiffre d'affaires 2025 et 2026 chez eux, pour le comparer aux 7 017 € reçus en direct"
     ],
     "refuser": [
      "Une commande sans paiement validé par l'administrateur",
