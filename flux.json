@@ -6892,5 +6892,247 @@
    "Vérifier sur les relevés l'encaissement des rétrocessions 1 à 4.",
    "Coût d'un SMS ZeFid : non affiché avant la création de l'opération [MANQUANT]."
   ]
+ },
+ "rdv": {
+  "titre": "Rendez-vous laboratoires de la semaine du 26/10",
+  "source": "Agenda Google (pharmaciecsudachat) lu le 25/10/2026 à 19 h 55. Chiffres : Vindilis (CA et marge sur 12 mois, commandes directes du 01/01 au 25/10, 2025 et 2026), Opeaz (25/10), Digipharmacie, fichiers labos du cloud Apothical, « Quoi payer ».",
+  "l": [
+   {
+    "d": "2026-10-26",
+    "jour": "Lun. 26/10",
+    "h": "11 h",
+    "titre": "PF Médoc",
+    "doute": "laboratoire à confirmer : Pierre Fabre (médication) ?",
+    "resume": "Pierre Fabre : achats en forte baisse, Oral Care et Ducray sans RFA au 1er semestre.",
+    "chiffres": [
+     [
+      "Pierre Fabre Santé Prévention : CA HT 12 mois",
+      "36 902 €"
+     ],
+     [
+      "Marge 12 mois (taux)",
+      "12 537 € (34 %)"
+     ],
+     [
+      "Commandes directes 2025 → 2026 (même période)",
+      "10 172 € → 7 017 €"
+     ],
+     [
+      "Pierre Fabre Santé Dentaire : commandes directes",
+      "16 538 € → 1 779 €"
+     ],
+     [
+      "Factures Pierre Fabre reçues (Digipharmacie, au 24/10)",
+      "76 607 € en 2025 → 30 889 € en 2026"
+     ],
+     [
+      "RFA 1er semestre (cloud Apothical)",
+      "Avène 255,72 € ; A-Derma 70,80 € ; Ducray −100 % ; Oral Care −88 %"
+     ]
+    ],
+    "obtenir": [
+     "Le recalage des objectifs 2026 sur les mois depuis le redressement judiciaire (achats bloqués avant le 30/06)",
+     "Des conditions de paiement à réception ou à 30 jours, pour revenir à des commandes directes plutôt que par la CERP",
+     "La liste des opérations de novembre et décembre (Black Friday, coffrets) avec leur compensation"
+    ],
+    "dire": [
+     "Vous êtes la plus grande pharmacie des Pays de la Loire : 1 000 m² et des entrées des deux côtés",
+     "Vos prix Cicalfate et Avène sont déjà sous la médiane France (GERS) : l'image prix est bonne",
+     "Quels produits Pierre Fabre font venir des clients en hiver (Elgydium, Inava, Avène Cold Cream) et à quelles conditions ?"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Noter les engagements obtenus dans l'onglet Labos",
+     "Mesurer le CA Pierre Fabre de novembre contre octobre"
+    ]
+   },
+   {
+    "d": "2026-10-27",
+    "jour": "Mar. 27/10",
+    "h": "9 h",
+    "titre": "EG Labo (OTC)",
+    "resume": "Petit volume direct, mais engagement génériques EG de 300 €/mois dans le contrat CERP.",
+    "chiffres": [
+     [
+      "CA HT 12 mois",
+      "4 361 €"
+     ],
+     [
+      "Marge 12 mois (taux)",
+      "1 656 € (38 %)"
+     ],
+     [
+      "Commandes directes 2025 → 2026",
+      "3 790 € (13 commandes) → 1 445 € (1 commande)"
+     ],
+     [
+      "Contrat CERP 2026",
+      "300 € de génériques EG par mois (comme Teva et Viatris)"
+     ]
+    ],
+    "obtenir": [
+     "Les conditions OTC 2026 en direct (remise, franco, paiement à réception)",
+     "Les produits OTC d'hiver EG à mettre en avant (rhume, toux, douleur)"
+    ],
+    "dire": [
+     "Vérifier ensemble que les 300 €/mois de génériques EG passés par la CERP sont bien comptés"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Contrôler sur l'extranet CERP les achats EG du mois (engagement de 300 €)"
+    ]
+   },
+   {
+    "d": "2026-10-27",
+    "jour": "Mar. 27/10",
+    "h": "11 h",
+    "titre": "A-Derma / Ducray (Pierre Fabre Dermo)",
+    "resume": "Opérations Opeaz à faire compenser ; RFA Ducray perdue au 1er semestre.",
+    "chiffres": [
+     [
+      "A-Derma : CA HT 12 mois / marge",
+      "8 324 € / 1 880 € (23 %)"
+     ],
+     [
+      "A-Derma : commandes directes 2025 → 2026",
+      "10 286 € → 3 816 €"
+     ],
+     [
+      "Ducray : CA HT 12 mois / marge",
+      "7 749 € / 1 953 € (25 %)"
+     ],
+     [
+      "Ducray : commandes directes 2025 → 2026",
+      "8 554 € → 4 475 €"
+     ],
+     [
+      "RFA 1er semestre",
+      "A-Derma 70,80 € ; Ducray −100 %"
+     ],
+     [
+      "Opeaz : opérations de septembre terminées, compensation pas encore demandée",
+      "A-Derma Exomega, Biology, Dermalibour ; Ducray Kelual DS"
+     ],
+     [
+      "Opeaz : en cours jusqu'au 31/10",
+      "A-Derma Exomega ; Ducray Ictyane, Keracnyl, anti-chute"
+     ]
+    ],
+    "obtenir": [
+     "Le paiement des compensations des opérations de septembre (à déposer sur Opeaz avant le rendez-vous si possible)",
+     "Un objectif Ducray recalé pour récupérer une RFA au 2e semestre",
+     "Les opérations d'hiver (Exomega, Ictyane) avec un bon de remise client"
+    ],
+    "dire": [
+     "Taux de marge A-Derma 23 % et Ducray 25 % : en dessous de Pierre Fabre Santé (34 %) ; que proposent-ils pour remonter la marge ?"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Vérifier sur Opeaz que les compensations sont « transmises » puis payées"
+    ]
+   },
+   {
+    "d": "2026-10-29",
+    "jour": "Jeu. 29/10",
+    "h": "9 h",
+    "titre": "Urgo",
+    "resume": "Labo classe A ; 3 factures à payer dont les montants sont illisibles ; plusieurs opérations Opeaz.",
+    "chiffres": [
+     [
+      "CA HT 12 mois / marge",
+      "34 511 € / 10 545 € (31 %)"
+     ],
+     [
+      "Commandes directes 2025 → 2026",
+      "26 097 € → 17 236 € (+ 3 788 € commandés non reçus)"
+     ],
+     [
+      "Opeaz : compensations à demander",
+      "Pansements protecteurs (juil.–août) ; Acné (septembre)"
+     ],
+     [
+      "Opeaz : en cours",
+      "Alvityl Vitalité (sept.–oct.) ; Alvityl Bien-être (oct.–nov.) ; Belloc probiotiques (octobre)"
+     ],
+     [
+      "RFA (cloud Apothical)",
+      "BRI 3 opérations = 83 €"
+     ],
+     [
+      "À payer (Quoi payer, vague 1)",
+      "Factures 112, 117 et 119 : montants illisibles sur les scans"
+     ]
+    ],
+    "obtenir": [
+     "Les montants exacts des 3 factures (relevé de compte Urgo) et un échéancier si besoin",
+     "Les commandes d'hiver : Alvityl et pansements, livrées contre paiement à réception",
+     "Le paiement des compensations Opeaz en attente"
+    ],
+    "dire": [
+     "Urgo est dans vos 3 premiers labos par la marge : vous voulez développer, pas réduire"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Saisir les 3 montants dans le suivi RJ ; mesurer les ventes Alvityl de novembre"
+    ]
+   },
+   {
+    "d": "2026-10-30",
+    "jour": "Ven. 30/10",
+    "h": "9 h",
+    "titre": "Sanofi (Opella et vaccins)",
+    "resume": "Votre premier laboratoire : 18,5 % de toute la marge. Vaccins grippe à payer en décembre.",
+    "chiffres": [
+     [
+      "Opella : CA HT 12 mois / marge",
+      "175 795 € / 88 084 € (50 %)"
+     ],
+     [
+      "Opella : commandes directes 2025 → 2026",
+      "63 812 € (27 commandes) → 28 864 € (14 commandes)"
+     ],
+     [
+      "Sanofi Pasteur (vaccins) : CA / marge",
+      "13 943 € / 1 103 € (8 %)"
+     ],
+     [
+      "Vaccins grippe à payer (vague 3)",
+      "9 949,23 €, échéances du 01/12 au 22/12"
+     ]
+    ],
+    "obtenir": [
+     "La reprise des commandes directes Opella (Doliprane, Dafalgan, Mucosolvan) avec paiement à réception ou à 30 jours",
+     "Un étalement des 9 949,23 € de vaccins sur janvier si la trésorerie de décembre est tendue",
+     "Les conditions et le calendrier de la campagne vaccinale 2027"
+    ],
+    "dire": [
+     "Les commandes directes ont baissé de moitié à cause du blocage d'avant le redressement, pas des ventes"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Mesurer la part Opella achetée en direct vs CERP en novembre"
+    ]
+   }
+  ]
  }
 }
