@@ -3,6 +3,7 @@
  "version": "2",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
+  "Expertise Vindilis du 25/10 : réassort réglé sur « Économe » ; 1 063 produits en alerte sans commande ; 58 % des promis sur des produits bloqués ; 1 844 clients réguliers perdus depuis juillet ; 41 902 € de tiers payant non soldé et 11 477 € de crédits clients.",
   "Relevé Vindilis du 25/10 (poste de la pharmacie) : stock 572 711 € au 01/10 (−34 % en un an), dont 457 600 € en surstock ; 44 % des ventes entre 15 h et 19 h ; promotions : +49 % de remises pour −12 % de ventes.",
   "Analyse Vindilis du 25/10 : l'ordonnance est stable en volume (−0,6 % en septembre). La baisse du CA vient de quelques traitements très chers partis (sans marge) ; la baisse de marge et de clients vient du conseil et de la parapharmacie : OTC ≈ −26 % d'avril à septembre (cassure en février 2026), parapharmacie −15 % en sept.–oct., souvent en rupture.",
   "D'avril à septembre 2026 : 62 776 clients contre 65 796 en 2025 (−4,6 %), soit 503 clients de moins par mois. La marge par client tient (7,22 € contre 7,20 €) : le problème est le nombre de clients, pas les prix.",
@@ -95,6 +96,34 @@
  ],
  "priorites": [
   {
+   "id": "P0r",
+   "pil": "transformer",
+   "titre": "Réassort réglé pour ne plus manquer : profils CERP de « Économe » à « Équilibré », 102 produits promis débloqués après validation, produits qui font venir dans « Mes Indispensables », réceptions saisies avant la mise en rayon",
+   "pourquoi": "Le réassort est réglé au minimum (« Économe », 3 jours de couverture). 1 063 produits sont sous 20 jours de stock sans commande, dont 672 à zéro ; 58 % des boîtes promises aux patients (1 577 sur 2 702 en 3 mois) sont sur des produits dont la commande est bloquée. Un patient qui attend son produit va ailleurs.",
+   "qui": "Titulaire (validation des réglages) ; équipe (réceptions)",
+   "quand": "Lundi 26/10 : validation de la liste des 102 produits, puis réglage des profils",
+   "base": "1 063 produits en alerte sans commande ; 34,6 boîtes promises par jour ; 470 produits vendus à stock zéro en octobre",
+   "obj": "Moins de 300 produits en alerte au 30/11 ; moins de 25 boîtes promises par jour ; moins de 100 produits vendus à stock zéro par mois",
+   "mesure": "Commandes › Fournisseurs › Listing Alertes Acheteurs ; Analyse des promis ; Produits manquants — chaque lundi",
+   "gain": 0,
+   "cout": 0,
+   "rang": 1
+  },
+  {
+   "id": "P0p",
+   "pil": "revenir",
+   "titre": "Faire revenir les clients réguliers perdus : 1 844 clients venus au moins 4 fois en 2025 ne sont pas revenus depuis le 01/07, dont 910 jamais en 2026 — SMS ou appel, en commençant par ces 910",
+   "pourquoi": "Un client régulier qui revient vaut bien plus qu'un nouveau client à conquérir. La liste vient directement de la base Vindilis (Requêteur).",
+   "qui": "Référente campagnes (relances) ; titulaire (validation du message et du coût)",
+   "quand": "Liste prête la semaine du 26/10 ; envois à partir du 02/11",
+   "base": "4 203 clients réguliers en 2025 ; 1 844 sans passage depuis le 01/07/2026",
+   "obj": "300 revenus d'ici le 31/12/2026",
+   "mesure": "Requête « derniers passages » relancée le 1er de chaque mois",
+   "gain": 0,
+   "cout": 0,
+   "rang": 2
+  },
+  {
    "id": "P00",
    "pil": "revenir",
    "titre": "Ordonnance : garder chaque patient (volume stable, −0,6 % en septembre) et lui vendre le conseil qui va avec — zéro produit promis non servi, FreeStyle et Lovenox suivis chaque jour, une proposition de conseil associé à chaque ordonnance d'hiver",
@@ -106,7 +135,7 @@
    "mesure": "Délivrances (honoraire HDR, colonne U V) et Mesures et évolutions › OTC, chaque lundi",
    "gain": 300,
    "cout": 0,
-   "rang": 1
+   "rang": 3
   },
   {
    "id": "P0",
@@ -120,7 +149,21 @@
    "mesure": "Relevé du stock chaque lundi (onglet Ruptures)",
    "gain": 150,
    "cout": 0,
-   "rang": 2
+   "rang": 4
+  },
+  {
+   "id": "P0v",
+   "pil": "transformer",
+   "titre": "Nettoyer Vindilis : désactiver les codes vendeurs des personnes parties (Jamila Berton, Ambre Rouault, Sonia Salgado, Reber Shikh Nabi, Nassabia Soulaimana), corriger l'adresse (257 → 309), saisir la réception des calendriers de l'Avent, mettre un motif à chaque sortie de stock",
+   "pourquoi": "Des ventes ont été faites en octobre sous deux codes de personnes parties ; l'adresse imprimée sur les documents est fausse ; 42 calendriers vendus sans être entrés en stock (stock à −22) ; 200 sorties « Modification stock » sans motif (6 909 € HT).",
+   "qui": "Titulaire",
+   "quand": "Lundi 26/10",
+   "base": "5 codes actifs à tort ; adresse « 257 »",
+   "obj": "0 code inutile ; adresse « 309 » ; démarque avec motif",
+   "mesure": "Fichiers › Vendeurs ; Gestion › Démarque et autres opérations",
+   "gain": 0,
+   "cout": 0,
+   "rang": 5
   },
   {
    "id": "P0s",
@@ -134,7 +177,7 @@
    "mesure": "Pilotage › Surstockage relancé le 1er de chaque mois ; avoirs reçus",
    "gain": 0,
    "cout": 0,
-   "rang": 3
+   "rang": 6
   },
   {
    "id": "P0b",
@@ -148,7 +191,7 @@
    "mesure": "Livraisons reçues ; ruptures levées",
    "gain": 0,
    "cout": 0,
-   "rang": 4
+   "rang": 7
   },
   {
    "id": "P0c",
@@ -162,11 +205,11 @@
    "mesure": "Ventes par tête de gondole, semaine avant / après ; rémunérations Opeaz reçues",
    "gain": 60,
    "cout": 0,
-   "rang": 5
+   "rang": 8
   },
   {
    "id": "P1",
-   "rang": 6,
+   "rang": 9,
    "pil": "capter",
    "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
    "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
@@ -180,7 +223,7 @@
   },
   {
    "id": "P2",
-   "rang": 7,
+   "rang": 10,
    "pil": "revenir",
    "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
    "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
@@ -194,7 +237,7 @@
   },
   {
    "id": "P3",
-   "rang": 8,
+   "rang": 11,
    "pil": "trouve",
    "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
    "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
@@ -208,7 +251,7 @@
   },
   {
    "id": "P4",
-   "rang": 9,
+   "rang": 12,
    "pil": "raison",
    "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
    "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
@@ -222,7 +265,7 @@
   },
   {
    "id": "P6",
-   "rang": 10,
+   "rang": 13,
    "pil": "transformer",
    "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
    "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
@@ -236,7 +279,7 @@
   },
   {
    "id": "P7",
-   "rang": 11,
+   "rang": 14,
    "pil": "capter",
    "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
    "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
@@ -250,7 +293,7 @@
   },
   {
    "id": "P8",
-   "rang": 12,
+   "rang": 15,
    "pil": "raison",
    "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
    "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
@@ -264,7 +307,7 @@
   },
   {
    "id": "P9",
-   "rang": 13,
+   "rang": 16,
    "pil": "trouve",
    "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
    "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
@@ -278,7 +321,7 @@
   },
   {
    "id": "P10",
-   "rang": 14,
+   "rang": 17,
    "pil": "transformer",
    "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
@@ -846,7 +889,8 @@
    "On ne paie pas en avance ce qui ne ramène pas de clients : Doctolib (non activé), créances probablement antérieures au 30/06 (Essity, Solocal : à déclarer, pas à payer), prestations à vérifier.",
    "Les dettes obligatoires restent payées à l'échéance : KLESIA, URSSAF, administrateur, greffe, loyer.",
    "Enveloppe flux novembre–décembre (communication) : 2 400 € maximum, ligne par ligne ; chaque euro doit rapporter au moins 2 € de marge en 90 jours.",
-   "Levier sans financement : le stock qui dort (104 926 € sans vente depuis plus d'un an). Objectif 20 000 € récupérés d'ici fin novembre en retours, avoirs et échanges, après accord de l'administrateur si une créance antérieure est concernée."
+   "Levier sans financement : le stock qui dort (104 926 € sans vente depuis plus d'un an). Objectif 20 000 € récupérés d'ici fin novembre en retours, avoirs et échanges, après accord de l'administrateur si une créance antérieure est concernée.",
+   "Argent à encaisser sans financement : tiers payant non soldé de plus de 30 jours 12 047 € (CPAM Le Mans 5 332 €, AME 2 503 €) et crédits clients de plus de 90 jours 9 999 €. Objectif : moins de 4 000 € de tiers payant ancien au 30/11 et la moitié des crédits encaissée au 31/12 (à vérifier d'abord : règlements reçus mais non pointés)."
   ],
   "enveloppe": [
    [
@@ -928,6 +972,12 @@
    "id": "q0",
    "q": "Qu'est-ce qui a changé en février 2026 au rayon conseil ? Les ventes de médicaments sans ordonnance sont passées d'environ 20 400 € en janvier à 15 500 € en février et ne sont jamais revenues (hausse de prix, rayon déplacé, personne partie, concurrent, Carrefour) ?",
    "reco": "Piste relevée le 25/10 : le stock a perdu 72 555 € entre le 01/01 et le 01/02/2026 (800 553 € → 727 998 €) et les clients sont passés de 12 955 à 10 895. Le rayon conseil a été moins garni. À confirmer : y a-t-il eu une autre cause ?",
+   "opts": []
+  },
+  {
+   "id": "q0b",
+   "q": "Le taux de marge hors ordonnance est passé de 31,6 % (septembre 2025) à 36,0 % (février 2026), pendant que les ventes hors ordonnance baissaient (6 178 → 5 749 en septembre). Y a-t-il eu une hausse de prix générale, ou des promotions arrêtées, à l'automne 2025 ?",
+   "reco": "",
    "opts": []
   },
   {
@@ -5206,6 +5256,152 @@
     ]
    },
    {
+    "titre": "Ruptures au comptoir et produits en alerte",
+    "c": "o",
+    "h": [
+     "Indicateur",
+     "Valeur",
+     "Source"
+    ],
+    "l": [
+     [
+      "Ruptures par mois (oct. 2025 → sept. 2026)",
+      "5 725 → 4 800",
+      "Statistiques › Produits › Ruptures"
+     ],
+     [
+      "Produits sous 20 jours de stock sans commande",
+      "1 063 (dont 672 à zéro)",
+      "Listing Alertes Acheteurs, 25/10"
+     ],
+     [
+      "Boîtes promises sur produits bloqués (3 mois)",
+      "1 577 sur 2 702 (58 %)",
+      "Analyse des promis"
+     ],
+     [
+      "Produits vendus à stock zéro (octobre)",
+      "470",
+      "Produits manquants"
+     ],
+     [
+      "Profils de commande CERP",
+      "« Économe », 3 jours",
+      "Profils de commande grossiste"
+     ]
+    ],
+    "lecture": [
+     "Les ruptures du 24/10 sont surtout des génériques Zentiva (premier génériqueur choisi dans l'AutoSwitch)."
+    ]
+   },
+   {
+    "titre": "Clients identifiés qui ne reviennent plus",
+    "c": "r",
+    "h": [
+     "Profil (passages en 2025)",
+     "Clients",
+     "Pas venus depuis le 01/07/2026",
+     "Dont aucune visite en 2026"
+    ],
+    "l": [
+     [
+      "Réguliers (4 ou plus)",
+      "4 203",
+      "1 844 (44 %)",
+      "910"
+     ],
+     [
+      "Occasionnels (1 à 3)",
+      "13 224",
+      "11 340 (86 %)",
+      "9 393"
+     ],
+     [
+      "Nouveaux en 2026",
+      "8 527",
+      "4 446",
+      "—"
+     ]
+    ],
+    "lecture": [
+     "Source : Outils › Autres utilitaires › Requêtes (base Vindilis), 25/10/2026. Clients identifiés seulement ; certains ont déménagé ou sont décédés."
+    ]
+   },
+   {
+    "titre": "Hors ordonnance : le taux de marge monte de 4 points, les ventes baissent",
+    "c": "o",
+    "h": [
+     "Mois",
+     "CA HT hors ordo",
+     "Taux de marge",
+     "Marge €",
+     "Ventes",
+     "Panier"
+    ],
+    "l": [
+     [
+      "Sept. 2025",
+      "90 833",
+      "31,59 %",
+      "28 691",
+      "6 178",
+      "16,65"
+     ],
+     [
+      "Oct. 2025",
+      "99 223",
+      "32,57 %",
+      "32 321",
+      "7 415",
+      "15,17"
+     ],
+     [
+      "Déc. 2025",
+      "119 077",
+      "33,94 %",
+      "40 410",
+      "8 423",
+      "16,03"
+     ],
+     [
+      "Janv. 2026",
+      "101 726",
+      "35,53 %",
+      "36 139",
+      "7 290",
+      "15,78"
+     ],
+     [
+      "Févr. 2026",
+      "87 762",
+      "36,03 %",
+      "31 620",
+      "5 938",
+      "16,73"
+     ],
+     [
+      "Sept. 2026",
+      "75 890",
+      "35,32 %",
+      "26 806",
+      "5 749",
+      "14,96"
+     ],
+     [
+      "Oct. 2026 (1–24)",
+      "64 489",
+      "33,41 %",
+      "21 549",
+      "4 819",
+      "15,16"
+     ]
+    ],
+    "lecture": [
+     "Source : Gestion › Synthèse d'activité, relevée le 25/10/2026 (nombre de ventes avec recyclage compté deux fois).",
+     "Septembre sur un an : ventes −6,9 %, marge € −6,6 %, taux +3,7 points. Hypothèse à vérifier : hausse des prix hors ordonnance à l'automne 2025, qui a fait partir des clients conseil."
+    ]
+   },
+   {
     "titre": "Mois par mois : le CA baisse deux fois plus vite que la marge",
     "c": "o",
     "h": [
@@ -6217,12 +6413,45 @@
      "Source : Statistiques › Pilotage › Ventes et Statistiques › Vendeurs › Synthèse, 1–25/10/2026.",
      "À regarder : LEFRAY Audrey (44 annulations pour 100 ventes), FRETAULT Suzon (3 778 € annulés), POIRIER Alban (272 lignes supprimées pour 1 787 lignes vendues). Comprendre pourquoi : erreur de saisie, produit manquant, client parti."
     ]
+   },
+   {
+    "titre": "Ségur, octobre 2026 : plus de notes de vaccination en échec qu'envoyées",
+    "c": "",
+    "h": [
+     "Indicateur",
+     "Nombre"
+    ],
+    "l": [
+     [
+      "Notes de vaccination DMP envoyées",
+      "38"
+     ],
+     [
+      "Notes de vaccination DMP en échec",
+      "49"
+     ],
+     [
+      "Entretiens pharmaceutiques DMP en échec",
+      "2"
+     ],
+     [
+      "E-prescriptions consultées / exécutées",
+      "132 / 83"
+     ],
+     [
+      "E-mails MSSanté envoyés",
+      "0"
+     ]
+    ],
+    "lecture": [
+     "Source : Statistiques › Tableau de bord « SEGUR »."
+    ]
    }
   ],
   "manque": [
-   "Pilotage › Tranche d'âge : la requête ne finit pas (plus de 40 min, deux essais) ; remplacée par Statistiques › Clients › Tranche d'âge.",
-   "Listing des ventes : ne s'est pas chargé ; l'affluence horaire vient de Vente par heure (vendeur par vendeur).",
-   "Menus pas encore passés en revue : Commandes (paramètres de réassort, propositions), Gestion, Tiers-payant (rejets, impayés), Caisse, Outils (utilitaires stock, surveillance), Fichiers, et plusieurs statistiques (Classifications, Gammes, Organismes, Évolutions du stock, Tableau de bord Ségur)."
+   "Outils › Utilitaires stock › Produits périmables : recherche encore en cours après 20 minutes (lots peut-être non suivis).",
+   "Évolutions du stock : un produit au stock négatif aberrant (≈ −45 M€) reste à identifier.",
+   "Expertise complète des menus : document « Vindilis : expertise complète et plan d'action » du 25/10/2026."
   ]
  }
 }
