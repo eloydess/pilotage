@@ -240,16 +240,21 @@ function changerMode(m){mode=m;$('#joy').style.display=m==='visite'?'block':'non
     if(por)cam.position.set(C.x+.01,dist,C.z);else cam.position.set(C.x,dist,C.z+.01);ctl.target.set(C.x,0,C.z);cam.up.set(0,1,0);ctl.update()}
   if(m==='survol'){ctl.enableRotate=true;ctl.mouseButtons.LEFT=T.MOUSE.ROTATE;ctl.touches.ONE=T.TOUCH.ROTATE;ctl.touches.TWO=T.TOUCH.DOLLY_PAN;ctl.maxPolarAngle=1.45;ctl.minDistance=3;ctl.maxDistance=90;
     cam.position.set(C.x-8,38,C.z+38);ctl.target.set(C.x,0,C.z);ctl.update()}
-  if(m==='visite'){if(!marchable(vis.pos.x,vis.pos.z)){vis.pos.set(VIS0[0],1.6,VIS0[1]);vis.yaw=VIS0[2]}appliquerVisite();msg('Pouce gauche : avancer · glisser ailleurs : regarder · double-touche au sol : y aller',4200)}
+  if(m==='visite'){if(!libre(vis.pos.x,vis.pos.z)){const p=pointLibre(VIS0[0],VIS0[1]);vis.pos.set(p[0],1.6,p[1]);vis.yaw=VIS0[2]}appliquerVisite();msg('Pouce gauche : avancer · glisser ailleurs : regarder · double-touche au sol : y aller',4200)}
   echelleVisite();barre();appliquerCouches();salir()}
 function echelleVisite(){const v=mode==='visite';
   if(!v)['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>o.visible=true)});
   if(groupes.univers)groupes.univers.children.forEach(o=>{if(!o.isMesh)o.visible=!v});
   ['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{if(!o.userData.s0)o.userData.s0=o.scale.clone();o.scale.copy(o.userData.s0).multiplyScalar(v?.4:1);if(o.material)o.material.depthTest=v})})}
+const libre=(x,z)=>{const r=.35;return marchable(x,z)&&marchable(x+r,z)&&marchable(x-r,z)&&marchable(x,z+r)&&marchable(x,z-r)};
+function pointLibre(x,z){if(libre(x,z))return [x,z];for(let d=.25;d<8;d+=.25)for(let a=0;a<16;a++){const X=x+d*Math.cos(a*Math.PI/8),Z=z+d*Math.sin(a*Math.PI/8);if(libre(X,Z))return [X,Z]}return [x,z]}
 function appliquerVisite(){cam.position.copy(vis.pos);const d=new T.Vector3(Math.sin(vis.yaw)*Math.cos(vis.pitch),Math.sin(vis.pitch),-Math.cos(vis.yaw)*Math.cos(vis.pitch));cam.lookAt(vis.pos.clone().add(d));salir()}
 /* Joystick */
 const joy={on:false,dx:0,dy:0,id:null};const J=$('#joy'),JI=J.querySelector('i');
-J.addEventListener('pointerdown',e=>{joy.on=true;joy.id=e.pointerId;J.setPointerCapture(e.pointerId);bougeJoy(e)});
+J.addEventListener('pointerdown',e=>{e.preventDefault();joy.on=true;joy.id=e.pointerId;try{J.setPointerCapture(e.pointerId)}catch(x){}bougeJoy(e)});
+J.addEventListener('touchstart',e=>{e.preventDefault();joy.on=true;const t=e.changedTouches[0];joy.tid=t.identifier;bougeJoy(t)},{passive:false});
+J.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joy.tid)bougeJoy(t)},{passive:false});
+J.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===joy.tid)finJoy()});
 J.addEventListener('pointermove',e=>{if(joy.on&&e.pointerId===joy.id)bougeJoy(e)});
 const finJoy=()=>{joy.on=false;joy.dx=joy.dy=0;JI.style.transform=''};J.addEventListener('pointerup',finJoy);J.addEventListener('pointercancel',finJoy);
 function bougeJoy(e){const r=J.getBoundingClientRect();let dx=(e.clientX-r.left-60)/50,dy=(e.clientY-r.top-60)/50;const n=Math.hypot(dx,dy);if(n>1){dx/=n;dy/=n}joy.dx=dx;joy.dy=dy;JI.style.transform=`translate(${dx*35}px,${dy*35}px)`}
@@ -260,9 +265,9 @@ cv.addEventListener('pointerdown',e=>{if(mode!=='visite')return;regard={x:e.clie
 cv.addEventListener('pointermove',e=>{if(!regard||e.pointerId!==regard.id)return;vis.yaw=regard.yaw+(e.clientX-regard.x)*.006;vis.pitch=Math.max(-1.1,Math.min(.9,regard.pitch-(e.clientY-regard.y)*.005));appliquerVisite()});
 cv.addEventListener('pointerup',()=>{regard=null});
 function avancer(dt){let f=-joy.dy,s=joy.dx;if(touches['z']||touches['w']||touches['arrowup'])f=1;if(touches['s']||touches['arrowdown'])f=-1;if(touches['q']||touches['a']||touches['arrowleft'])s=-1;if(touches['d']||touches['arrowright'])s=1;
-  if(!f&&!s)return;const v=2.4*dt,fx=Math.sin(vis.yaw),fz=-Math.cos(vis.yaw),dx=(fx*f-fz*s)*v,dz=(fz*f+fx*s)*v;
+  if(!f&&!s)return;const v=3*dt,fx=Math.sin(vis.yaw),fz=-Math.cos(vis.yaw),dx=(fx*f-fz*s)*v,dz=(fz*f+fx*s)*v;
   const R0=.25;const ok=(x,z)=>marchable(x,z)&&marchable(x+R0,z)&&marchable(x-R0,z)&&marchable(x,z+R0)&&marchable(x,z-R0);
-  if(ok(vis.pos.x+dx,vis.pos.z+dz)){vis.pos.x+=dx;vis.pos.z+=dz}else if(ok(vis.pos.x+dx,vis.pos.z))vis.pos.x+=dx;else if(ok(vis.pos.x,vis.pos.z+dz))vis.pos.z+=dz;appliquerVisite()}
+  if(!ok(vis.pos.x,vis.pos.z)||ok(vis.pos.x+dx,vis.pos.z+dz)){vis.pos.x+=dx;vis.pos.z+=dz}else if(ok(vis.pos.x+dx,vis.pos.z))vis.pos.x+=dx;else if(ok(vis.pos.x,vis.pos.z+dz))vis.pos.z+=dz;appliquerVisite()}
 
 /* ---------- Sélection ---------- */
 const ray=new T.Raycaster();let sel=null,attente=null,dernierTap=0,down=null;
@@ -339,8 +344,8 @@ async function demarrer(){
   construireUnivers();construireReperes();construireLabos();construireSol();construireChemins();majObjets();majNotes();
   $('#charge').style.display='none';barre();changerMode('dessus');appliquerCouches();etatGet()}
 let t0=performance.now();
-function boucle(t){const dt=Math.min(.05,(t-t0)/1000);t0=t;if(mode==='visite'){avancer(dt);if(t-(boucle.l||0)>300){boucle.l=t;['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{o.visible=o.position.distanceTo(cam.position)<(n==='labos'?6:11)})})}}else ctl.update();if(sale){R.render(S,cam);sale=false}requestAnimationFrame(boucle)}
-requestAnimationFrame(boucle);window.__d={cam,ctl};
+function boucle(t){const dt=Math.min(.12,(t-t0)/1000);t0=t;if(mode==='visite'){avancer(dt);if(t-(boucle.l||0)>300){boucle.l=t;['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{o.visible=o.position.distanceTo(cam.position)<(n==='labos'?6:11)})})}}else ctl.update();if(sale){R.render(S,cam);sale=false}requestAnimationFrame(boucle)}
+requestAnimationFrame(boucle);window.__d={cam,ctl,vis};
 demarrer().catch(e=>{$('#charge').innerHTML='Impossible de charger la maquette : '+esc(e.message||e)});
 </script>
 </body>
