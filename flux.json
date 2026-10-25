@@ -3,6 +3,7 @@
  "version": "2",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
+  "Analyse Vindilis du 25/10 : l'ordonnance est stable en volume (−0,6 % en septembre). La baisse du CA vient de quelques traitements très chers partis (sans marge) ; la baisse de marge et de clients vient du conseil et de la parapharmacie : OTC ≈ −26 % d'avril à septembre (cassure en février 2026), parapharmacie −15 % en sept.–oct., souvent en rupture.",
   "D'avril à septembre 2026 : 62 776 clients contre 65 796 en 2025 (−4,6 %), soit 503 clients de moins par mois. La marge par client tient (7,22 € contre 7,20 €) : le problème est le nombre de clients, pas les prix.",
   "Vous captez environ 3,2 % des 3,9 millions de visiteurs annuels du centre commercial (≈ 125 000 clients par an). Le dossier de transfert visait 7 %. Il suffit qu'un passant de plus sur 650 entre pour retrouver les 503 clients par mois.",
   "Les nouvelles cartes de fidélité ont chuté de 43 % (996 contre 1 754 en 12 mois) et 1 347 clients fidélité sont dormants ou en passe de l'être. Aucune campagne SMS n'a jamais été envoyée.",
@@ -95,13 +96,13 @@
   {
    "id": "P00",
    "pil": "revenir",
-   "titre": "Ordonnance : ne plus perdre un seul patient (−11,6 % d'ordonnances par jour en octobre) — zéro produit promis non servi, génériques Zentiva toujours en stock, relance des traitements chroniques, deux personnes à l'ordonnance aux heures de pointe",
-   "pourquoi": "L'ordonnance fait 73 % du CA et les patients chroniques reviennent chaque mois : en perdre un, c'est perdre 12 visites par an. Le recul a commencé en septembre (−10 %).",
+   "titre": "Ordonnance : garder chaque patient (volume stable, −0,6 % en septembre) et lui vendre le conseil qui va avec — zéro produit promis non servi, FreeStyle et Lovenox suivis chaque jour, une proposition de conseil associé à chaque ordonnance d'hiver",
+   "pourquoi": "L'ordonnance tient (4 076 ordonnances nettes en septembre contre 4 099). Ce qui a fondu, c'est le conseil autour : médicaments sans ordonnance ≈ −26 % d'avril à septembre (cassure en février), parapharmacie −15 %. Chaque patient ordonnance est un client conseil qu'on ne sert pas.",
    "qui": "Titulaire (commandes) ; référente campagnes (relances)",
    "quand": "Dès lundi 26/10",
-   "base": "188,8 ordonnances par jour (octobre 2026) contre 213,7 (octobre 2025)",
-   "obj": "Revenir à 205 par jour en novembre, puis au niveau 2025 en décembre",
-   "mesure": "Ordonnances par jour d'ouverture (Vindilis › Pilotage › Ordonnances), chaque lundi",
+   "base": "166,3 ordonnances nettes par jour en octobre (172,1 en 2025) ; OTC ≈ 16 000 € en septembre contre ≈ 18 500 €",
+   "obj": "Ordonnances nettes ≥ 172 par jour en novembre ; OTC revenu à 18 000 € par mois en décembre",
+   "mesure": "Délivrances (honoraire HDR, colonne U V) et Mesures et évolutions › OTC, chaque lundi",
    "gain": 300,
    "cout": 0,
    "rang": 1
@@ -909,7 +910,7 @@
  "questions": [
   {
    "id": "q0",
-   "q": "Qu'est-ce qui a changé fin août – début septembre autour de l'ordonnance (médecin ou maison de santé du secteur, pharmacie qui ouvre, équipe au comptoir ordonnance, fournisseur bloqué) ?",
+   "q": "Qu'est-ce qui a changé en février 2026 au rayon conseil ? Les ventes de médicaments sans ordonnance sont passées d'environ 20 400 € en janvier à 15 500 € en février et ne sont jamais revenues (hausse de prix, rayon déplacé, personne partie, concurrent, Carrefour) ?",
    "reco": "",
    "opts": []
   },
@@ -4863,41 +4864,41 @@
   }
  },
  "vindilis": {
-  "releve": "Relevé Vindilis du dimanche 25/10/2026 (Statistiques › Pilotage, Ventes, Vendeurs, Ruptures). Octobre 2026 = du 1er au 24/10 (21 jours d'ouverture) ; octobre 2025 = mois complet (27 jours) : comparaison par jour d'ouverture.",
+  "releve": "Analyse Vindilis complète du dimanche 25/10/2026 : Pilotage, Mesures et évolutions (Comparatif mensuel, Répartition, OTC, Produits chers, Princeps/Génériques), Délivrances (sept. et oct. 2025-2026), Listing des ventes (1/9–24/10 et 1/4–31/8, 2025 contre 2026), Analyse fournisseurs (12 mois), Ratio des lignes supprimées. Fichiers exportés dans C:\\Temp\\v2010.",
   "ordo": {
-   "titre": "Le recul vient surtout des patients avec ordonnance, depuis septembre",
+   "titre": "Ordonnances : le volume tient. Le « −11,6 % » venait du recyclage de 2025",
    "l": [
     [
-     "Juillet",
-     4901,
-     4945,
-     "+0,9 %"
+     "Septembre (ordonnances nettes)",
+     "4 099",
+     "4 076",
+     "−0,6 %"
     ],
     [
-     "Août",
-     4768,
-     4672,
-     "−2,0 %"
+     "Octobre, par jour d'ouverture",
+     "172,1",
+     "166,3",
+     "−3,4 %"
     ],
     [
-     "Septembre",
-     5137,
-     4624,
-     "−10,0 %"
+     "1/9 → 24/10 (listing corrigé du recyclage, estimation)",
+     "≈ 7 576",
+     "≈ 7 541",
+     "−0,5 %"
     ],
     [
-     "Octobre (par jour)",
-     "213,7",
-     "188,8",
-     "−11,6 %"
+     "Lignes de génériques mai–juillet",
+     "15 441",
+     "16 087",
+     "+4,2 %"
     ]
    ],
    "lecture": [
-    "Clients réels par jour en octobre (ventes − 2 × recyclage) : 414,6 contre 467,6 en 2025 (−11,3 %).",
-    "Ventes sans ordonnance par jour : 222 contre 233 (−4,8 %). Montant des ordonnances par jour : 9 418 € contre 10 190 € (−7,6 %).",
-    "Marge du 1er au 24/10 (statistiques vendeurs) : ≈ 62 900 €, soit ≈ 2 990 € par jour d'ouverture, contre ≈ 2 840 € par jour en septembre : la marge par jour tient mieux que la fréquentation.",
-    "Recyclage : 77 en octobre 2026 contre 559 en octobre 2025 (relevé Pilotage › Recyclage).",
-    "Ruptures enregistrées par Vindilis : ≈ 5 000 par mois depuis deux ans (graphique Statistiques › Produits › Ruptures) ; le 24/10, surtout des génériques Zentiva prescrits."
+    "Compte net = honoraire de dispensation par ordonnance (Statistiques › Produits › Délivrances, colonne U V, annulations déduites). Septembre 2025 : 5 165 lignes brutes pour 4 099 ordonnances réelles ; septembre 2026 : 4 376 pour 4 076.",
+    "En août–octobre 2025, Vindilis a recyclé 503, 617 puis 559 ventes par mois (172 et 77 en sept.–oct. 2026). Chaque vente recyclée compte deux fois dans les ventes et ordonnances brutes : c'est ce qui gonflait 2025 et faisait croire à −10 % / −11,6 %.",
+    "Zentiva et la CERP ont raison : les lignes de génériques ont progressé de mai à juillet 2026 (+3,4 %, +5,9 %, +3,3 %), puis −1,2 % en août et −7,7 % en septembre (lignes brutes, recyclage non déduit).",
+    "Ce qui baisse vraiment dans l'ordonnance, c'est le montant : quelques patients à très gros traitements partis (Kaftrio et Kalydeco 28 000 € en sept.–oct. 2025, Ilaris 8 000 €), à marge quasi nulle (1,9 % chez Vertex). Votre lecture était juste : ce CA ne rapportait presque rien.",
+    "Les traitements chroniques sont stables ou en hausse en octobre (Kardégic, metformine, ésoméprazole, oméprazole, Eliquis). En baisse : FreeStyle Libre (−40 %, approvisionnement Abbott), Lovenox (0), NovoRapid, méthadone (un ou deux patients)."
    ]
   },
   "vendeurs": {
@@ -5030,6 +5031,656 @@
     172,
     77
    ]
-  }
+  },
+  "blocs": [
+   {
+    "titre": "Mois par mois : le CA baisse deux fois plus vite que la marge",
+    "c": "o",
+    "h": [
+     "Mois",
+     "CA 2025",
+     "CA 2026",
+     "Écart CA",
+     "Marge 2025",
+     "Marge 2026",
+     "Écart marge",
+     "Clients réels 2025",
+     "Clients réels 2026",
+     "Écart clients"
+    ],
+    "l": [
+     [
+      "Avril",
+      "309 479",
+      "297 223",
+      "−4,0 %",
+      "76 229",
+      "77 106",
+      "+1,2 %",
+      "10 785",
+      "10 676",
+      "−1,0 %"
+     ],
+     [
+      "Mai",
+      "322 608",
+      "293 547",
+      "−9,0 %",
+      "79 064",
+      "75 190",
+      "−4,9 %",
+      "11 310",
+      "10 078",
+      "−10,9 %"
+     ],
+     [
+      "Juin",
+      "316 976",
+      "299 993",
+      "−5,4 %",
+      "80 872",
+      "79 344",
+      "−1,9 %",
+      "11 378",
+      "11 273",
+      "−0,9 %"
+     ],
+     [
+      "Juillet",
+      "344 349",
+      "287 843",
+      "−16,4 %",
+      "83 134",
+      "74 194",
+      "−10,8 %",
+      "11 391",
+      "10 313",
+      "−9,5 %"
+     ],
+     [
+      "Août",
+      "309 940",
+      "280 797",
+      "−9,4 %",
+      "76 865",
+      "73 451",
+      "−4,4 %",
+      "10 234",
+      "10 235",
+      "+0,0 %"
+     ],
+     [
+      "Septembre",
+      "323 675",
+      "292 938",
+      "−9,5 %",
+      "77 668",
+      "73 800",
+      "−5,0 %",
+      "10 698",
+      "10 201",
+      "−4,6 %"
+     ]
+    ],
+    "lecture": [
+     "Source : Statistiques › Ventes (Mesures et évolutions) › Comparatif mensuel, lu à l'écran (CA, marge, nombre de ventes) ; clients réels = ventes − 2 × recyclage.",
+     "Sur avril–septembre : CA −9,1 % (1 927 027 → 1 752 341), marge −4,4 % (473 832 → 453 085), clients réels −4,6 % (65 796 → 62 776). La marge perdue est d'environ 3 450 € par mois.",
+     "Juillet est le mois le plus dur (marge −10,8 %, clients −9,5 %). Mai suit (clients −10,9 %). Août et juin sont à l'équilibre côté clients."
+    ]
+   },
+   {
+    "titre": "Où est partie la fréquentation : le conseil et la parapharmacie, pas l'ordonnance",
+    "c": "r",
+    "h": [
+     "Rayon (Listing des ventes)",
+     "Période",
+     "Ventes 2025",
+     "Ventes 2026",
+     "Écart",
+     "CA TTC 2025",
+     "CA TTC 2026",
+     "Écart CA"
+    ],
+    "l": [
+     [
+      "Parapharmacie et accessoires",
+      "1/9 → 24/10",
+      "15 104",
+      "12 141",
+      "−19,6 %",
+      "196 628",
+      "166 131",
+      "−15,5 %"
+     ],
+     [
+      "Parapharmacie et accessoires",
+      "1/4 → 31/8",
+      "42 940",
+      "37 100",
+      "−13,6 %",
+      "608 560",
+      "534 595",
+      "−12,2 %"
+     ],
+     [
+      "Médicaments ≥ 300 € la boîte",
+      "1/9 → 24/10",
+      "139",
+      "151",
+      "+8,6 %",
+      "154 891",
+      "145 996",
+      "−5,7 %"
+     ],
+     [
+      "Médicaments ≥ 300 € la boîte",
+      "1/4 → 31/8",
+      "281",
+      "287",
+      "+2,1 %",
+      "348 594",
+      "279 772",
+      "−19,7 %"
+     ]
+    ],
+    "lecture": [
+     "Médicaments sans ordonnance (Mesures et évolutions › OTC, lecture du graphique, ± 300 €) : ≈ 17 700 à 21 700 € par mois d'avril à septembre 2025, ≈ 13 000 à 16 000 € en 2026, soit ≈ −26 % sur la période. La cassure date de février 2026 (janvier 20 400 €, février 15 500 €) et ne s'est jamais refermée.",
+     "Médicaments à plus de 500 € (graphique Produits chers) : ≈ 67 000 € en juillet 2025 contre ≈ 35 000 € en juillet 2026 ; ce sont eux qui expliquent l'essentiel de la chute du CA de juillet, pour une marge minime.",
+     "Conclusion pour le plan : le levier est le passage au comptoir libre-service et conseil (galerie, ruptures, mise en avant), pas une perte de patients ordonnance."
+    ]
+   },
+   {
+    "titre": "Top 10 des médicaments moins délivrés : septembre 2025 contre septembre 2026",
+    "c": "b",
+    "h": [
+     "Molécule (marques regroupées)",
+     "Boîtes 2025",
+     "Boîtes 2026",
+     "Écart"
+    ],
+    "l": [
+     [
+      "Macrogol (Forlax, Movicol…)",
+      "216",
+      "143",
+      "−34 %"
+     ],
+     [
+      "Fervex",
+      "152",
+      "85",
+      "−44 %"
+     ],
+     [
+      "Méthadone",
+      "154",
+      "88",
+      "−43 %"
+     ],
+     [
+      "Paracétamol (Doliprane, Dafalgan, Efferalgan)",
+      "4 640",
+      "4 582",
+      "−1 %"
+     ],
+     [
+      "Paracétamol-opium (Lamaline → Izalgi)",
+      "251",
+      "197",
+      "−22 %"
+     ],
+     [
+      "Alprazolam",
+      "198",
+      "148",
+      "−25 %"
+     ],
+     [
+      "Bains de bouche chlorhexidine (Paroex)",
+      "49",
+      "0",
+      "−100 %"
+     ],
+     [
+      "Tixocortol",
+      "116",
+      "69",
+      "−41 %"
+     ],
+     [
+      "Donormyl",
+      "157",
+      "114",
+      "−27 %"
+     ],
+     [
+      "Lidocaïne-prilocaïne",
+      "210",
+      "167",
+      "−20 %"
+     ]
+    ],
+    "lecture": [
+     "Source : Délivrances, boîtes nettes. Les changements de laboratoire sont regroupés (paroxétine Zentiva → EG, Séresta → oxazépam, Lamaline → Izalgi, chlorhexidine…) : ce ne sont pas des pertes.",
+     "Parmi les 15 premières baisses, six sont des produits de conseil (Fervex, Donormyl, macrogol, lopéramide, Lysopaine, Vicks) : c'est le même message que l'OTC.",
+     "Hausses : tramadol +55, chlorhexidine +54, Météospasmyl +46, Tanganil +33, buprénorphine +32, Kardégic +26."
+    ]
+   },
+   {
+    "titre": "Les 15 produits de parapharmacie qui ont le plus reculé (1/9 → 24/10)",
+    "c": "r",
+    "h": [
+     "Produit",
+     "Qté 2025",
+     "Qté 2026",
+     "CA 2025",
+     "CA 2026",
+     "Écart",
+     "Stock au 25/10"
+    ],
+    "l": [
+     [
+      "FREESTYLE LIBRE 2 PLUS Capteur",
+      "156",
+      "92",
+      "6 240",
+      "3 970",
+      "−2 270",
+      "0"
+     ],
+     [
+      "PHYSIODOSE SER PHYSIO 5ML 40",
+      "288",
+      "9",
+      "922",
+      "25",
+      "−896",
+      "−7"
+     ],
+     [
+      "ONE TOUCH VERIO BDLET BT100",
+      "44",
+      "26",
+      "1 543",
+      "933",
+      "−610",
+      "1"
+     ],
+     [
+      "GUIGOZ EXPERT AR1 MIX 1 LAIT PDR 780GR",
+      "29",
+      "2",
+      "640",
+      "44",
+      "−596",
+      "11"
+     ],
+     [
+      "STERILUX PADS Rectang coton hyg B/160",
+      "190",
+      "92",
+      "931",
+      "389",
+      "−542",
+      "129"
+     ],
+     [
+      "SPEEDICATH COMP EVE CH12 FEM30 ref 281120 Coloplast",
+      "6",
+      "0",
+      "485",
+      "0",
+      "−485",
+      "1"
+     ],
+     [
+      "TRAMADOL/PARACETAMOL ZENTIVA CPR BT20",
+      "164",
+      "0",
+      "476",
+      "0",
+      "−476",
+      "0"
+     ],
+     [
+      "FREESTYLE BANDELETTES  OPTIUM 100",
+      "23",
+      "10",
+      "825",
+      "359",
+      "−466",
+      "14"
+     ],
+     [
+      "GUIGOZ EXPERT AR1  LAIT PDR B/ 780GR",
+      "28",
+      "7",
+      "585",
+      "144",
+      "−442",
+      "1"
+     ],
+     [
+      "ROTULIG STAB Genouill lig art rotul mar T5",
+      "4",
+      "0",
+      "409",
+      "0",
+      "−409",
+      "2"
+     ],
+     [
+      "GALLIAGEST 1 800G",
+      "22",
+      "2",
+      "444",
+      "41",
+      "−403",
+      "0"
+     ],
+     [
+      "GUIGOZ EXPERT AR2 MIX  LAIT PDR 780GR",
+      "19",
+      "1",
+      "419",
+      "22",
+      "−397",
+      "5"
+     ],
+     [
+      "GARDE NUIT",
+      "58",
+      "20",
+      "574",
+      "200",
+      "−374",
+      "0"
+     ],
+     [
+      "HOLLISTER Poch urine stér vid nuit 2l B/30",
+      "6",
+      "0",
+      "366",
+      "0",
+      "−366",
+      "1"
+     ],
+     [
+      "GALLIA AR AMIDON 0-12mois 800g",
+      "18",
+      "0",
+      "359",
+      "0",
+      "−359",
+      "0"
+     ]
+    ],
+    "lecture": [
+     "Presque tous sont à 0 ou en négatif en stock : ce sont des ruptures, pas un désintérêt (laits infantiles Guigoz et Gallia, Physiodose, FreeStyle, Grintuss, Phytoxil, Berocca).",
+     "Par marque, les plus fortes baisses : FreeStyle −2 309 €, Guigoz −1 886 €, Granions −1 730 €, Uriage −1 438 €, Gallia −1 244 €, SVR −1 144 €. Les plus fortes hausses : ROC +3 270 €, Topicrem +2 898 €, calendrier +2 576 €, Actreen +1 236 €, Mepilex +1 067 €, NHCO +985 €."
+    ]
+   },
+   {
+    "titre": "Les 20 fournisseurs qui font la marge (26/10/2025 → 24/10/2026)",
+    "c": "b",
+    "h": [
+     "Fournisseur",
+     "CA",
+     "Marge €",
+     "Taux",
+     "Cumul marge"
+    ],
+    "l": [
+     [
+      "ZENTIVA",
+      "273 826",
+      "97 666",
+      "35,7 %",
+      "12,9 %"
+     ],
+     [
+      "SANOFI AVENTIS opella T2026 09P",
+      "164 742",
+      "86 476",
+      "52,5 %",
+      "24,3 %"
+     ],
+     [
+      "DISTRISANTE",
+      "160 128",
+      "56 432",
+      "35,2 %",
+      "31,8 %"
+     ],
+     [
+      "ETRADI",
+      "61 976",
+      "30 304",
+      "48,9 %",
+      "35,8 %"
+     ],
+     [
+      "UPSA T2026 09P",
+      "41 613",
+      "19 265",
+      "46,3 %",
+      "38,4 %"
+     ],
+     [
+      "COOPER T2026 09P",
+      "39 442",
+      "16 387",
+      "41,5 %",
+      "40,5 %"
+     ],
+     [
+      "EA PHARMA T2026 09P",
+      "40 336",
+      "15 200",
+      "37,7 %",
+      "42,5 %"
+     ],
+     [
+      "LA ROCHE POSAY T2026 09P",
+      "45 520",
+      "14 665",
+      "32,2 %",
+      "44,5 %"
+     ],
+     [
+      "PIERRE FABRE SANTE PREVENTION T2026 09P",
+      "36 861",
+      "12 647",
+      "34,3 %",
+      "46,1 %"
+     ],
+     [
+      "HARTMANN T2026 09P",
+      "25 906",
+      "12 634",
+      "48,8 %",
+      "47,8 %"
+     ],
+     [
+      "PILEJE T2026 09P",
+      "25 190",
+      "11 645",
+      "46,2 %",
+      "49,4 %"
+     ],
+     [
+      "SM EUROPE T2026 09P",
+      "25 722",
+      "10 631",
+      "41,3 %",
+      "50,8 %"
+     ],
+     [
+      "URGO T2026 09P",
+      "34 308",
+      "10 553",
+      "30,8 %",
+      "52,2 %"
+     ],
+     [
+      "JOHNSON & J OTC T2026 09P",
+      "30 701",
+      "8 740",
+      "28,5 %",
+      "53,3 %"
+     ],
+     [
+      "PROCTER ET GAMBLE ALLOGA T2026 09P",
+      "27 149",
+      "8 352",
+      "30,8 %",
+      "54,4 %"
+     ],
+     [
+      "AVENE T2026 09P",
+      "27 592",
+      "8 075",
+      "29,3 %",
+      "55,5 %"
+     ],
+     [
+      "GILBERT T2026 09P",
+      "19 354",
+      "7 684",
+      "39,7 %",
+      "56,5 %"
+     ],
+     [
+      "THUASNE T2026 09P",
+      "19 191",
+      "7 405",
+      "38,6 %",
+      "57,5 %"
+     ],
+     [
+      "NHCO T2026 09P",
+      "17 985",
+      "6 885",
+      "38,3 %",
+      "58,4 %"
+     ],
+     [
+      "INELDEA T2026 09P",
+      "15 355",
+      "6 638",
+      "43,2 %",
+      "59,3 %"
+     ]
+    ],
+    "lecture": [
+     "Source : Analyse fournisseurs › Top (fournisseur habituel de chaque produit, montants Vindilis). 20 fournisseurs font 59 % de la marge : ce sont eux qu'il faut payer et approvisionner en premier.",
+     "Abbvie (127 425 € de CA, 4,7 %), Janssen, Novartis, Vertex ou MSD font beaucoup de CA et très peu de marge : leur baisse ne doit pas inquiéter."
+    ]
+   },
+   {
+    "titre": "Lignes supprimées au comptoir, octobre 2026 (Pilotage › Ratio)",
+    "c": "o",
+    "h": [
+     "Opérateur",
+     "Lignes tarifées",
+     "Lignes supprimées",
+     "Taux"
+    ],
+    "l": [
+     [
+      "POIRIER Alban",
+      "1825",
+      "261",
+      "14,30 %"
+     ],
+     [
+      "ZARDET CHRISTEL",
+      "441",
+      "62",
+      "14,06 %"
+     ],
+     [
+      "TEMBO Océane",
+      "279",
+      "33",
+      "11,83 %"
+     ],
+     [
+      "LEFRAY AUDREY",
+      "266",
+      "31",
+      "11,65 %"
+     ],
+     [
+      "FRETAULT Suzon",
+      "2337",
+      "250",
+      "10,70 %"
+     ],
+     [
+      "BOURGEON Aline",
+      "775",
+      "72",
+      "9,29 %"
+     ],
+     [
+      "MEDJIDOV Gadji",
+      "386",
+      "34",
+      "8,81 %"
+     ],
+     [
+      "YOUSRI nassim",
+      "2350",
+      "184",
+      "7,83 %"
+     ],
+     [
+      "GOUIN Pierre",
+      "287",
+      "20",
+      "6,97 %"
+     ],
+     [
+      "CARON Mylène",
+      "2879",
+      "171",
+      "5,94 %"
+     ],
+     [
+      "DASI Sidney",
+      "2981",
+      "165",
+      "5,54 %"
+     ],
+     [
+      "BOIVIN Antoine",
+      "2814",
+      "151",
+      "5,37 %"
+     ],
+     [
+      "PALLANY Dylan",
+      "2697",
+      "134",
+      "4,97 %"
+     ],
+     [
+      "CHANTELOUBE Sandy",
+      "2657",
+      "103",
+      "3,88 %"
+     ]
+    ],
+    "lecture": [
+     "Une ligne supprimée, c'est souvent un produit demandé qu'on n'a pas (rupture) ou une erreur de saisie. De 3,9 % à 14,3 % selon la personne : à regarder avec chacun, sans reproche, pour savoir ce qui manquait."
+    ]
+   }
+  ],
+  "manque": [
+   "Pilotage › Surstockage et Tranche d'âge : requêtes lancées le 25/10, toujours en cours après 1 h (base très sollicitée) ; à relancer lundi à l'ouverture.",
+   "Valorisation du stock et promotions en cours : à relever lundi.",
+   "Pourquoi la vente par heure n'existe que par vendeur : l'affluence horaire passera par le Listing des ventes heure par heure."
+  ]
  }
 }
