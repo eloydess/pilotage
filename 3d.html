@@ -60,7 +60,8 @@ input,select,textarea{width:100%;font:inherit;font-size:15px;padding:7px 8px;bor
 <script type="module">
 'use strict';
 import * as T from './moteur3d.js';
-const {GLTFLoader,OrbitControls,MeshoptDecoder}=T;
+const {GLTFLoader,OrbitControls,MeshoptDecoder,DRACOLoader}=T;
+const QUAL=(()=>{try{return localStorage.getItem('p3d_qualite')||'hd'}catch(e){return 'hd'}})();
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -124,21 +125,22 @@ let actives=(()=>{try{return JSON.parse(ls.get('p3d_couches')||'null')||['univer
 let mode='dessus';
 function barre(){
   const m=[['dessus','⬆ Dessus'],['survol','🌀 Survol'],['visite','🚶‍♂️ Visite']];
-  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+
+  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+`<button data-a="qual">${QUAL==='hd'?'🔍 Détaillée':'⚡ Légère'}</button>`+
     COUCHES.map(([k,t])=>`<button class="${actives.includes(k)?'on':''}" data-c="${k}">${t}</button>`).join('');
   $('#cmd').querySelectorAll('button').forEach(b=>b.onclick=()=>{
     if(b.dataset.m){changerMode(b.dataset.m);return}
     if(b.dataset.a==='ajout'){ficheAjout();return}
+    if(b.dataset.a==='qual'){try{localStorage.setItem('p3d_qualite',QUAL==='hd'?'leger':'hd')}catch(e){}location.reload();return}
     const k=b.dataset.c;if(actives.includes(k))actives=actives.filter(x=>x!==k);else{actives.push(k);if(k==='passage')actives=actives.filter(x=>x!=='marge');if(k==='marge')actives=actives.filter(x=>x!=='passage')}
     ls.set('p3d_couches',JSON.stringify(actives));appliquerCouches();barre()});
   placerVue()}
 function placerVue(){const h=$('#cmd').getBoundingClientRect().bottom;$('#msg').style.top=(h+8)+'px'}
 function appliquerCouches(){
   for(const [k] of COUCHES)if(groupes[k])groupes[k].visible=actives.includes(k);
-  if(groupes.sol)groupes.sol.visible=actives.includes('passage')||actives.includes('marge');
+  if(groupes.sol){groupes.sol.visible=actives.includes('passage')||actives.includes('marge');groupes.sol.children.forEach(o=>{if(o.geometry&&o.geometry.type==='ConeGeometry')o.visible=actives.includes('passage')})}
   if(SOLTEX&&actives.includes('passage'))peindreSol('passage');else if(SOLTEX&&actives.includes('marge'))peindreSol('marge');
   const L=[];
-  if(actives.includes('passage'))L.push(`<b>Passage estimé</b><div class="g" style="background:linear-gradient(90deg,#2b0b3a,#a3256b,#f37a2c,#fdeca0)"></div><span class="sub">Chemins les plus courts des entrées A et B vers les comptoirs (modèle, pas un comptage)</span>`);
+  if(actives.includes('passage'))L.push(`<b>Passage des clients</b><div style="display:flex;gap:10px;flex-wrap:wrap;margin:3px 0"><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#e53935;margin-right:3px"></i>Très passant</span><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fbc02d;margin-right:3px"></i>Passant</span><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#90caf9;margin-right:3px"></i>Peu passant</span></div><span class="sub">Flèches vertes : de l'entrée A aux comptoirs · flèches bleues : de l'entrée B aux comptoirs. Estimation par le chemin le plus court, à recaler par un comptage.</span>`);
   if(actives.includes('marge'))L.push(`<b>Marge 12 mois des labos présents</b><div class="g" style="background:linear-gradient(90deg,#2166ac,#67a9cf,#fee08b,#f46d43,#b2182b)"></div><span class="sub">❄️ peu de marge · 🔥 beaucoup ${D&&D.labos?'':'— données Vindilis non chargées : ouvrez Pilotage une fois'}</span>`);
   if(actives.includes('univers')&&ZON)L.push(Object.entries(ZON.couleurs).map(([c,n])=>`<span style="display:inline-block;margin-right:8px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#${c};margin-right:3px"></i>${esc(n)}</span>`).join(''));
   $('#leg').innerHTML=L.map(x=>'<div>'+x+'</div>').join('<div style="height:6px"></div>');$('#leg').style.display=L.length&&mode!=='visite'&&$('#fiche').style.display!=='block'?'block':'none';salir()}
@@ -161,6 +163,13 @@ function construireLabos(){const g=G('labos');ZON.L.forEach(([n,[x,y]],i)=>{cons
 
 /* Sol coloré (passage / marge) */
 let SOLTEX=null,SOLCV=null,MARGECV=null;
+/* Chemins des clients : flèches au sol de chaque entrée vers les comptoirs */
+async function construireChemins(){let C=null;try{C=await (await fetch('chemins.json?v=1')).json()}catch(e){return}
+  const g=G('sol');const geo=new T.ConeGeometry(.32,.9,3);geo.rotateX(Math.PI/2);
+  [['A',0x2e7d32],['B',0x1565c0]].forEach(([k,col])=>{const P=C[k]||[];const mt=new T.MeshBasicMaterial({color:col});
+    for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1],d=Math.hypot(b[0]-a[0],b[1]-a[1]);const n=Math.max(1,Math.round(d/1.6));
+      for(let j=0;j<n;j++){const t=(j+.5)/n,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;const c=new T.Mesh(geo,mt);c.position.set(x,.12,z);c.lookAt(b[0],.12,b[1]);c.renderOrder=3;g.add(c)}}})
+  appliquerCouches()}
 function construireSol(){SOLCV=document.createElement('canvas');SOLCV.width=GW;SOLCV.height=GH;SOLTEX=new T.CanvasTexture(SOLCV);SOLTEX.colorSpace=T.SRGBColorSpace;SOLTEX.magFilter=T.LinearFilter;
   const geo=new T.PlaneGeometry(BB[2]-BB[0],BB[3]-BB[1]);geo.rotateX(-Math.PI/2);
   const m=new T.Mesh(geo,new T.MeshBasicMaterial({map:SOLTEX,transparent:true,depthWrite:false,opacity:.85}));m.position.set((BB[0]+BB[2])/2,.05,(BB[1]+BB[3])/2);m.renderOrder=2;G('sol').add(m)}
@@ -176,7 +185,7 @@ function calculMarge(){if(MARGEF!==null)return MARGEF;MARGEF=false;if(!D||!D.lab
   MARGEF={f,g,hi:v[Math.floor(v.length*.9)]||1,lo:v[Math.floor(v.length*.1)]||0};return MARGEF}
 function margeEn(x,z){const M=calculMarge();if(!M)return null;const [i,j]=cellOf(x,z);if(i<0||j<0||i>=GW||j>=GH)return null;const q=j*GW+i;if(M.g[q]<.05)return null;return Math.max(0,Math.min(1,(M.f[q]-M.lo)/((M.hi-M.lo)||1)))}
 function peindreSol(k){const x=SOLCV.getContext('2d'),im=x.createImageData(GW,GH);
-  if(k==='passage'&&GR){for(let q=0;q<GW*GH;q++){if(!GR.walk[q]){im.data[q*4+3]=0;continue}const c=ramp(R_PASS,GR.pass[q]/255);im.data[q*4]=c[0];im.data[q*4+1]=c[1];im.data[q*4+2]=c[2];im.data[q*4+3]=200}}
+  if(k==='passage'&&GR){for(let q=0;q<GW*GH;q++){if(!GR.walk[q]){im.data[q*4+3]=0;continue}const t=GR.pass[q]/255,c=t>=.6?[229,57,53]:t>=.3?[251,192,45]:[144,202,249];im.data[q*4]=c[0];im.data[q*4+1]=c[1];im.data[q*4+2]=c[2];im.data[q*4+3]=t>=.3?170:110}}
   if(k==='marge'){const M=calculMarge();if(M)for(let q=0;q<GW*GH;q++){const pres=Math.min(1,M.g[q]*1.4);if(pres<.04){im.data[q*4+3]=0;continue}const t=Math.max(0,Math.min(1,(M.f[q]-M.lo)/((M.hi-M.lo)||1)));const c=ramp(R_MARGE,t);im.data[q*4]=c[0];im.data[q*4+1]=c[1];im.data[q*4+2]=c[2];im.data[q*4+3]=Math.round(210*Math.pow(pres,.7))}}
   x.putImageData(im,0,0);SOLTEX.needsUpdate=true;salir()}
 
@@ -323,10 +332,10 @@ async function lireGrille(){const img=new Image();img.src='grille.png?v=1';await
   const pass=new Uint8Array(GW*GH),walk=new Uint8Array(GW*GH);for(let q=0;q<GW*GH;q++){pass[q]=d[q*4];walk[q]=d[q*4+1]>127?1:0}GR={pass,walk}}
 async function demarrer(){
   const [p,z]=await Promise.all([fetch('plan.json').then(r=>r.json()),fetch('zoning.json').then(r=>r.json()),lireGrille().catch(()=>{})]);PLAN=p;ZON=z;
-  const ld=new GLTFLoader();ld.setMeshoptDecoder(MeshoptDecoder);
-  const g=await new Promise((ok,ko)=>ld.load('pharmacie3d.glb?v=2',ok,e=>{if(e.total)$('#pc').style.width=Math.round(e.loaded/e.total*100)+'%'},ko));
-  MAQ=g.scene;MAQ.traverse(m=>{if(m.isMesh){m.material.side=T.FrontSide;if(m.material.metalness!==undefined){m.material.metalness=0;m.material.roughness=1}}});S.add(MAQ);
-  construireUnivers();construireReperes();construireLabos();construireSol();majObjets();majNotes();
+  const ld=new GLTFLoader();ld.setMeshoptDecoder(MeshoptDecoder);const dr=new DRACOLoader();dr.setDecoderPath('./');ld.setDRACOLoader(dr);
+  const g=await new Promise((ok,ko)=>ld.load(QUAL==='hd'?'pharmacie.glb?v=2':'pharmacie3d.glb?v=2',ok,e=>{if(e.total)$('#pc').style.width=Math.round(e.loaded/e.total*100)+'%'},ko));
+  MAQ=g.scene;MAQ.traverse(m=>{if(m.isMesh){if(QUAL!=='hd')m.material.side=T.FrontSide;if(m.material.metalness!==undefined){m.material.metalness=0;m.material.roughness=1}}});S.add(MAQ);
+  construireUnivers();construireReperes();construireLabos();construireSol();construireChemins();majObjets();majNotes();
   $('#charge').style.display='none';barre();changerMode('dessus');appliquerCouches();etatGet()}
 let t0=performance.now();
 function boucle(t){const dt=Math.min(.05,(t-t0)/1000);t0=t;if(mode==='visite')avancer(dt);else ctl.update();if(sale){R.render(S,cam);sale=false}requestAnimationFrame(boucle)}
