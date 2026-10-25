@@ -1,6 +1,6 @@
 {
  "maj": "2026-10-25",
- "version": "4",
+ "version": "5",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
   "Vindilis (25/10) : commandes directes reçues 597 669 € contre 1 547 916 € à période égale (−61 %) ; CERP +8 % dans Vindilis, +21 % sur l'extranet CERP à fin septembre.",
@@ -154,6 +154,20 @@
    "rang": 4
   },
   {
+   "id": "P0x",
+   "pil": "transformer",
+   "titre": "Réclamer à Apothical la rétrocession n°02-2026 (facture FF00008249, 900,00 € TTC, échue le 23/08) et vérifier les doubles prélèvements de cotisation du 23/06 (BPGO) et du 15/09 (Caisse d'Épargne)",
+   "pourquoi": "Les 5 autres rétrocessions 2026 sont arrivées sur la BPGO ; la n°02 manque. Deux prélèvements de 2 400 € le même jour à deux reprises.",
+   "qui": "Titulaire (mail à Apothical)",
+   "quand": "Lundi 26/10",
+   "base": "900,00 € non reçus ; 2 × 2 400 € les 23/06 et 15/09",
+   "obj": "900 € reçus ; doubles prélèvements expliqués",
+   "mesure": "Compte BPGO 32821314943, recherche « APOTHICAL »",
+   "gain": 900,
+   "cout": 0,
+   "rang": 5
+  },
+  {
    "id": "P0d",
    "pil": "trouve",
    "titre": "Faire corriger l'adresse chez Apothical (257, ancienne adresse, → 309 avenue Georges Durand) : listing des adhérents, localisateur, factures, ROC",
@@ -165,7 +179,7 @@
    "mesure": "Listing des adhérents Apothical (cloud)",
    "gain": 0,
    "cout": 0,
-   "rang": 5
+   "rang": 6
   },
   {
    "id": "P00",
@@ -179,7 +193,7 @@
    "mesure": "Délivrances (honoraire HDR, colonne U V) et Mesures et évolutions › OTC, chaque lundi",
    "gain": 300,
    "cout": 0,
-   "rang": 6
+   "rang": 7
   },
   {
    "id": "P0",
@@ -193,7 +207,7 @@
    "mesure": "Relevé du stock chaque lundi (onglet Ruptures)",
    "gain": 150,
    "cout": 0,
-   "rang": 7
+   "rang": 8
   },
   {
    "id": "P0v",
@@ -207,7 +221,7 @@
    "mesure": "Fichiers › Vendeurs ; Gestion › Démarque et autres opérations",
    "gain": 0,
    "cout": 0,
-   "rang": 8
+   "rang": 9
   },
   {
    "id": "P0s",
@@ -221,7 +235,7 @@
    "mesure": "Pilotage › Surstockage relancé le 1er de chaque mois ; avoirs reçus",
    "gain": 0,
    "cout": 0,
-   "rang": 9
+   "rang": 10
   },
   {
    "id": "P0b",
@@ -235,7 +249,7 @@
    "mesure": "Livraisons reçues ; ruptures levées",
    "gain": 0,
    "cout": 0,
-   "rang": 10
+   "rang": 11
   },
   {
    "id": "P0c",
@@ -249,11 +263,11 @@
    "mesure": "Ventes par tête de gondole, semaine avant / après ; rémunérations Opeaz reçues",
    "gain": 60,
    "cout": 0,
-   "rang": 11
+   "rang": 12
   },
   {
    "id": "P1",
-   "rang": 12,
+   "rang": 13,
    "pil": "capter",
    "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
    "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
@@ -267,7 +281,7 @@
   },
   {
    "id": "P2",
-   "rang": 13,
+   "rang": 14,
    "pil": "revenir",
    "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
    "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
@@ -281,7 +295,7 @@
   },
   {
    "id": "P3",
-   "rang": 14,
+   "rang": 15,
    "pil": "trouve",
    "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
    "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
@@ -295,7 +309,7 @@
   },
   {
    "id": "P4",
-   "rang": 15,
+   "rang": 16,
    "pil": "raison",
    "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
    "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
@@ -309,7 +323,7 @@
   },
   {
    "id": "P6",
-   "rang": 16,
+   "rang": 17,
    "pil": "transformer",
    "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
    "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
@@ -323,7 +337,7 @@
   },
   {
    "id": "P7",
-   "rang": 17,
+   "rang": 18,
    "pil": "capter",
    "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
    "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
@@ -337,7 +351,7 @@
   },
   {
    "id": "P8",
-   "rang": 18,
+   "rang": 19,
    "pil": "raison",
    "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
    "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
@@ -351,7 +365,7 @@
   },
   {
    "id": "P9",
-   "rang": 19,
+   "rang": 20,
    "pil": "trouve",
    "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
    "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
@@ -365,7 +379,7 @@
   },
   {
    "id": "P10",
-   "rang": 20,
+   "rang": 21,
    "pil": "transformer",
    "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
@@ -1020,17 +1034,6 @@
    "opts": [
     "Oui, Medadom",
     "Autre chose",
-    "Je ne sais pas"
-   ]
-  },
-  {
-   "id": "q0c",
-   "q": "Les rétrocessions Apothical n°1 à 4 (4 262,37 € TTC, échues entre le 29/07 et le 29/09) ont-elles été versées sur le compte ?",
-   "reco": "",
-   "opts": [
-    "Oui, toutes",
-    "En partie",
-    "Non",
     "Je ne sais pas"
    ]
   },
@@ -6727,7 +6730,7 @@
     ]
    },
    {
-    "titre": "Rétrocessions 2026 à encaisser (factures pharmacie → Apothical, 60 jours)",
+    "titre": "Rétrocessions 2026 : 5 reçues sur 6, la n°02 (900,00 €) manque",
     "c": "o",
     "h": [
      "N°",
@@ -6742,45 +6745,47 @@
       "FF00008162",
       "1 216,38",
       "29/07/2026",
-      "Échue : vérifier l'encaissement"
+      "Reçue le 02/06 (BPGO)"
      ],
      [
       "02",
       "FF00008249",
       "900,00",
       "23/08/2026",
-      "Échue : vérifier"
+      "NON REÇUE : à réclamer"
      ],
      [
       "03",
       "FF00008456",
       "280,70",
       "03/09/2026",
-      "Échue : vérifier"
+      "Reçue le 08/07 (BPGO)"
      ],
      [
       "04",
       "FF00008715",
       "1 865,29",
       "29/09/2026",
-      "Échue : vérifier"
+      "Reçue le 05/08 (BPGO)"
      ],
      [
       "05",
       "FF00008985",
       "975,67",
       "28/10/2026",
-      "À venir"
+      "Reçue le 02/09 (BPGO, 975,68)"
      ],
      [
       "06",
       "FF00009254",
       "290,66",
       "30/11/2026",
-      "À venir"
+      "Reçue le 02/10 (BPGO)"
      ]
     ],
     "lecture": [
+     "Les rétrocessions 2025 n°12 à 18 sont toutes arrivées sur le compte BPGO 32821314943 (de 5 869,09 € le 02/04 à 682,22 € le 02/10).",
+     "Cotisations prélevées en 2026 : BPGO 14/01, 12/03, 13/04 et deux fois le 23/06 ; Caisse d'Épargne deux fois le 15/09 et le 12/10 (2 400 € chacun). À rapprocher des factures trimestrielles (7 200 € TTC).",
      "À payer à Apothical : calendriers de l'Avent FA00006948 (744,48 € TTC) et FA00007296 (4 913,57 € TTC) à réception ; cotisation T4 FA00007435 (7 200 € TTC) par prélèvement."
     ]
    },
