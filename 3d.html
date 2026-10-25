@@ -59,7 +59,7 @@ input,select,textarea{width:100%;font:inherit;font-size:15px;padding:7px 8px;bor
 <div id="charge"><span>Chargement de la maquette…</span><b><i id="pc"></i></b></div>
 <script type="module">
 'use strict';
-import * as T from './moteur3d.js';
+import * as T from './moteur3d-2.js';
 const {GLTFLoader,OrbitControls,MeshoptDecoder,DRACOLoader}=T;
 const QUAL=(()=>{try{return localStorage.getItem('p3d_qualite')||'hd'}catch(e){return 'hd'}})();
 const $=s=>document.querySelector(s);
@@ -164,7 +164,7 @@ function construireLabos(){const g=G('labos');ZON.L.forEach(([n,[x,y]],i)=>{cons
 /* Sol coloré (passage / marge) */
 let SOLTEX=null,SOLCV=null,MARGECV=null;
 /* Chemins des clients : flèches au sol de chaque entrée vers les comptoirs */
-async function construireChemins(){let C=null;try{C=await (await fetch('chemins.json?v=1')).json()}catch(e){return}
+async function construireChemins(){let C=null;try{C=await (await fetch('chemins-1.json')).json()}catch(e){return}
   const g=G('sol');const geo=new T.ConeGeometry(.32,.9,3);geo.rotateX(Math.PI/2);
   [['A',0x2e7d32],['B',0x1565c0]].forEach(([k,col])=>{const P=C[k]||[];const mt=new T.MeshBasicMaterial({color:col});
     for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1],d=Math.hypot(b[0]-a[0],b[1]-a[1]);const n=Math.max(1,Math.round(d/1.6));
