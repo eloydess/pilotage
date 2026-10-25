@@ -61,7 +61,7 @@ input,select,textarea{width:100%;font:inherit;font-size:15px;padding:7px 8px;bor
 'use strict';
 import * as T from './moteur3d-2.js';
 const {GLTFLoader,OrbitControls,MeshoptDecoder,DRACOLoader}=T;
-const QUAL=(()=>{try{return localStorage.getItem('p3d_qualite')||'hd'}catch(e){return 'hd'}})();
+const QUAL=(()=>{try{return localStorage.getItem('p3d_q2')||'hd'}catch(e){return 'hd'}})();
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -125,12 +125,12 @@ let actives=(()=>{try{return JSON.parse(ls.get('p3d_couches')||'null')||['univer
 let mode='dessus';
 function barre(){
   const m=[['dessus','⬆ Dessus'],['survol','🌀 Survol'],['visite','🚶‍♂️ Visite']];
-  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+`<button data-a="qual">${QUAL==='hd'?'🔍 Détaillée':'⚡ Légère'}</button>`+
+  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+`<button data-a="qual">${QUAL==='hd'?'Maquette : détaillée':'Maquette : légère'}</button>`+
     COUCHES.map(([k,t])=>`<button class="${actives.includes(k)?'on':''}" data-c="${k}">${t}</button>`).join('');
   $('#cmd').querySelectorAll('button').forEach(b=>b.onclick=()=>{
     if(b.dataset.m){changerMode(b.dataset.m);return}
     if(b.dataset.a==='ajout'){ficheAjout();return}
-    if(b.dataset.a==='qual'){try{localStorage.setItem('p3d_qualite',QUAL==='hd'?'leger':'hd')}catch(e){}location.reload();return}
+    if(b.dataset.a==='qual'){try{localStorage.setItem('p3d_q2',QUAL==='hd'?'leger':'hd')}catch(e){}location.reload();return}
     const k=b.dataset.c;if(actives.includes(k))actives=actives.filter(x=>x!==k);else{actives.push(k);if(k==='passage')actives=actives.filter(x=>x!=='marge');if(k==='marge')actives=actives.filter(x=>x!=='passage')}
     ls.set('p3d_couches',JSON.stringify(actives));appliquerCouches();barre()});
   placerVue()}
