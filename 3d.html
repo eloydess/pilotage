@@ -147,8 +147,8 @@ function appliquerCouches(){
 
 /* Univers : bandes colorées le long des linéaires du zoning */
 function construireUnivers(){const g=G('univers');
-  ZON.U.forEach(([c,p])=>{const sh=new T.Shape(p.map(([x,y])=>new T.Vector2(x,-y)));const geo=new T.ExtrudeGeometry(sh,{depth:1.75,bevelEnabled:false});geo.rotateX(-Math.PI/2);
-    const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:'#'+c,transparent:true,opacity:.42,depthWrite:false}));m.position.y=.04;m.userData={type:'univers',nom:ZON.couleurs[c]||''};g.add(m)});
+  ZON.U.forEach(([c,p])=>{const sh=new T.Shape(p.map(([x,y])=>new T.Vector2(x,-y)));const geo=new T.ExtrudeGeometry(sh,{depth:.06,bevelEnabled:false});geo.rotateX(-Math.PI/2);
+    const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:'#'+c,transparent:true,opacity:.75,depthWrite:false}));m.position.y=.03;m.renderOrder=2;m.userData={type:'univers',nom:ZON.couleurs[c]||''};g.add(m)});
   ZON.UL.forEach(([n,[x,y]])=>{const s=etiquette(n.replace('Beaute','Beauté').replace('Bebe','Bébé').replace('Hygiene','Hygiène').replace('Libre Acces','Libre accès').replace('Veterinaire','Vétérinaire'),{taille:.55});s.position.set(x,2.5,y);g.add(s)})}
 /* Repères : TG, bacs, barres de charge, écrans */
 const REP=[];
@@ -243,8 +243,9 @@ function changerMode(m){mode=m;$('#joy').style.display=m==='visite'?'block':'non
   if(m==='visite'){if(!marchable(vis.pos.x,vis.pos.z)){vis.pos.set(VIS0[0],1.6,VIS0[1]);vis.yaw=VIS0[2]}appliquerVisite();msg('Pouce gauche : avancer · glisser ailleurs : regarder · double-touche au sol : y aller',4200)}
   echelleVisite();barre();appliquerCouches();salir()}
 function echelleVisite(){const v=mode==='visite';
-  if(groupes.univers)groupes.univers.children.forEach(o=>{o.visible=!v});
-  ['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{if(!o.userData.s0)o.userData.s0=o.scale.clone();o.scale.copy(o.userData.s0).multiplyScalar(v?.55:1)})})}
+  if(!v)['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>o.visible=true)});
+  if(groupes.univers)groupes.univers.children.forEach(o=>{if(!o.isMesh)o.visible=!v});
+  ['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{if(!o.userData.s0)o.userData.s0=o.scale.clone();o.scale.copy(o.userData.s0).multiplyScalar(v?.4:1);if(o.material)o.material.depthTest=v})})}
 function appliquerVisite(){cam.position.copy(vis.pos);const d=new T.Vector3(Math.sin(vis.yaw)*Math.cos(vis.pitch),Math.sin(vis.pitch),-Math.cos(vis.yaw)*Math.cos(vis.pitch));cam.lookAt(vis.pos.clone().add(d));salir()}
 /* Joystick */
 const joy={on:false,dx:0,dy:0,id:null};const J=$('#joy'),JI=J.querySelector('i');
@@ -338,7 +339,7 @@ async function demarrer(){
   construireUnivers();construireReperes();construireLabos();construireSol();construireChemins();majObjets();majNotes();
   $('#charge').style.display='none';barre();changerMode('dessus');appliquerCouches();etatGet()}
 let t0=performance.now();
-function boucle(t){const dt=Math.min(.05,(t-t0)/1000);t0=t;if(mode==='visite')avancer(dt);else ctl.update();if(sale){R.render(S,cam);sale=false}requestAnimationFrame(boucle)}
+function boucle(t){const dt=Math.min(.05,(t-t0)/1000);t0=t;if(mode==='visite'){avancer(dt);if(t-(boucle.l||0)>300){boucle.l=t;['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{o.visible=o.position.distanceTo(cam.position)<(n==='labos'?6:11)})})}}else ctl.update();if(sale){R.render(S,cam);sale=false}requestAnimationFrame(boucle)}
 requestAnimationFrame(boucle);window.__d={cam,ctl};
 demarrer().catch(e=>{$('#charge').innerHTML='Impossible de charger la maquette : '+esc(e.message||e)});
 </script>
