@@ -1,8 +1,9 @@
 {
  "maj": "2026-10-25",
- "version": "2",
+ "version": "3",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
+  "Cloud Apothical (25/10) : achats directs aux labos −70 % (trésorerie, livraisons bloquées, paiement d'avance depuis le redressement judiciaire) ; rétrocessions 2026 de 4 607 € HT contre 36 456 € en 2025 ; quatre seuils de remise encore atteignables avant le 31/12 (Sigvaris, Orliman, Boiron, Kenvue).",
   "Expertise Vindilis du 25/10 : réassort réglé sur « Économe » ; 1 063 produits en alerte sans commande ; 58 % des promis sur des produits bloqués ; 1 844 clients réguliers perdus depuis juillet ; 41 902 € de tiers payant non soldé et 11 477 € de crédits clients.",
   "Relevé Vindilis du 25/10 (poste de la pharmacie) : stock 572 711 € au 01/10 (−34 % en un an), dont 457 600 € en surstock ; 44 % des ventes entre 15 h et 19 h ; promotions : +49 % de remises pour −12 % de ventes.",
   "Analyse Vindilis du 25/10 : l'ordonnance est stable en volume (−0,6 % en septembre). La baisse du CA vient de quelques traitements très chers partis (sans marge) ; la baisse de marge et de clients vient du conseil et de la parapharmacie : OTC ≈ −26 % d'avril à septembre (cassure en février 2026), parapharmacie −15 % en sept.–oct., souvent en rupture.",
@@ -124,6 +125,34 @@
    "rang": 2
   },
   {
+   "id": "P0l",
+   "pil": "transformer",
+   "titre": "Remises labos : avec la trésorerie disponible, acheter en direct d'abord chez les labos dont le seuil est atteignable avant le 31/12 (Sigvaris, Orliman, Boiron, Kenvue) et envoyer les photos de coopération (Caudalie, Perrigo, Arkopharma)",
+   "pourquoi": "Les achats directs ont baissé d'environ 70 % (trésorerie, livraisons bloquées, paiement d'avance) et les rétrocessions Apothical sont tombées à 4 607 € HT à fin septembre contre 36 456 € en 2025. Chaque euro acheté en direct chez un labo proche de son seuil rapporte la remise directe plus la RFA.",
+   "qui": "Titulaire (commandes) ; équipe (photos des mises en avant)",
+   "quand": "Semaine du 26/10 : photos Caudalie et Perrigo ; novembre : commandes ciblées",
+   "base": "Rétrocessions 2026 : 4 607 € HT ; seuils manquants : Sigvaris 3 668 €, Orliman 3 057 €, Boiron 3 176 €, Kenvue ≈ 8 575 €",
+   "obj": "Au moins 2 seuils atteints au 31/12 ; coop Caudalie et Perrigo non nulle au 4e trimestre",
+   "mesure": "Fichiers d'atterrissage des labos dans le cloud Apothical, chaque mois",
+   "gain": 0,
+   "cout": 0,
+   "rang": 3
+  },
+  {
+   "id": "P0d",
+   "pil": "trouve",
+   "titre": "Faire corriger l'adresse chez Apothical (257, ancienne adresse, → 309 avenue Georges Durand) : listing des adhérents, localisateur, factures, ROC",
+   "pourquoi": "Le localisateur Apothical et la newsletter nationale (1,35 million d'encartés) renvoient vers l'ancienne adresse : un client qui cherche une pharmacie Apothical ne nous trouve pas au bon endroit.",
+   "qui": "Titulaire (mail à Apothical)",
+   "quand": "Lundi 26/10",
+   "base": "Adresse 257 dans le listing du 01/10/2026",
+   "obj": "Adresse 309 dans le prochain listing",
+   "mesure": "Listing des adhérents Apothical (cloud)",
+   "gain": 0,
+   "cout": 0,
+   "rang": 4
+  },
+  {
    "id": "P00",
    "pil": "revenir",
    "titre": "Ordonnance : garder chaque patient (volume stable, −0,6 % en septembre) et lui vendre le conseil qui va avec — zéro produit promis non servi, FreeStyle et Lovenox suivis chaque jour, une proposition de conseil associé à chaque ordonnance d'hiver",
@@ -135,7 +164,7 @@
    "mesure": "Délivrances (honoraire HDR, colonne U V) et Mesures et évolutions › OTC, chaque lundi",
    "gain": 300,
    "cout": 0,
-   "rang": 3
+   "rang": 5
   },
   {
    "id": "P0",
@@ -149,7 +178,7 @@
    "mesure": "Relevé du stock chaque lundi (onglet Ruptures)",
    "gain": 150,
    "cout": 0,
-   "rang": 4
+   "rang": 6
   },
   {
    "id": "P0v",
@@ -163,7 +192,7 @@
    "mesure": "Fichiers › Vendeurs ; Gestion › Démarque et autres opérations",
    "gain": 0,
    "cout": 0,
-   "rang": 5
+   "rang": 7
   },
   {
    "id": "P0s",
@@ -177,7 +206,7 @@
    "mesure": "Pilotage › Surstockage relancé le 1er de chaque mois ; avoirs reçus",
    "gain": 0,
    "cout": 0,
-   "rang": 6
+   "rang": 8
   },
   {
    "id": "P0b",
@@ -191,7 +220,7 @@
    "mesure": "Livraisons reçues ; ruptures levées",
    "gain": 0,
    "cout": 0,
-   "rang": 7
+   "rang": 9
   },
   {
    "id": "P0c",
@@ -205,11 +234,11 @@
    "mesure": "Ventes par tête de gondole, semaine avant / après ; rémunérations Opeaz reçues",
    "gain": 60,
    "cout": 0,
-   "rang": 8
+   "rang": 10
   },
   {
    "id": "P1",
-   "rang": 9,
+   "rang": 11,
    "pil": "capter",
    "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
    "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
@@ -223,7 +252,7 @@
   },
   {
    "id": "P2",
-   "rang": 10,
+   "rang": 12,
    "pil": "revenir",
    "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
    "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
@@ -237,7 +266,7 @@
   },
   {
    "id": "P3",
-   "rang": 11,
+   "rang": 13,
    "pil": "trouve",
    "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
    "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
@@ -251,7 +280,7 @@
   },
   {
    "id": "P4",
-   "rang": 12,
+   "rang": 14,
    "pil": "raison",
    "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
    "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
@@ -265,7 +294,7 @@
   },
   {
    "id": "P6",
-   "rang": 13,
+   "rang": 15,
    "pil": "transformer",
    "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
    "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
@@ -279,7 +308,7 @@
   },
   {
    "id": "P7",
-   "rang": 14,
+   "rang": 16,
    "pil": "capter",
    "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
    "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
@@ -293,7 +322,7 @@
   },
   {
    "id": "P8",
-   "rang": 15,
+   "rang": 17,
    "pil": "raison",
    "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
    "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
@@ -307,7 +336,7 @@
   },
   {
    "id": "P9",
-   "rang": 16,
+   "rang": 18,
    "pil": "trouve",
    "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
    "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
@@ -321,7 +350,7 @@
   },
   {
    "id": "P10",
-   "rang": 17,
+   "rang": 19,
    "pil": "transformer",
    "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
@@ -890,7 +919,8 @@
    "Les dettes obligatoires restent payées à l'échéance : KLESIA, URSSAF, administrateur, greffe, loyer.",
    "Enveloppe flux novembre–décembre (communication) : 2 400 € maximum, ligne par ligne ; chaque euro doit rapporter au moins 2 € de marge en 90 jours.",
    "Levier sans financement : le stock qui dort (104 926 € sans vente depuis plus d'un an). Objectif 20 000 € récupérés d'ici fin novembre en retours, avoirs et échanges, après accord de l'administrateur si une créance antérieure est concernée.",
-   "Argent à encaisser sans financement : tiers payant non soldé de plus de 30 jours 12 047 € (CPAM Le Mans 5 332 €, AME 2 503 €) et crédits clients de plus de 90 jours 9 999 €. Objectif : moins de 4 000 € de tiers payant ancien au 30/11 et la moitié des crédits encaissée au 31/12 (à vérifier d'abord : règlements reçus mais non pointés)."
+   "Argent à encaisser sans financement : tiers payant non soldé de plus de 30 jours 12 047 € (CPAM Le Mans 5 332 €, AME 2 503 €) et crédits clients de plus de 90 jours 9 999 €. Objectif : moins de 4 000 € de tiers payant ancien au 30/11 et la moitié des crédits encaissée au 31/12 (à vérifier d'abord : règlements reçus mais non pointés).",
+   "Achats directs labos : la trésorerie disponible va d'abord aux labos dont le seuil de remise de fin d'année est atteignable avant le 31/12 (Sigvaris, Orliman, Boiron, Kenvue) ; le reste passe par CERP."
   ],
   "enveloppe": [
    [
@@ -968,6 +998,17 @@
   }
  ],
  "questions": [
+  {
+   "id": "q0c",
+   "q": "Les rétrocessions Apothical n°1 à 4 (4 262,37 € TTC, échues entre le 29/07 et le 29/09) ont-elles été versées sur le compte ?",
+   "reco": "",
+   "opts": [
+    "Oui, toutes",
+    "En partie",
+    "Non",
+    "Je ne sais pas"
+   ]
+  },
   {
    "id": "q0",
    "q": "Qu'est-ce qui a changé en février 2026 au rayon conseil ? Les ventes de médicaments sans ordonnance sont passées d'environ 20 400 € en janvier à 15 500 € en février et ne sont jamais revenues (hausse de prix, rayon déplacé, personne partie, concurrent, Carrefour) ?",
@@ -6452,6 +6493,238 @@
    "Outils › Utilitaires stock › Produits périmables : recherche encore en cours après 20 minutes (lots peut-être non suivis).",
    "Évolutions du stock : un produit au stock négatif aberrant (≈ −45 M€) reste à identifier.",
    "Expertise complète des menus : document « Vindilis : expertise complète et plan d'action » du 25/10/2026."
+  ]
+ },
+ "apothical": {
+  "titre": "Cloud Apothical : ce qui compte pour le flux, le CA et la marge",
+  "releve": "Sondage complet du 25/10/2026 : 43 356 fichiers, dont 152 au nom de la pharmacie et 2 143 tableaux labos 2026. Rapport détaillé : « Cloud Apothical : sondage complet et plan d'action ».",
+  "essentiel": [
+   "Achats directs aux labos : environ 405 500 € → 120 000 € à période égale (−70 %, 56 labos). Cause confirmée le 25/10 : trésorerie insuffisante, livraisons restreintes ou bloquées par des labos impayés, paiement d'avance depuis le redressement judiciaire.",
+   "Remises de fin d'année (rétrocessions Apothical) : 4 607,26 € HT à fin septembre 2026, contre 36 455,95 € sur 2025. Cotisation : 24 000 € HT par an.",
+   "Carte de fidélité Apothical (ZeFid) : 3 303 cartes contre 10 918 en moyenne réseau, carte sur 3 % des tickets, aucune campagne envoyée.",
+   "Seule pharmacie Apothical de la Sarthe (141 adhérents) ; Apothical affiche encore l'ancienne adresse (257) : à faire corriger."
+  ],
+  "blocs": [
+   {
+    "titre": "Seuils de remise encore atteignables avant le 31/12/2026",
+    "c": "o",
+    "lecture": [
+     "Sigvaris — RFA partenariat, palier 1 à 5 000 € : 1 332 € ; reste 3 668 €.",
+     "Orliman — Premier palier RFA à 10 500 € : 7 443 € ; reste 3 057 €.",
+     "Boiron — 7 649 € en médication familiale (5 % + 2 % + 1 %) : 4 473 € ; reste 3 176 € ; Sédatif PC 24 u., Oscillo 24, Homéoplasmine 60, Arnipatch 12.",
+     "Kenvue — RFA seulement si CA > 17 000 € : 8 425 € ; reste ≈ 8 575 € ; assortiment 24/45, dermo 0/14.",
+     "Caudalie — Cible 30 000 € ; coop sur photo des TG : 10 025 € ; coop 0 € (pas de photo) ; à faire : envoyer les photos.",
+     "Perrigo — Coop 4 % (6 % au-delà de 20 000 €) : 1 + 5 mises en avant manquantes ; à faire : photos Compeed et mises en avant.",
+     "Arkopharma — 0,8 % de coop par trade validé (10 possibles) : 2 validés = 1,6 % ; reste 8 trades.",
+     "Procter — 45 références prioritaires : 16/45 ; reste 29 références (Bion3 0/14).",
+     "Biocodex — Contrat VIP : 69 références : 5 ; reste 64 références.",
+     "Mayoly — RFA assortiment 5,5 % : Assortiment incomplet : 0 € ; reste Smecta, Smectalia, Forlax, Pérubore.",
+     "Règle : avec la trésorerie disponible, acheter en direct d'abord chez ces labos ; le reste par CERP (sans remise directe, sans avance).",
+     "Source : atterrissages et suivis RFA des labos dans le cloud Apothical, fichiers de juin à septembre 2026."
+    ]
+   },
+   {
+    "titre": "Achats directs 2026 contre 2025, les 16 premiers labos",
+    "c": "r",
+    "h": [
+     "Labo",
+     "2025 (même période)",
+     "2026",
+     "Évolution"
+    ],
+    "l": [
+     [
+      "EA Pharma",
+      "26 756",
+      "10 668",
+      "−60 %"
+     ],
+     [
+      "UPSA",
+      "22 990",
+      "10 233",
+      "−55 %"
+     ],
+     [
+      "Procter",
+      "21 262",
+      "0",
+      "−100 %"
+     ],
+     [
+      "Elco (Estée Lauder)",
+      "21 113",
+      "0",
+      "−100 %"
+     ],
+     [
+      "Naos (Bioderma)",
+      "20 000",
+      "5 278",
+      "−74 %"
+     ],
+     [
+      "Bayer",
+      "18 919",
+      "5 745",
+      "−70 %"
+     ],
+     [
+      "Kenvue",
+      "16 390",
+      "8 425",
+      "−49 %"
+     ],
+     [
+      "Puressentiel",
+      "15 659",
+      "0",
+      "−100 %"
+     ],
+     [
+      "Eucerin",
+      "13 511",
+      "6 498",
+      "−52 %"
+     ],
+     [
+      "Forte Pharma",
+      "13 065",
+      "0",
+      "−100 %"
+     ],
+     [
+      "Caudalie",
+      "10 609",
+      "10 025",
+      "−6 %"
+     ],
+     [
+      "Nuxe",
+      "10 475",
+      "4 408",
+      "−58 %"
+     ],
+     [
+      "La Rosée",
+      "10 410",
+      "0",
+      "−100 %"
+     ],
+     [
+      "Luxeol",
+      "9 597",
+      "814",
+      "−92 %"
+     ],
+     [
+      "Expanscience",
+      "9 100",
+      "4 379",
+      "−52 %"
+     ],
+     [
+      "Chauvin",
+      "9 079",
+      "0",
+      "−100 %"
+     ]
+    ],
+    "lecture": [
+     "En hausse : Pileje +17 % (remise sur facture 41 %), Gilbert 6 419 € contre 2 912 €, ROC (implanté le 01/04/2026), Thuasne +25 %, Teva génériques +30 %. L'Oréal (LRP, Vichy, CeraVe) +1,6 % avec le grossiste."
+    ]
+   },
+   {
+    "titre": "Rétrocessions 2026 à encaisser (factures pharmacie → Apothical, 60 jours)",
+    "c": "o",
+    "h": [
+     "N°",
+     "Facture",
+     "TTC",
+     "Échéance",
+     "État"
+    ],
+    "l": [
+     [
+      "01",
+      "FF00008162",
+      "1 216,38",
+      "29/07/2026",
+      "Échue : vérifier l'encaissement"
+     ],
+     [
+      "02",
+      "FF00008249",
+      "900,00",
+      "23/08/2026",
+      "Échue : vérifier"
+     ],
+     [
+      "03",
+      "FF00008456",
+      "280,70",
+      "03/09/2026",
+      "Échue : vérifier"
+     ],
+     [
+      "04",
+      "FF00008715",
+      "1 865,29",
+      "29/09/2026",
+      "Échue : vérifier"
+     ],
+     [
+      "05",
+      "FF00008985",
+      "975,67",
+      "28/10/2026",
+      "À venir"
+     ],
+     [
+      "06",
+      "FF00009254",
+      "290,66",
+      "30/11/2026",
+      "À venir"
+     ]
+    ],
+    "lecture": [
+     "À payer à Apothical : calendriers de l'Avent FA00006948 (744,48 € TTC) et FA00007296 (4 913,57 € TTC) à réception ; cotisation T4 FA00007435 (7 200 € TTC) par prélèvement."
+    ]
+   },
+   {
+    "titre": "Outils gratuits du groupement pour faire venir les clients",
+    "c": "",
+    "lecture": [
+     "Carte fidélité / ZeFid : 2 % de cagnotte para, −5 % bienvenue, 2 € anniversaire, offres à 30 % tous les 15 jours, SMS et e-mails. Aujourd'hui : 3 % des tickets, aucune campagne.",
+     "Club Gen Z 18-25 ans : 10 % de cagnotte sur une sélection. Aujourd'hui : Non suivi.",
+     "Apothical&vous : 4 labos par mois, PLV C-Media, newsletters à 1,35 million d'encartés, écrans. Aujourd'hui : Non mesuré.",
+     "Marque exclusive (13 compléments) : Marge 63 % (ex. Défense 30 : 3,48 € HT → 9,90 € TTC) ; pack 627,24 € HT. Aujourd'hui : Non référencée.",
+     "Borne Medadom : 711 téléconsultations d'avril à décembre 2025 (46 → 95 par mois). Aujourd'hui : À signaler en vitrine et sur Google.",
+     "Top 100 du réseau : Prix médian réseau et prix concurrents des 100 meilleures ventes. Aujourd'hui : À croiser avec nos prix.",
+     "Novembre : Apothicare Days le 5/11 à Marseille (2 personnes) ; Apothical&vous J&J Collagen Bank, Pranarom, SVR Topialyse, Uriage Roséliane ; Movember, Mois sans tabac, 14/11 diabète. Décembre : calendrier de l'Avent (152 unités achetées)."
+    ]
+   }
+  ],
+  "faire": [
+   "Utiliser l'identité Apothical (enseigne, vitrophanies, réseaux sociaux).",
+   "Avoir en place : carte fidélité, carte Gen Z, Apothical&vous, coups de cœur, trade boosté, marque propre, l'extracteur.",
+   "Participer au séminaire, aux Apothicare Days, au Forum des marques.",
+   "Suivre les choix du groupement (génériqueurs, grossistes, labos) et faire le trade mensuel.",
+   "Informer le groupement des projets majeurs."
+  ],
+  "interdit": [
+   "Organiser un jeu-concours (seul Apothical le peut).",
+   "Faire un partenariat avec un influenceur (seul Apothical).",
+   "Un programme de fidélité valable dans la seule pharmacie (la carte Apothical, elle, est autorisée).",
+   "Mélanger sur un même support publicité de l'officine et publicité de médicaments ; tracts ou envois groupés de prix sur les médicaments (décret du 3 mars 2026).",
+   "Newsletter : enquête collectant des données de santé, promotion de médicaments ou dispositifs médicaux."
+  ],
+  "manque": [
+   "Extraire de Vindilis les commandes directes 2026 par labo et par mois, comparées à 2025.",
+   "Lire les conditions 2026 de chaque labo (1 276 fichiers « contrats tarifs et CGV ») et les confronter aux prix d'achat Vindilis.",
+   "14 fichiers labos trop lourds non lus (dont Elco septembre).",
+   "Vérifier sur les relevés l'encaissement des rétrocessions 1 à 4."
   ]
  }
 }
