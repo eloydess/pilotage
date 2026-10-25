@@ -1,6 +1,6 @@
 {
  "maj": "2026-10-25",
- "version": "5",
+ "version": "7.12",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
   "Vindilis (25/10) : commandes directes reçues 597 669 € contre 1 547 916 € à période égale (−61 %) ; CERP +8 % dans Vindilis, +21 % sur l'extranet CERP à fin septembre.",
@@ -138,6 +138,34 @@
    "gain": 0,
    "cout": 0,
    "rang": 3
+  },
+  {
+   "id": "P0o",
+   "pil": "marge",
+   "titre": "Opeaz : déposer les 38 demandes de compensation et les justificatifs manquants (85 opérations) avant leur date limite",
+   "pourquoi": "Ce sont des remises labos déjà gagnées (opérations terminées) qui ne seront pas payées si la demande n'est pas envoyée ou si la preuve manque.",
+   "qui": "Titulaire ou personne en charge des labos",
+   "quand": "Avant le 31/10 pour les opérations de septembre ; puis chaque début de mois",
+   "base": "38 demandes à faire ; 85 justificatifs manquants ; 28 demandes transmises (25/10/2026)",
+   "obj": "0 demande en attente et moins de 10 justificatifs manquants au 30/11",
+   "mesure": "Opeaz › Tableau de bord — chaque lundi",
+   "gain": 0,
+   "cout": 0,
+   "rang": 3
+  },
+  {
+   "id": "P0z",
+   "pil": "revenir",
+   "titre": "ZeFid : SMS aux 1 462 clients encartés sans achat depuis 6 à 24 mois, avant le 7/11 (à valider : texte, offre, coût)",
+   "pourquoi": "Les clients actifs encartés baissent de 19 % et le CA fidélité d'octobre de 24 %. Aucune opération n'est en cours.",
+   "qui": "Titulaire (validation) ; envoi par ZeFid",
+   "quand": "Validation cette semaine ; envoi avant le 7/11",
+   "base": "Sélection : 1 939 clients, 1 462 contactables SMS ; CA fidélité octobre 7 229,19 €",
+   "obj": "Taux de retour mesuré à 30 jours dans ZeFid (opération › statistiques)",
+   "mesure": "ZeFid › Mes opérations — retour à J+15 et J+30",
+   "gain": 0,
+   "cout": 0,
+   "rang": 4
   },
   {
    "id": "P0l",
@@ -381,7 +409,7 @@
    "id": "P10",
    "rang": 21,
    "pil": "transformer",
-   "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
+   "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, sans baisse de prix : les produits d'appel sont déjà sous la médiane France (GERS, 25/10)",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
    "qui": "Toute l'équipe",
    "quand": "Novembre",
@@ -3479,12 +3507,13 @@
   ]
  },
  "prixAppel": {
-  "titre": "Vos produits phares sont parfois plus chers que la médiane de votre propre groupement",
+  "titre": "Vos produits phares sont moins chers que la médiane France : ne pas baisser",
   "lecture": [
-   "Comparaison avec le TOP 100 Apothical (médiane des prix des pharmacies du groupement, fichier du cloud, données 2024) ; vos prix sont ceux affichés dans Vindilis le 25/10/2026.",
-   "Sur ces produits connus de tous, le client juge le prix de toute la pharmacie (image prix). Physiodose est déjà bien placé (2,49 €).",
-   "Recommandation : aligner Cicaplast et Cicalfate sur la médiane du groupement. Coût ≈ 770 € de marge HT par an à volume constant, à récupérer si les ventes montent de quelques boîtes par semaine. Validation prix avant toute modification dans Vindilis.",
-   "Autre constat : sur les produits du TOP 100 que vous vendez, vos volumes sont en médiane à 55 % de ceux d'une pharmacie moyenne du groupement, alors que vous êtes la plus grande pharmacie des Pays de la Loire. La marge de progression est là."
+   "Médiane France = prix de vente TTC constaté dans les pharmacies du panel GERS (SOG Now), 28 derniers jours, relevé le 25/10/2026. Vos prix = Vindilis le 25/10/2026.",
+   "Sur les 9 produits comparés, vous êtes sous la médiane France sur les 9 (de −2 % à −16 %). L'image prix est déjà bonne : aucune baisse à faire. La recommandation du 25/10 (aligner Cicaplast et Cicalfate à la baisse) est retirée.",
+   "La médiane Apothical vient d'un fichier 2024 du groupement : elle est plus basse, mais ancienne. À revérifier avec le Top 100 2026 si le groupement le publie.",
+   "Piste marge (à valider, pas avant d'avoir regardé les prix des concurrents du quartier) : Lipikar 400 ml, Effaclar 400 ml et Cicaplast 40 ml sont à 10-11 % sous la médiane France.",
+   "Neutraderm gel douche 1 L et Klorane lingettes ×70 : non trouvés dans GERS sous ce format. Physiodose comparé sur votre référence 3518646266638."
   ],
   "l": [
    {
@@ -3493,7 +3522,9 @@
     "med": 2.99,
     "ecart": -17,
     "q": 433,
-    "cout": 0
+    "cout": 0,
+    "fr": 2.95,
+    "efr": -16
    },
    {
     "p": "CICAPLAST baume B5+ 100 ml",
@@ -3501,7 +3532,9 @@
     "med": 13.9,
     "ecart": 22,
     "q": 96,
-    "cout": 247
+    "cout": 0,
+    "fr": 17.3,
+    "efr": -2
    },
    {
     "p": "CICAPLAST baume B5 40 ml",
@@ -3509,7 +3542,9 @@
     "med": 8.5,
     "ecart": 12,
     "q": 214,
-    "cout": 177
+    "cout": 0,
+    "fr": 10.5,
+    "efr": -10
    },
    {
     "p": "EFFACLAR gel moussant 400 ml",
@@ -3517,7 +3552,9 @@
     "med": 13.5,
     "ecart": 4,
     "q": 52,
-    "cout": 21
+    "cout": 0,
+    "fr": 15.8,
+    "efr": -11
    },
    {
     "p": "CICALFATE+ crème 40 ml",
@@ -3525,7 +3562,9 @@
     "med": 8.95,
     "ecart": 9,
     "q": 212,
-    "cout": 148
+    "cout": 0,
+    "fr": 10.4,
+    "efr": -6
    },
    {
     "p": "CICALFATE+ crème 100 ml",
@@ -3533,7 +3572,9 @@
     "med": 13.99,
     "ecart": 11,
     "q": 161,
-    "cout": 201
+    "cout": 0,
+    "fr": 16.9,
+    "efr": -8
    },
    {
     "p": "CERAVE gel moussant anti-imperfections 236 ml",
@@ -3541,7 +3582,9 @@
     "med": 10.99,
     "ecart": 5,
     "q": 243,
-    "cout": 101
+    "cout": 0,
+    "fr": 11.9,
+    "efr": -3
    },
    {
     "p": "MUSTELA gel lavant doux 500 ml",
@@ -3549,7 +3592,9 @@
     "med": 8.6,
     "ecart": 5,
     "q": 212,
-    "cout": 69
+    "cout": 0,
+    "fr": 9.15,
+    "efr": -2
    },
    {
     "p": "LIPIKAR baume AP+M 400 ml",
@@ -3557,7 +3602,9 @@
     "med": 22.45,
     "ecart": 7,
     "q": 90,
-    "cout": 115
+    "cout": 0,
+    "fr": 26.9,
+    "efr": -11
    },
    {
     "p": "NEUTRADERM gel douche 1 L (avec bon −2 €)",
@@ -3930,7 +3977,7 @@
   ],
   "code": [
    "1 seule couleur « PROMO » (cadre d'étiquette électronique + macaron) et seulement sur les produits réellement en promotion. Prix barré = le plus bas prix pratiqué dans les 30 jours précédents (règle des annonces de réduction depuis 2022).",
-   "1 repère « PETIT PRIX TOUTE L'ANNÉE » sur les produits d'appel alignés (Physiodose, Cicaplast, Cicalfate, Neutraderm…) et sur la marque exclusive Apothical.",
+   "1 repère « PETIT PRIX TOUTE L'ANNÉE » sur les produits d'appel (Physiodose, Cicaplast, Cicalfate, Neutraderm…) et sur la marque exclusive Apothical.",
    "Chaque tête de gondole = 1 marque, 1 message, 1 prix lisible à 3 mètres, rayon rempli en profondeur ; photo déposée sur Opeaz le jour même.",
    "Les 3 à 5 premiers mètres restent dégagés ; la table « bons plans du mois » se place juste après, au premier point de décision.",
    "Stop-rayons « Le choix de l'équipe » (présentoir coups de cœur Apothical) sur 10 produits conseil : c'est la preuve sociale, autorisée, sans comparaison avec d'autres pharmacies.",
@@ -6801,6 +6848,28 @@
      "Top 100 du réseau : Prix médian réseau et prix concurrents des 100 meilleures ventes. Aujourd'hui : À croiser avec nos prix.",
      "Novembre : Apothicare Days le 5/11 à Marseille (2 personnes) ; Apothical&vous J&J Collagen Bank, Pranarom, SVR Topialyse, Uriage Roséliane ; Movember, Mois sans tabac, 14/11 diabète. Décembre : calendrier de l'Avent (152 unités achetées)."
     ]
+   },
+   {
+    "titre": "Opeaz : opérations labos et compensations (relevé du 25/10/2026)",
+    "c": "",
+    "lecture": [
+     "Tableau de bord : 85 opérations où il manque un justificatif ; 38 demandes de compensation à faire ; 109,48 € de compensations pour le mois en cours ; 194 opérations auxquelles vous participez ; 28 demandes transmises.",
+     "Les 38 compensations à demander concernent des opérations terminées encore réclamables : Mayoly Topicrem, Joone, La Roche-Posay, Pierre Fabre Oral Care, Eucerin, CeraVe, Forte Pharma, Urgo, Procter & Gamble, A-Derma, Avène, Ducray, Klorane, René Furterer, Bioderma, Rogé Cavaillès, Uriage, Noreva, Vichy (lecture des 30 premières lignes sur 38).",
+     "En cours jusqu'au 31/10 : A-Derma Exomega, Avène Cleanance et anti-âge, Ducray Ictyane / Keracnyl / anti-chute, Klorane, Elgydium, René Furterer, Bioderma Atoderm 1 L, Bi-Oil, SVR, Nuhanciam, Puressentiel, Léa Nature, Urgo Alvityl et Belloc, ROC, Codexial, Alphanova, Guigoz, Topicrem. Jusqu'au 30/11 : Havea Force G, Urgo Alvityl bien-être.",
+     "Montant total des 38 compensations : non affiché sur la liste [MANQUANT] ; à lire dans chaque opération."
+    ]
+   },
+   {
+    "titre": "ZeFid : fidélité (relevé du 25/10/2026)",
+    "c": "",
+    "lecture": [
+     "3 315 clients encartés (moyenne nationale 10 925) ; âge moyen 45 ans.",
+     "Clients actifs 12 mois : 1 492 (période précédente 1 839, −19 %). Nouveaux encartés 12 mois : 1 003 (1 759, −43 %).",
+     "Contactables : SMS 77,2 % ; e-mail 26 % ; courrier 83,4 %.",
+     "CA fidélité octobre 2026 : 7 229,19 € (octobre 2025 : 9 521,27 €, −24 %). Panier moyen octobre 2026 : 38,45 € (33,06 €, +16 %). Fréquence 2025 : 2,3 visites.",
+     "Aucune opération en cours.",
+     "Sélection prête (non enregistrée) : dernier achat entre le 25/10/2024 et le 25/04/2026 → 1 939 clients, dont 1 462 contactables SMS."
+    ]
    }
   ],
   "faire": [
@@ -6820,7 +6889,8 @@
   "manque": [
    "Lire les conditions 2026 de chaque labo (1 276 fichiers « contrats tarifs et CGV ») et les confronter aux prix d'achat Vindilis.",
    "14 fichiers labos trop lourds non lus (dont Elco septembre).",
-   "Vérifier sur les relevés l'encaissement des rétrocessions 1 à 4."
+   "Vérifier sur les relevés l'encaissement des rétrocessions 1 à 4.",
+   "Coût d'un SMS ZeFid : non affiché avant la création de l'opération [MANQUANT]."
   ]
  }
 }
