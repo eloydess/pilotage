@@ -3385,8 +3385,53 @@
  },
  "paiements": {
   "titre": "Quoi payer, et dans quel ordre : d'abord ce qui remet en rayon les produits qui font venir",
-  "lecture": "Établi le 25/10/2026 à partir du suivi RJ (106 dossiers ouverts, dont 55 sans montant saisi ; j'ai lu 29 pièces pour compléter) croisé avec les ruptures Vindilis. Chaque paiement reste soumis à la validation de l'administrateur. Les montants manquants sont marqués « à lire ».",
+  "lecture": "Établi le 25/10/2026 à partir du suivi RJ (106 dossiers ouverts, dont 55 sans montant saisi ; j'ai lu 29 pièces pour compléter) croisé avec les ruptures Vindilis. Chaque paiement reste soumis à la validation de l'administrateur. Les montants manquants sont marqués « à lire ». Chaque nouveau document (courrier, facture, relance, décision) est classé dans ce barème et l'ordre est recalculé ; je vous dis ce qui a bougé.",
   "vagues": [
+   {
+    "nom": "Vague 0 — obligations de la procédure et de l'exploitation : toujours en premier",
+    "quand": "à chaque échéance",
+    "c": "#6a1b9a",
+    "pourquoi": "Ce qui fait tenir la procédure et l'officine passe avant tout : salaires, URSSAF, KLESIA, loyer, et les frais nés de la procédure (administrateur, inventaire, greffe). Ne pas les payer met en danger la période d'observation.",
+    "l": [
+     {
+      "n": "43 + 84",
+      "t": "KLESIA",
+      "m": 6338.08,
+      "ref": "Cotisations",
+      "pour": "Obligatoire, à l'échéance"
+     },
+     {
+      "n": "86",
+      "t": "Trajectoire (administrateur)",
+      "m": 8495.21,
+      "ref": "Facture 20260323",
+      "pour": "Honoraires de l'administrateur : vous avez commencé à les régler, on continue sans interruption"
+     },
+     {
+      "n": "33",
+      "t": "Greffe",
+      "m": 468.54,
+      "ref": "Procédure 4123619",
+      "pour": "Obligatoire"
+     },
+     {
+      "n": "—",
+      "t": "Inventaire (commissaire-priseur)",
+      "m": null,
+      "ref": "Facture à me transmettre",
+      "pour": "Frais de la procédure : à payer comme l'administrateur"
+     },
+     {
+      "n": "—",
+      "t": "Salaires, URSSAF, loyer Carmila",
+      "m": null,
+      "ref": "Déjà dans les charges mensuelles de l'application",
+      "pour": "25 du mois, 16 du mois, 15 du mois"
+     }
+    ],
+    "total": 15301.83,
+    "inconnus": 1
+   },
    {
     "nom": "Vague 1 — cette semaine (validation demandée lundi 26/10)",
     "quand": "avant le 30/10",
@@ -3588,27 +3633,6 @@
       "pour": ""
      },
      {
-      "n": "43 + 84",
-      "t": "KLESIA",
-      "m": 6338.08,
-      "ref": "Cotisations",
-      "pour": "Obligatoire, à l'échéance"
-     },
-     {
-      "n": "86",
-      "t": "Trajectoire (administrateur)",
-      "m": 8495.21,
-      "ref": "Facture 20260323",
-      "pour": "Obligatoire, selon accord"
-     },
-     {
-      "n": "33",
-      "t": "Greffe",
-      "m": 468.54,
-      "ref": "Procédure 4123619",
-      "pour": "Obligatoire"
-     },
-     {
       "n": "40",
       "t": "Leasecom",
       "m": 4305.6,
@@ -3623,7 +3647,7 @@
       "pour": "Selon décision sur les contrats"
      }
     ],
-    "total": 40990.13,
+    "total": 25688.3,
     "inconnus": 0
    },
    {
@@ -3692,6 +3716,14 @@
     "total": null,
     "inconnus": 0
    }
+  ],
+  "regle": [
+   "0 — Obligations : salaires, charges sociales, loyer, frais de la procédure (administrateur, inventaire, greffe), énergie, logiciel.",
+   "1 — Ce qui fait venir des clients vite : fournisseurs de produits en rupture, proformas avec date d'annulation.",
+   "2 — Ce qui protège le chiffre : laboratoires qui font la marge, stock des animations datées.",
+   "3 — Le reste, à l'échéance, pas avant.",
+   "✕ — Jamais : une dette d'avant le 30/06/2026 (elle se déclare au mandataire).",
+   "Dans un même niveau : d'abord ce qui a une date limite (annulation, pénalité, blocage), puis ce qui ramène le plus de clients et de marge."
   ]
  }
 }
