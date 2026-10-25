@@ -93,6 +93,20 @@
  ],
  "priorites": [
   {
+   "id": "P00",
+   "pil": "revenir",
+   "titre": "Ordonnance : ne plus perdre un seul patient (−11,6 % d'ordonnances par jour en octobre) — zéro produit promis non servi, génériques Zentiva toujours en stock, relance des traitements chroniques, deux personnes à l'ordonnance aux heures de pointe",
+   "pourquoi": "L'ordonnance fait 73 % du CA et les patients chroniques reviennent chaque mois : en perdre un, c'est perdre 12 visites par an. Le recul a commencé en septembre (−10 %).",
+   "qui": "Titulaire (commandes) ; référente campagnes (relances)",
+   "quand": "Dès lundi 26/10",
+   "base": "188,8 ordonnances par jour (octobre 2026) contre 213,7 (octobre 2025)",
+   "obj": "Revenir à 205 par jour en novembre, puis au niveau 2025 en décembre",
+   "mesure": "Ordonnances par jour d'ouverture (Vindilis › Pilotage › Ordonnances), chaque lundi",
+   "gain": 300,
+   "cout": 0,
+   "rang": 1
+  },
+  {
    "id": "P0",
    "pil": "transformer",
    "titre": "Zéro rupture sur les produits qui font venir : 166 références à 0 en stock à l'entrée de l'hiver (Vicks, Humex, Nurofen, Efferalgan, Imodium, Physiodose, CeraVe, Topicrem, FreeStyle Libre…)",
@@ -104,7 +118,7 @@
    "mesure": "Relevé du stock chaque lundi (onglet Ruptures)",
    "gain": 150,
    "cout": 0,
-   "rang": 1
+   "rang": 2
   },
   {
    "id": "P0b",
@@ -118,7 +132,7 @@
    "mesure": "Livraisons reçues ; ruptures levées",
    "gain": 0,
    "cout": 0,
-   "rang": 2
+   "rang": 3
   },
   {
    "id": "P0c",
@@ -132,11 +146,11 @@
    "mesure": "Ventes par tête de gondole, semaine avant / après ; rémunérations Opeaz reçues",
    "gain": 60,
    "cout": 0,
-   "rang": 3
+   "rang": 4
   },
   {
    "id": "P1",
-   "rang": 4,
+   "rang": 5,
    "pil": "capter",
    "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
    "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
@@ -150,7 +164,7 @@
   },
   {
    "id": "P2",
-   "rang": 5,
+   "rang": 6,
    "pil": "revenir",
    "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
    "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
@@ -164,7 +178,7 @@
   },
   {
    "id": "P3",
-   "rang": 6,
+   "rang": 7,
    "pil": "trouve",
    "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
    "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
@@ -178,7 +192,7 @@
   },
   {
    "id": "P4",
-   "rang": 7,
+   "rang": 8,
    "pil": "raison",
    "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
    "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
@@ -192,7 +206,7 @@
   },
   {
    "id": "P6",
-   "rang": 8,
+   "rang": 9,
    "pil": "transformer",
    "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
    "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
@@ -206,7 +220,7 @@
   },
   {
    "id": "P7",
-   "rang": 9,
+   "rang": 10,
    "pil": "capter",
    "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
    "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
@@ -220,7 +234,7 @@
   },
   {
    "id": "P8",
-   "rang": 10,
+   "rang": 11,
    "pil": "raison",
    "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
    "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
@@ -234,7 +248,7 @@
   },
   {
    "id": "P9",
-   "rang": 11,
+   "rang": 12,
    "pil": "trouve",
    "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
    "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
@@ -248,7 +262,7 @@
   },
   {
    "id": "P10",
-   "rang": 12,
+   "rang": 13,
    "pil": "transformer",
    "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
@@ -271,6 +285,12 @@
     {
      "d": "2026-10-26",
      "t": [
+      {
+       "id": "s1o",
+       "txt": "Ordonnance : lister les produits promis non servis et les génériques Zentiva en rupture (Statistiques › Produits › Ruptures, détail du jour) et les commander en priorité, chaque jour",
+       "qui": "Titulaire",
+       "mesure": "Ruptures du jour"
+      },
       {
        "id": "s1r",
        "txt": "Commander les produits en rupture (onglet Ruptures, du plus vendu au moins vendu) : vous validez les quantités, je peux préparer les commandes",
@@ -317,6 +337,12 @@
     {
      "d": "2026-10-27",
      "t": [
+      {
+       "id": "s1o2",
+       "txt": "Sortir de Vindilis la liste des patients chroniques venus avant septembre et pas revenus depuis : appel ou SMS par la référente campagnes",
+       "qui": "Référente campagnes & vaccination",
+       "mesure": "Patients rappelés / revenus"
+      },
       {
        "id": "s1f",
        "txt": "Rédiger le SMS ZeFid du 4/11 et la liste des cibles (dormants + futurs inactifs)",
@@ -881,6 +907,12 @@
   }
  ],
  "questions": [
+  {
+   "id": "q0",
+   "q": "Qu'est-ce qui a changé fin août – début septembre autour de l'ordonnance (médecin ou maison de santé du secteur, pharmacie qui ouvre, équipe au comptoir ordonnance, fournisseur bloqué) ?",
+   "reco": "",
+   "opts": []
+  },
   {
    "id": "q1",
    "q": "Fiche Google au 309 en test de 3 mois, avis gérés par Myli (déjà payé par Apothical) : on y va ?",
@@ -4827,6 +4859,176 @@
      "quoi": "3 racks + 1 facing, photo obligatoire (accord annuel)",
      "note": "Rémunéré à l'année."
     }
+   ]
+  }
+ },
+ "vindilis": {
+  "releve": "Relevé Vindilis du dimanche 25/10/2026 (Statistiques › Pilotage, Ventes, Vendeurs, Ruptures). Octobre 2026 = du 1er au 24/10 (21 jours d'ouverture) ; octobre 2025 = mois complet (27 jours) : comparaison par jour d'ouverture.",
+  "ordo": {
+   "titre": "Le recul vient surtout des patients avec ordonnance, depuis septembre",
+   "l": [
+    [
+     "Juillet",
+     4901,
+     4945,
+     "+0,9 %"
+    ],
+    [
+     "Août",
+     4768,
+     4672,
+     "−2,0 %"
+    ],
+    [
+     "Septembre",
+     5137,
+     4624,
+     "−10,0 %"
+    ],
+    [
+     "Octobre (par jour)",
+     "213,7",
+     "188,8",
+     "−11,6 %"
+    ]
+   ],
+   "lecture": [
+    "Clients réels par jour en octobre (ventes − 2 × recyclage) : 414,6 contre 467,6 en 2025 (−11,3 %).",
+    "Ventes sans ordonnance par jour : 222 contre 233 (−4,8 %). Montant des ordonnances par jour : 9 418 € contre 10 190 € (−7,6 %).",
+    "Marge du 1er au 24/10 (statistiques vendeurs) : ≈ 62 900 €, soit ≈ 2 990 € par jour d'ouverture, contre ≈ 2 840 € par jour en septembre : la marge par jour tient mieux que la fréquentation.",
+    "Recyclage : 77 en octobre 2026 contre 559 en octobre 2025 (relevé Pilotage › Recyclage).",
+    "Ruptures enregistrées par Vindilis : ≈ 5 000 par mois depuis deux ans (graphique Statistiques › Produits › Ruptures) ; le 24/10, surtout des génériques Zentiva prescrits."
+   ]
+  },
+  "vendeurs": {
+   "titre": "Ventes par collaborateur, du 1er au 24 octobre 2026",
+   "l": [
+    [
+     "ZARDET CHRISTEL",
+     225,
+     7111.84,
+     2019.46,
+     8.98
+    ],
+    [
+     "BOURGEON Aline",
+     250,
+     9423.28,
+     2267.36,
+     9.07
+    ],
+    [
+     "POIRIER Alban",
+     572,
+     20815.01,
+     4722.96,
+     8.26
+    ],
+    [
+     "YOUSRI nassim",
+     799,
+     36923.67,
+     6557.99,
+     8.21
+    ],
+    [
+     "FRETAULT Suzon",
+     964,
+     23377.51,
+     5844.67,
+     6.06
+    ],
+    [
+     "CARON Mylène",
+     1041,
+     36088.29,
+     8083.84,
+     7.77
+    ],
+    [
+     "BOIVIN Antoine",
+     1098,
+     31773.94,
+     7946.21,
+     7.24
+    ],
+    [
+     "PALLANY Dylan",
+     1114,
+     25894.47,
+     7171.1,
+     6.44
+    ],
+    [
+     "CHANTELOUBE Sandy",
+     1129,
+     28607.47,
+     7108.05,
+     6.3
+    ],
+    [
+     "DASI Sidney",
+     1160,
+     31950.21,
+     7927.83,
+     6.83
+    ],
+    [
+     "TEMBO Océane",
+     185,
+     3464.56,
+     913.82,
+     4.94
+    ],
+    [
+     "MEDJIDOV Gadji",
+     132,
+     3090.44,
+     1059.75,
+     8.03
+    ],
+    [
+     "GOUIN Pierre",
+     104,
+     1796.91,
+     783.8,
+     7.54
+    ],
+    [
+     "LEFRAY AUDREY",
+     100,
+     786.0,
+     432.32,
+     4.32
+    ]
+   ]
+  },
+  "recyclage": {
+   "2025": [
+    101,
+    132,
+    66,
+    86,
+    129,
+    160,
+    368,
+    503,
+    617,
+    559,
+    333,
+    223
+   ],
+   "2026": [
+    241,
+    211,
+    327,
+    188,
+    202,
+    118,
+    214,
+    154,
+    172,
+    77
    ]
   }
  }
