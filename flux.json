@@ -6958,84 +6958,40 @@
    },
    {
     "d": "2026-10-26",
-    "t": "2026-10-26 10:30",
-    "jour": "Lun. 26/10",
-    "h": "10 h 30 – 11 h",
-    "titre": "Visio hebdomadaire avec l'administrateur (Me Beaussart)",
-    "doute": "enchaîné sans pause après La Roche-Posay, puis PF Médoc à 11 h",
-    "resume": "Le moment pour faire valider les paiements de la semaine.",
-    "chiffres": [
-     [
-      "Vague 1 à faire valider",
-      "19 014,94 € + 3 factures Urgo (montants à relever) ; P&G 3 006,29 € avant le 01/11"
-     ],
-     [
-      "Virement entre vos comptes",
-      "10 000 € de la BPGO vers la Caisse d'Épargne (25/10) pour couvrir le prélèvement CERP"
-     ],
-     [
-      "Caisse d'Épargne",
-      "71 552,51 € au 25/10, avant salaires (22 593,87 €), rémunération (4 500 €) et CERP (39 051,07 €)"
-     ],
-     [
-      "À récupérer",
-      "Dynamiz : 363,38 € prélevés le 22/10 pour 2 factures d'avant le jugement (27/05 et 25/06)"
-     ]
-    ],
-    "obtenir": [
-     "La validation écrite de la vague 1, pour payer lundi après-midi",
-     "Son accord sur la règle : achats directs aux labos à seuil de remise atteignable (Sigvaris, Orliman, Boiron, Kenvue)"
-    ],
-    "dire": [
-     "Haleon (2 866,89 €) et Aboca (1 946,80 €) : pièces probablement antérieures au 30/06, à déclarer et non à payer — lui demander confirmation"
-    ],
-    "refuser": [],
-    "apres": [
-     "Noter les décisions dans « Quoi payer »"
-    ]
-   },
-   {
-    "d": "2026-10-26",
     "jour": "Lun. 26/10",
     "h": "11 h",
-    "titre": "PF Médoc",
-    "doute": "laboratoire à confirmer : Pierre Fabre (médication) ?",
-    "resume": "Pierre Fabre : achats en forte baisse, Oral Care et Ducray sans RFA au 1er semestre.",
+    "titre": "Pierre Fabre Médicament",
+    "resume": "Médicaments Pierre Fabre achetés par la CERP (pas de compte direct dans Vindilis) ; le groupe Pierre Fabre a fortement baissé chez vous en 2026.",
     "chiffres": [
      [
-      "Pierre Fabre Santé Prévention : CA HT 12 mois",
-      "36 902 €"
+      "Pierre Fabre Médicament : ventes 12 mois",
+      "[MANQUANT] : non lisible dans la base Vindilis par laboratoire ce soir"
      ],
      [
-      "Marge 12 mois (taux)",
-      "12 537 € (34 %)"
+      "Compte direct Pierre Fabre Médicament dans Vindilis",
+      "aucun : achats par la CERP"
      ],
      [
-      "Commandes directes 2025 → 2026 (même période)",
-      "10 172 € → 7 017 €"
+      "Factures du groupe Pierre Fabre (Digipharmacie, HT, toutes divisions)",
+      "87 860 € en 2025 → 36 338 € en 2026 au 25/10 ; avoirs 6 386 € → 5 448 €"
      ],
      [
-      "Pierre Fabre Santé Dentaire : commandes directes",
-      "16 538 € → 1 779 €"
+      "Pierre Fabre Santé Prévention : CA / marge 12 mois",
+      "36 902 € / 12 537 € (34 %)"
      ],
      [
-      "Factures Pierre Fabre reçues (Digipharmacie, au 24/10)",
-      "76 607 € en 2025 → 30 889 € en 2026"
-     ],
-     [
-      "RFA 1er semestre (cloud Apothical)",
+      "RFA 1er semestre du groupe (cloud Apothical)",
       "Avène 255,72 € ; A-Derma 70,80 € ; Ducray −100 % ; Oral Care −88 %"
      ]
     ],
     "obtenir": [
-     "Le recalage des objectifs 2026 sur les mois depuis le redressement judiciaire (achats bloqués avant le 30/06)",
-     "Des conditions de paiement à réception ou à 30 jours, pour revenir à des commandes directes plutôt que par la CERP",
-     "La liste des opérations de novembre et décembre (Black Friday, coffrets) avec leur compensation"
+     "Ses conditions s'il existe une offre « direct » Pierre Fabre Médicament (remise, franco, paiement à réception) plus intéressante que la CERP",
+     "Le recalage des objectifs 2026 du groupe sur la période depuis le redressement judiciaire",
+     "Les opérations d'hiver médication (gorge, toux, douleur) avec leur compensation"
     ],
     "dire": [
-     "Vous êtes la plus grande pharmacie des Pays de la Loire : 1 000 m² et des entrées des deux côtés",
-     "Vos prix Cicalfate et Avène sont déjà sous la médiane France (GERS) : l'image prix est bonne",
-     "Quels produits Pierre Fabre font venir des clients en hiver (Elgydium, Inava, Avène Cold Cream) et à quelles conditions ?"
+     "Vous êtes la plus grande pharmacie des Pays de la Loire : 1 000 m², 2 entrées",
+     "Demandez-lui le chiffre d'affaires Pierre Fabre Médicament de la pharmacie qu'il suit, 2025 et 2026 : c'est la base pour négocier"
     ],
     "refuser": [
      "Une commande sans paiement validé par l'administrateur",
