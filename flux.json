@@ -6902,50 +6902,55 @@
     "t": "2026-10-26 09:00",
     "jour": "Lun. 26/10",
     "h": "9 h – 10 h 30",
-    "titre": "La Roche-Posay (L'Oréal Dermatologie)",
-    "resume": "Votre 1er labo dermo ; 7 références CeraVe / La Roche-Posay en rupture, factures à payer en vague 1.",
+    "titre": "La Roche-Posay (déléguée ou délégué La Roche-Posay uniquement)",
+    "resume": "Votre 1er labo dermo par la marge ; 15 références La Roche-Posay en alerte sans commande dans Vindilis.",
     "chiffres": [
      [
-      "La Roche-Posay : CA HT 12 mois / marge",
-      "45 460 € / 14 088 € (31 %)"
+      "CA HT 12 mois",
+      "45 460 €"
      ],
      [
-      "CeraVe : CA / marge",
-      "19 594 € / 5 675 € (29 %)"
+      "Marge 12 mois (taux)",
+      "14 088 € (31 %) — classe A"
      ],
      [
-      "Vichy : CA / marge",
-      "19 424 € / 4 392 € (23 %)"
+      "Commandes directes reçues, 01/01 → 25/10",
+      "2025 : 24 305 € (39 commandes) → 2026 : 17 641 € (17 commandes), −27 %"
      ],
      [
-      "Commandes directes 2025 → 2026",
-      "La Roche-Posay 24 305 € → 17 641 € ; CeraVe 10 421 € → 7 450 € ; Vichy 5 938 € → 3 927 €"
+      "Commandé en 2026, non reçu",
+      "1 345,20 €"
      ],
      [
-      "À payer",
-      "Vague 1 : 3 534,59 € (factures du 21/09 et du 02/10) ; vague 2 : 1 628,29 €"
+      "En alerte sans commande (Vindilis, stock)",
+      "Lipikar baume AP+M 200 ml (stock −1) ; Eau thermale 300 ml (0) ; Lipikar gel lavant 400 ml (0) ; Hydraphase BB teinte medium 40 ml (0) ; Anthelios brume visage SPF50 75 ml (0) ; Cicaplast 15 ml (3) ; Hydraphase HA légère 40 ml (1) — 15 références au total"
      ],
      [
-      "Prix (GERS, médiane France)",
-      "Lipikar AP+M 400 ml 23,99 € vs 26,90 € ; Effaclar gel 400 ml 13,99 € vs 15,80 € ; Cicaplast 40 ml 9,49 € vs 10,50 €"
+      "À payer (vague 1)",
+      "Factures L'Oréal 3301890723 (21/09) et 3301924431 (02/10) : 3 534,59 € au total, La Roche-Posay et CeraVe mélangées [part La Roche-Posay à vérifier]"
      ],
      [
-      "Opeaz : compensations à demander",
-      "Lipikar soins −3 € (juin–juillet) ; Lipikar hygiène 1 L −4 € (juillet) ; CeraVe corps et nettoyants ; Vichy Dercos"
+      "Prix vs médiane France (GERS, 28 jours)",
+      "Lipikar baume AP+M 400 ml 23,99 € vs 26,90 € ; Effaclar gel 400 ml 13,99 € vs 15,80 € ; Cicaplast B5+ 40 ml 9,49 € vs 10,50 € ; Cicaplast B5+ 100 ml 16,99 € vs 17,30 €"
      ],
      [
-      "RFA / coop (cloud Apothical)",
-      "Coop 0,5 % = 94,96 € ; solaires T1 : 720 € La Roche-Posay, 196 € CeraVe, 66 € Vichy"
+      "Opeaz : terminées, compensation pas encore demandée",
+      "TG + BRI Lipikar soins −3 € (01/06 → 31/07) ; TG + BRI Lipikar hygiène 1 L −4 € (01/07 → 31/07)"
+     ],
+     [
+      "Coop / RFA (cloud Apothical)",
+      "Coop 0,5 % = 94,96 € ; solaires T1 = 720 €"
      ]
     ],
     "obtenir": [
-     "La livraison des 7 références en rupture dès le paiement de la vague 1 (date de livraison écrite)",
-     "Le paiement des compensations Opeaz en attente",
-     "Les opérations d'hiver Lipikar et Cicaplast avec leur coop, et une tête de gondole sur l'allée principale (fort passage dans la 3D)"
+     "La livraison du Lipikar baume AP+M 200 ml et des produits d'hiver en alerte, dès le paiement validé par l'administrateur (date écrite)",
+     "La livraison ou l'annulation des 1 345,20 € commandés non reçus",
+     "Le paiement des 2 compensations Lipikar sur Opeaz",
+     "Une tête de gondole Lipikar / Cicaplast cet hiver sur l'allée principale (la plus passante dans la 3D), avec sa coop"
     ],
     "dire": [
-     "Vos prix sont déjà sous la médiane France : pas besoin de baisse, il faut de la visibilité et du stock",
-     "Paiement à réception, validé par l'administrateur"
+     "Vos prix sont déjà sous la médiane France : il faut du stock et de la visibilité, pas de baisse de prix",
+     "Demandez-lui le détail des 2 factures en attente pour savoir ce qui est La Roche-Posay"
     ],
     "refuser": [
      "Une commande sans paiement validé par l'administrateur",
