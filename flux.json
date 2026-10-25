@@ -3,6 +3,7 @@
  "version": "2",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
+  "Relevé Vindilis du 25/10 (poste de la pharmacie) : stock 572 711 € au 01/10 (−34 % en un an), dont 457 600 € en surstock ; 44 % des ventes entre 15 h et 19 h ; promotions : +49 % de remises pour −12 % de ventes.",
   "Analyse Vindilis du 25/10 : l'ordonnance est stable en volume (−0,6 % en septembre). La baisse du CA vient de quelques traitements très chers partis (sans marge) ; la baisse de marge et de clients vient du conseil et de la parapharmacie : OTC ≈ −26 % d'avril à septembre (cassure en février 2026), parapharmacie −15 % en sept.–oct., souvent en rupture.",
   "D'avril à septembre 2026 : 62 776 clients contre 65 796 en 2025 (−4,6 %), soit 503 clients de moins par mois. La marge par client tient (7,22 € contre 7,20 €) : le problème est le nombre de clients, pas les prix.",
   "Vous captez environ 3,2 % des 3,9 millions de visiteurs annuels du centre commercial (≈ 125 000 clients par an). Le dossier de transfert visait 7 %. Il suffit qu'un passant de plus sur 650 entre pour retrouver les 503 clients par mois.",
@@ -122,6 +123,20 @@
    "rang": 2
   },
   {
+   "id": "P0s",
+   "pil": "transformer",
+   "titre": "Libérer l'argent qui dort : 104 926 € de stock sans vente depuis plus d'un an, 133 601 € sans vente depuis 3 mois — retours et échanges d'abord, puis déstockage, et plus aucune commande sur les 3 261 produits qui ont plus de 6 mois de stock",
+   "pourquoi": "Le stock a perdu 296 000 € en un an, mais 457 600 € restent sur des produits qui ne tournent pas, pendant que les produits qui font venir sont en rupture. Chaque euro récupéré paie un produit qui se vend.",
+   "qui": "Titulaire (retours, blocages après validation) ; équipe (mise en avant)",
+   "quand": "Dès lundi 26/10 : produits chers dormants (Cabometyx 3 412 €, Kyntheum, Dupixent, Xeljanz…) ; Black Friday pour le groupe 3 mois",
+   "base": "Surstock au 25/10/2026 : 457 627 € (7 989 produits)",
+   "obj": "20 000 € récupérés (retours, avoirs, échanges) d'ici fin novembre ; surstock < 400 000 € au 01/12",
+   "mesure": "Pilotage › Surstockage relancé le 1er de chaque mois ; avoirs reçus",
+   "gain": 0,
+   "cout": 0,
+   "rang": 3
+  },
+  {
    "id": "P0b",
    "pil": "transformer",
    "titre": "Payer d'abord les dossiers RJ qui débloquent ces produits (ordre dans « Quoi payer »)",
@@ -133,7 +148,7 @@
    "mesure": "Livraisons reçues ; ruptures levées",
    "gain": 0,
    "cout": 0,
-   "rang": 3
+   "rang": 4
   },
   {
    "id": "P0c",
@@ -147,11 +162,11 @@
    "mesure": "Ventes par tête de gondole, semaine avant / après ; rémunérations Opeaz reçues",
    "gain": 60,
    "cout": 0,
-   "rang": 4
+   "rang": 5
   },
   {
    "id": "P1",
-   "rang": 5,
+   "rang": 6,
    "pil": "capter",
    "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
    "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
@@ -165,7 +180,7 @@
   },
   {
    "id": "P2",
-   "rang": 6,
+   "rang": 7,
    "pil": "revenir",
    "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
    "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
@@ -179,7 +194,7 @@
   },
   {
    "id": "P3",
-   "rang": 7,
+   "rang": 8,
    "pil": "trouve",
    "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
    "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
@@ -193,7 +208,7 @@
   },
   {
    "id": "P4",
-   "rang": 8,
+   "rang": 9,
    "pil": "raison",
    "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
    "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
@@ -207,7 +222,7 @@
   },
   {
    "id": "P6",
-   "rang": 9,
+   "rang": 10,
    "pil": "transformer",
    "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
    "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
@@ -221,7 +236,7 @@
   },
   {
    "id": "P7",
-   "rang": 10,
+   "rang": 11,
    "pil": "capter",
    "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
    "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
@@ -235,7 +250,7 @@
   },
   {
    "id": "P8",
-   "rang": 11,
+   "rang": 12,
    "pil": "raison",
    "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
    "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
@@ -249,7 +264,7 @@
   },
   {
    "id": "P9",
-   "rang": 12,
+   "rang": 13,
    "pil": "trouve",
    "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
    "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
@@ -263,7 +278,7 @@
   },
   {
    "id": "P10",
-   "rang": 13,
+   "rang": 14,
    "pil": "transformer",
    "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
@@ -830,7 +845,8 @@
    "La BPGO : on garde au moins 40 000 € de réserve. Si la Caisse d'Épargne ne suffit pas pour remettre en rayon les produits d'hiver, jusqu'à 20 000 € peuvent servir de stock — ce n'est pas une dépense, c'est de la marchandise qui revient en caisse en 2 à 4 semaines, avec sa marge. Toujours avec l'accord de l'administrateur.",
    "On ne paie pas en avance ce qui ne ramène pas de clients : Doctolib (non activé), créances probablement antérieures au 30/06 (Essity, Solocal : à déclarer, pas à payer), prestations à vérifier.",
    "Les dettes obligatoires restent payées à l'échéance : KLESIA, URSSAF, administrateur, greffe, loyer.",
-   "Enveloppe flux novembre–décembre (communication) : 2 400 € maximum, ligne par ligne ; chaque euro doit rapporter au moins 2 € de marge en 90 jours."
+   "Enveloppe flux novembre–décembre (communication) : 2 400 € maximum, ligne par ligne ; chaque euro doit rapporter au moins 2 € de marge en 90 jours.",
+   "Levier sans financement : le stock qui dort (104 926 € sans vente depuis plus d'un an). Objectif 20 000 € récupérés d'ici fin novembre en retours, avoirs et échanges, après accord de l'administrateur si une créance antérieure est concernée."
   ],
   "enveloppe": [
    [
@@ -911,7 +927,7 @@
   {
    "id": "q0",
    "q": "Qu'est-ce qui a changé en février 2026 au rayon conseil ? Les ventes de médicaments sans ordonnance sont passées d'environ 20 400 € en janvier à 15 500 € en février et ne sont jamais revenues (hausse de prix, rayon déplacé, personne partie, concurrent, Carrefour) ?",
-   "reco": "",
+   "reco": "Piste relevée le 25/10 : le stock a perdu 72 555 € entre le 01/01 et le 01/02/2026 (800 553 € → 727 998 €) et les clients sont passés de 12 955 à 10 895. Le rayon conseil a été moins garni. À confirmer : y a-t-il eu une autre cause ?",
    "opts": []
   },
   {
@@ -4864,7 +4880,7 @@
   }
  },
  "vindilis": {
-  "releve": "Analyse Vindilis complète du dimanche 25/10/2026 : Pilotage, Mesures et évolutions (Comparatif mensuel, Répartition, OTC, Produits chers, Princeps/Génériques), Délivrances (sept. et oct. 2025-2026), Listing des ventes (1/9–24/10 et 1/4–31/8, 2025 contre 2026), Analyse fournisseurs (12 mois), Ratio des lignes supprimées. Fichiers exportés dans C:\\Temp\\v2010.",
+  "releve": "Analyse Vindilis complète du dimanche 25/10/2026 : Pilotage, Mesures et évolutions (Comparatif mensuel, Répartition, OTC, Produits chers, Princeps/Génériques), Délivrances (sept. et oct. 2025-2026), Listing des ventes (1/9–24/10 et 1/4–31/8, 2025 contre 2026), Analyse fournisseurs (12 mois), Ratio des lignes supprimées. Fichiers exportés dans C:\\Temp\\v2010 (ordinateur portable). Second relevé le 25/10 depuis le poste de la pharmacie : valorisation du stock (13 inventaires), surstockage, promotions, ventes par heure, clients par mois et par âge, ventes annulées (exports dans C:\\Temp du poste).",
   "ordo": {
    "titre": "Ordonnances : le volume tient. Le « −11,6 % » venait du recyclage de 2025",
    "l": [
@@ -5034,6 +5050,162 @@
   },
   "blocs": [
    {
+    "titre": "Surstock : 457 600 € dorment pendant que d'autres produits sont en rupture",
+    "c": "r",
+    "h": [
+     "Groupe",
+     "Produits",
+     "Valeur",
+     "Au-delà de 2 mois de ventes",
+     "Action"
+    ],
+    "l": [
+     [
+      "Aucune vente depuis plus de 12 mois",
+      "1 962",
+      "104 926",
+      "104 926",
+      "Retour labo / grossiste, échange, déstockage"
+     ],
+     [
+      "Aucune vente depuis 3 mois",
+      "2 766",
+      "133 601",
+      "133 601",
+      "Mise en avant (Black Friday), sinon déstockage"
+     ],
+     [
+      "Se vend, mais plus de 6 mois de stock",
+      "3 261",
+      "219 100",
+      "177 968",
+      "Ne plus recommander jusqu'à 2 mois de stock"
+     ],
+     [
+      "Total",
+      "7 989",
+      "457 627",
+      "416 495",
+      ""
+     ]
+    ],
+    "lecture": [
+     "Source : Statistiques › Pilotage › Surstockage (stock supérieur à 6 fois la vente mensuelle des 3 derniers mois), export du 25/10/2026, valorisé au prix d'achat moyen du 01/10/2026. 621 produits sans prix d'achat sont estimés à 65 % du prix de vente HT (≈ 26 400 €).",
+     "Exemples : Cabometyx 1 boîte à 3 412 € sans vente depuis le 27/05 ; Physiologica 2 966 unidoses (13,8 mois de ventes) ; sérum physiologique Dr B 1 715 flacons (32,8 mois).",
+     "Liste complète, produit par produit, dans le fichier « Surstock_a_traiter_2026-10-25.xlsx » (colonne Décision à remplir)."
+    ]
+   },
+   {
+    "titre": "Valeur du stock : −296 000 € en un an, dont −72 600 € en février 2026",
+    "c": "o",
+    "h": [
+     "Inventaire du",
+     "Unités",
+     "Valeur (prix d'achat moyen)",
+     "dont TVA 20 % (para)",
+     "Écart avec la ligne d'avant"
+    ],
+    "l": [
+     [
+      "01/10/2024",
+      "55 929",
+      "337 129",
+      "132 910",
+      "—"
+     ],
+     [
+      "01/04/2025",
+      "137 234",
+      "983 641",
+      "510 703",
+      "+646 511 €"
+     ],
+     [
+      "01/10/2025",
+      "116 744",
+      "868 693",
+      "464 837",
+      "−114 948 €"
+     ],
+     [
+      "01/01/2026",
+      "107 690",
+      "800 553",
+      "432 512",
+      "−68 140 €"
+     ],
+     [
+      "01/02/2026",
+      "92 102",
+      "727 998",
+      "382 310",
+      "−72 555 €"
+     ],
+     [
+      "01/03/2026",
+      "88 005",
+      "699 546",
+      "372 839",
+      "−28 452 €"
+     ],
+     [
+      "01/04/2026",
+      "87 713",
+      "691 622",
+      "372 267",
+      "−7 924 €"
+     ],
+     [
+      "01/05/2026",
+      "84 166",
+      "665 097",
+      "362 183",
+      "−26 524 €"
+     ],
+     [
+      "01/06/2026",
+      "77 072",
+      "638 412",
+      "348 287",
+      "−26 685 €"
+     ],
+     [
+      "01/07/2026",
+      "72 875",
+      "610 108",
+      "334 002",
+      "−28 304 €"
+     ],
+     [
+      "01/08/2026",
+      "72 328",
+      "572 432",
+      "303 251",
+      "−37 676 €"
+     ],
+     [
+      "01/09/2026",
+      "70 454",
+      "585 372",
+      "314 928",
+      "+12 940 €"
+     ],
+     [
+      "01/10/2026",
+      "72 827",
+      "572 711",
+      "309 786",
+      "−12 661 €"
+     ]
+    ],
+    "lecture": [
+     "Source : Inventaire › Valorisation (inventaires mensuels Vindilis), relevé le 25/10/2026.",
+     "01/10/2025 : 868 693 € → 01/10/2026 : 572 711 € (−34 %). La parapharmacie (TVA 20 %) passe de 464 837 € à 309 786 €.",
+     "Février 2026 : −72 555 € en un mois, le même mois où les ventes de conseil ont décroché. Moins de produits en rayon, moins de ventes.",
+     "Au 01/04/2025, un 6ᵉ taux de TVA de 726,80 € n'a pas pu être lu à l'écran [AMBIGU]."
+    ]
+   },
+   {
     "titre": "Mois par mois : le CA baisse deux fois plus vite que la marge",
     "c": "o",
     "h": [
@@ -5126,6 +5298,216 @@
      "Source : Statistiques › Ventes (Mesures et évolutions) › Comparatif mensuel, lu à l'écran (CA, marge, nombre de ventes) ; clients réels = ventes − 2 × recyclage.",
      "Sur avril–septembre : CA −9,1 % (1 927 027 → 1 752 341), marge −4,4 % (473 832 → 453 085), clients réels −4,6 % (65 796 → 62 776). La marge perdue est d'environ 3 450 € par mois.",
      "Juillet est le mois le plus dur (marge −10,8 %, clients −9,5 %). Mai suit (clients −10,9 %). Août et juin sont à l'équilibre côté clients."
+    ]
+   },
+   {
+    "titre": "Clients par mois : −6,5 % d'avril à septembre, cassure en février",
+    "c": "o",
+    "h": [
+     "Mois",
+     "2025",
+     "2026",
+     "Écart"
+    ],
+    "l": [
+     [
+      "Janvier",
+      "9 105",
+      "12 955",
+      "+42,3 %"
+     ],
+     [
+      "Février",
+      "8 145",
+      "10 895",
+      "+33,8 %"
+     ],
+     [
+      "Mars",
+      "6 321",
+      "11 604",
+      "+83,6 %"
+     ],
+     [
+      "Avril",
+      "10 965",
+      "11 098",
+      "+1,2 %"
+     ],
+     [
+      "Mai",
+      "11 574",
+      "10 542",
+      "−8,9 %"
+     ],
+     [
+      "Juin",
+      "11 715",
+      "11 540",
+      "−1,5 %"
+     ],
+     [
+      "Juillet",
+      "12 139",
+      "10 796",
+      "−11,1 %"
+     ],
+     [
+      "Août",
+      "11 252",
+      "10 558",
+      "−6,2 %"
+     ],
+     [
+      "Septembre",
+      "11 954",
+      "10 560",
+      "−11,7 %"
+     ],
+     [
+      "Octobre (au 24)",
+      "13 764 (mois entier)",
+      "8 868",
+      "≈ −17 % projeté"
+     ]
+    ],
+    "lecture": [
+     "Source : Statistiques › Clients › Nombre de clients (valeurs lues au survol). Définition exacte (tickets ou personnes, recyclage inclus ou non) [AMBIGU] : comparer d'une année sur l'autre, pas en valeur absolue.",
+     "Janvier à mars 2025 étaient anormalement bas (reprise, inventaire de mars), d'où les fortes hausses en début d'année.",
+     "Clients identifiés : septembre 3 518 → 3 180 (−9,6 %) ; janvier 2026 3 714 → février 3 359.",
+     "Octobre projeté : 8 868 sur 21 jours, soit ≈ 11 400 sur 27 jours, contre 13 764."
+    ]
+   },
+   {
+    "titre": "Affluence par heure : 44 % des ventes entre 15 h et 19 h, creux à 9 h et 13 h",
+    "c": "b",
+    "h": [
+     "Heure",
+     "Ventes 1–24/10",
+     "Par jour",
+     "Part"
+    ],
+    "l": [
+     [
+      "8h-9h",
+      "5",
+      "0,2",
+      "0,1 %"
+     ],
+     [
+      "9h-10h",
+      "544",
+      "25,9",
+      "6,1 %"
+     ],
+     [
+      "10h-11h",
+      "831",
+      "39,6",
+      "9,3 %"
+     ],
+     [
+      "11h-12h",
+      "841",
+      "40,0",
+      "9,4 %"
+     ],
+     [
+      "12h-13h",
+      "760",
+      "36,2",
+      "8,5 %"
+     ],
+     [
+      "13h-14h",
+      "657",
+      "31,3",
+      "7,3 %"
+     ],
+     [
+      "14h-15h",
+      "789",
+      "37,6",
+      "8,8 %"
+     ],
+     [
+      "15h-16h",
+      "938",
+      "44,7",
+      "10,5 %"
+     ],
+     [
+      "16h-17h",
+      "958",
+      "45,6",
+      "10,7 %"
+     ],
+     [
+      "17h-18h",
+      "1035",
+      "49,3",
+      "11,5 %"
+     ],
+     [
+      "18h-19h",
+      "975",
+      "46,4",
+      "10,9 %"
+     ],
+     [
+      "19h-20h",
+      "588",
+      "28,0",
+      "6,6 %"
+     ]
+    ],
+    "lecture": [
+     "Source : Statistiques › Vendeurs › Vente par heure, vendeur par vendeur (14 codes), additionnés ; lu sur les graphiques à environ 1 % près (8 963 lues contre 8 873 dans la synthèse). 21 jours d'ouverture.",
+     "Pic : 17 h–18 h (≈ 49 ventes par jour). Creux : 9 h–10 h (≈ 26), 13 h–14 h (≈ 31), 19 h–20 h (≈ 28).",
+     "Formations, réassort et mise en rayon sur les creux ; personne ne quitte le comptoir entre 15 h et 19 h."
+    ]
+   },
+   {
+    "titre": "Promotions : 49 % de remises en plus pour 12 % de ventes en moins",
+    "c": "o",
+    "h": [
+     "Période",
+     "Promotions",
+     "CA HT",
+     "Ventes",
+     "Unités",
+     "Remise HT"
+    ],
+    "l": [
+     [
+      "1–25/10/2025",
+      "—",
+      "4 972",
+      "543",
+      "753",
+      "1 054"
+     ],
+     [
+      "1–25/10/2026",
+      "46",
+      "5 639",
+      "477",
+      "702",
+      "1 572"
+     ],
+     [
+      "Écart",
+      "",
+      "+13,4 %",
+      "−12,2 %",
+      "−6,8 %",
+      "+49,2 %"
+     ]
+    ],
+    "lecture": [
+     "Source : Statistiques › Produits › Promotions (ventes clôturées), relevé le 25/10/2026.",
+     "Celles qui font venir : Topicrem Octobre Rose (80 ventes), Avène Xeracalm (81), Roc 20 % (34). La plupart des autres font 1 à 5 ventes : à arrêter ou à remplacer.",
+     "Chaque promotion doit avoir son retour avant / après (coût de la remise par vente gagnée)."
     ]
    },
    {
@@ -5675,12 +6057,172 @@
     "lecture": [
      "Une ligne supprimée, c'est souvent un produit demandé qu'on n'a pas (rupture) ou une erreur de saisie. De 3,9 % à 14,3 % selon la personne : à regarder avec chacun, sans reproche, pour savoir ce qui manquait."
     ]
+   },
+   {
+    "titre": "Qui sont vos clients : une clientèle jeune et familiale",
+    "c": "b",
+    "h": [
+     "Âge",
+     "Part du fichier"
+    ],
+    "l": [
+     [
+      "Moins de 5 ans",
+      "2,39 %"
+     ],
+     [
+      "5-14 ans",
+      "11,34 %"
+     ],
+     [
+      "15-19 ans",
+      "8,03 %"
+     ],
+     [
+      "20-24 ans",
+      "9,30 %"
+     ],
+     [
+      "25-34 ans",
+      "16,67 %"
+     ],
+     [
+      "35-44 ans",
+      "15,48 %"
+     ],
+     [
+      "45-54 ans",
+      "12,55 %"
+     ],
+     [
+      "55-59 ans",
+      "5,06 %"
+     ],
+     [
+      "60-64 ans",
+      "4,35 %"
+     ],
+     [
+      "65-74 ans",
+      "6,94 %"
+     ],
+     [
+      "75 ans et plus",
+      "7,88 %"
+     ]
+    ],
+    "lecture": [
+     "Source : Statistiques › Clients › Tranche d'âge (fichier clients complet, pas une période). La requête Pilotage › Tranche d'âge n'aboutit pas (plus de 40 minutes).",
+     "25–44 ans : 32 % ; moins de 15 ans : 14 % ; 65 ans et plus : 15 %. Cibles : familles, jeunes parents (journée maman et bébé), jeunes adultes.",
+     "Localisation : 37,1 % du même code postal, 48,4 % du département, 14,4 % d'autres départements (148 963 individus)."
+    ]
+   },
+   {
+    "titre": "Ventes annulées et lignes supprimées, octobre 2026 (à voir avec chacun, sans reproche)",
+    "c": "",
+    "h": [
+     "Opérateur",
+     "Ventes",
+     "Ventes annulées",
+     "Montant annulé TTC",
+     "Lignes supprimées"
+    ],
+    "l": [
+     [
+      "DASI Sidney",
+      "1 160",
+      "29",
+      "440",
+      "167"
+     ],
+     [
+      "CHANTELOUBE Sandy",
+      "1 129",
+      "24",
+      "477",
+      "118"
+     ],
+     [
+      "PALLANY Dylan",
+      "1 114",
+      "41",
+      "1 941",
+      "146"
+     ],
+     [
+      "BOIVIN Antoine",
+      "1 098",
+      "40",
+      "723",
+      "158"
+     ],
+     [
+      "CARON Mylène",
+      "1 041",
+      "36",
+      "994",
+      "186"
+     ],
+     [
+      "FRETAULT Suzon",
+      "964",
+      "59",
+      "3 778",
+      "263"
+     ],
+     [
+      "YOUSRI Nassim",
+      "799",
+      "40",
+      "1 494",
+      "198"
+     ],
+     [
+      "POIRIER Alban",
+      "572",
+      "4",
+      "166",
+      "272"
+     ],
+     [
+      "BOURGEON Aline",
+      "250",
+      "12",
+      "432",
+      "75"
+     ],
+     [
+      "ZARDET Christel",
+      "225",
+      "21",
+      "700",
+      "62"
+     ],
+     [
+      "TEMBO Océane",
+      "185",
+      "18",
+      "482",
+      "33"
+     ],
+     [
+      "LEFRAY Audrey",
+      "100",
+      "44",
+      "1 388",
+      "46"
+     ]
+    ],
+    "lecture": [
+     "Source : Statistiques › Pilotage › Ventes et Statistiques › Vendeurs › Synthèse, 1–25/10/2026.",
+     "À regarder : LEFRAY Audrey (44 annulations pour 100 ventes), FRETAULT Suzon (3 778 € annulés), POIRIER Alban (272 lignes supprimées pour 1 787 lignes vendues). Comprendre pourquoi : erreur de saisie, produit manquant, client parti."
+    ]
    }
   ],
   "manque": [
-   "Pilotage › Surstockage et Tranche d'âge : requêtes lancées le 25/10, toujours en cours après 1 h (base très sollicitée) ; à relancer lundi à l'ouverture.",
-   "Valorisation du stock et promotions en cours : à relever lundi.",
-   "Pourquoi la vente par heure n'existe que par vendeur : l'affluence horaire passera par le Listing des ventes heure par heure."
+   "Pilotage › Tranche d'âge : la requête ne finit pas (plus de 40 min, deux essais) ; remplacée par Statistiques › Clients › Tranche d'âge.",
+   "Listing des ventes : ne s'est pas chargé ; l'affluence horaire vient de Vente par heure (vendeur par vendeur).",
+   "Menus pas encore passés en revue : Commandes (paramètres de réassort, propositions), Gestion, Tiers-payant (rejets, impayés), Caisse, Outils (utilitaires stock, surveillance), Fichiers, et plusieurs statistiques (Classifications, Gammes, Organismes, Évolutions du stock, Tableau de bord Ségur)."
   ]
  }
 }
