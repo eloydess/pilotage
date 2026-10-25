@@ -324,7 +324,7 @@ async function lireGrille(){const img=new Image();img.src='grille.png?v=1';await
 async function demarrer(){
   const [p,z]=await Promise.all([fetch('plan.json').then(r=>r.json()),fetch('zoning.json').then(r=>r.json()),lireGrille().catch(()=>{})]);PLAN=p;ZON=z;
   const ld=new GLTFLoader();ld.setMeshoptDecoder(MeshoptDecoder);
-  const g=await new Promise((ok,ko)=>ld.load('pharmacie3d.glb?v=1',ok,e=>{if(e.total)$('#pc').style.width=Math.round(e.loaded/e.total*100)+'%'},ko));
+  const g=await new Promise((ok,ko)=>ld.load('pharmacie3d.glb?v=2',ok,e=>{if(e.total)$('#pc').style.width=Math.round(e.loaded/e.total*100)+'%'},ko));
   MAQ=g.scene;MAQ.traverse(m=>{if(m.isMesh){m.material.side=T.FrontSide;if(m.material.metalness!==undefined){m.material.metalness=0;m.material.roughness=1}}});S.add(MAQ);
   construireUnivers();construireReperes();construireLabos();construireSol();majObjets();majNotes();
   $('#charge').style.display='none';barre();changerMode('dessus');appliquerCouches();etatGet()}
