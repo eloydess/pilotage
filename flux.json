@@ -1,6 +1,6 @@
 {
- "maj": "2026-10-24",
- "version": "1",
+ "maj": "2026-10-25",
+ "version": "2",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
   "D'avril à septembre 2026 : 62 776 clients contre 65 796 en 2025 (−4,6 %), soit 503 clients de moins par mois. La marge par client tient (7,22 € contre 7,20 €) : le problème est le nombre de clients, pas les prix.",
@@ -93,8 +93,36 @@
  ],
  "priorites": [
   {
+   "id": "P0",
+   "pil": "transformer",
+   "titre": "Zéro rupture sur les produits qui font venir : 166 références à 0 en stock à l'entrée de l'hiver (Vicks, Humex, Nurofen, Efferalgan, Imodium, Physiodose, CeraVe, Topicrem, FreeStyle Libre…)",
+   "pourquoi": "Un produit absent renvoie le client chez le concurrent, parfois pour toujours (disponibilité physique, B. Sharp). Ces produits ont fait ≈ 270 tickets par semaine l'an dernier.",
+   "qui": "Titulaire",
+   "quand": "Commandes lundi 26 et mardi 27/10",
+   "base": "166 références à 0 (relevé Vindilis du 25/10)",
+   "obj": "0 rupture sur les 50 premières d'ici le 7/11 ; toutes d'ici le 14/11",
+   "mesure": "Relevé du stock chaque lundi (onglet Ruptures)",
+   "gain": 150,
+   "cout": 0,
+   "rang": 1
+  },
+  {
+   "id": "P0b",
+   "pil": "transformer",
+   "titre": "Payer d'abord les dossiers RJ qui débloquent ces produits (ordre dans « Quoi payer »)",
+   "pourquoi": "La trésorerie ne crée du flux que si elle remet en rayon ce que les clients viennent chercher : un euro payé à Gilbert ou Urgo ramène des clients, un euro payé en avance à un prestataire non activé n'en ramène aucun.",
+   "qui": "Titulaire",
+   "quand": "Demande de validation à l'administrateur lundi 26/10",
+   "base": "106 dossiers ouverts, dont 55 sans montant saisi",
+   "obj": "Vague 1 réglée d'ici le 30/10",
+   "mesure": "Livraisons reçues ; ruptures levées",
+   "gain": 0,
+   "cout": 0,
+   "rang": 2
+  },
+  {
    "id": "P1",
-   "rang": 1,
+   "rang": 3,
    "pil": "capter",
    "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
    "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
@@ -108,7 +136,7 @@
   },
   {
    "id": "P2",
-   "rang": 2,
+   "rang": 4,
    "pil": "revenir",
    "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
    "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
@@ -122,7 +150,7 @@
   },
   {
    "id": "P3",
-   "rang": 3,
+   "rang": 5,
    "pil": "trouve",
    "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
    "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
@@ -136,7 +164,7 @@
   },
   {
    "id": "P4",
-   "rang": 4,
+   "rang": 6,
    "pil": "raison",
    "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
    "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
@@ -149,22 +177,8 @@
    "cout": 300
   },
   {
-   "id": "P5",
-   "rang": 5,
-   "pil": "transformer",
-   "titre": "Les produits qui font venir doivent être en rayon : payer en premier les laboratoires qui amènent des clients",
-   "pourquoi": "Un produit absent, c'est un client renvoyé chez le concurrent (disponibilité physique, B. Sharp).",
-   "qui": "Titulaire",
-   "quand": "Chaque lundi",
-   "base": "Ruptures sur des best-sellers (ex. Physiodose, n° 1 du réseau en volume)",
-   "obj": "0 rupture sur les 50 produits qui font le plus de tickets",
-   "mesure": "Ruptures du lundi (Vindilis)",
-   "gain": 0,
-   "cout": 0
-  },
-  {
    "id": "P6",
-   "rang": 6,
+   "rang": 7,
    "pil": "transformer",
    "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
    "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
@@ -178,7 +192,7 @@
   },
   {
    "id": "P7",
-   "rang": 7,
+   "rang": 8,
    "pil": "capter",
    "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
    "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
@@ -192,7 +206,7 @@
   },
   {
    "id": "P8",
-   "rang": 8,
+   "rang": 9,
    "pil": "raison",
    "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
    "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
@@ -206,7 +220,7 @@
   },
   {
    "id": "P9",
-   "rang": 9,
+   "rang": 10,
    "pil": "trouve",
    "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
    "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
@@ -220,9 +234,9 @@
   },
   {
    "id": "P10",
-   "rang": 10,
+   "rang": 11,
    "pil": "transformer",
-   "titre": "Panier : conseil associé systématique + marque exclusive Apothical en caisse",
+   "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
    "qui": "Toute l'équipe",
    "quand": "Novembre",
@@ -244,6 +258,23 @@
      "d": "2026-10-26",
      "t": [
       {
+       "id": "s1r",
+       "txt": "Commander les produits en rupture (onglet Ruptures, du plus vendu au moins vendu) : vous validez les quantités, je peux préparer les commandes",
+       "qui": "Titulaire",
+       "mesure": "Ruptures levées"
+      },
+      {
+       "id": "s1v",
+       "txt": "Envoyer à l'administrateur la vague 1 de « Quoi payer » (≈ 19 000 € + Urgo) ; P&G doit être payé avant le 01/11 sinon la commande Vicks est annulée",
+       "qui": "Titulaire",
+       "mesure": "Validation reçue"
+      },
+      {
+       "id": "s1a2",
+       "txt": "Demander à EA Pharma d'imputer l'avoir de 1 080,22 € sur une commande Granions ; demander à Aboca des commandes payées comptant",
+       "qui": "Administratif & caisse rapide"
+      },
+      {
        "id": "s1a",
        "txt": "Valider la liste des campagnes écrans à arrêter (préparée par Claude) pour passer chaque boucle sous 60 s",
        "qui": "Titulaire",
@@ -264,12 +295,6 @@
       {
        "id": "s1d",
        "txt": "Décider : fiche Google au 309 en test 3 mois avec Myli",
-       "qui": "Titulaire",
-       "mesure": ""
-      },
-      {
-       "id": "s1e",
-       "txt": "Commander les best-sellers en rupture (liste croisée top 100 réseau × stock, préparée par Claude)",
        "qui": "Titulaire",
        "mesure": ""
       }
@@ -745,14 +770,14 @@
   }
  ],
  "tresorerie": {
-  "soldes": "Soldes saisis le 24/10/2026 : Caisse d'Épargne 71 552,51 € ; BPGO 62 863,42 €.",
-  "lecture": "Cette trésorerie vient surtout du gel des dettes d'avant le 30/06/2026, pas d'un bénéfice : la marge mensuelle (≈ 74 000 à 80 000 €) couvre à peine les charges fixes enregistrées (≈ 82 000 € par mois avec l'embauche d'Alban). C'est l'argent qui prouvera au tribunal votre capacité à tenir un plan.",
+  "soldes": "Soldes saisis le 24/10/2026 à 18h48 : Caisse d'Épargne 71 552,51 € ; BPGO 62 863,42 €.",
+  "lecture": "Ce que montrent vos soldes : la Caisse d'Épargne est passée de 16 740 € (19/10) à 71 552 € (24/10) malgré les prélèvements CERP (≈ 38 000 à 40 000 € tous les 3 à 4 jours). Les encaissements font donc environ 13 000 à 14 000 € par jour d'ouverture. Cette trésorerie vient surtout du gel des dettes d'avant le 30/06 ; la marge du mois couvre à peine les charges fixes. Mon estimation (à confirmer par l'écran « Ce que vous pouvez payer ») : après le CERP du 26/10 (39 051 €), les salaires (≈ 27 100 €) et KLESIA (2 699 €), il reste ≈ 20 000 € à engager cette semaine sans toucher la réserve du loyer (22 600 € le 15/11) ni l'URSSAF (≈ 11 800 € le 16/11).",
   "regles": [
-   "La BPGO reste la réserve du plan : on n'y touche pas pour le flux.",
-   "Le flux se crée surtout avec des actions gratuites (écrans, SMS, Google, accueil, Carmila, équipe) : pas besoin de cet argent pour démarrer.",
-   "Le vrai levier financier, c'est le stock qui fait venir : on paie en priorité les laboratoires dont les produits amènent des clients et de la marge (les 20 % de laboratoires qui font 80 % de la marge), et le stock de Noël juste nécessaire (décembre est le meilleur mois).",
-   "Enveloppe flux novembre–décembre : 2 400 € maximum sur la Caisse d'Épargne, ligne par ligne ci-dessous, avec l'accord de l'administrateur pour les dépenses nouvelles.",
-   "Règle de retour : chaque euro dépensé doit rapporter au moins 2 € de marge en 90 jours ; une ligne qui ne rapporte rien au bout de 3 semaines est arrêtée."
+   "Cette semaine : ≈ 20 000 € sur la Caisse d'Épargne pour la vague 1 de « Quoi payer » (les laboratoires dont les produits d'hiver sont en rupture), après validation de l'administrateur.",
+   "La BPGO : on garde au moins 40 000 € de réserve. Si la Caisse d'Épargne ne suffit pas pour remettre en rayon les produits d'hiver, jusqu'à 20 000 € peuvent servir de stock — ce n'est pas une dépense, c'est de la marchandise qui revient en caisse en 2 à 4 semaines, avec sa marge. Toujours avec l'accord de l'administrateur.",
+   "On ne paie pas en avance ce qui ne ramène pas de clients : Doctolib (non activé), créances probablement antérieures au 30/06 (Essity, Solocal : à déclarer, pas à payer), prestations à vérifier.",
+   "Les dettes obligatoires restent payées à l'échéance : KLESIA, URSSAF, administrateur, greffe, loyer.",
+   "Enveloppe flux novembre–décembre (communication) : 2 400 € maximum, ligne par ligne ; chaque euro doit rapporter au moins 2 € de marge en 90 jours."
   ],
   "enveloppe": [
    [
@@ -1107,5 +1132,2566 @@
    "Abonnés Instagram",
    "Instagram"
   ]
- ]
+ ],
+ "ruptures": {
+  "titre": "166 produits qui font venir des clients sont à 0 en stock, à l'entrée de l'hiver",
+  "lecture": "Relevé Vindilis du 25/10/2026 (ventes du 26/10/2025 au 24/10/2026, stock actuel). Ces produits ont fait ensemble ≈ 270 tickets par semaine l'an dernier. Si la moitié de ces clients repart sans rien, cela fait ≈ 585 clients perdus par mois : plus que les 503 qui manquent. J'ai retiré les produits dont un équivalent est en stock pour au moins 2 semaines. Si un laboratoire bloque (impayé), commandez par la CERP quand le produit y est disponible. Kenvue (Imodium, Biafine, Titanoreine, Nicorette…) n'a aucun dossier impayé : c'est une commande à passer. Cochez quand c'est commandé. Quantité proposée = 4 semaines de ventes (à valider).",
+  "l": [
+   {
+    "ean": "3400930328712",
+    "lib": "DOLIPRANETABS 1 GR 8 CP PELL FR",
+    "labo": "OPELLA / SANOFI",
+    "tickets": 1128,
+    "sem": 21.7,
+    "stk": 0,
+    "cmd4sem": 133
+   },
+   {
+    "ean": "3400936760578",
+    "lib": "NUROFENFLASH 400MG 12CPRS",
+    "labo": "RECKITT (Alloga)",
+    "tickets": 434,
+    "sem": 8.3,
+    "stk": 0,
+    "cmd4sem": 40
+   },
+   {
+    "ean": "3400935291783",
+    "lib": "EFFERALGANMED 1000MG EFFV T8 [PH7",
+    "labo": "UPSA",
+    "tickets": 425,
+    "sem": 8.2,
+    "stk": -6,
+    "cmd4sem": 95
+   },
+   {
+    "ean": "3400935281739",
+    "lib": "VICKS VAPORUB POM POT50G",
+    "labo": "P&G (Alloga)",
+    "tickets": 327,
+    "sem": 6.3,
+    "stk": 0,
+    "cmd4sem": 27
+   },
+   {
+    "ean": "3400930230008",
+    "lib": "ASPIRINE PROTECT 100MG CPR 30",
+    "labo": "Autres laboratoires",
+    "tickets": 318,
+    "sem": 6.1,
+    "stk": 0,
+    "cmd4sem": 25
+   },
+   {
+    "ean": "3518646266638",
+    "lib": "PHYSIODOSE SER PHYSIO 5ML 40",
+    "labo": "GILBERT",
+    "tickets": 317,
+    "sem": 6.1,
+    "stk": -7,
+    "cmd4sem": 34
+   },
+   {
+    "ean": "3400938571905",
+    "lib": "IMODIUMCAPS 2MG GELU BT12",
+    "labo": "KENVUE (J&J)",
+    "tickets": 287,
+    "sem": 5.5,
+    "stk": 0,
+    "cmd4sem": 28
+   },
+   {
+    "ean": "5021791006953",
+    "lib": "FREESTYLE LIBRE 2 PLUS Capteur",
+    "labo": "ABBOTT (FreeStyle)",
+    "tickets": 287,
+    "sem": 5.5,
+    "stk": 0,
+    "cmd4sem": 43
+   },
+   {
+    "ean": "3400936666795",
+    "lib": "IMODIUMLINGUAL 2MG LYOCS 12",
+    "labo": "KENVUE (J&J)",
+    "tickets": 276,
+    "sem": 5.3,
+    "stk": 0,
+    "cmd4sem": 26
+   },
+   {
+    "ean": "3400937688369",
+    "lib": "HUMEX ALLERGIE CETIRIZINE 10MG CPR PEL 7",
+    "labo": "URGO",
+    "tickets": 271,
+    "sem": 5.2,
+    "stk": 0,
+    "cmd4sem": 27
+   },
+   {
+    "ean": "3400934464171",
+    "lib": "PAROEX 0,12% BAIN BCHE F300ML",
+    "labo": "Autres laboratoires",
+    "tickets": 255,
+    "sem": 4.9,
+    "stk": 0,
+    "cmd4sem": 23
+   },
+   {
+    "ean": "3400931126621",
+    "lib": "VICKS INHALER TAMP TB1",
+    "labo": "P&G (Alloga)",
+    "tickets": 251,
+    "sem": 4.8,
+    "stk": 0,
+    "cmd4sem": 21
+   },
+   {
+    "ean": "3337875784054",
+    "lib": "CERAVE Gel mouss anti-imperf Fl ppe/236ml",
+    "labo": "L'ORÉAL",
+    "tickets": 237,
+    "sem": 4.6,
+    "stk": 0,
+    "cmd4sem": 19
+   },
+   {
+    "ean": "3400937832090",
+    "lib": "BIAFINEACT TB 139.5GR",
+    "labo": "KENVUE (J&J)",
+    "tickets": 211,
+    "sem": 4.1,
+    "stk": 0,
+    "cmd4sem": 17
+   },
+   {
+    "ean": "3400932372409",
+    "lib": "TITANOREINE LIDOC 2% CR 20G",
+    "labo": "KENVUE (J&J)",
+    "tickets": 179,
+    "sem": 3.4,
+    "stk": 0,
+    "cmd4sem": 15
+   },
+   {
+    "ean": "3400934065187",
+    "lib": "MUCOMYST 200MG PDR SACH 18",
+    "labo": "Autres laboratoires",
+    "tickets": 170,
+    "sem": 3.3,
+    "stk": 0,
+    "cmd4sem": 14
+   },
+   {
+    "ean": "3400934155178",
+    "lib": "SAINT-BERNARD BAUME CR TB100G",
+    "labo": "BOUCHARA",
+    "tickets": 154,
+    "sem": 3.0,
+    "stk": 0,
+    "cmd4sem": 13
+   },
+   {
+    "ean": "3700281702286",
+    "lib": "TOPICREM ULT HYD LT CORP 500ML",
+    "labo": "MAYOLY (Topicrem)",
+    "tickets": 148,
+    "sem": 2.8,
+    "stk": 0,
+    "cmd4sem": 12
+   },
+   {
+    "ean": "3400939393216",
+    "lib": "HUMEX SP AD SS TX GRASSE  250ML",
+    "labo": "URGO",
+    "tickets": 144,
+    "sem": 2.8,
+    "stk": 0,
+    "cmd4sem": 12
+   },
+   {
+    "ean": "3400932779727",
+    "lib": "HEXASPRAY GOÛT ANIS COLLUTOI FL PRESS 30G",
+    "labo": "BOUCHARA",
+    "tickets": 140,
+    "sem": 2.7,
+    "stk": 0,
+    "cmd4sem": 11
+   },
+   {
+    "ean": "3400936485464",
+    "lib": "EFFERALGAN 1G TAB CPR PELLI BT8",
+    "labo": "UPSA",
+    "tickets": 137,
+    "sem": 2.6,
+    "stk": -1,
+    "cmd4sem": 21
+   },
+   {
+    "ean": "3582910089599",
+    "lib": "PHYTOXIL AGRUMES-MAUVE SANS SUCRE 120ML NSFP",
+    "labo": "OPELLA / SANOFI",
+    "tickets": 136,
+    "sem": 2.6,
+    "stk": 0,
+    "cmd4sem": 11
+   },
+   {
+    "ean": "3400932300778",
+    "lib": "TITANOREINE SUP BT12",
+    "labo": "KENVUE (J&J)",
+    "tickets": 126,
+    "sem": 2.4,
+    "stk": 0,
+    "cmd4sem": 11
+   },
+   {
+    "ean": "3400934292293",
+    "lib": "NASACORT 55MCG/DOS NAS FL15ML",
+    "labo": "Autres laboratoires",
+    "tickets": 120,
+    "sem": 2.3,
+    "stk": 0,
+    "cmd4sem": 10
+   },
+   {
+    "ean": "3400927619960",
+    "lib": "RELVAR ELLIPTA 92/22Y 30DOSX1",
+    "labo": "Autres laboratoires",
+    "tickets": 119,
+    "sem": 2.3,
+    "stk": 0,
+    "cmd4sem": 10
+   },
+   {
+    "ean": "3261480004644",
+    "lib": "MEDISET PANSEMENT STANDARD 5 SOINS",
+    "labo": "Autres laboratoires",
+    "tickets": 112,
+    "sem": 2.2,
+    "stk": 0,
+    "cmd4sem": 12
+   },
+   {
+    "ean": "3400935211422",
+    "lib": "TIORFAN 30MG ENF PDR SACH 30",
+    "labo": "Autres laboratoires",
+    "tickets": 109,
+    "sem": 2.1,
+    "stk": 0,
+    "cmd4sem": 9
+   },
+   {
+    "ean": "3701145600243",
+    "lib": "AZEOL PASTILLES MENTHE CP à sucer",
+    "labo": "URIACH (Azeol)",
+    "tickets": 102,
+    "sem": 2.0,
+    "stk": 0,
+    "cmd4sem": 8
+   },
+   {
+    "ean": "3701145690640",
+    "lib": "AZEOL GORGE Cpr suc miel citron B/30",
+    "labo": "URIACH (Azeol)",
+    "tickets": 101,
+    "sem": 1.9,
+    "stk": 0,
+    "cmd4sem": 8
+   },
+   {
+    "ean": "3337875927871",
+    "lib": "CERAVE Patch anti-imperf B/22",
+    "labo": "L'ORÉAL",
+    "tickets": 98,
+    "sem": 1.9,
+    "stk": 0,
+    "cmd4sem": 8
+   },
+   {
+    "ean": "9001616639975",
+    "lib": "MAM TETINE DÉBX  LIQ ÉPAIS RAPID SILIC 2",
+    "labo": "MAM",
+    "tickets": 96,
+    "sem": 1.8,
+    "stk": 0,
+    "cmd4sem": 9
+   },
+   {
+    "ean": "3664492025063",
+    "lib": "URGOPORE GEANT SPAR 2,5X9,14",
+    "labo": "URGO",
+    "tickets": 96,
+    "sem": 1.8,
+    "stk": -1,
+    "cmd4sem": 8
+   },
+   {
+    "ean": "3401344296222",
+    "lib": "BAUME DU TIGRE ROUGE POT",
+    "labo": "Autres laboratoires",
+    "tickets": 91,
+    "sem": 1.8,
+    "stk": 0,
+    "cmd4sem": 8
+   },
+   {
+    "ean": "3400936373242",
+    "lib": "EFFERALGANVITAMINEC 500 EFFV16",
+    "labo": "UPSA",
+    "tickets": 91,
+    "sem": 1.8,
+    "stk": 0,
+    "cmd4sem": 9
+   },
+   {
+    "ean": "3400934968754",
+    "lib": "MICROLAX SOL RECTALE 4",
+    "labo": "KENVUE (J&J)",
+    "tickets": 90,
+    "sem": 1.7,
+    "stk": -1,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400927400209",
+    "lib": "TANGANIL GÉ 500MG CPR BT30",
+    "labo": "Autres laboratoires",
+    "tickets": 88,
+    "sem": 1.7,
+    "stk": 0,
+    "cmd4sem": 14
+   },
+   {
+    "ean": "3400300758163",
+    "lib": "ARNICA MONTANA 9CH TG BOI",
+    "labo": "Autres laboratoires",
+    "tickets": 87,
+    "sem": 1.7,
+    "stk": 0,
+    "cmd4sem": 9
+   },
+   {
+    "ean": "3337875923859",
+    "lib": "CERAVE Gel mouss anti-imperf Fl ppe/473ml",
+    "labo": "L'ORÉAL",
+    "tickets": 86,
+    "sem": 1.7,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400938021318",
+    "lib": "REACTINE 10MG CPR BT7 (ex actifed allergie)",
+    "labo": "KENVUE (J&J)",
+    "tickets": 85,
+    "sem": 1.6,
+    "stk": 0,
+    "cmd4sem": 8
+   },
+   {
+    "ean": "3760196530060",
+    "lib": "NHCO Mg Amino-Chélaté Gél Pilul/42",
+    "labo": "NHCO",
+    "tickets": 84,
+    "sem": 1.6,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400933859053",
+    "lib": "AMOXICILLINE BGA 500MG/5ML BUV60ML",
+    "labo": "Autres laboratoires",
+    "tickets": 83,
+    "sem": 1.6,
+    "stk": 0,
+    "cmd4sem": 11
+   },
+   {
+    "ean": "3573994006572",
+    "lib": "DEXERYL DM 500G POMPE",
+    "labo": "PIERRE FABRE",
+    "tickets": 83,
+    "sem": 1.6,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400931922827",
+    "lib": "BIAFINE TB 93G",
+    "labo": "KENVUE (J&J)",
+    "tickets": 82,
+    "sem": 1.6,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400936385139",
+    "lib": "EXOMUC 200MG GLE BUV SACH 24",
+    "labo": "Autres laboratoires",
+    "tickets": 82,
+    "sem": 1.6,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400932223794",
+    "lib": "NERISONE CR",
+    "labo": "Autres laboratoires",
+    "tickets": 80,
+    "sem": 1.5,
+    "stk": 0,
+    "cmd4sem": 12
+   },
+   {
+    "ean": "3400936752016",
+    "lib": "DONORMYL CPR EFFV TB10",
+    "labo": "Autres laboratoires",
+    "tickets": 79,
+    "sem": 1.5,
+    "stk": 0,
+    "cmd4sem": 9
+   },
+   {
+    "ean": "3700281702736",
+    "lib": "TOPICREM DA Bme émoll vis corps Fl ppe/500ml",
+    "labo": "MAYOLY (Topicrem)",
+    "tickets": 78,
+    "sem": 1.5,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400936747913",
+    "lib": "PREDNISOLONE ZENT20MG CPR EF20",
+    "labo": "Autres laboratoires",
+    "tickets": 76,
+    "sem": 1.5,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400930291474",
+    "lib": "SMECTALIA 3g Su buv s ment cit 12Sach",
+    "labo": "IPSEN (Smecta)",
+    "tickets": 72,
+    "sem": 1.4,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400936251892",
+    "lib": "SPEDIFEN 400MG CPR BT12",
+    "labo": "Autres laboratoires",
+    "tickets": 72,
+    "sem": 1.4,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "3400931923077",
+    "lib": "SMECTA 3G ORAN-VANI BUV SACH30",
+    "labo": "IPSEN (Smecta)",
+    "tickets": 71,
+    "sem": 1.4,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400930038536",
+    "lib": "PROPRANOLOL BGA 40MG CPR BT50",
+    "labo": "Autres laboratoires",
+    "tickets": 70,
+    "sem": 1.3,
+    "stk": -1,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "8445290000811",
+    "lib": "GUIGOZ OPTIPRO 1 Lait pdr B/780g",
+    "labo": "LAITS BÉBÉ",
+    "tickets": 70,
+    "sem": 1.3,
+    "stk": 0,
+    "cmd4sem": 8
+   },
+   {
+    "ean": "3400930151099",
+    "lib": "N P U OZEMPIC 0,5MG INJ STYLO1,5ML 1",
+    "labo": "Autres laboratoires",
+    "tickets": 69,
+    "sem": 1.3,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400937882248",
+    "lib": "IMODIUMDUO Cpr Plq/12",
+    "labo": "KENVUE (J&J)",
+    "tickets": 69,
+    "sem": 1.3,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400939409627",
+    "lib": "CHLORHEX/CHLOROBUT.BGA 90ML 1",
+    "labo": "Autres laboratoires",
+    "tickets": 68,
+    "sem": 1.3,
+    "stk": 0,
+    "cmd4sem": 16
+   },
+   {
+    "ean": "3400935970565",
+    "lib": "HEXTRIL MENT 200ML",
+    "labo": "BOUCHARA",
+    "tickets": 67,
+    "sem": 1.3,
+    "stk": -2,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400932308293",
+    "lib": "DIPROSONE 0,05 % pom",
+    "labo": "Autres laboratoires",
+    "tickets": 67,
+    "sem": 1.3,
+    "stk": 0,
+    "cmd4sem": 7
+   },
+   {
+    "ean": "9001616639968",
+    "lib": "MAM TETINE DEB3 RAPIDE SILIC 2",
+    "labo": "MAM",
+    "tickets": 66,
+    "sem": 1.3,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400930040034",
+    "lib": "INNOVAIR 200/6Y/DOS FL120DOS",
+    "labo": "Autres laboratoires",
+    "tickets": 66,
+    "sem": 1.3,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400934968815",
+    "lib": "MICROLAX 12 5ML",
+    "labo": "KENVUE (J&J)",
+    "tickets": 65,
+    "sem": 1.2,
+    "stk": -4,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3701056800404",
+    "lib": "PURESSENTIEL RESPIRATOIRE SIROP TOUX 125M",
+    "labo": "PURESSENTIEL",
+    "tickets": 65,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400934001024",
+    "lib": "MOVICOL CITRON BUV PDR SACH 20",
+    "labo": "Autres laboratoires",
+    "tickets": 64,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400937950527",
+    "lib": "MACROGOL BGA 10G BUV SACH 20",
+    "labo": "Autres laboratoires",
+    "tickets": 64,
+    "sem": 1.2,
+    "stk": -6,
+    "cmd4sem": 10
+   },
+   {
+    "ean": "3400930007921",
+    "lib": "SMECTA FRAISE 18 SACHETS",
+    "labo": "IPSEN (Smecta)",
+    "tickets": 63,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3401095297363",
+    "lib": "POLIDIS SORTEZ COUVERT PRESERV 12",
+    "labo": "Autres laboratoires",
+    "tickets": 63,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3337875814652",
+    "lib": "CERAVE SPF50 Cr hydrat vis T/52ml",
+    "labo": "L'ORÉAL",
+    "tickets": 62,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400949313792",
+    "lib": "SMECTALIA 3G ORANGE 18SACHETS",
+    "labo": "IPSEN (Smecta)",
+    "tickets": 62,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400936864986",
+    "lib": "NUROFEN 400MG CPR BT12",
+    "labo": "RECKITT (Alloga)",
+    "tickets": 61,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400921629880",
+    "lib": "RHINOTROPHYL PUL  NAS",
+    "labo": "Autres laboratoires",
+    "tickets": 60,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3518646043208",
+    "lib": "PARASIDOSE Peigne ant-poux dents cannel",
+    "labo": "GILBERT",
+    "tickets": 60,
+    "sem": 1.2,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400933158910",
+    "lib": "ALC 70% MED GILB S a loc Fl/250ml",
+    "labo": "GILBERT",
+    "tickets": 58,
+    "sem": 1.1,
+    "stk": -5,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400935392831",
+    "lib": "FLUIMUCIL EXPEC AD.SS BUV200ML",
+    "labo": "ZAMBON",
+    "tickets": 58,
+    "sem": 1.1,
+    "stk": -5,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400930026571",
+    "lib": "DULOXETINE MYP 30MG GELU BT28",
+    "labo": "Autres laboratoires",
+    "tickets": 58,
+    "sem": 1.1,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "7640149724318",
+    "lib": "AZEOL DM Spray nas rhinite rhinosinus Fl/20ml",
+    "labo": "URIACH (Azeol)",
+    "tickets": 56,
+    "sem": 1.1,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400938141283",
+    "lib": "INNOVAIR 100/6Y/DOS FL120DOS",
+    "labo": "Autres laboratoires",
+    "tickets": 56,
+    "sem": 1.1,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400930057704",
+    "lib": "SUPPOSIT GILB Suppo Nourr Plq/10",
+    "labo": "GILBERT",
+    "tickets": 55,
+    "sem": 1.1,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3401364147542",
+    "lib": "URIAGE EAU THERM SPRAY 150ML 1",
+    "labo": "URIAGE",
+    "tickets": 54,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3337875597449",
+    "lib": "CERAVE VISAGE CREME HYD JOUR TUBE 52ML",
+    "labo": "L'ORÉAL",
+    "tickets": 53,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3770008263123",
+    "lib": "CALMISCAB INTENSE Cr soin ap anti-gratt 50ml",
+    "labo": "Autres laboratoires",
+    "tickets": 52,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400933978839",
+    "lib": "MYDRIATICUM 2MG/0,4ML CY DOS20",
+    "labo": "Autres laboratoires",
+    "tickets": 52,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400934748271",
+    "lib": "TOLEXINE 100MG CPR BT28",
+    "labo": "Autres laboratoires",
+    "tickets": 52,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400938358926",
+    "lib": "IBUPROFENE BGC 400MG CPR BT10",
+    "labo": "Autres laboratoires",
+    "tickets": 52,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3401562465875",
+    "lib": "AZEOL SPRAY GORGE FL15ML",
+    "labo": "URIACH (Azeol)",
+    "tickets": 51,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "5021791001316",
+    "lib": "FREESTYLE LIBRE 2 Capteur B/1 NSFP",
+    "labo": "ABBOTT (FreeStyle)",
+    "tickets": 51,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 8
+   },
+   {
+    "ean": "3400930026793",
+    "lib": "DULOXETINE MYP 60MG GELU BT28",
+    "labo": "Autres laboratoires",
+    "tickets": 51,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3401553833072",
+    "lib": "ALVITYL MAGNESIUM-VIT B6 45CPS",
+    "labo": "URGO",
+    "tickets": 50,
+    "sem": 1.0,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400935445452",
+    "lib": "MICROLAX BB SOL RECTALE 4",
+    "labo": "KENVUE (J&J)",
+    "tickets": 50,
+    "sem": 1.0,
+    "stk": -3,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3401560081442",
+    "lib": "BIOGAIA GTT TEMPERE TB5ML 1",
+    "labo": "Autres laboratoires",
+    "tickets": 48,
+    "sem": 0.9,
+    "stk": -2,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400938730715",
+    "lib": "NICOPASS 2.5MG PAST MENT FRAI SS 96",
+    "labo": "PIERRE FABRE",
+    "tickets": 48,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400935319562",
+    "lib": "FLUIMUCIL EXPEC ENFANT SS BUV100ML",
+    "labo": "ZAMBON",
+    "tickets": 48,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3337875904513",
+    "lib": "CERAVE Gel cr hydrat oil control T/52ml",
+    "labo": "L'ORÉAL",
+    "tickets": 47,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400931639039",
+    "lib": "ALODONT BAIN BCHE FP200ML +GOD",
+    "labo": "Autres laboratoires",
+    "tickets": 47,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400932760565",
+    "lib": "NAUSICALM SIR FP150ML",
+    "labo": "Autres laboratoires",
+    "tickets": 47,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 5
+   },
+   {
+    "ean": "3400936468726",
+    "lib": "LOVENOX 4000UI SRG0,4ML 6+ERIS",
+    "labo": "Autres laboratoires",
+    "tickets": 47,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 10
+   },
+   {
+    "ean": "3400927407581",
+    "lib": "VOLTARENACTIGO 2% INTENSE GEL TLA30G",
+    "labo": "HALEON",
+    "tickets": 47,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3760196531197",
+    "lib": "NHCO VITOREL Cpr sinus nez gorge B/30",
+    "labo": "NHCO",
+    "tickets": 46,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400930007877",
+    "lib": "SMECTALIA RTU 3G CHOCO-CARAMEL 12STICKS",
+    "labo": "IPSEN (Smecta)",
+    "tickets": 46,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3760155212471",
+    "lib": "GRANIONS MAGNESIUM Cpr Pilul/60",
+    "labo": "EA PHARMA (Granions)",
+    "tickets": 46,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400935068699",
+    "lib": "FLUIMUCIL EXPECTORANT 200MG AD 18SACHETS",
+    "labo": "ZAMBON",
+    "tickets": 46,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3574661811376",
+    "lib": "LISTERINE PROTECT DENTS GENCIVE FL500ML",
+    "labo": "KENVUE (J&J)",
+    "tickets": 45,
+    "sem": 0.9,
+    "stk": -7,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400937621762",
+    "lib": "GAVISCONELLPRO MENTHE S/S BUV SAC10",
+    "labo": "RECKITT (Alloga)",
+    "tickets": 45,
+    "sem": 0.9,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400930167069",
+    "lib": "RHINOFEBRAL J N Pdr sbuv sac 12Sach/5g(8j+4n)",
+    "labo": "Autres laboratoires",
+    "tickets": 44,
+    "sem": 0.8,
+    "stk": -1,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400937646376",
+    "lib": "PERINDOPRIL TVS 4MG CPR BT90",
+    "labo": "Autres laboratoires",
+    "tickets": 44,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400934825774",
+    "lib": "HUMEX FRN 0,04% S p nas Fl ppe/15ml",
+    "labo": "URGO",
+    "tickets": 44,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3760155216080",
+    "lib": "GRANIONS VITANIN ENERGIE 1000mg Cpr eff B/30",
+    "labo": "EA PHARMA (Granions)",
+    "tickets": 44,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3760155216103",
+    "lib": "GRANIONS VITAMIN IMMUNITE 1000mg Cpr eff B/30",
+    "labo": "EA PHARMA (Granions)",
+    "tickets": 44,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3041091511768",
+    "lib": "GALLIAGEST 1 800G",
+    "labo": "LAITS BÉBÉ",
+    "tickets": 44,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400933071998",
+    "lib": "DOLIPRANE 500MG CPR EFFV TB16 NSFP",
+    "labo": "OPELLA / SANOFI",
+    "tickets": 44,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400930063002",
+    "lib": "GAVISCONPRO MENT BUV SACHET 10ML 20",
+    "labo": "RECKITT (Alloga)",
+    "tickets": 43,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3401597732584",
+    "lib": "EFFLUVIUM Gél anti-chute vital chev B/168",
+    "labo": "Autres laboratoires",
+    "tickets": 43,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "2013113100060",
+    "lib": "CALENDRIER DE L'AVENT APOTHICAL 2026",
+    "labo": "Autres laboratoires",
+    "tickets": 42,
+    "sem": 0.8,
+    "stk": -22,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3534510000429",
+    "lib": "BEROCCABOOST Cpr eff B/20 promo 2Euros NSFP",
+    "labo": "BAYER",
+    "tickets": 42,
+    "sem": 0.8,
+    "stk": -1,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3664492000046",
+    "lib": "ALVITYL VITALITE GOMMES 60",
+    "labo": "URGO",
+    "tickets": 42,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400938414219",
+    "lib": "NUROFEN 200MG CPR BT30",
+    "labo": "RECKITT (Alloga)",
+    "tickets": 41,
+    "sem": 0.8,
+    "stk": -2,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3518646122248",
+    "lib": "ELLE TEST",
+    "labo": "GILBERT",
+    "tickets": 41,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400933797447",
+    "lib": "CELLUVISC 4MG COLLY UNIDOS 30",
+    "labo": "Autres laboratoires",
+    "tickets": 40,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 6
+   },
+   {
+    "ean": "3400936752474",
+    "lib": "NUROFENFLASH 200MG CPR BT12",
+    "labo": "RECKITT (Alloga)",
+    "tickets": 40,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400934158131",
+    "lib": "LUMBALGINE CR TB90G",
+    "labo": "Autres laboratoires",
+    "tickets": 40,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3401553606027",
+    "lib": "BEROCCA BOOST 20CP EFF",
+    "labo": "BAYER",
+    "tickets": 39,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3664492022789",
+    "lib": "ALVITYL SOL BUV FL150ML 1",
+    "labo": "URGO",
+    "tickets": 39,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400922034928",
+    "lib": "ESOMEPRAZOLE MYC 20MG GELU B14",
+    "labo": "Autres laboratoires",
+    "tickets": 39,
+    "sem": 0.8,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3401577875522",
+    "lib": "AZEOL AB CAPS 30",
+    "labo": "URIACH (Azeol)",
+    "tickets": 38,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400934155000",
+    "lib": "SAINT-BERNARD BAUME CR TB42G",
+    "labo": "BOUCHARA",
+    "tickets": 38,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3700640501314",
+    "lib": "ORILYSE S aur Fl c-gtt/20ml",
+    "labo": "Autres laboratoires",
+    "tickets": 37,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400930248454",
+    "lib": "EFFERALGAN 1000mg Glé en sach frt rge Sach/8",
+    "labo": "UPSA",
+    "tickets": 37,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "8001841491110",
+    "lib": "ZZZQUIL SOMMEIL GOM FRUITS DES BOIS B/30",
+    "labo": "P&G (Alloga)",
+    "tickets": 36,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400930570357",
+    "lib": "LANSOYL GEL ORAL FRAMB, POT 225G",
+    "labo": "OPELLA / SANOFI",
+    "tickets": 36,
+    "sem": 0.7,
+    "stk": -2,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3401529507921",
+    "lib": "C BIANE ACEROLA CPR BT60",
+    "labo": "Autres laboratoires",
+    "tickets": 35,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400938440461",
+    "lib": "ALOPEXY 5% PFS S A CUT FL/3",
+    "labo": "Autres laboratoires",
+    "tickets": 35,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3770000717587",
+    "lib": "LA ROSÉE SOLAIRE SPF50+ Lait T/150ml",
+    "labo": "Autres laboratoires",
+    "tickets": 35,
+    "sem": 0.7,
+    "stk": -7,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3760155219265",
+    "lib": "GRANIONS HYDROP COLLAG Cpr eff framb cas T/18",
+    "labo": "EA PHARMA (Granions)",
+    "tickets": 35,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3518681007562",
+    "lib": "CHONDROSTEO+ GEL MASS TB100ML1",
+    "labo": "Autres laboratoires",
+    "tickets": 35,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3504105025854",
+    "lib": "MUSTELA CHANGE CRÈME 123 100ML",
+    "labo": "EXPANSCIENCE (Mustela)",
+    "tickets": 34,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3401546259902",
+    "lib": "PURESSENTIEL ARTICULATION ROLLER 75ML",
+    "labo": "PURESSENTIEL",
+    "tickets": 34,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3401553545470",
+    "lib": "PEDIAKID VIT D3 FL20ML 1",
+    "labo": "URIACH (Azeol)",
+    "tickets": 34,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3700281702583",
+    "lib": "TOPICREM DA Bme émoll vis corps T/200ml",
+    "labo": "MAYOLY (Topicrem)",
+    "tickets": 34,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400938171150",
+    "lib": "ADVIL 400MG CPR BT14",
+    "labo": "Autres laboratoires",
+    "tickets": 34,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400921929201",
+    "lib": "DOLODENT SOL GGVL FL27G",
+    "labo": "KENVUE (J&J)",
+    "tickets": 34,
+    "sem": 0.7,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400939003368",
+    "lib": "Nicorette 2mg menthe glaciale 210 gommes",
+    "labo": "KENVUE (J&J)",
+    "tickets": 33,
+    "sem": 0.6,
+    "stk": -4,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400930024300",
+    "lib": "NICOPATCHLIB 21MG/24H DISP 28",
+    "labo": "Autres laboratoires",
+    "tickets": 33,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3337875930048",
+    "lib": "LIPIKAR BAUME AP+M 200ML",
+    "labo": "L'ORÉAL",
+    "tickets": 33,
+    "sem": 0.6,
+    "stk": -1,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400949696086",
+    "lib": "VENLAFAXINE TVS LP37,5 GELU 30",
+    "labo": "Autres laboratoires",
+    "tickets": 33,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3700281704457",
+    "lib": "TOPICREM MELA Lait éclairciss ultra-hyd 500ml",
+    "labo": "MAYOLY (Topicrem)",
+    "tickets": 33,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400927915666",
+    "lib": "EXOMUC STICKS SANS EAU 15U",
+    "labo": "Autres laboratoires",
+    "tickets": 33,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400941751790",
+    "lib": "BISOPROLOL TVS 2,5MG CPR BT30",
+    "labo": "Autres laboratoires",
+    "tickets": 32,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 4
+   },
+   {
+    "ean": "3400930003732",
+    "lib": "TRULICITY 0,75MG INJ STY0,5ML4",
+    "labo": "Autres laboratoires",
+    "tickets": 32,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400934557064",
+    "lib": "SUPPOSIT GILB Suppo adultes Sach/50",
+    "labo": "GILBERT",
+    "tickets": 32,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3760155215625",
+    "lib": "GRANIONS KID TOUX S buv Fl/125ml",
+    "labo": "EA PHARMA (Granions)",
+    "tickets": 32,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400938120462",
+    "lib": "CETAVLON CR TB80G 1",
+    "labo": "Autres laboratoires",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3518646213014",
+    "lib": "BACTIDOSE Gel hydroalcool ss parf 75ml",
+    "labo": "GILBERT",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3578835500356",
+    "lib": "ARKOTOUX 140ML seche + grasse > 2ans",
+    "labo": "Autres laboratoires",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400937054454",
+    "lib": "RUBOZINC 15MG GELU BT60",
+    "labo": "Autres laboratoires",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400936461680",
+    "lib": "ZYRTECSET 10MG CPR BT7",
+    "labo": "KENVUE (J&J)",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3760155216486",
+    "lib": "GRANIONS DETOX FOIE Cpr B/60",
+    "labo": "EA PHARMA (Granions)",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "4005800192883",
+    "lib": "EUCERIN DERMOPURE Gel nettoy Fl ppe/400ml",
+    "labo": "Autres laboratoires",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": -4,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3664524000112",
+    "lib": "ERGYMAG Mg Vit B Gél B/45",
+    "labo": "NUTERGIA",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3614790001276",
+    "lib": "DESOSEPT Gel T/15g",
+    "labo": "Autres laboratoires",
+    "tickets": 31,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3282779048637",
+    "lib": "AVENE CICALFATE LOT REPAR 40ML",
+    "labo": "PIERRE FABRE",
+    "tickets": 30,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 2
+   },
+   {
+    "ean": "3700225641428",
+    "lib": "ARTROBIOL Gel conf artic muscul T/100ml",
+    "labo": "Autres laboratoires",
+    "tickets": 30,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400930238257",
+    "lib": "MOVIPREP ORANGE Pdr sbuv 2Sach (A+B)",
+    "labo": "Autres laboratoires",
+    "tickets": 30,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3400927671197",
+    "lib": "LUCENTIS 10MG/ML INJ SRG 1",
+    "labo": "Autres laboratoires",
+    "tickets": 30,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3700281703955",
+    "lib": "TOPICREM MELA Pain exfol unif 150g",
+    "labo": "MAYOLY (Topicrem)",
+    "tickets": 30,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3700281702361",
+    "lib": "TOPICREM LT CORP ULT-HYD 200ML",
+    "labo": "MAYOLY (Topicrem)",
+    "tickets": 30,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3760155217506",
+    "lib": "GRANIONS GUMMIES MELATONINE 1,9mg Gom Fl/60",
+    "labo": "EA PHARMA (Granions)",
+    "tickets": 30,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   },
+   {
+    "ean": "3664524001980",
+    "lib": "ERGYPHILUS INTIMA GELU FL60",
+    "labo": "NUTERGIA",
+    "tickets": 30,
+    "sem": 0.6,
+    "stk": 0,
+    "cmd4sem": 3
+   }
+  ]
+ },
+ "decembre": {
+  "titre": "Décembre se gagne avec les produits d'hiver, pas avec les coffrets",
+  "lecture": [
+   "Décembre 2025 : 13 715 ventes, 385 157 € de CA TTC (le meilleur mois de l'année).",
+   "Les coffrets n'ont pesé que ≈ 7 000 € TTC sur le mois (Nuxe en tête, ≈ 1 500 €), alors que les produits d'hiver (rhume, toux, gorge, fièvre, nez) ont été vendus 2 à 8 fois plus qu'un mois moyen.",
+   "Donc : coffrets en quantité limitée (Nuxe pour l'animation du 5/12, Caudalie, Mustela), et l'argent sur les produits d'hiver en rayon dès novembre.",
+   "121 produits d'hiver ont aujourd'hui moins de stock que ce qui s'est vendu en décembre 2025."
+  ],
+  "l": [
+   {
+    "ean": "3400934615467",
+    "lib": "DOLIPRANE 2.4PC SUSP BUV 100ML fl 160 doses/kg",
+    "dec25": 350,
+    "moy": 222.6,
+    "stk": 143,
+    "acheter": 207
+   },
+   {
+    "ean": "3400922385624",
+    "lib": "HELICIDINE 10% S/S SIR FP250ML",
+    "dec25": 170,
+    "moy": 75.2,
+    "stk": 33,
+    "acheter": 137
+   },
+   {
+    "ean": "4046871010171",
+    "lib": "STERILUX PADS Rectang coton hyg B/160",
+    "dec25": 120,
+    "moy": 75.2,
+    "stk": 129,
+    "acheter": 0
+   },
+   {
+    "ean": "3400932705917",
+    "lib": "FERVEX AD SACH 8",
+    "dec25": 111,
+    "moy": 39.0,
+    "stk": 11,
+    "acheter": 100
+   },
+   {
+    "ean": "3518646266638",
+    "lib": "PHYSIODOSE SER PHYSIO 5ML 40",
+    "dec25": 109,
+    "moy": 36.1,
+    "stk": -7,
+    "acheter": 109
+   },
+   {
+    "ean": "3400930145449",
+    "lib": "IBUPROFENE 400MG 12CP CONSEIL",
+    "dec25": 107,
+    "moy": 60.4,
+    "stk": 3,
+    "acheter": 104
+   },
+   {
+    "ean": "6971348761301",
+    "lib": "FLUORECARE Test nasal Ag covid/grippe/VRS B/1",
+    "dec25": 105,
+    "moy": 12.4,
+    "stk": 1,
+    "acheter": 104
+   },
+   {
+    "ean": "3585550001204",
+    "lib": "UPSA VIT C 1G à croquer Tube/15cp",
+    "dec25": 105,
+    "moy": 36.5,
+    "stk": 74,
+    "acheter": 31
+   },
+   {
+    "ean": "3400935281739",
+    "lib": "VICKS VAPORUB POM POT50G",
+    "dec25": 103,
+    "moy": 28.2,
+    "stk": 0,
+    "acheter": 103
+   },
+   {
+    "ean": "3400936760578",
+    "lib": "NUROFENFLASH 400MG 12CPRS",
+    "dec25": 98,
+    "moy": 43.0,
+    "stk": 0,
+    "acheter": 98
+   },
+   {
+    "ean": "3400926674359",
+    "lib": "GLYCER/VASEL/PARAF.PFS CR 250G",
+    "dec25": 93,
+    "moy": 51.5,
+    "stk": 5,
+    "acheter": 88
+   },
+   {
+    "ean": "3400932331536",
+    "lib": "DOLIPRANE 500MG PDR SACH 12",
+    "dec25": 85,
+    "moy": 51.5,
+    "stk": 42,
+    "acheter": 43
+   },
+   {
+    "ean": "3400931126621",
+    "lib": "VICKS INHALER TAMP TB1",
+    "dec25": 84,
+    "moy": 22.3,
+    "stk": 0,
+    "acheter": 84
+   },
+   {
+    "ean": "3400936348288",
+    "lib": "VOGALIB 7.5MG LYO ORAL    BT 8",
+    "dec25": 73,
+    "moy": 30.5,
+    "stk": 119,
+    "acheter": 0
+   },
+   {
+    "ean": "3400949898350",
+    "lib": "FERVEX AD. FRAMB BUV GLE SACH8",
+    "dec25": 66,
+    "moy": 20.5,
+    "stk": 1,
+    "acheter": 65
+   },
+   {
+    "ean": "3400937560467",
+    "lib": "COQUELUSEDAL BB. SUP BT10",
+    "dec25": 65,
+    "moy": 22.8,
+    "stk": 26,
+    "acheter": 39
+   },
+   {
+    "ean": "3400930009130",
+    "lib": "OXOMEMAZINE UPSA 0,33mg/ml S buv s suc /125ml",
+    "dec25": 65,
+    "moy": 18.5,
+    "stk": 64,
+    "acheter": 1
+   },
+   {
+    "ean": "3701437500145",
+    "lib": "MASQUE CHIRURGICAL AURIOL X50",
+    "dec25": 65,
+    "moy": 25.8,
+    "stk": 15,
+    "acheter": 50
+   },
+   {
+    "ean": "3273816860152",
+    "lib": "NEUTRADERM Gel dche surgras dermo prot 1l",
+    "dec25": 64,
+    "moy": 40.2,
+    "stk": 165,
+    "acheter": 0
+   },
+   {
+    "ean": "3400939035765",
+    "lib": "LYSOPAINE CETYLPYRIDINIUM MENTHE 36 PAST",
+    "dec25": 64,
+    "moy": 37.1,
+    "stk": 125,
+    "acheter": 0
+   },
+   {
+    "ean": "5021791001316",
+    "lib": "FREESTYLE LIBRE 2 Capteur B/1 NSFP",
+    "dec25": 63,
+    "moy": 8.3,
+    "stk": 0,
+    "acheter": 63
+   },
+   {
+    "ean": "3770027290322",
+    "lib": "Dr B 0,9% SER phy irrig  1L",
+    "dec25": 63,
+    "moy": 13.3,
+    "stk": 4,
+    "acheter": 59
+   },
+   {
+    "ean": "3400933275815",
+    "lib": "DAFALGAN CODEINE CPR BT16",
+    "dec25": 63,
+    "moy": 29.5,
+    "stk": 45,
+    "acheter": 18
+   },
+   {
+    "ean": "3582910089599",
+    "lib": "PHYTOXIL AGRUMES-MAUVE SANS SUCRE 120ML NSFP",
+    "dec25": 61,
+    "moy": 11.8,
+    "stk": 0,
+    "acheter": 61
+   },
+   {
+    "ean": "4052199737669",
+    "lib": "STERILUX Bde crêp cot 10cmx4m ss cello",
+    "dec25": 60,
+    "moy": 30.6,
+    "stk": 14,
+    "acheter": 46
+   },
+   {
+    "ean": "3770028314683",
+    "lib": "DOCTEUR B Test gross B/1",
+    "dec25": 57,
+    "moy": 34.2,
+    "stk": 2,
+    "acheter": 55
+   },
+   {
+    "ean": "7613035814363",
+    "lib": "CLINUTREN HP/HC+ VANILLE 200ML",
+    "dec25": 54,
+    "moy": 21.2,
+    "stk": 1,
+    "acheter": 53
+   },
+   {
+    "ean": "3400937307628",
+    "lib": "TOPLEXIL SIR S/S 0,33MG/MLFL150ML",
+    "dec25": 54,
+    "moy": 25.9,
+    "stk": 17,
+    "acheter": 37
+   },
+   {
+    "ean": "3400934809408",
+    "lib": "DOLIPRANE 150MG SUP BT10",
+    "dec25": 52,
+    "moy": 32.6,
+    "stk": 23,
+    "acheter": 29
+   },
+   {
+    "ean": "3400934965852",
+    "lib": "CITRATE DE BETAINE UPSA CITRON  2G C.20",
+    "dec25": 51,
+    "moy": 29.8,
+    "stk": 21,
+    "acheter": 30
+   },
+   {
+    "ean": "3400933359591",
+    "lib": "FERVEX AD SANS SUCRE SACH 8",
+    "dec25": 49,
+    "moy": 20.3,
+    "stk": 29,
+    "acheter": 20
+   },
+   {
+    "ean": "3400930305010",
+    "lib": "EFLUELDA Su ij se Ser/0,5ml+aig sép",
+    "dec25": 49,
+    "moy": 28.6,
+    "stk": 214,
+    "acheter": 0
+   },
+   {
+    "ean": "3400938503319",
+    "lib": "DRILL S/SUC MIEL CITRON PAST24",
+    "dec25": 47,
+    "moy": 15.1,
+    "stk": 38,
+    "acheter": 9
+   },
+   {
+    "ean": "3770028314041",
+    "lib": "DOCTEUR B Ser lavage nasal B/2",
+    "dec25": 47,
+    "moy": 15.9,
+    "stk": 1,
+    "acheter": 46
+   },
+   {
+    "ean": "3701056801555",
+    "lib": "PURESSENTIEL RESPIRATOIRE Spray nas déc 15ml",
+    "dec25": 47,
+    "moy": 19.8,
+    "stk": 152,
+    "acheter": 0
+   },
+   {
+    "ean": "3400931358589",
+    "lib": "PYOSTACINE 500MG CPR BT16",
+    "dec25": 45,
+    "moy": 28.4,
+    "stk": 14,
+    "acheter": 31
+   },
+   {
+    "ean": "3700281702293",
+    "lib": "TOPICREM ULTRA-HYDRAT CORP Lait 2Fl ppe/500ml",
+    "dec25": 45,
+    "moy": 20.0,
+    "stk": 11,
+    "acheter": 34
+   },
+   {
+    "ean": "3400930251539",
+    "lib": "CONTALAX CPR BT30",
+    "dec25": 44,
+    "moy": 7.2,
+    "stk": 138,
+    "acheter": 0
+   },
+   {
+    "ean": "3400930204887",
+    "lib": "KLIPAL CODEI.600MG/50MG CPR 12",
+    "dec25": 44,
+    "moy": 25.5,
+    "stk": 23,
+    "acheter": 21
+   },
+   {
+    "ean": "6939663976367",
+    "lib": "SEJOY SARS-COV-2 Test Covid Sach/1",
+    "dec25": 44,
+    "moy": 26.3,
+    "stk": 142,
+    "acheter": 0
+   },
+   {
+    "ean": "3400935167156",
+    "lib": "ACTISOUFRE NAS BUC FL100ML",
+    "dec25": 41,
+    "moy": 6.3,
+    "stk": 57,
+    "acheter": 0
+   },
+   {
+    "ean": "3400934348686",
+    "lib": "MAXILASE M.GORGE SIR FL200ML",
+    "dec25": 41,
+    "moy": 25.1,
+    "stk": 10,
+    "acheter": 31
+   },
+   {
+    "ean": "3400936061286",
+    "lib": "CARBOCIST CLARIX 5% S buv s sucre Ad Fl/250ml",
+    "dec25": 40,
+    "moy": 18.3,
+    "stk": 88,
+    "acheter": 0
+   },
+   {
+    "ean": "3400934065187",
+    "lib": "MUCOMYST 200MG PDR SACH 18",
+    "dec25": 39,
+    "moy": 15.2,
+    "stk": 0,
+    "acheter": 39
+   },
+   {
+    "ean": "3400932779727",
+    "lib": "HEXASPRAY GOÛT ANIS COLLUTOI FL PRESS 30G",
+    "dec25": 39,
+    "moy": 11.9,
+    "stk": 0,
+    "acheter": 39
+   },
+   {
+    "ean": "3574661731223",
+    "lib": "ZARBEIL Sp toux gorge Ad Enf Fl/150ml",
+    "dec25": 39,
+    "moy": 11.8,
+    "stk": 11,
+    "acheter": 28
+   },
+   {
+    "ean": "8595610406844",
+    "lib": "PURESSENTIEL RESPIRATOIRE Cpr suc toux B/24",
+    "dec25": 38,
+    "moy": 3.2,
+    "stk": 0,
+    "acheter": 38
+   },
+   {
+    "ean": "3400935957849",
+    "lib": "TOPLEXIL SIR 0.33MG FL 150ML",
+    "dec25": 37,
+    "moy": 16.5,
+    "stk": 24,
+    "acheter": 13
+   },
+   {
+    "ean": "3400932440795",
+    "lib": "FLUVERMAL 2% BUV FL30ML",
+    "dec25": 36,
+    "moy": 21.7,
+    "stk": 12,
+    "acheter": 24
+   },
+   {
+    "ean": "3282770204667",
+    "lib": "AVENE CICALFATE+ CR TB40ML1",
+    "dec25": 36,
+    "moy": 17.7,
+    "stk": 5,
+    "acheter": 31
+   },
+   {
+    "ean": "3504105035754",
+    "lib": "MUSTELA BB PN GEL LAVANT DOUX  FP500ML",
+    "dec25": 35,
+    "moy": 17.7,
+    "stk": 0,
+    "acheter": 35
+   },
+   {
+    "ean": "3400930039762",
+    "lib": "HUMEX M.GORG LIDO SS MIEL CITR. PAST24",
+    "dec25": 35,
+    "moy": 19.6,
+    "stk": 39,
+    "acheter": 0
+   },
+   {
+    "ean": "3400934810176",
+    "lib": "DOLIPRANE 300MG SUP BT10",
+    "dec25": 33,
+    "moy": 12.3,
+    "stk": 8,
+    "acheter": 25
+   },
+   {
+    "ean": "3400936468726",
+    "lib": "LOVENOX 4000UI SRG0,4ML 6+ERIS",
+    "dec25": 33,
+    "moy": 9.8,
+    "stk": 0,
+    "acheter": 33
+   },
+   {
+    "ean": "4052199524771",
+    "lib": "STERILUX Bde extens 5cmx4m ss cello",
+    "dec25": 33,
+    "moy": 21.2,
+    "stk": 32,
+    "acheter": 1
+   },
+   {
+    "ean": "3400934424021",
+    "lib": "TRANSIPEG 5,9G BUV SACH 20",
+    "dec25": 31,
+    "moy": 19.9,
+    "stk": 10,
+    "acheter": 21
+   },
+   {
+    "ean": "3400941686245",
+    "lib": "SPASFON LYOC 160MG/5",
+    "dec25": 31,
+    "moy": 11.1,
+    "stk": 10,
+    "acheter": 21
+   },
+   {
+    "ean": "3400933640620",
+    "lib": "ADVILMED 20MG/1ML BUV FL200ML (533 doses kg)",
+    "dec25": 30,
+    "moy": 10.7,
+    "stk": 15,
+    "acheter": 15
+   },
+   {
+    "ean": "3400937680554",
+    "lib": "NICOPASS 1,5MG S/S EUCA PAST96",
+    "dec25": 29,
+    "moy": 13.4,
+    "stk": -7,
+    "acheter": 29
+   },
+   {
+    "ean": "4049500998741",
+    "lib": "MEDICOMP CPRESS NT 7,5X7,5CM 50X2",
+    "dec25": 29,
+    "moy": 16.2,
+    "stk": 35,
+    "acheter": 0
+   },
+   {
+    "ean": "3664798065107",
+    "lib": "PHYTOXIL TOUX SUCRE Sp Ad Enf +2ans Fl/94ml NSFP",
+    "dec25": 28,
+    "moy": 5.2,
+    "stk": 0,
+    "acheter": 28
+   },
+   {
+    "ean": "3577056028236",
+    "lib": "LIBERILL Sp tx mixt Ad Enf dès 1an Fl/120ml",
+    "dec25": 28,
+    "moy": 8.8,
+    "stk": 5,
+    "acheter": 23
+   },
+   {
+    "ean": "8436617231438",
+    "lib": "INOV TUXIVANCE S buv Fl/125ml",
+    "dec25": 28,
+    "moy": 9.8,
+    "stk": 9,
+    "acheter": 19
+   },
+   {
+    "ean": "3400933943998",
+    "lib": "SUBUTEX 8MG CPR SUBLING BT7",
+    "dec25": 28,
+    "moy": 15.1,
+    "stk": 12,
+    "acheter": 16
+   },
+   {
+    "ean": "3400937625845",
+    "lib": "SEDORRHOIDE CRISE HEMOR. CR30G",
+    "dec25": 28,
+    "moy": 8.0,
+    "stk": 14,
+    "acheter": 14
+   },
+   {
+    "ean": "3400930306000",
+    "lib": "VAXIGRIP 2026/2027 Su ij se Vac gr tri Ser/0,5ml+1aig",
+    "dec25": 27,
+    "moy": 13.7,
+    "stk": 127,
+    "acheter": 0
+   },
+   {
+    "ean": "3400927400209",
+    "lib": "TANGANIL GÉ 500MG CPR BT30",
+    "dec25": 27,
+    "moy": 14.2,
+    "stk": 0,
+    "acheter": 27
+   },
+   {
+    "ean": "3400933071998",
+    "lib": "DOLIPRANE 500MG CPR EFFV TB16 NSFP",
+    "dec25": 26,
+    "moy": 6.0,
+    "stk": 0,
+    "acheter": 26
+   },
+   {
+    "ean": "3400933894412",
+    "lib": "METHADONE AP-HP 20MG/15ML DOS1",
+    "dec25": 26,
+    "moy": 11.5,
+    "stk": 0,
+    "acheter": 26
+   },
+   {
+    "ean": "3401066106335",
+    "lib": "BD AIGUILLES 16MM 5/10 ORANGE X1",
+    "dec25": 25,
+    "moy": 2.2,
+    "stk": 2,
+    "acheter": 23
+   },
+   {
+    "ean": "3401278531543",
+    "lib": "ADIARIL SACHETS 10",
+    "dec25": 25,
+    "moy": 11.8,
+    "stk": 6,
+    "acheter": 19
+   },
+   {
+    "ean": "3264680044755",
+    "lib": "NUXE Coffret",
+    "dec25": 25,
+    "moy": 3.6,
+    "stk": 29,
+    "acheter": 0
+   },
+   {
+    "ean": "4049500998703",
+    "lib": "MEDICOMP CPRESS NT 10X10CM 10X2",
+    "dec25": 25,
+    "moy": 14.6,
+    "stk": 16,
+    "acheter": 9
+   },
+   {
+    "ean": "3400930109601",
+    "lib": "GLYCER/VASEL/PARAF.TVC CR 250G",
+    "dec25": 24,
+    "moy": 7.2,
+    "stk": 0,
+    "acheter": 24
+   },
+   {
+    "ean": "3400933851767",
+    "lib": "GAVISCONELL MENTHE SS 24 SACHETS",
+    "dec25": 24,
+    "moy": 7.0,
+    "stk": 2,
+    "acheter": 22
+   },
+   {
+    "ean": "3664798025507",
+    "lib": "PHYTOXIL SIR 2/1 TX&GOR F100ML",
+    "dec25": 24,
+    "moy": 7.8,
+    "stk": 1,
+    "acheter": 23
+   },
+   {
+    "ean": "3400933247379",
+    "lib": "KARDEGIC 160MG PDR SACH 30",
+    "dec25": 24,
+    "moy": 15.7,
+    "stk": 8,
+    "acheter": 16
+   },
+   {
+    "ean": "3400936461680",
+    "lib": "ZYRTECSET 10MG CPR BT7",
+    "dec25": 24,
+    "moy": 2.8,
+    "stk": 0,
+    "acheter": 24
+   },
+   {
+    "ean": "3661434008757",
+    "lib": "URIAGE BB 1ERES LINGETTES Ling nettoy Paq/70",
+    "dec25": 24,
+    "moy": 9.4,
+    "stk": 16,
+    "acheter": 8
+   },
+   {
+    "ean": "6974246461137",
+    "lib": "AUTOTEST COVID GRIPPE 1",
+    "dec25": 23,
+    "moy": 12.2,
+    "stk": 2,
+    "acheter": 21
+   }
+  ]
+ },
+ "prixAppel": {
+  "titre": "Vos produits phares sont parfois plus chers que la médiane de votre propre groupement",
+  "lecture": [
+   "Comparaison avec le TOP 100 Apothical (médiane des prix des pharmacies du groupement, fichier du cloud, données 2024) ; vos prix sont ceux affichés dans Vindilis le 25/10/2026.",
+   "Sur ces produits connus de tous, le client juge le prix de toute la pharmacie (image prix). Physiodose est déjà bien placé (2,49 €).",
+   "Recommandation : aligner Cicaplast et Cicalfate sur la médiane du groupement. Coût ≈ 770 € de marge HT par an à volume constant, à récupérer si les ventes montent de quelques boîtes par semaine. Validation prix avant toute modification dans Vindilis.",
+   "Autre constat : sur les produits du TOP 100 que vous vendez, vos volumes sont en médiane à 55 % de ceux d'une pharmacie moyenne du groupement, alors que vous êtes la plus grande pharmacie des Pays de la Loire. La marge de progression est là."
+  ],
+  "l": [
+   {
+    "p": "PHYSIODOSE sérum physio 40×5 ml",
+    "pv": 2.49,
+    "med": 2.99,
+    "ecart": -17,
+    "q": 433,
+    "cout": 0
+   },
+   {
+    "p": "CICAPLAST baume B5+ 100 ml",
+    "pv": 16.99,
+    "med": 13.9,
+    "ecart": 22,
+    "q": 96,
+    "cout": 247
+   },
+   {
+    "p": "CICAPLAST baume B5 40 ml",
+    "pv": 9.49,
+    "med": 8.5,
+    "ecart": 12,
+    "q": 214,
+    "cout": 177
+   },
+   {
+    "p": "EFFACLAR gel moussant 400 ml",
+    "pv": 13.99,
+    "med": 13.5,
+    "ecart": 4,
+    "q": 52,
+    "cout": 21
+   },
+   {
+    "p": "CICALFATE+ crème 40 ml",
+    "pv": 9.79,
+    "med": 8.95,
+    "ecart": 9,
+    "q": 212,
+    "cout": 148
+   },
+   {
+    "p": "CICALFATE+ crème 100 ml",
+    "pv": 15.49,
+    "med": 13.99,
+    "ecart": 11,
+    "q": 161,
+    "cout": 201
+   },
+   {
+    "p": "CERAVE gel moussant anti-imperfections 236 ml",
+    "pv": 11.49,
+    "med": 10.99,
+    "ecart": 5,
+    "q": 243,
+    "cout": 101
+   },
+   {
+    "p": "MUSTELA gel lavant doux 500 ml",
+    "pv": 8.99,
+    "med": 8.6,
+    "ecart": 5,
+    "q": 212,
+    "cout": 69
+   },
+   {
+    "p": "LIPIKAR baume AP+M 400 ml",
+    "pv": 23.99,
+    "med": 22.45,
+    "ecart": 7,
+    "q": 90,
+    "cout": 115
+   },
+   {
+    "p": "NEUTRADERM gel douche 1 L (avec bon −2 €)",
+    "pv": 6.99,
+    "med": 6.99,
+    "ecart": 0,
+    "q": 482,
+    "cout": 0
+   },
+   {
+    "p": "KLORANE BB lingettes ×70",
+    "pv": 3.99,
+    "med": 3.99,
+    "ecart": 0,
+    "q": 77,
+    "cout": 0
+   }
+  ]
+ },
+ "paiements": {
+  "titre": "Quoi payer, et dans quel ordre : d'abord ce qui remet en rayon les produits qui font venir",
+  "lecture": "Établi le 25/10/2026 à partir du suivi RJ (106 dossiers ouverts, dont 55 sans montant saisi ; j'ai lu 29 pièces pour compléter) croisé avec les ruptures Vindilis. Chaque paiement reste soumis à la validation de l'administrateur. Les montants manquants sont marqués « à lire ».",
+  "vagues": [
+   {
+    "nom": "Vague 1 — cette semaine (validation demandée lundi 26/10)",
+    "quand": "avant le 30/10",
+    "c": "var(--vert2)",
+    "pourquoi": "Ces paiements remettent en rayon les produits d'hiver et les produits phares en rupture. C'est l'argent le plus rentable de la pharmacie aujourd'hui.",
+    "l": [
+     {
+      "n": "79",
+      "t": "P&G Health via Alloga",
+      "m": 3006.29,
+      "ref": "Proforma du 22/10 (commande 56035351)",
+      "pour": "Vicks Vaporub ×72, Vicks Inhaler ×72, ZzzQuil — commande ANNULÉE sans paiement sous 10 jours (avant le 01/11). Vicks et ZzzQuil = ≈ 12 tickets/semaine, 103 Vaporub vendus en décembre 2025"
+     },
+     {
+      "n": "2",
+      "t": "Abbott",
+      "m": 5290.86,
+      "ref": "Facture 3303304250 (livrée)",
+      "pour": "Compte Abbott : FreeStyle Libre en rupture (≈ 6,5 tickets/semaine, 27 500 € de CA par an, patients diabétiques fidèles). À vérifier : que cette facture est bien celle du compte FreeStyle"
+     },
+     {
+      "n": "88 + 22",
+      "t": "UPSA",
+      "m": 3557.23,
+      "ref": "Facture 9402435221 + proforma 9402456513",
+      "pour": "Efferalgan (4 références en rupture, ≈ 13 tickets/semaine)"
+     },
+     {
+      "n": "67 + 42",
+      "t": "L'Oréal",
+      "m": 3534.59,
+      "ref": "Factures 3301890723 (21/09) et 3301924431 (02/10)",
+      "pour": "CeraVe et La Roche-Posay : 7 références en rupture (≈ 12 tickets/semaine)"
+     },
+     {
+      "n": "115",
+      "t": "Gilbert",
+      "m": 1066.5,
+      "ref": "Proforma 15106011 du 11/09",
+      "pour": "Débloque le compte Gilbert : 7 références en rupture dont Physiodose (n° 1 du groupement, −7 en stock) — ≈ 12 tickets/semaine"
+     },
+     {
+      "n": "45",
+      "t": "Nigy (Topicrem)",
+      "m": 583.31,
+      "ref": "Proforma NICDE0299010 du 09/10",
+      "pour": "Topicrem : 6 références en rupture (≈ 7 tickets/semaine)"
+     },
+     {
+      "n": "93",
+      "t": "Bayer",
+      "m": 494.56,
+      "ref": "Facture 863C880353 (échue le 23/10)",
+      "pour": "Bepanthen et Berocca en rupture"
+     },
+     {
+      "n": "75",
+      "t": "Nuhanciam",
+      "m": 1481.6,
+      "ref": "Proforma D61166 du 20/10",
+      "pour": "Stock pour l'animation du samedi 14/11"
+     },
+     {
+      "n": "112, 117, 119",
+      "t": "Urgo",
+      "m": null,
+      "ref": "Scans illisibles : montants à relever sur les PDF",
+      "pour": "Humex, Alvityl, pansements Urgo : 7 références en rupture (≈ 13 tickets/semaine)"
+     }
+    ],
+    "total": 19014.94,
+    "inconnus": 1
+   },
+   {
+    "nom": "Vague 2 — semaine du 2/11",
+    "quand": "avant le samedi 7/11 et le Black Friday",
+    "c": "var(--bleu)",
+    "l": [
+     {
+      "n": "52 + 66",
+      "t": "Nuxe",
+      "m": 2551.14,
+      "ref": "Factures FACNUX261006281 et FACNUX260909866",
+      "pour": "Coffrets Nuxe (n° 1 des coffrets de Noël 2025) et animation du 5/12"
+     },
+     {
+      "n": "41 + 78",
+      "t": "Caudalie",
+      "m": 1149.12,
+      "ref": "Proformas 20306068 et 20311196",
+      "pour": "Noël (prix imposés)"
+     },
+     {
+      "n": "116",
+      "t": "Expanscience",
+      "m": 1693.69,
+      "ref": "Commande 0001395061",
+      "pour": "Mustela : 3 références en rupture"
+     },
+     {
+      "n": "17",
+      "t": "NHCO",
+      "m": 1620.27,
+      "ref": "Proforma 1003736670 (montant corrigé du trop-perçu)",
+      "pour": "2 références en rupture"
+     },
+     {
+      "n": "36",
+      "t": "Cooper",
+      "m": 4509.88,
+      "ref": "Proforma C608828040 du 13/10",
+      "pour": "Pouxit, Hexomédine (Cooper = 6e laboratoire en marge)"
+     },
+     {
+      "n": "34",
+      "t": "Pileje",
+      "m": 1722.7,
+      "ref": "Commande récente",
+      "pour": "12e laboratoire en marge"
+     },
+     {
+      "n": "80 + 50",
+      "t": "L'Oréal",
+      "m": 1628.29,
+      "ref": "Factures 3301975608 et 3301930267",
+      "pour": "Suite du compte L'Oréal"
+     },
+     {
+      "n": "74",
+      "t": "Janssen",
+      "m": 599.67,
+      "ref": "Proforma 1800165776",
+      "pour": ""
+     },
+     {
+      "n": "27",
+      "t": "Thuasne",
+      "m": 188.34,
+      "ref": "FR22845",
+      "pour": "« Solder ce compte débloque les commandes Thuasne en attente »"
+     },
+     {
+      "n": "30 + 31",
+      "t": "Mayoly (Probiolog)",
+      "m": 770.4,
+      "ref": "Proformas CHCDE0107957 et CHCDE0107958",
+      "pour": ""
+     },
+     {
+      "n": "53",
+      "t": "Directlog (ROC)",
+      "m": 344.74,
+      "ref": "Facture 1664550",
+      "pour": ""
+     },
+     {
+      "n": "39",
+      "t": "Opella",
+      "m": 62.02,
+      "ref": "Facture 7121855923",
+      "pour": ""
+     }
+    ],
+    "total": 16840.26,
+    "inconnus": 0
+   },
+   {
+    "nom": "Vague 3 — à l'échéance, pas avant",
+    "quand": "novembre – décembre",
+    "c": "var(--doux)",
+    "pourquoi": "Factures à 45-60 jours et dettes obligatoires : on paie à la date, pour garder la trésorerie pour le stock.",
+    "l": [
+     {
+      "n": "47, 57, 77, 81",
+      "t": "Sanofi (vaccins grippe)",
+      "m": 9949.23,
+      "ref": "Échéances du 01/12 au 22/12",
+      "pour": "Payer à l'échéance : vaccination"
+     },
+     {
+      "n": "70 + 71",
+      "t": "Uriach",
+      "m": 3438.22,
+      "ref": "Échéances 15 et 16/11",
+      "pour": "Payer à l'échéance ; demander l'envoi des Azeol en rupture"
+     },
+     {
+      "n": "69",
+      "t": "Uriage",
+      "m": 908.6,
+      "ref": "Échéance 30/11",
+      "pour": ""
+     },
+     {
+      "n": "37 + 109",
+      "t": "Cooper (sur relevé)",
+      "m": 2896.58,
+      "ref": "Échéances 12 et 14/12",
+      "pour": ""
+     },
+     {
+      "n": "43 + 84",
+      "t": "KLESIA",
+      "m": 6338.08,
+      "ref": "Cotisations",
+      "pour": "Obligatoire, à l'échéance"
+     },
+     {
+      "n": "86",
+      "t": "Trajectoire (administrateur)",
+      "m": 8495.21,
+      "ref": "Facture 20260323",
+      "pour": "Obligatoire, selon accord"
+     },
+     {
+      "n": "33",
+      "t": "Greffe",
+      "m": 468.54,
+      "ref": "Procédure 4123619",
+      "pour": "Obligatoire"
+     },
+     {
+      "n": "40",
+      "t": "Leasecom",
+      "m": 4305.6,
+      "ref": "Loyer d'octobre, agencement poursuivi",
+      "pour": "Contrat poursuivi"
+     },
+     {
+      "n": "85",
+      "t": "Siemens Lease",
+      "m": 4190.07,
+      "ref": "Contrats A30121817 et autres",
+      "pour": "Selon décision sur les contrats"
+     }
+    ],
+    "total": 40990.13,
+    "inconnus": 0
+   },
+   {
+    "nom": "Ne pas payer en l'état : à vérifier ou à déclarer",
+    "quand": "",
+    "c": "var(--rouge)",
+    "pourquoi": "Une créance née avant le jugement d'ouverture (30/06/2026) ne se paie pas : elle se déclare au mandataire.",
+    "l": [
+     {
+      "n": "105",
+      "t": "Aboca",
+      "m": 1946.8,
+      "ref": "Relance pour la facture 11017541 du 08/06/2026",
+      "pour": "Facture d'avant le 30/06 : créance antérieure à déclarer, interdiction de la payer (art. L.622-7 du Code de commerce). Proposer à Aboca des commandes payées comptant pour débloquer Grintuss"
+     },
+     {
+      "n": "94",
+      "t": "Haleon",
+      "m": 2866.89,
+      "ref": "Proforma 6539213437 du 30/04/2026",
+      "pour": "Antérieure au 30/06 : à déclarer, pas à payer"
+     },
+     {
+      "n": "99 + 122",
+      "t": "Essity",
+      "m": null,
+      "ref": "Créance antérieure probable",
+      "pour": "À vérifier avant tout paiement"
+     },
+     {
+      "n": "102",
+      "t": "Solocal (recouvrement)",
+      "m": 528.0,
+      "ref": "Dossier 262696RE0985",
+      "pour": "Probablement antérieure : à vérifier"
+     },
+     {
+      "n": "83, 100, 101, 107",
+      "t": "Doctolib",
+      "m": 1281.6,
+      "ref": "Facture du 10/08 + 3 pièces sans montant",
+      "pour": "Service non activé : vérifier le contrat et le résilier s'il ne sert pas, avant tout paiement"
+     },
+     {
+      "n": "89",
+      "t": "EA Pharma",
+      "m": -1080.22,
+      "ref": "AVOIR en votre faveur (n° de facture : 0)",
+      "pour": "Demander à EA Pharma d'imputer cet avoir sur une commande Granions (13 références en rupture)"
+     },
+     {
+      "n": "61 à 64",
+      "t": "Zentiva",
+      "m": 0,
+      "ref": "4 factures à 0 € (sacs, carnets de rendez-vous)",
+      "pour": "À clôturer : rien à payer"
+     },
+     {
+      "n": "8",
+      "t": "Bayer",
+      "m": 6315.85,
+      "ref": "Proforma 867A004535 du 13/08 (marquée « Non » au plan de virements)",
+      "pour": "À clarifier avec Bayer avant paiement"
+     }
+    ],
+    "total": null,
+    "inconnus": 0
+   }
+  ]
+ }
 }
