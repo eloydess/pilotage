@@ -6895,8 +6895,105 @@
  },
  "rdv": {
   "titre": "Rendez-vous laboratoires de la semaine du 26/10",
-  "source": "Agenda Google (pharmaciecsudachat) lu le 25/10/2026 à 19 h 55. Chiffres : Vindilis (CA et marge sur 12 mois, commandes directes du 01/01 au 25/10, 2025 et 2026), Opeaz (25/10), Digipharmacie, fichiers labos du cloud Apothical, « Quoi payer ».",
+  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lu le 25/10/2026 à 19 h 55. Chiffres : Vindilis (CA et marge sur 12 mois, commandes directes du 01/01 au 25/10, 2025 et 2026), Opeaz (25/10), Digipharmacie, fichiers labos du cloud Apothical, « Quoi payer ».",
   "l": [
+   {
+    "d": "2026-10-26",
+    "t": "2026-10-26 09:00",
+    "jour": "Lun. 26/10",
+    "h": "9 h – 10 h 30",
+    "titre": "La Roche-Posay (L'Oréal Dermatologie)",
+    "resume": "Votre 1er labo dermo ; 7 références CeraVe / La Roche-Posay en rupture, factures à payer en vague 1.",
+    "chiffres": [
+     [
+      "La Roche-Posay : CA HT 12 mois / marge",
+      "45 460 € / 14 088 € (31 %)"
+     ],
+     [
+      "CeraVe : CA / marge",
+      "19 594 € / 5 675 € (29 %)"
+     ],
+     [
+      "Vichy : CA / marge",
+      "19 424 € / 4 392 € (23 %)"
+     ],
+     [
+      "Commandes directes 2025 → 2026",
+      "La Roche-Posay 24 305 € → 17 641 € ; CeraVe 10 421 € → 7 450 € ; Vichy 5 938 € → 3 927 €"
+     ],
+     [
+      "À payer",
+      "Vague 1 : 3 534,59 € (factures du 21/09 et du 02/10) ; vague 2 : 1 628,29 €"
+     ],
+     [
+      "Prix (GERS, médiane France)",
+      "Lipikar AP+M 400 ml 23,99 € vs 26,90 € ; Effaclar gel 400 ml 13,99 € vs 15,80 € ; Cicaplast 40 ml 9,49 € vs 10,50 €"
+     ],
+     [
+      "Opeaz : compensations à demander",
+      "Lipikar soins −3 € (juin–juillet) ; Lipikar hygiène 1 L −4 € (juillet) ; CeraVe corps et nettoyants ; Vichy Dercos"
+     ],
+     [
+      "RFA / coop (cloud Apothical)",
+      "Coop 0,5 % = 94,96 € ; solaires T1 : 720 € La Roche-Posay, 196 € CeraVe, 66 € Vichy"
+     ]
+    ],
+    "obtenir": [
+     "La livraison des 7 références en rupture dès le paiement de la vague 1 (date de livraison écrite)",
+     "Le paiement des compensations Opeaz en attente",
+     "Les opérations d'hiver Lipikar et Cicaplast avec leur coop, et une tête de gondole sur l'allée principale (fort passage dans la 3D)"
+    ],
+    "dire": [
+     "Vos prix sont déjà sous la médiane France : pas besoin de baisse, il faut de la visibilité et du stock",
+     "Paiement à réception, validé par l'administrateur"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Vérifier la livraison des 7 références ; ventes Lipikar / Cicaplast de novembre vs octobre"
+    ]
+   },
+   {
+    "d": "2026-10-26",
+    "t": "2026-10-26 10:30",
+    "jour": "Lun. 26/10",
+    "h": "10 h 30 – 11 h",
+    "titre": "Visio hebdomadaire avec l'administrateur (Me Beaussart)",
+    "doute": "enchaîné sans pause après La Roche-Posay, puis PF Médoc à 11 h",
+    "resume": "Le moment pour faire valider les paiements de la semaine.",
+    "chiffres": [
+     [
+      "Vague 1 à faire valider",
+      "19 014,94 € + 3 factures Urgo (montants à relever) ; P&G 3 006,29 € avant le 01/11"
+     ],
+     [
+      "Virement entre vos comptes",
+      "10 000 € de la BPGO vers la Caisse d'Épargne (25/10) pour couvrir le prélèvement CERP"
+     ],
+     [
+      "Caisse d'Épargne",
+      "71 552,51 € au 25/10, avant salaires (22 593,87 €), rémunération (4 500 €) et CERP (39 051,07 €)"
+     ],
+     [
+      "À récupérer",
+      "Dynamiz : 363,38 € prélevés le 22/10 pour 2 factures d'avant le jugement (27/05 et 25/06)"
+     ]
+    ],
+    "obtenir": [
+     "La validation écrite de la vague 1, pour payer lundi après-midi",
+     "Son accord sur la règle : achats directs aux labos à seuil de remise atteignable (Sigvaris, Orliman, Boiron, Kenvue)"
+    ],
+    "dire": [
+     "Haleon (2 866,89 €) et Aboca (1 946,80 €) : pièces probablement antérieures au 30/06, à déclarer et non à payer — lui demander confirmation"
+    ],
+    "refuser": [],
+    "apres": [
+     "Noter les décisions dans « Quoi payer »"
+    ]
+   },
    {
     "d": "2026-10-26",
     "jour": "Lun. 26/10",
@@ -6948,7 +7045,8 @@
     "apres": [
      "Noter les engagements obtenus dans l'onglet Labos",
      "Mesurer le CA Pierre Fabre de novembre contre octobre"
-    ]
+    ],
+    "t": "2026-10-26 11:00"
    },
    {
     "d": "2026-10-27",
@@ -6988,7 +7086,8 @@
     ],
     "apres": [
      "Contrôler sur l'extranet CERP les achats EG du mois (engagement de 300 €)"
-    ]
+    ],
+    "t": "2026-10-27 09:00"
    },
    {
     "d": "2026-10-27",
@@ -7041,7 +7140,8 @@
     ],
     "apres": [
      "Vérifier sur Opeaz que les compensations sont « transmises » puis payées"
-    ]
+    ],
+    "t": "2026-10-27 11:00"
    },
    {
     "d": "2026-10-29",
@@ -7090,7 +7190,23 @@
     ],
     "apres": [
      "Saisir les 3 montants dans le suivi RJ ; mesurer les ventes Alvityl de novembre"
-    ]
+    ],
+    "t": "2026-10-29 09:00"
+   },
+   {
+    "d": "2026-10-29",
+    "t": "2026-10-29 11:00",
+    "jour": "Jeu. 29/10",
+    "h": "11 h – 12 h 15",
+    "titre": "Webinar Lilly × Apothical : obésité",
+    "resume": "Formation en ligne d'1 heure (agenda pharmaciecsudpg), invitation pas encore acceptée.",
+    "chiffres": [],
+    "obtenir": [
+     "Décider qui y assiste (pharmacien)"
+    ],
+    "dire": [],
+    "refuser": [],
+    "apres": []
    },
    {
     "d": "2026-10-30",
@@ -7131,6 +7247,41 @@
     ],
     "apres": [
      "Mesurer la part Opella achetée en direct vs CERP en novembre"
+    ],
+    "t": "2026-10-30 09:00"
+   },
+   {
+    "d": "2026-10-30",
+    "t": "2026-10-30 10:15",
+    "jour": "Ven. 30/10",
+    "h": "10 h 15 – 11 h 15",
+    "titre": "Colgate (Gaba)",
+    "doute": "15 min après la fin de Sanofi ; ophtalmologue à 11 h 30",
+    "resume": "Petit labo, marge faible ; commandes directes en forte baisse.",
+    "chiffres": [
+     [
+      "CA HT 12 mois / marge",
+      "5 887 € / 1 276 € (22 %)"
+     ],
+     [
+      "Commandes directes 2025 → 2026",
+      "6 034 € (9 commandes) → 772 € (1 commande) ; 2 627 € commandés non reçus"
+     ]
+    ],
+    "obtenir": [
+     "La livraison ou l'annulation des 2 627 € commandés non reçus (selon la trésorerie)",
+     "Une remise ou un lot pour remonter la marge au-dessus de 30 %"
+    ],
+    "dire": [
+     "Le dentaire est sur une allée froide du magasin : que proposent-ils pour le rendre visible (PLV, écran) ?"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Ventes dentaire de novembre vs octobre"
     ]
    }
   ]
