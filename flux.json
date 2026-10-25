@@ -1,8 +1,9 @@
 {
  "maj": "2026-10-25",
- "version": "3",
+ "version": "4",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
+  "Vindilis (25/10) : commandes directes reçues 597 669 € contre 1 547 916 € à période égale (−61 %) ; CERP +8 % dans Vindilis, +21 % sur l'extranet CERP à fin septembre.",
   "Cloud Apothical (25/10) : achats directs aux labos −70 % (trésorerie, livraisons bloquées, paiement d'avance depuis le redressement judiciaire) ; rétrocessions 2026 de 4 607 € HT contre 36 456 € en 2025 ; quatre seuils de remise encore atteignables avant le 31/12 (Sigvaris, Orliman, Boiron, Kenvue).",
   "Expertise Vindilis du 25/10 : réassort réglé sur « Économe » ; 1 063 produits en alerte sans commande ; 58 % des promis sur des produits bloqués ; 1 844 clients réguliers perdus depuis juillet ; 41 902 € de tiers payant non soldé et 11 477 € de crédits clients.",
   "Relevé Vindilis du 25/10 (poste de la pharmacie) : stock 572 711 € au 01/10 (−34 % en un an), dont 457 600 € en surstock ; 44 % des ventes entre 15 h et 19 h ; promotions : +49 % de remises pour −12 % de ventes.",
@@ -125,6 +126,20 @@
    "rang": 2
   },
   {
+   "id": "P0t",
+   "pil": "transformer",
+   "titre": "CERP octobre : passer au moins 16 650 € de médicaments à moins de 22,90 € (tranche 1) avant le 31/10, pour garder la ristourne du mois",
+   "pourquoi": "Le contrat CERP 2026 annule la ristourne de marge (5 %, 3 % ou 1 % selon le prix) si la tranche 1 est sous 90 % de 18 500 €. Au 24/10 : 12 028 €.",
+   "qui": "Titulaire (commandes)",
+   "quand": "Du 26 au 31/10",
+   "base": "12 028 € au 24/10 ; engagement 18 500 € ; seuil 16 650 €",
+   "obj": "≥ 16 650 € au 31/10",
+   "mesure": "Extranet CERP › Suivi d'activité › Chiffre d'affaires › tranche 1",
+   "gain": 0,
+   "cout": 0,
+   "rang": 3
+  },
+  {
    "id": "P0l",
    "pil": "transformer",
    "titre": "Remises labos : avec la trésorerie disponible, acheter en direct d'abord chez les labos dont le seuil est atteignable avant le 31/12 (Sigvaris, Orliman, Boiron, Kenvue) et envoyer les photos de coopération (Caudalie, Perrigo, Arkopharma)",
@@ -136,7 +151,7 @@
    "mesure": "Fichiers d'atterrissage des labos dans le cloud Apothical, chaque mois",
    "gain": 0,
    "cout": 0,
-   "rang": 3
+   "rang": 4
   },
   {
    "id": "P0d",
@@ -150,7 +165,7 @@
    "mesure": "Listing des adhérents Apothical (cloud)",
    "gain": 0,
    "cout": 0,
-   "rang": 4
+   "rang": 5
   },
   {
    "id": "P00",
@@ -164,7 +179,7 @@
    "mesure": "Délivrances (honoraire HDR, colonne U V) et Mesures et évolutions › OTC, chaque lundi",
    "gain": 300,
    "cout": 0,
-   "rang": 5
+   "rang": 6
   },
   {
    "id": "P0",
@@ -178,7 +193,7 @@
    "mesure": "Relevé du stock chaque lundi (onglet Ruptures)",
    "gain": 150,
    "cout": 0,
-   "rang": 6
+   "rang": 7
   },
   {
    "id": "P0v",
@@ -192,7 +207,7 @@
    "mesure": "Fichiers › Vendeurs ; Gestion › Démarque et autres opérations",
    "gain": 0,
    "cout": 0,
-   "rang": 7
+   "rang": 8
   },
   {
    "id": "P0s",
@@ -206,7 +221,7 @@
    "mesure": "Pilotage › Surstockage relancé le 1er de chaque mois ; avoirs reçus",
    "gain": 0,
    "cout": 0,
-   "rang": 8
+   "rang": 9
   },
   {
    "id": "P0b",
@@ -220,7 +235,7 @@
    "mesure": "Livraisons reçues ; ruptures levées",
    "gain": 0,
    "cout": 0,
-   "rang": 9
+   "rang": 10
   },
   {
    "id": "P0c",
@@ -234,11 +249,11 @@
    "mesure": "Ventes par tête de gondole, semaine avant / après ; rémunérations Opeaz reçues",
    "gain": 60,
    "cout": 0,
-   "rang": 10
+   "rang": 11
   },
   {
    "id": "P1",
-   "rang": 11,
+   "rang": 12,
    "pil": "capter",
    "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
    "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
@@ -252,7 +267,7 @@
   },
   {
    "id": "P2",
-   "rang": 12,
+   "rang": 13,
    "pil": "revenir",
    "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
    "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
@@ -266,7 +281,7 @@
   },
   {
    "id": "P3",
-   "rang": 13,
+   "rang": 14,
    "pil": "trouve",
    "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
    "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
@@ -280,7 +295,7 @@
   },
   {
    "id": "P4",
-   "rang": 14,
+   "rang": 15,
    "pil": "raison",
    "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
    "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
@@ -294,7 +309,7 @@
   },
   {
    "id": "P6",
-   "rang": 15,
+   "rang": 16,
    "pil": "transformer",
    "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
    "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
@@ -308,7 +323,7 @@
   },
   {
    "id": "P7",
-   "rang": 16,
+   "rang": 17,
    "pil": "capter",
    "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
    "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
@@ -322,7 +337,7 @@
   },
   {
    "id": "P8",
-   "rang": 17,
+   "rang": 18,
    "pil": "raison",
    "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
    "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
@@ -336,7 +351,7 @@
   },
   {
    "id": "P9",
-   "rang": 18,
+   "rang": 19,
    "pil": "trouve",
    "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
    "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
@@ -350,7 +365,7 @@
   },
   {
    "id": "P10",
-   "rang": 19,
+   "rang": 20,
    "pil": "transformer",
    "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
@@ -998,6 +1013,16 @@
   }
  ],
  "questions": [
+  {
+   "id": "q0d",
+   "q": "Médidan facture 190,80 € TTC par mois depuis mars 2025 (dernière facture le 16/08/2026). Est-ce la borne Medadom ? Pourquoi rien en septembre et octobre ?",
+   "reco": "",
+   "opts": [
+    "Oui, Medadom",
+    "Autre chose",
+    "Je ne sais pas"
+   ]
+  },
   {
    "id": "q0c",
    "q": "Les rétrocessions Apothical n°1 à 4 (4 262,37 € TTC, échues entre le 29/07 et le 29/09) ont-elles été versées sur le compte ?",
@@ -6506,6 +6531,73 @@
   ],
   "blocs": [
    {
+    "titre": "Vindilis : commandes directes reçues du 1er janvier au 24 octobre, 2026 contre 2025",
+    "c": "r",
+    "h": [
+     "Groupe",
+     "2025",
+     "2026",
+     "Évolution"
+    ],
+    "l": [
+     [
+      "Toutes commandes directes (211 fournisseurs)",
+      "1 547 916",
+      "597 669",
+      "−61 %"
+     ],
+     [
+      "Labos partenaires Apothical",
+      "727 364",
+      "283 737",
+      "−61 %"
+     ],
+     [
+      "Para, conseil, matériel (hors médicaments chers et génériques)",
+      "1 127 468",
+      "371 908",
+      "−67 %"
+     ],
+     [
+      "Médicaments chers et génériques en direct",
+      "420 448",
+      "225 760",
+      "−46 %"
+     ],
+     [
+      "CERP (hors robot, robot, promis)",
+      "1 558 069",
+      "1 676 864",
+      "+8 %"
+     ],
+     [
+      "Alliance et OCP",
+      "88 130",
+      "14 146",
+      "−84 %"
+     ]
+    ],
+    "lecture": [
+     "En plus : 100 342 € de commandes directes 2026 passées mais pas encore reçues.",
+     "57 fournisseurs achetés en 2025 n'ont rien livré en 2026 : Puressentiel, Forte Pharma, La Rosée, Les 3 Chênes, Alphanova, Biotherm, Erborian, The Ordinary, Zentiva en direct (passé par CERP)…",
+     "Plus fortes baisses parmi les gros labos : Chauvin −97 %, SVR −90 %, Pierre Fabre dentaire −89 %, Cooper −85 %, Expanscience −85 %, Biocodex −80 %, Nuxe −76 %, EA Pharma −73 %, Bioderma −73 %.",
+     "Source : Vindilis, tables commandefou et commandegro (commandes reçues, quantité commandée × prix d'achat net), requête du 25/10/2026."
+    ]
+   },
+   {
+    "titre": "Contrat CERP 2026 : engagements à tenir chaque mois",
+    "c": "o",
+    "lecture": [
+     "110 000 € par mois au total (hors produits à plus de 1 600 €) : sous 90 %, remise −10 % ; sous 80 %, −20 % ; sous 70 %, plus de remise ; sous 50 %, rupture de contrat.",
+     "18 500 € par mois sur les médicaments à moins de 22,90 € (tranche 1) : sous 90 %, la ristourne du mois (5 %, 3 % ou 1 % selon le prix) est perdue. Octobre : 12 028 € au 24/10, il faut 16 650 € avant le 31/10.",
+     "5 100 € par mois de parapharmacie hors labos partenaires : sous 90 %, la ristourne de 5 % est perdue.",
+     "Génériques : 300 € par mois minimum chez EG, Teva et Viatris (Zentiva sans minimum) ; 110 000 € par an, dont 66 000 € via Distrisanté.",
+     "2 formations à l'Académie CERP ; 70 % des lignes transmises avant 11 h 15 et 18 h 15 ; sinon CERP peut reprendre ses remises.",
+     "Pas d'escompte (0,25 %) pendant la procédure collective ; tout incident de paiement supprime les avantages du mois.",
+     "Achats CERP (extranet) : 1 277 307 € de janvier à septembre 2026 contre 1 053 245 € en 2025 (+21 %)."
+    ]
+   },
+   {
     "titre": "Seuils de remise encore atteignables avant le 31/12/2026",
     "c": "o",
     "lecture": [
@@ -6721,7 +6813,6 @@
    "Newsletter : enquête collectant des données de santé, promotion de médicaments ou dispositifs médicaux."
   ],
   "manque": [
-   "Extraire de Vindilis les commandes directes 2026 par labo et par mois, comparées à 2025.",
    "Lire les conditions 2026 de chaque labo (1 276 fichiers « contrats tarifs et CGV ») et les confronter aux prix d'achat Vindilis.",
    "14 fichiers labos trop lourds non lus (dont Elco septembre).",
    "Vérifier sur les relevés l'encaissement des rétrocessions 1 à 4."
