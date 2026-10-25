@@ -121,8 +121,22 @@
    "rang": 2
   },
   {
+   "id": "P0c",
+   "pil": "transformer",
+   "titre": "Image prix et mise en avant : monter les têtes de gondole Opeaz de novembre (rémunérées, sur photo), un code couleur PROMO unique, des « petits prix toute l'année » visibles",
+   "pourquoi": "Le client juge les prix de toute la pharmacie sur quelques produits et sur ce qu'il voit en rayon (Hamilton & Chernev, 2013). Les têtes de gondole Opeaz sont en plus rémunérées par les laboratoires.",
+   "qui": "Rayonniste (étiquettes) + titulaire",
+   "quand": "Relevé le 2/11, tout monté avant le 7/11",
+   "base": "97 opérations de nov.-déc., aucune marquée « mise en place »",
+   "obj": "100 % des têtes de gondole de novembre montées et photographiées",
+   "mesure": "Ventes par tête de gondole, semaine avant / après ; rémunérations Opeaz reçues",
+   "gain": 60,
+   "cout": 0,
+   "rang": 3
+  },
+  {
    "id": "P1",
-   "rang": 3,
+   "rang": 4,
    "pil": "capter",
    "titre": "Galerie et entrée : un seul message visible à 20 m, une offre juste après l'entrée, une personne à l'accueil le samedi",
    "pourquoi": "Le passant ne voit qu'un message ; les 3 à 5 premiers mètres d'un magasin ne sont pas regardés (zone de décompression, Underhill) : l'offre se place juste après.",
@@ -136,7 +150,7 @@
   },
   {
    "id": "P2",
-   "rang": 4,
+   "rang": 5,
    "pil": "revenir",
    "titre": "SMS ZeFid aux 1 347 clients dormants ou sur le départ (premier envoi de l'histoire de la pharmacie)",
    "pourquoi": "Faire revenir un client connu coûte bien moins cher qu'en trouver un nouveau (travaux de F. Reichheld, Bain) ; segmentation récence-fréquence-montant (RFM).",
@@ -150,7 +164,7 @@
   },
   {
    "id": "P3",
-   "rang": 5,
+   "rang": 6,
    "pil": "trouve",
    "titre": "Corriger Google (nouvelle fiche au 309, avis gérés par Myli) et activer meSoigner (site + rendez-vous)",
    "pourquoi": "Pour grandir, il faut être présent à l'esprit et facile à trouver au moment du besoin (B. Sharp, How Brands Grow).",
@@ -164,7 +178,7 @@
   },
   {
    "id": "P4",
-   "rang": 6,
+   "rang": 7,
    "pil": "raison",
    "titre": "Un samedi événement par semaine en novembre-décembre + le calendrier de l'Avent en 4 sessions, chacune annoncée 48 h avant (jamais toutes les dates d'avance)",
    "pourquoi": "La rareté annoncée crée la venue (R. Cialdini, Influence) : le calendrier l'a prouvé (20 vendus en quelques minutes).",
@@ -178,7 +192,7 @@
   },
   {
    "id": "P6",
-   "rang": 7,
+   "rang": 8,
    "pil": "transformer",
    "titre": "Une carte de fidélité à chaque passage, code vendeur obligatoire, classement chaque lundi",
    "pourquoi": "Chaque carte = un client qu'on peut faire revenir ; ce qui est mesuré et affiché progresse.",
@@ -192,7 +206,7 @@
   },
   {
    "id": "P7",
-   "rang": 8,
+   "rang": 9,
    "pil": "capter",
    "titre": "Centre commercial : prendre la campagne de Noël gratuite de Carmila (totems, stand) et proposer un échange de visibilité à l'hypermarché",
    "pourquoi": "Carmila a refusé une baisse de loyer mais propose des campagnes : c'est de la visibilité gratuite devant 3,9 millions de visiteurs par an.",
@@ -206,7 +220,7 @@
   },
   {
    "id": "P8",
-   "rang": 9,
+   "rang": 10,
    "pil": "raison",
    "titre": "Vaccination et entretiens : rendez-vous en ligne, relances, proposition systématique au comptoir",
    "pourquoi": "Un service de santé fait venir des personnes qui ne seraient pas venues pour un produit.",
@@ -220,7 +234,7 @@
   },
   {
    "id": "P9",
-   "rang": 10,
+   "rang": 11,
    "pil": "trouve",
    "titre": "Instagram / TikTok : 3 publications par semaine, chaque samedi annoncé 48 h avant, contenus utiles et locaux",
    "pourquoi": "68 % des vues du reel du 24/10 venaient de non-abonnés : la vidéo touche des gens nouveaux.",
@@ -234,7 +248,7 @@
   },
   {
    "id": "P10",
-   "rang": 11,
+   "rang": 12,
    "pil": "transformer",
    "titre": "Panier et image prix : conseil associé systématique, marque exclusive Apothical en caisse, et Cicaplast / Cicalfate alignés sur la médiane du groupement",
    "pourquoi": "Le panier progresse quand on propose, au bon moment, le produit qui complète (règle de la vente complémentaire).",
@@ -403,6 +417,12 @@
      "d": "2026-11-02",
      "t": [
       {
+       "id": "s2m",
+       "txt": "Relever chaque tête de gondole (photo + marque) et me l'envoyer : je la croise avec les opérations Opeaz de novembre",
+       "qui": "Rayonniste (étiquettes)",
+       "mesure": "Liste des TG"
+      },
+      {
        "id": "s2a",
        "txt": "Point flux de la semaine et classement des cartes par code vendeur",
        "qui": "Claude",
@@ -452,6 +472,12 @@
     {
      "d": "2026-11-06",
      "t": [
+      {
+       "id": "s2n",
+       "txt": "Toutes les têtes de gondole de novembre montées, photos déposées sur Opeaz, cadres PROMO posés",
+       "qui": "Rayonniste (étiquettes)",
+       "mesure": "Photos Opeaz"
+      },
       {
        "id": "s2f",
        "txt": "Briefing du samedi : accueil, diagnostic, calendrier, caisse (carte + bon de retour)",
@@ -3724,6 +3750,903 @@
    "3 — Le reste, à l'échéance, pas avant.",
    "✕ — Jamais : une dette d'avant le 30/06/2026 (elle se déclare au mandataire).",
    "Dans un même niveau : d'abord ce qui a une date limite (annulation, pénalité, blocage), puis ce qui ramène le plus de clients et de marge."
+  ]
+ },
+ "miseEnAvant": {
+  "titre": "Image prix et mise en avant : ce que le client voit décide s'il vous trouve « pas cher »",
+  "lecture": [
+   "Le client ne connaît le prix que d'une poignée de produits ; il juge toute la pharmacie sur ces prix-là et sur les signaux qu'il voit : promotions visibles, macarons, têtes de gondole pleines, bacs de bons plans (R. Hamilton et A. Chernev, « Low Prices Are Just the Beginning », Journal of Marketing, 2013 ; H. Simon, Simon-Kucher).",
+   "Vous avez déjà l'argent et la matière : 97 opérations Opeaz de novembre-décembre chez vos laboratoires actifs (38 remises immédiates, 43 têtes de gondole, 10 promotions consommateur, 6 mises en avant). Les têtes de gondole sont rémunérées par les laboratoires, sur photo : une tête de gondole non montée, c'est de l'argent perdu et une promotion que personne ne voit.",
+   "Aucune de ces opérations n'est aujourd'hui marquée « mise en place » dans le fichier : on ne sait pas lesquelles sont réellement en rayon.",
+   "Exemple : la remise immédiate Humex de novembre (Urgo) est financée par le laboratoire, alors que Humex est en rupture. D'où l'ordre : d'abord le stock, puis la mise en avant."
+  ],
+  "code": [
+   "1 seule couleur « PROMO » (cadre d'étiquette électronique + macaron) et seulement sur les produits réellement en promotion. Prix barré = le plus bas prix pratiqué dans les 30 jours précédents (règle des annonces de réduction depuis 2022).",
+   "1 repère « PETIT PRIX TOUTE L'ANNÉE » sur les produits d'appel alignés (Physiodose, Cicaplast, Cicalfate, Neutraderm…) et sur la marque exclusive Apothical.",
+   "Chaque tête de gondole = 1 marque, 1 message, 1 prix lisible à 3 mètres, rayon rempli en profondeur ; photo déposée sur Opeaz le jour même.",
+   "Les 3 à 5 premiers mètres restent dégagés ; la table « bons plans du mois » se place juste après, au premier point de décision.",
+   "Stop-rayons « Le choix de l'équipe » (présentoir coups de cœur Apothical) sur 10 produits conseil : c'est la preuve sociale, autorisée, sans comparaison avec d'autres pharmacies.",
+   "Aucune mise en avant sur les médicaments remboursables ; sur le conseil, rester loyal et ne pas pousser à la surconsommation (décret n° 2026-156)."
+  ],
+  "actions": [
+   "Lundi 2/11 : le rayonniste relève chaque tête de gondole (photo + marque) → je la croise avec les opérations Opeaz et je vous dis lesquelles monter, avec quels produits et quel prix.",
+   "Avant le 7/11 : toutes les têtes de gondole de novembre montées, photos déposées sur Opeaz, cadres « PROMO » posés uniquement sur ces produits.",
+   "Chaque lundi : mesure des ventes de chaque tête de gondole, semaine avant / semaine après ; on garde ce qui vend, on change le reste."
+  ],
+  "l": [
+   {
+    "labo": "UPSA",
+    "type": "Mise en avant",
+    "op": "AC annuel 3 racks donormyl+ 1 façing des 4 rèfs Phytonormyl 1mg+1,9mg en LA + AC",
+    "du": "01/10/2026",
+    "au": "31/12/2026",
+    "cond": "AC + LA avec photo obligatoire du DP",
+    "marge": 19803
+   },
+   {
+    "labo": "COOPER",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG Mag2 +BRI",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "36+12ug/72+24ug/108+36ug/144+48ugMax 144 unités MEA remplie en profondeur et largeur",
+    "marge": 16927
+   },
+   {
+    "labo": "COOPER",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG + BRI CB12",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "36+12ug/72+24ug 108+36ug/144+48ug Max 144",
+    "marge": 16927
+   },
+   {
+    "labo": "COOPER",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI Saugella Dermo 500*2",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "72+12ug/144+24ug Max. 144 Unités",
+    "marge": 16927
+   },
+   {
+    "labo": "LA ROCHE POSAY",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG + BRI LIPIKAR HYGIENE 1L -4€",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Dès 36 unités facturées sur les 1L du 01/10/2026 au 20/10/2026",
+    "marge": 14088
+   },
+   {
+    "labo": "LA ROCHE POSAY",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG + BRI LIPIKAR SOINS -3€",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Dè 36 unités facturées sur les soins 400ml Lipikar (crème, lait, baume) du 01/10/2026 au 20/10/2026",
+    "marge": 14088
+   },
+   {
+    "labo": "URGO",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI ALVITYL BIEN-ETRE - OCTOBRE / NOVEMBRE 2026",
+    "du": "01/10/2026",
+    "au": "30/11/2026",
+    "cond": "MEA AU CHOIX (hors linéaire)",
+    "marge": 10545
+   },
+   {
+    "labo": "URGO",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI HUMER RHUME / TOUX - NOVEMBRE 2026",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "MEA AU CHOIX (hors linéaire)",
+    "marge": 10545
+   },
+   {
+    "labo": "URGO",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI BELLOC ET RSO CHARBON DE BELLOC - DECEMBRE 2026",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "MEA AU CHOIX (hors linéaire)",
+    "marge": 10545
+   },
+   {
+    "labo": "URGO",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI URGO CREVASSES ET SECHERESSES - DECEMBRE 2026",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "MEA AU CHOIX (hors linéaire)",
+    "marge": 10545
+   },
+   {
+    "labo": "JOHNSON & J OTC",
+    "type": "Tête de gondole",
+    "op": "OPERATION APOTHICAL&VOUS - NOVEMBRE 2026 - PLV MISE EN PLACE PAR C-MEDIA - INFOS COMPLEMENTAIRE DANS LA BIBLE DU MOIS DE",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 8991
+   },
+   {
+    "labo": "JOHNSON & J OTC",
+    "type": "Remise immédiate (BRI)",
+    "op": "Nicorette spray baisse de prix 5€ compensé en sell-in",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "48 UC : RSF 61,33% 24 UC : RSF 55% 12 UC : RSF 50%",
+    "marge": 8991
+   },
+   {
+    "labo": "JOHNSON & J OTC",
+    "type": "Remise immédiate (BRI)",
+    "op": "Nicorette gommes baisse de prix 1,5€ compensé en sell-in",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "24 UC: RSF 61,86% 12 UC: RSF 50%",
+    "marge": 8991
+   },
+   {
+    "labo": "JOHNSON & J OTC",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "Neutrogena baisse de prix -1,50€ / -2€ compensé en sell-in",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "UNITAIRE: 24 UC : 10 UG DUO: 24 UC : 8 UG",
+    "marge": 8991
+   },
+   {
+    "labo": "PROCTER ET GAMBLE ALLOGA",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "MEA ORAL-B IO2",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Réalisation MEA: minimum 48 UC panachés et 12 facings, 2 refs minimum, TG ou display",
+    "marge": 8651
+   },
+   {
+    "labo": "AVENE",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "AV 26 OP GC SOINS ESSENTIELS €",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "110K€ DCPC",
+    "marge": 8136
+   },
+   {
+    "labo": "AVENE",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "AV 26 OP GC MAINS LEVRES €",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "110K€ DCPC",
+    "marge": 8136
+   },
+   {
+    "labo": "AVENE",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "AV Xeracalm Soins et Hygiène",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "TOUS ADHERENTS",
+    "marge": 8136
+   },
+   {
+    "labo": "GSK HALEON",
+    "type": "Remise immédiate (BRI)",
+    "op": "OP BRI PRORHINEL ADULTE NOVEMBRE 2026 Cluster 3 avec Spray Adulte Enfant 100ml & Spray Adulte Enfant 100ml Lot de 2 / Je",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "PRORHINEL BRI Adulte Novembre 2026 pour Cluster 3 BRI 2€ Sur les Réfs Spray Adulte Enfant 100ml & Spray Adulte Enfant 100ml Lot de 2 / Jet Tonique 100ml / Aloe ",
+    "marge": 6089
+   },
+   {
+    "labo": "ARKOPHARMA",
+    "type": "Tête de gondole",
+    "op": "FORMAT PROMO & 50% de remise accordée",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "COMMANDE DE 72 UNITES MINIMUM PANACHABLE",
+    "marge": 5713
+   },
+   {
+    "labo": "CERAVE",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI VISAGE -2€",
+    "du": "01/10/2026",
+    "au": "30/11/2026",
+    "cond": "Dès 48 unités commandées en Livraison immédiate C3. Listing arrêté au 20/10/2026",
+    "marge": 5675
+   },
+   {
+    "labo": "CERAVE",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI CORPS -2€",
+    "du": "01/11/2026",
+    "au": "31/12/2026",
+    "cond": "Dès 24 unités commandées en Livraison différée OCTOBRE. Listing arrêté au 20/11/2026.",
+    "marge": 5675
+   },
+   {
+    "labo": "URIAGE",
+    "type": "Promotion consommateur",
+    "op": "RI 20% GAMME BARIEDERM (hors crème mains, stick lèvres, lots promos)",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Conditions marché annuel Bariederm",
+    "marge": 5617
+   },
+   {
+    "labo": "URIAGE",
+    "type": "Tête de gondole",
+    "op": "OPERATION APOTHICAL&VOUS - NOVEMBRE 2026 - PLV MISE EN PLACE PAR C-MEDIA - INFOS COMPLEMENTAIRE DANS LA BIBLE DU MOIS DE",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 5617
+   },
+   {
+    "labo": "URIAGE",
+    "type": "Promotion consommateur",
+    "op": "BLACK FRIDAY (hors coffrets, lots promos, sticks lèvres, crèmes mains, nouveautés -6mois)",
+    "du": "26/11/2026",
+    "au": "28/11/2026",
+    "cond": "Mini 250 unités en sell in",
+    "marge": 5617
+   },
+   {
+    "labo": "URIAGE",
+    "type": "Tête de gondole",
+    "op": "TG GAMME & LOTS PROMOS HYDRATATION VISAGE & CORPS",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "TG GAMME & LOTS PROMO = 48 unités minimum",
+    "marge": 5617
+   },
+   {
+    "labo": "LABORATOIRES NIGY",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG TOPICREM",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 5392
+   },
+   {
+    "labo": "LABORATOIRES NIGY",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG TOPICREM",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 5392
+   },
+   {
+    "labo": "LABORATOIRES NIGY",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI TOPICREM",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 5392
+   },
+   {
+    "labo": "LABORATOIRES NIGY",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI TOPICREM",
+    "du": "01/11/2026",
+    "au": "30/12/2026",
+    "cond": "-",
+    "marge": 5392
+   },
+   {
+    "labo": "LABORATOIRES NIGY",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI TOPICREM",
+    "du": "01/11/2026",
+    "au": "31/12/2026",
+    "cond": "-",
+    "marge": 5392
+   },
+   {
+    "labo": "LABORATOIRES NIGY",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI TOPICREM",
+    "du": "01/11/2026",
+    "au": "31/12/2026",
+    "cond": "-",
+    "marge": 5392
+   },
+   {
+    "labo": "BAUSCH ET LOMB (CHAUVIN)",
+    "type": "Mise en avant",
+    "op": "MEA annuelle linéaire GP",
+    "du": "01/01/2026",
+    "au": "31/12/2026",
+    "cond": "MEA linéaire GP si 100 unités/phie achétées en 2026",
+    "marge": 5376
+   },
+   {
+    "labo": "BAUSCH ET LOMB (CHAUVIN)",
+    "type": "Mise en avant",
+    "op": "Carte de fidélité et Newsletter",
+    "du": "01/01/2026",
+    "au": "31/12/2026",
+    "cond": "2% du sell out des porteur de carte, hors TP18",
+    "marge": 5376
+   },
+   {
+    "labo": "BAUSCH ET LOMB (CHAUVIN)",
+    "type": "Mise en avant",
+    "op": "MEA annuelle linéaire GP",
+    "du": "01/01/2026",
+    "au": "31/12/2026",
+    "cond": "MEA linéaire GP si 100 unités/phie achétées en 2026",
+    "marge": 5376
+   },
+   {
+    "labo": "BAYER OTC",
+    "type": "Tête de gondole",
+    "op": "VISIBILITE LINEAIRE HYDRALIN SEMESTRE 2 - Palier B",
+    "du": "01/07/2026",
+    "au": "22/12/2026",
+    "cond": "Palier B: 34 facings non gerbés hors AMM",
+    "marge": 5365
+   },
+   {
+    "labo": "BAYER OTC",
+    "type": "Tête de gondole",
+    "op": "TG rémunérée NOV BEPANTHEN POMMADE ET TATTOO - TOUS PALIERS",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Expo mini 30 unités panachées Pommade ET Tattoo Obligatoire",
+    "marge": 5365
+   },
+   {
+    "labo": "PURESSENTIEL",
+    "type": "Tête de gondole",
+    "op": "TG RESPIRATOIRE",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "",
+    "marge": 4895
+   },
+   {
+    "labo": "PURESSENTIEL",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI SELL OUT -20% HUILES ESSENTIELLES",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Paiement du BRI à partir de 25€",
+    "marge": 4895
+   },
+   {
+    "labo": "PURESSENTIEL",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI RESPIRATOIRE BRI SELL-OUT -20%",
+    "du": "01/12/2026",
+    "au": "30/12/2026",
+    "cond": "Paiement du BRI à partir de 25€",
+    "marge": 4895
+   },
+   {
+    "labo": "SVR",
+    "type": "Remise immédiate (BRI)",
+    "op": "CICAVIT+ NOVEMBRE RI20% - Hors format promo",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "",
+    "marge": 4845
+   },
+   {
+    "labo": "SVR",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TOPIALYSE TG NOVEMBRE RI 25% - Hors litres",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "COOP TG: Mini 144 unités panachées. 50% litres + 50% soins. Envoi d'une photo dans le mois suivant via OPEAZ Respect du contenu & des dates de l'opération (cf p",
+    "marge": 4845
+   },
+   {
+    "labo": "SVR",
+    "type": "Tête de gondole",
+    "op": "OPERATION APOTHICAL&VOUS - NOVEMBRE 2026 - PLV MISE EN PLACE PAR C-MEDIA - INFOS COMPLEMENTAIRE DANS LA BIBLE DU MOIS DE",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 4845
+   },
+   {
+    "labo": "SVR",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "ANTI-ÂGE TG DECEMBRE BRI 3€ - Coffrets Inclus",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "COOP TG: Mini 92 unités panachées. Envoi d'une photo dans le mois suivant via OPEAZ Respect du contenu & des dates de l'opération (cf plan trade) TG : Visibilit",
+    "marge": 4845
+   },
+   {
+    "labo": "EUCERIN BEIERSDORF",
+    "type": "Mise en avant",
+    "op": "[Avril/Mai ou Novembre/Décembre] Crème Pieds ou Crème Mains UreaRepair : MEA Bacs Soldeurs 2 mois rémunérée",
+    "du": "01/04/2026",
+    "au": "31/12/2026",
+    "cond": "• Mise en avant 2 mois dans bac soldeur ou vasque • Avril/mai : crème pieds (minimum 36uc facturées et exposées dans la vasque)_x000B_OU Novembre/décembre : crè",
+    "marge": 4453
+   },
+   {
+    "labo": "EUCERIN BEIERSDORF",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "[Novembre] Aquaphor et/ou Hydratants Corps UreaRepair : TG rémunérée",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "minimum 36 unités mises en avant, 4 étagères de 60cm, les prix de vente sont affichés et l'offre prix est visible",
+    "marge": 4453
+   },
+   {
+    "labo": "EUCERIN BEIERSDORF",
+    "type": "Mise en avant",
+    "op": "[Décembre] Aquaphor 40g : Vasque ou bac soldeur 1 mois",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "contreparties trade 2026 / contrat de coop",
+    "marge": 4453
+   },
+   {
+    "labo": "VICHY",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG + BRI DERCOS BRI 5€",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Min 36 unités facturées en octobre sur la gamme Energy+, Sérum REGEN,traitements anti-chute & C17 (précommandes+livraison immédiate)",
+    "marge": 4392
+   },
+   {
+    "labo": "VICHY",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG + BRI DERCOS BRI 2€",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Min 36 unités facturées en octobre sur la gamme Energy+, Sérum REGEN,traitements anti-chute & C17 (précommandes+livraison immédiate)",
+    "marge": 4392
+   },
+   {
+    "labo": "BIODERMA",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "2€ CREALINE moussant 500ml, H2O 500ml, 4€ lot H2O 500ml",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Si TG exclusive, minimum 3 étagères, 24u tradées",
+    "marge": 4366
+   },
+   {
+    "labo": "BIODERMA",
+    "type": "Remise immédiate (BRI)",
+    "op": "OPERATION FLASH : BLACK FRIDAY",
+    "du": "23/11/2026",
+    "au": "28/11/2026",
+    "cond": "OP BLACK FRIDAY TOUT RESEAU non cumulable avec OP TRADE du mois",
+    "marge": 4366
+   },
+   {
+    "labo": "BIODERMA",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "2€ ATODERM Gel Douche 1L (dont ecorchg), Crème 500ml, 4€ lot Crème",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "Si TG exclusive, minimum 3 étagères, 24u tradées",
+    "marge": 4366
+   },
+   {
+    "labo": "EXPANSCIENCE",
+    "type": "Tête de gondole",
+    "op": "Lotsx2 : 13.95€ - 14.50€",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "VIP : 48 unités A : 24 unités B : 18 unités C : 12 unités",
+    "marge": 3383
+   },
+   {
+    "labo": "EXPANSCIENCE",
+    "type": "Tête de gondole",
+    "op": "Lotsx2 : 11.95€",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "VIP : 48 unités A : 24 unités B : 18 unités C : 12 unités",
+    "marge": 3383
+   },
+   {
+    "labo": "EXPANSCIENCE",
+    "type": "Tête de gondole",
+    "op": "Unitaire : -3€ TTC par produit acheté",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "VIP : 48 unités A : 24 unités B : 12 unités C : 9 unités",
+    "marge": 3383
+   },
+   {
+    "labo": "EXPANSCIENCE",
+    "type": "Tête de gondole",
+    "op": "2 + 1 offert ou les 3 à 7.90€",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "VIP : 288 unités A : 120 unités B : 72 unités C : 48 unités",
+    "marge": 3383
+   },
+   {
+    "labo": "BIOCODEX",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "Tête de Gondole 48 UC Saforelle duo 250 ml + BRI 1€",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "TG Monoproduit 48 UC minimum",
+    "marge": 3225
+   },
+   {
+    "labo": "NUXE",
+    "type": "Tête de gondole",
+    "op": "TG HP",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "CA 2025 > 50K €",
+    "marge": 3167
+   },
+   {
+    "labo": "NUXE",
+    "type": "Promotion consommateur",
+    "op": "OFFRE BLACK FRIDAY -15€ / -5€",
+    "du": "23/11/2026",
+    "au": "30/11/2026",
+    "cond": "",
+    "marge": 3167
+   },
+   {
+    "labo": "HAVEA PHARMA",
+    "type": "Remise immédiate (BRI)",
+    "op": "OP FORCE G SELL IN OU SELL OUT",
+    "du": "01/09/2026",
+    "au": "30/11/2026",
+    "cond": "SELL OUT BRI 1€",
+    "marge": 2932
+   },
+   {
+    "labo": "HAVEA PHARMA",
+    "type": "Promotion consommateur",
+    "op": "IC OU TG VITA ROYAL OP VALABLE ET COMPENSEE UNIQUEMENT SUR UN MOIS ENTRE SEPTEMBRE ET NOVEMBRE",
+    "du": "01/09/2026",
+    "au": "30/11/2026",
+    "cond": "BRI 1€",
+    "marge": 2932
+   },
+   {
+    "labo": "HAVEA PHARMA",
+    "type": "Remise immédiate (BRI)",
+    "op": "OP FORCE G SELL IN OU SELL OUT",
+    "du": "01/09/2026",
+    "au": "30/11/2026",
+    "cond": "SELL IN : 48+12UG OU 96+48UG A LA LIGNE OU BRI 2€",
+    "marge": 2932
+   },
+   {
+    "labo": "HAVEA PHARMA",
+    "type": "Remise immédiate (BRI)",
+    "op": "OP ACEROLA SELL OUT",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "SELL OUT : COMPENSATION SUR LISTING DE VENTES APRES OP",
+    "marge": 2932
+   },
+   {
+    "labo": "HAVEA PHARMA",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "IC OU TG VIA COOP PEPINS",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "SI SELL IN COOP : 60 UC POUR 80€ OU 96 UC POUR 130€ PANACHEES",
+    "marge": 2932
+   },
+   {
+    "labo": "MAYOLI OTC",
+    "type": "Tête de gondole",
+    "op": "AUCUNE OFFRE CAR MEDICAMENT",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "84 unités visibles sur étagère panachées sur les 3 réfs",
+    "marge": 2877
+   },
+   {
+    "labo": "FORTE PHARMA",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "TG + BRI RUCHE",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Mise en place d'une TG + relai de l'offre consommateur",
+    "marge": 2464
+   },
+   {
+    "labo": "FORTE PHARMA",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI ACEROLA",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "Relai de l'offre consommateur",
+    "marge": 2464
+   },
+   {
+    "labo": "KLORANE",
+    "type": "Remise immédiate (BRI)",
+    "op": "RI 2€ format 400ml (hors formats duo) + soins",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "TOUS CLIENTS",
+    "marge": 2298
+   },
+   {
+    "labo": "PIERRE FABRE SANTE DENTAIRE 2026",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "OC 26 OP GC ELUDAY € NOVEMBRE",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "TOUS CLIENTS",
+    "marge": 1975
+   },
+   {
+    "labo": "DUCRAY LAB",
+    "type": "Remise immédiate (BRI)",
+    "op": "DU Kelual Squanorm gamme",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "TOUS ADHERENTS",
+    "marge": 1953
+   },
+   {
+    "labo": "DUCRAY LAB",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "DU 26 OP GC DEXYANE €",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "110K€ DCPC",
+    "marge": 1953
+   },
+   {
+    "labo": "DUCRAY LAB",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "DU 26 OP GC DEXYANE €",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "110K€ DCPC",
+    "marge": 1953
+   },
+   {
+    "labo": "DUCRAY LAB",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "DU 26 OP GC ICTYANE €",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "TOUS ADHERENTS",
+    "marge": 1953
+   },
+   {
+    "labo": "DUCRAY LAB",
+    "type": "Remise immédiate (BRI)",
+    "op": "DU 26 OP GC USAGE FREQUENT €",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "TOUS ADHERENTS",
+    "marge": 1953
+   },
+   {
+    "labo": "ADERMA",
+    "type": "Remise immédiate (BRI)",
+    "op": "AD 26 OP GC EXOMEGA €",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "TOUS CLIENTS",
+    "marge": 1880
+   },
+   {
+    "labo": "ADERMA",
+    "type": "Remise immédiate (BRI)",
+    "op": "AD 26 OP GC INDISPENSABLES €",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "110K€ DCPC",
+    "marge": 1880
+   },
+   {
+    "labo": "EG LABO",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI LOT 4€",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 1656
+   },
+   {
+    "labo": "PRANAROM",
+    "type": "Remise immédiate (BRI)",
+    "op": "OFFRE BRI",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "48 unités min en sell in / max 240 unités Livraison M ou M-1 de l’opéaration Une seule commande par OP",
+    "marge": 1392
+   },
+   {
+    "labo": "PRANAROM",
+    "type": "Tête de gondole",
+    "op": "OPERATION APOTHICAL&VOUS - NOVEMBRE 2026 - PLV MISE EN PLACE PAR C-MEDIA - INFOS COMPLEMENTAIRE DANS LA BIBLE DU MOIS DE",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 1392
+   },
+   {
+    "labo": "PRANAROM",
+    "type": "Remise immédiate (BRI)",
+    "op": "OFFRE BRI",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "48 unités min en sell in / max 240 unités Livraison M ou M-1 de l’opéaration Une seule commande par OP",
+    "marge": 1392
+   },
+   {
+    "labo": "GABA/COLGATE PALMOLIVE",
+    "type": "Tête de gondole",
+    "op": "Trade Novembre Meridol & Opti Email TG",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "Commande obligatoire et exposition de la ou les référence(s) obligatoire(s) indiquée(s) sur le plan trade pendant la période d’approvisionnement de la TG concer",
+    "marge": 1276
+   },
+   {
+    "labo": "GABA/COLGATE PALMOLIVE",
+    "type": "Tête de gondole",
+    "op": "Trade Décembre Bain de bouche & Colgate TG",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "Commande obligatoire et exposition de la ou les référence(s) obligatoire(s) indiquée(s) sur le plan trade pendant la période d’approvisionnement de la TG concer",
+    "marge": 1276
+   },
+   {
+    "labo": "GALLIA CSP",
+    "type": "Promotion consommateur",
+    "op": "1 boite de lait essentiel 2 Gallia achetées =1 petit pot (hors 4/6 mois) offert",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "APOTHICAL - Sous réserve engagement Danone santé nutrition >=25K€",
+    "marge": 1220
+   },
+   {
+    "labo": "GALLIA CSP",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI - 3€ SUR LAITS GALLIA BIO 2 ET 3",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "APOTHICAL - Sous réserve engagement Danone santé nutrition >=25K€",
+    "marge": 1220
+   },
+   {
+    "labo": "GALLIA CSP",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI - 3€ SUR LAITS GALLIA BIO 2 ET 3",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "APOTHICAL - Sous réserve engagement Danone santé nutrition >=13K€",
+    "marge": 1220
+   },
+   {
+    "labo": "GALLIA CSP",
+    "type": "Promotion consommateur",
+    "op": "GAMME CROISSANCE 2EME A -50%",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "APOTHICAL - Sous réserve engagement Danone santé nutrition >=25K€",
+    "marge": 1220
+   },
+   {
+    "labo": "GALLIA CSP",
+    "type": "Promotion consommateur",
+    "op": "GAMME CROISSANCE 2EME A -50%",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "APOTHICAL - Sous réserve engagement Danone santé nutrition >=13K€",
+    "marge": 1220
+   },
+   {
+    "labo": "CODEXIAL",
+    "type": "Remise immédiate (BRI)",
+    "op": "30% de remise sur l'ensemble des soins de la marque ENO",
+    "du": "23/11/2026",
+    "au": "28/11/2026",
+    "cond": "1200€ de réassort",
+    "marge": 1138
+   },
+   {
+    "labo": "GUIGOZ",
+    "type": "Promotion consommateur",
+    "op": "BIPACK GUIGOZ BIO CROISSANCE NOV-DEC",
+    "du": "01/11/2026",
+    "au": "31/12/2026",
+    "cond": "",
+    "marge": 1109
+   },
+   {
+    "labo": "ROC",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI SELL OUT -20%",
+    "du": "15/11/2026",
+    "au": "30/11/2026",
+    "cond": "-",
+    "marge": 1044
+   },
+   {
+    "labo": "LABORATOIRE NUTREOV PHSYSCIENCE",
+    "type": "Remise immédiate (BRI)",
+    "op": "BRI XERODIANE - SOIN 3€",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "",
+    "marge": 782
+   },
+   {
+    "labo": "RENE FURTERER",
+    "type": "Remise immédiate (BRI)",
+    "op": "RI 3€ gamme (hors formats voyage)",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "110K€ DCPC",
+    "marge": 680
+   },
+   {
+    "labo": "BIOTHERM",
+    "type": "Tête de gondole + remise immédiate",
+    "op": "Corps_ TG + BRI nov",
+    "du": "01/11/2026",
+    "au": "30/11/2026",
+    "cond": "",
+    "marge": 521
+   },
+   {
+    "labo": "IT COSMETICS",
+    "type": "Remise immédiate (BRI)",
+    "op": "-20% Conso sur la marque",
+    "du": "21/11/2026",
+    "au": "05/12/2026",
+    "cond": "MEA linéaire et hors linéaire",
+    "marge": 426
+   },
+   {
+    "labo": "BAILLEUL BIORGA",
+    "type": "Remise immédiate (BRI)",
+    "op": "OP Capillaire Minoxidil",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "Photo et facture à donner à votre DP",
+    "marge": 343
+   },
+   {
+    "labo": "MODILAC ALLOGA",
+    "type": "Promotion consommateur",
+    "op": "OPERATION MODILAC CEREALES",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "14 BOITES = 55% AU LIEU DE 40%",
+    "marge": 130
+   },
+   {
+    "labo": "MODILAC ALLOGA",
+    "type": "Promotion consommateur",
+    "op": "OPERATION MODILAC ACTIGEST",
+    "du": "01/12/2026",
+    "au": "31/12/2026",
+    "cond": "12 BOITES = 48% AU LIEU DE 35%",
+    "marge": 130
+   }
   ]
  }
 }
