@@ -115,7 +115,7 @@ nav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:15px
 nav button span{font-size:20px;width:26px;text-align:center}
 nav button .sc{display:none}nav button .lc{display:inline}
 nav button.on{background:var(--fond)}
-nav#nav button .pst{position:static;margin-left:auto}
+nav#nav button .pst{position:static;margin-left:auto}#gnav .pst{position:static;display:inline-block;margin-left:6px;transform:none}#gnav{position:sticky;top:0;z-index:4;background:var(--fond,var(--bg))}
 nav::before{content:"Pilotage pharmacie";position:absolute;top:22px;left:24px;font-weight:800;color:var(--vert2);font-size:16px}
 main{max-width:1500px;padding:20px 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:0 16px;align-items:start}
 main>*{grid-column:1/-1}
@@ -159,13 +159,14 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 </head>
 <body>
 <header><h1 id="ht">Pilotage</h1><span id="maj"></span><button id="bRech" aria-label="Rechercher" onclick="if(D)rechercheGlobale()">🔍</button><button id="bMsg" aria-label="Laisser une remarque ou une idée" onclick="panneauMsg()">💬</button><button id="bCfg" aria-label="Réglages" onclick="reglages()">⚙</button><button id="bRef" aria-label="Actualiser">↻</button></header>
-<div id="fil" style="padding:0 12px"></div><main id="m"></main><div id="crHold" style="display:none"></div>
+<div id="gnav" class="filtres" style="padding:8px 12px 0;display:none"></div><div id="fil" style="padding:0 12px"></div><main id="m"></main><div id="crHold" style="display:none"></div>
 <nav id="nav"></nav>
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.29';
+const APP_V='7.30';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
+const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
 let _rpT=null;new MutationObserver(()=>{clearTimeout(_rpT);_rpT=setTimeout(()=>{if(!document.getElementById('retCon')&&!document.getElementById('retCol'))replier()},60)}).observe(document.getElementById('m')||document.body,{childList:true});
@@ -256,8 +257,11 @@ function reglages(){
 
 /* ---------- Rendu ---------- */
 function navig(){
-  $('#nav').innerHTML=ONGLETS.map(o=>`<button data-v="${o[0]}" class="${o[0]===vue?'on':''}"><span>${o[1]}</span><em class="sc">${o[3]}</em><em class="lc">${o[2]}</em></button>`).join('');
-  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>{const v=b.dataset.v; if(v==='3d'){location.href='3d.html';return} if(v==='cfg'){vue='cfg';navig();reglages();return} vue=v;recherche='';rendre();scrollTo(0,0)});
+  /* 7.30 : 7 onglets (groupes) en bas ; les rubriques d'un groupe s'affichent en haut de la page */
+  const G=GROUPES.find(g=>g[4].includes(vue)),dv=g=>g===G?vue:g[4][0];
+  $('#nav').innerHTML=GROUPES.map(g=>`<button data-v="${dv(g)}" data-g="${g[0]}" class="${g===G?'on':''}"><span>${g[1]}</span><em class="sc">${g[3]}</em><em class="lc">${g[2]}</em></button>`).join('');
+  const gn=$('#gnav');if(gn){gn.innerHTML=G&&G[4].length>1?G[4].map(v=>{const o=ONGLETS.find(x=>x[0]===v)||[v,'',v,v];return `<button data-v="${v}" class="${v===vue?'on':''}">${o[1]} ${esc(o[2])}</button>`}).join(''):'';gn.style.display=G&&G[4].length>1?'':'none'}
+  document.querySelectorAll('#nav button,#gnav button').forEach(b=>b.onclick=()=>{const v=b.dataset.v; if(v==='3d'){location.href='3d.html';return} if(v==='cfg'){vue='cfg';navig();reglages();return} vue=v;recherche='';rendre();scrollTo(0,0)});
   pastilles();
 }
 /* Opérations Opeaz : on ne garde que les laboratoires que la pharmacie travaille (présents avec des ventes sur 12 mois) */
@@ -2988,7 +2992,7 @@ async function majInc(i,st){const E=incEtat();if(st)E[i.id]={st,le:auj(),txt:i.t
 const aTraiter=i=>!incEtat()[i.id];
 const enCoursInc=i=>{const e=incEtat()[i.id];return !e||e.st==='vu'};
 let _rhAuto=false;function pastilles(){if(!D)return;if(!_rhAuto&&ss.get('pil_code2')&&!PAIE){_rhAuto=true;const c2=ss.get('pil_code2');chargerPaie(c2).then(ok=>ok&&chargerRhx(c2)).then(()=>pastilles())}
-  const I=incidences();document.querySelectorAll('#nav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(aTraiter).length,vu=L.filter(i=>(incEtat()[i.id]||{}).st==='vu').length;let p=b.querySelector('.pst');if(p)p.remove();if(t==='act'){let n=0;try{n=prioListe().filter(x=>!x.claude&&x.j>=0).length}catch(e){}if(n){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${n} priorité(s) urgente(s) ou en retard">${n}</i>`)}return}
+  const I=incidences();document.querySelectorAll('#nav button,#gnav button').forEach(b=>{const t=b.dataset.v;const L=I.filter(i=>i.to.includes(t)),nv=L.filter(aTraiter).length,vu=L.filter(i=>(incEtat()[i.id]||{}).st==='vu').length;let p=b.querySelector('.pst');if(p)p.remove();if(t==='act'){let n=0;try{n=prioListe().filter(x=>!x.claude&&x.j>=0).length}catch(e){}if(n){b.style.position='relative';b.insertAdjacentHTML('beforeend',`<i class="pst nv" title="${n} priorité(s) urgente(s) ou en retard">${n}</i>`)}return}
    if(t==='cou'){/* 6.74 : la pastille de Courrier & paiements compte les MAILS à traiter ; les alertes (livraisons, commandes en attente) n'apparaissent qu'en gris quand il n'y a plus de mail */
      let m=0;try{const T=trTout();m=T?T.A.filter(a=>!(TRS.ok&&TRS.ok[a.f.ID]&&!a.reste)).length:0}catch(e){}
      const rc=rjCompte(),rj=rc?rc.n:0;
