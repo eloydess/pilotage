@@ -5631,12 +5631,12 @@
     ]
    },
    {
-    "titre": "Clients par mois : −6,5 % d'avril à septembre, cassure en février",
+    "titre": "Nombre de clients selon l'écran Vindilis « Statistiques › Clients » (autre définition : ne pas comparer aux clients réels, 10 201 en septembre)",
     "c": "o",
     "h": [
      "Mois",
-     "2025",
-     "2026",
+     "2025 (écran Clients)",
+     "2026 (écran Clients)",
      "Écart"
     ],
     "l": [
@@ -5702,6 +5702,7 @@
      ]
     ],
     "lecture": [
+     "Chiffre de référence de l'application : les clients réels = ventes − 2 × recyclage (tableau « Mois par mois » ci-dessus : 10 201 en septembre 2026 contre 10 698). Ce tableau-ci ne sert qu'à voir la tendance (−6,5 % d'avril à septembre, cassure en février).",
      "Source : Statistiques › Clients › Nombre de clients (valeurs lues au survol). Définition exacte (tickets ou personnes, recyclage inclus ou non) [AMBIGU] : comparer d'une année sur l'autre, pas en valeur absolue.",
      "Janvier à mars 2025 étaient anormalement bas (reprise, inventaire de mars), d'où les fortes hausses en début d'année.",
      "Clients identifiés : septembre 3 518 → 3 180 (−9,6 %) ; janvier 2026 3 714 → février 3 359.",
