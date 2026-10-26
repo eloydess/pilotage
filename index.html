@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.25';
+const APP_V='7.26';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1818,6 +1818,15 @@ function vueProcedure(){const V=V6();if(!V)return pasAudit();const P=V.procedure
 
 /* --- Surstocks et couverture adaptée --- */
 let sousSur='sur';
+/* 7.26 : jours de stock = valeur du stock (inventaire mensuel Vindilis, prix d'achat moyen) ÷ coût des ventes des 12 derniers mois × 365 */
+function joursStock(){try{const E=ECO();const B=(FLX&&FLX.vindilis&&FLX.vindilis.blocs||[]).find(b=>/Valeur du stock/.test(b.titre||''));if(!E||!B)return null;const cv=(E.ca-E.mg)/365;if(!(cv>0))return null;
+  const n=x=>+String(x).replace(/[^\d,-]/g,'').replace(',','.');const H=B.l.map(r=>({d:r[0],v:n(r[2]),j:n(r[2])/cv})).filter(x=>x.v>0);const last=H[H.length-1];
+  return {cv,H,last,ref:41,ref2:45,exces:last.v-41*cv,exces2:last.v-45*cv,source:B.lecture&&B.lecture[0]||''}}catch(e){return null}}
+function carteJoursStock(){if(!FLX){if(window._jsCh)return '';window._jsCh=1;try{chargerFlux().then(()=>{if(FLX&&vue==='stk'&&sousStk==='sur'){const y=scrollY;stock();scrollTo(0,y)}})}catch(e){}return '<div class="carte">📦 Jours de stock : chargement…</div>'}const J=joursStock();if(!J)return '';const e=v=>eur(Math.round(v)),j=v=>Math.round(v).toLocaleString('fr-FR');
+  const Hs=J.H.slice(-8),mx=Math.max(...Hs.map(h=>h.j),J.ref)*1.1,W=360,Hh=120,X=i=>34+(W-44)*i/Math.max(1,Hs.length-1),Y=v=>10+(Hh-30)*(1-v/mx);
+  const svg=`<svg viewBox="0 0 ${W} ${Hh}" style="width:100%;height:auto;max-height:220px" role="img" aria-label="Jours de stock par mois"><line x1="34" x2="${W-10}" y1="${Y(J.ref)}" y2="${Y(J.ref)}" stroke="var(--vert2)" stroke-dasharray="4 3"/><text x="${W-10}" y="${Y(J.ref)-3}" font-size="8" text-anchor="end" fill="var(--vert2)">moyenne des officines : ${J.ref} j</text><polyline fill="none" stroke="var(--orange)" stroke-width="2" points="${Hs.map((h,i)=>X(i)+','+Y(h.j)).join(' ')}"/>${Hs.map((h,i)=>`<circle cx="${X(i)}" cy="${Y(h.j)}" r="2.6" fill="var(--orange)"><title>${h.d} : ${j(h.j)} jours (${e(h.v)})</title></circle><text x="${X(i)}" y="${Hh-6}" font-size="7.5" text-anchor="middle" fill="var(--doux)">${h.d.slice(0,5)}</text><text x="${X(i)}" y="${Y(h.j)-5}" font-size="7.5" text-anchor="middle" fill="var(--txt)">${j(h.j)}</text>`).join('')}</svg>`;
+  return `<div class="carte" style="border-left:6px solid var(--orange)"><b>📦 Jours de stock : ${j(J.last.j)} jours au ${J.last.d}</b><div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Valeur du stock</div><div class="v">${e(J.last.v)}</div></div><div class="kpi"><div class="l">Coût des ventes / jour</div><div class="v">${e(J.cv)}</div></div><div class="kpi"><div class="l">Moyenne des officines</div><div class="v">${J.ref} j</div></div><div class="kpi"><div class="l">Argent immobilisé en trop</div><div class="v neg">≈ ${e(J.exces)}</div></div></div>
+   <div class="sub w" style="margin-top:6px">Calcul : valeur du stock (inventaire Vindilis, prix d'achat moyen) ÷ coût des ventes des 12 derniers mois (CA − marge, ${e(J.cv*365)}) × 365. Repère : 41 jours (Observatoire Fiducial 2026), 45 jours (Le Quotidien du pharmacien). Ce que ça veut dire : revenir à 41 jours libérerait environ ${e(J.exces)} de trésorerie (${e(J.exces2)} pour 45 jours), à condition d'écouler le surstock ci-dessous et de racheter moins que ce qu'on vend. Courbe : jours de stock des derniers inventaires, au coût des ventes actuel.</div>${svg}</div>`}
 function vueSurstocks(){const V=V6();if(!V)return pasAudit();const S=V.stock;const b15=S.labos.reduce((s,x)=>s+x[1],0),bad=S.labos.reduce((s,x)=>s+x[2],0);
   const nav=`<div class="filtres" id="ssur">${[['sur','Surstocks'],['cov','Couverture adaptée'],['prio','Priorité d\'achat']].map(o=>`<button data-k="${o[0]}" class="${o[0]===sousSur?'on':''}">${o[1]}</button>`).join('')}</div>`;
   let h='';
@@ -1840,7 +1849,7 @@ function vueSurstocks(){const V=V6();if(!V)return pasAudit();const S=V.stock;con
     <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Laboratoire</th><th class="n">1,5 mois</th><th class="n">Adaptée</th></tr>${S.labos.slice().sort((a,b)=>b[2]-a[2]).map(l=>`<tr><td>${esc(l[0])}</td><td class="n">${eur(l[1])}</td><td class="n"><b>${eur(l[2])}</b></td></tr>`).join('')}</table></div></div>`;
   if(sousSur==='prio')h=`<div class="carte"><b>Quoi acheter en premier</b><div class="sub w">Classement : marge mensuelle protégée par euro dépensé. Avec une enveloppe limitée, commander dans cet ordre.</div>
     <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Produit</th><th class="n">Qté</th><th class="n">Coût</th><th class="n">Marge / mois</th><th class="n">€ de marge par € dépensé</th></tr>${S.priorite.slice(0,80).map(r=>`<tr><td>${esc(r[2])}<div class="sub">${esc(r[0])}</div></td><td class="n">${r[6]}</td><td class="n">${eur2(r[7])}</td><td class="n">${eur2(r[8])}</td><td class="n"><b>${String(r[9]).replace('.',',')}</b></td></tr>`).join('')}</table></div></div>`;
-  return nav+h}
+  return nav+(sousSur==='sur'?carteJoursStock():'')+h}
 
 /* --- Demandes non satisfaites au comptoir --- */
 const MOTIFS=['Rupture','Pas en référence','Prix trop élevé','Attente trop longue','Autre'];
@@ -3457,11 +3466,15 @@ function commandes(){
   const l=(D.commandes||[]).slice().sort((a,b)=>(num(b['Marge en rupture €/mois'])||0)-(num(a['Marge en rupture €/mois'])||0));
   const dates=l.map(c=>c['Date relevé']).filter(Boolean).sort(), dx=dates[dates.length-1], age=jours(dx);
   const vieux=age!==null&&age>7, tot=l.reduce((s,c)=>s+(num(c['Marge en rupture €/mois'])||0),0), nR=l.reduce((s,c)=>s+(num(c['Ruptures (réf.)'])||0),0);
+  /* 7.26 : ruptures nettes — une rupture qui figure dans une commande en attente de réception est « déjà commandée », pas à traiter */
+  const CMD=(()=>{try{return (V6()||{}).commandes||null}catch(e){return null}})(),motL=x=>sansAcc(String(x||'')).toUpperCase().split(/[\s()&]+/).filter(w=>w.length>=4&&!/^T20|PHARMA|LABO/.test(w));
+  const enCmd=c=>{if(!CMD)return null;const w=motL(c['Laboratoire']);const O=CMD.commandes.filter(o=>motL(o.lab).some(x=>w.includes(x)));if(!O.length)return null;return {n:Math.min(num(c['Ruptures (réf.)'])||0,O.reduce((s,o)=>s+(o.nRupt||0),0)),O}};
+  const nNet=l.reduce((s,c)=>{const e=enCmd(c);return s+Math.max(0,(num(c['Ruptures (réf.)'])||0)-(e?e.n:0))},0);
   $('#m').innerHTML=`<div class="carte ${vieux?'alerte':''}"><b>${dx?'Stock relevé le '+dfr(dx)+(age!==null?' (il y a '+age+' j)':''):'Aucun relevé'}</b>
-   <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">${vieux?'⚠ Relevé ancien : vérifier le stock réel dans Vindilis avant de commander. ':''}${nR} référence(s) en rupture, environ <b>${eur(tot)}</b> de marge par mois en jeu. Rupture = référence active vendue au moins 6 fois du 29/09/2025 au 28/09/2026 et à 0 en stock au relevé ; commandes en cours non déduites.</div></div>
+   <div class="sub" style="font-size:12px;color:var(--doux);white-space:normal">${vieux?'⚠ Relevé ancien : vérifier le stock réel dans Vindilis avant de commander. ':''}${nR} référence(s) en rupture, environ <b>${eur(tot)}</b> de marge par mois en jeu${CMD?` ; <b>${nNet} à traiter</b> une fois retirées celles déjà dans une commande en attente (relevé des commandes du ${dfr(CMD.date)})`:''}. Rupture = référence active vendue au moins 6 fois du 29/09/2025 au 28/09/2026 et à 0 en stock au relevé.</div></div>
   <p class="titre">${l.length} laboratoire(s) — classés par marge en jeu</p>
   ${l.map(c=>`<div class="carte item" data-i="${(D.commandes||[]).indexOf(c)}">${bdg(c['Priorité']||'—')}
-   <div class="grow"><b>${esc(c['Laboratoire'])}</b><div class="sub">${ent(c['Ruptures (réf.)'])} réf. en rupture · ≈ ${eur(c['Marge en rupture €/mois'])}/mois · ${ent(c['Stock faible (réf.)'])} en stock faible</div>
+   <div class="grow"><b>${esc(c['Laboratoire'])}</b><div class="sub">${ent(c['Ruptures (réf.)'])} réf. en rupture · ≈ ${eur(c['Marge en rupture €/mois'])}/mois · ${ent(c['Stock faible (réf.)'])} en stock faible</div>${(()=>{const e=enCmd(c);return e&&e.n?`<div class="sub">🛒 dont <b>${e.n}</b> déjà commandée(s) : ${e.O.map(o=>'n° '+esc(o.num)+' du '+esc(o.creation)).join(', ')} — en attente de réception (voir Commandes en attente)</div>`:''})()}
    ${c['Produits en rupture']?`<div class="sub" style="font-size:12px;color:var(--doux);white-space:normal;margin-top:4px">${esc(c['Produits en rupture'])}</div>`:''}</div></div>`).join('')||'<p class="vide">Aucune rupture relevée.</p>'}`;
   document.querySelectorAll('.item').forEach(e=>e.onclick=()=>formulaire('COMMANDES',D.commandes[+e.dataset.i]));
   fab(null);
