@@ -991,11 +991,12 @@ function afficherTreso(){
     }).join('') + (function(){
       var mc = soldeDe('CEBPL'), mb = soldeDe('BPGO');
       if (mc == null && mb == null) return '';
-      var tot = (mc || 0) + (mb || 0), apres = tot - t.vir;
+      // 7.16 : les paiements se font depuis la seule Caisse d'Épargne ; la BPGO accumule la trésorerie et n'est pas comptée (même règle que l'application de pilotage).
+      var tot = (mc || 0) + (mb || 0), ce = mc || 0, apresCE = ce - (t.parBanque.CEBPL || 0), duCE = ce - t.du + t.duDeduit;
       return '<div class="tot" style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bord)">' +
-        '<span><b>Total des deux comptes</b>' + (mc == null || mb == null ? ' <span class="meta">(un solde manque)</span>' : '') + '</span><b>' + eur(tot) + '</b>' +
-        (t.vir ? '<span>Après les virements choisis</span><b class="' + (apres < 0 ? 'neg' : 'pos') + '">' + eur(apres) + '</b>' : '') +
-        '<span>Après paiement de tout le dû</span><b class="' + (tot - t.du + t.duDeduit < 0 ? 'neg' : 'pos') + '">' + eur(tot - t.du + t.duDeduit) + '</b></div>';
+        '<span class="meta">Total des deux comptes (pour information)' + (mc == null || mb == null ? ' — un solde manque' : '') + '</span><span class="meta" style="text-align:right">' + eur(tot) + '</span>' +
+        (t.parBanque.CEBPL ? '<span>Caisse d\'Épargne après les virements choisis</span><b class="' + (apresCE < 0 ? 'neg' : 'pos') + '">' + eur(apresCE) + '</b>' : '') +
+        '<span><b>Caisse d\'Épargne après tout le dû</b><br><span class="meta">BPGO non comptée</span></span><b class="' + (duCE < 0 ? 'neg' : 'pos') + '">' + (mc == null ? 'solde non saisi' : eur(duCE)) + '</b></div>';
     })() + '</div>';
   h += '<div class="carte"><div class="tot">' +
     '<span>Total dû (' + t.nDu + ' factures)</span><b>' + eur(t.du) + '</b>' +
