@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.17';
+const APP_V='7.18';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1099,7 +1099,15 @@ function crIncidences(add){const S=crSyn();if(!S)return;const R=trParam().reserv
   if(S.vieux.length)add('cou-vieux|'+S.vieux.length,'cou',['cou'],'orange',`${S.vieux.length} fiche(s) de la boîte mail attendent une décision depuis plus de 3 jours (la plus ancienne : ${S.ageMax} jours).`,'cou');
   if(S.tot&&S.apres<R)add('cou-treso|'+Math.round(S.apres/1000),'cou',['cou','stk','acc'],'rouge',`Payer tout le suivi RJ (${eur(S.du)}) depuis la Caisse d'Épargne laisserait ${eur(S.apres)}, sous la réserve de sécurité de ${eur(R)} (BPGO non comptée) : payer d'abord les dossiers de priorité 1 (${eur(S.du1)}) et faire valider le reste par l'administrateur au fil des encaissements.`,'stk');
   S.sansDemande.forEach(l=>add('cou-dem|'+l.cle,'cou',['cou'],'orange',`${l.tiers} (${eur(l.du)}) : priorité 1 mais aucune demande de virement envoyée à l'administrateur.`,'cou'));
-  S.livRet.forEach(x=>add('cou-liv|'+x.tiers+'|'+x.preuve,'cou',['cou','stk'],'orange',`${x.tiers} : payé (preuve envoyée il y a ${x.j} jours) mais livraison non confirmée. Relancer le laboratoire.`,'cou'));
+  /* 7.18 : une seule incidence par tiers ; un double paiement connu (action ouverte « payés deux fois ») n'est pas une livraison à relancer ; un bailleur ou un organisme ne livre rien */
+  {const nrm=t=>trNorm(String(t||'')).split(' ').filter(w=>w.length>=4),dbl=(()=>{try{return prioListe().filter(a=>/deux fois|double paiement/i.test(a.titre||''))}catch(e){return []}})(),
+    sansLiv=/carmila|immobili|bailleur|loyer|urssaf|dgfip|imp[oô]t|klesia|banque|lease|leasing|assurance|edf|engie|cabinet|avocat|mandataire|administrateur/i,G={};
+   S.livRet.forEach(x=>{const k=trNorm(x.tiers||'');(G[k]=G[k]||{tiers:x.tiers,L:[]}).L.push(x)});
+   Object.values(G).forEach(g=>{const mt=g.L.reduce((s,x)=>s+(+x.montant||0),0),n=g.L.length,j=Math.max(...g.L.map(x=>x.j||0)),det=`${n>1?n+' pièces':'1 pièce'}${mt?' · '+eur(mt):''}${g.L.some(x=>x.montant==null)?' (dont montant inconnu)':''}`,
+     a=dbl.find(a=>nrm(g.tiers).some(w=>trNorm(a.titre).includes(w)));
+     if(a)add('cou-liv|'+g.tiers,'cou',['cou','stk'],'orange',`${g.tiers} (${det}) : payé deux fois, ce n'est pas une livraison à relancer. Demander le remboursement (${a.id} : ${a.titre}).`,'cou');
+     else if(sansLiv.test(g.tiers))add('cou-liv|'+g.tiers,'cou',['cou'],'orange',`${g.tiers} (${det}) : payé, aucune livraison attendue (bailleur ou organisme). Sortir ce dossier de « en attente de livraison » dans le suivi RJ.`,'cou');
+     else add('cou-liv|'+g.tiers,'cou',['cou','stk'],'orange',`${g.tiers} (${det}) : payé (preuve envoyée il y a ${j} jours) mais livraison non confirmée. Relancer le laboratoire.`,'cou')})}
   crCommandesLiees().forEach(c=>add('cou-cmd|'+c.o.num,'cou',['stk','cou'],'orange',`Commande ${c.o.num} ${c.o.lab} en attente (${eur(c.o.valeurRestante)}, dont ${eur(c.o.aGarder)} utiles maintenant) : un dossier de paiement du même laboratoire reste ouvert (${eur(c.du)}). Payer ce dossier conditionne souvent la livraison ; sinon, réduire la commande à la part utile.`,'stk',Math.max(100,Math.round(0.25*(c.o.aGarder||0)))))}
 /* Synthèse : la vue d'ensemble reliée aux autres onglets */
 function vueSynCourrier(){const S=crSyn();if(!S)return `<div class="carte"><b>Synthèse indisponible</b><div class="sub w">${crErr==='code'||!crJeton()?'Ouvrez « 📬 Boîte mail » et entrez le code de Tri & RJ : la synthèse se remplit ensuite.':esc(crErr||'Chargement…')}</div></div>`;
