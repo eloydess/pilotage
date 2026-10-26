@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.20';
+const APP_V='7.21';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -1100,7 +1100,7 @@ function crIncidences(add){const S=crSyn();if(!S)return;const R=trParam().reserv
   if(S.tot&&S.apres<R)add('cou-treso|'+Math.round(S.apres/1000),'cou',['cou','stk','acc'],'rouge',`Payer tout le suivi RJ (${eur(S.du)}) depuis la Caisse d'Épargne laisserait ${eur(S.apres)}, sous la réserve de sécurité de ${eur(R)} (BPGO non comptée) : payer d'abord les dossiers de priorité 1 (${eur(S.du1)}) et faire valider le reste par l'administrateur au fil des encaissements.`,'stk');
   S.sansDemande.forEach(l=>add('cou-dem|'+l.cle,'cou',['cou'],'orange',`${l.tiers} (${eur(l.du)}) : priorité 1 mais aucune demande de virement envoyée à l'administrateur.`,'cou'));
   /* 7.18 : une seule incidence par tiers ; un double paiement connu (action ouverte « payés deux fois ») n'est pas une livraison à relancer ; un bailleur ou un organisme ne livre rien */
-  {const nrm=t=>trNorm(String(t||'')).split(' ').filter(w=>w.length>=4),dbl=(()=>{try{return prioListe().filter(a=>/deux fois|double paiement/i.test(a.titre||''))}catch(e){return []}})(),
+  {const nrm=t=>trNorm(String(t||'')).split(' ').filter(w=>w.length>=4),dbl=(()=>{try{return (typeof toutes==='function'?toutes():[]).filter(a=>!actFaite(a.id)&&/deux fois|double paiement/i.test(a.titre||''))}catch(e){return []}})(),
     sansLiv=/carmila|immobili|bailleur|loyer|urssaf|dgfip|imp[oô]t|klesia|banque|lease|leasing|assurance|edf|engie|cabinet|avocat|mandataire|administrateur/i,G={};
    S.livRet.forEach(x=>{const k=trNorm(x.tiers||'');(G[k]=G[k]||{tiers:x.tiers,L:[]}).L.push(x)});
    Object.values(G).forEach(g=>{const mt=g.L.reduce((s,x)=>s+(+x.montant||0),0),n=g.L.length,j=Math.max(...g.L.map(x=>x.j||0)),det=`${n>1?n+' pièces':'1 pièce'}${mt?' · '+eur(mt):''}${g.L.some(x=>x.montant==null)?' (dont montant inconnu)':''}`,
