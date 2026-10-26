@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.30';
+const APP_V='7.31';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -269,7 +269,7 @@ const opsMin=()=>{const v=num(ETAT&&ETAT.ops_min);return v===null?1000:v},opsMas
 function filtrerOps(){if(!D||!D.operations||D._opsFiltrees)return;if(!D._opsTout)D._opsTout=D.operations.slice();D.operations=D._opsTout.slice();const ok={},M=opsMasq();(D.labos||[]).forEach(l=>{if((num(l['CA HT 12 mois'])||0)>=opsMin()&&!M.includes(l['Laboratoire']))ok[l['Laboratoire']]=1});
   D.opsMasquees=D.operations.filter(o=>!ok[o['Laboratoire']]).length;D.operations=D.operations.filter(o=>ok[o['Laboratoire']]);D._opsFiltrees=1}
 function libererCarte(){if(typeof MAPC!=='undefined'&&MAPC){try{MAPC._onZoomTransitionEnd=()=>{};MAPC._animatingZoom=false;MAPC.stop();MAPC.off();MAPC.remove()}catch(e){}MAPC=null}}
-function rendre(){const h=document.getElementById('crHold');if(h)h.style.display='none';libererCarte();navig(); filtrerOps(); majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
+function rendre(){const h=document.getElementById('crHold');if(h)h.style.display='none';libererCarte();navig(); filtrerOps(); try{(D&&D.calendrier||[]).forEach(e=>{if(/^annul/i.test(e['Commentaire']||''))e['Statut']='Passé'})}catch(e){}/* 7.31 : un événement annulé (commentaire « Annulé… ») est traité comme passé */ majBadgeMsg(); if(!D){if(enCours){$('#m').innerHTML='<p class="vide">Chargement…</p>';return} reglages();return}
   try{const f=document.getElementById('fil');if(f)f.innerHTML=vue==='cfg'?'':filRouge();if(f)brancherLiens()}catch(e){}
   ({flux:fluxV,acc:accueil,prio:()=>{vue='act';sousAct='ord';navig();actions()},cou:courrier,act:actions,lab:labosV2,pro:promos,stk:stock,pas:passifV,eve:evenements,ecr:ecransMenu,con:concurrence,col:collaborateurs,mois:mois,cfg:reglages}[vue]||accueil)();try{restaurerSaisies()}catch(e){}}
 /* 6.71 : les montants et le code tapés mais pas encore enregistrés ne sont plus effacés quand l'application se recalcule (chargement du courrier, synchronisation…) */
@@ -1670,12 +1670,13 @@ function registreEcrans(){const Df=DIFF();if(!Df||!Df.magicinfo)return '';const 
   Object.entries(Df.cenareo||{}).forEach(([n,L])=>R.push({k:'C|'+n,nom:(ids[n]?ids[n]+' – ':'')+n,pf:'Cenareo',app:'1 écran',liste:'campagnes en cours',boucle:'',vis:L,rel:Df.releve}));
   Object.entries(Df.magicinfo).forEach(([k,v])=>R.push({k:'M|'+k,nom:(v.groupe||k).replace(/^APOTHICAL CENTRE SUD > /,''),pf:'MagicInfo',app:v.ecrans.length+' écran'+(v.ecrans.length>1?'s synchronisés':'')+' : '+v.ecrans.join(', '),liste:'liste de lecture « '+v.liste+' »',boucle:v.boucle,vis:v.visuels,rel:Df.releveMagicinfo||Df.releve}));
   const nb=Object.keys(Df.cenareo||{}).length+Object.values(Df.magicinfo).reduce((s,v)=>s+v.ecrans.length,0);
+  try{const li=JSON.stringify(R.map(r=>[r.k,r.nom]));if(ETAT.ecr_liste!==li)setTimeout(()=>majEtat('ecr_liste',li),50)}catch(e){}/* 7.31 : la 3D lit cette liste pour placer chaque écran */
   const fin=t=>{const m=String(t).match(/jusqu’au (\d\d)\/(\d\d)/);if(!m)return null;return -jours('2026-'+m[2]+'-'+m[1])};
   return `<div class="carte" style="border-left:6px solid var(--bleu)"><b>📺 Vos ${nb} écrans et ce qu'ils affichent</b><div class="sub w">Noms exacts tels qu'ils apparaissent dans Cenareo (Dynamiz) et dans MagicInfo. Relevé Cenareo du ${dfr(Df.releve)}, MagicInfo du ${dfr(Df.releveMagicinfo||Df.releve)}. Indiquez où se trouve chaque écran dans la pharmacie : c'est enregistré pour tout le monde.</div>
    ${R.map(r=>{const urg=r.vis.filter(v=>{const j=fin(v);return j!==null&&j<=3}).length;return `<div class="ligne" style="display:block;padding:10px 0"><div><b>${esc(r.nom)}</b> <span class="badge">${r.pf}</span>${urg?` <span class="badge" style="color:var(--rouge);border-color:var(--rouge)">${urg} visuel(s) se termine(nt) sous 3 jours</span>`:''}</div>
     <div class="sub w">${esc(r.app)} · ${esc(r.liste)}${r.boucle?' · boucle de '+esc(r.boucle.replace(/^00:/,''))+' min':''}</div>
     <div class="sub w" style="margin-top:3px"><b style="color:var(--txt)">À l'écran (${r.vis.length}) :</b> ${r.vis.map(v=>{const j=fin(v);return j!==null&&j<=3?`<b class="neg">${esc(v)}</b>`:esc(v)}).join(' · ')}</div>
-    <div style="margin-top:4px"><input class="inPos" data-k="${esc(r.k)}" value="${esc(POS[r.k]||'')}" placeholder="Emplacement en magasin (ex. tête de gondole entrée, comptoir…)" style="margin:0;padding:5px 8px;font-size:13px"></div></div>`}).join('')}</div>`}
+    <div style="margin-top:4px"><input class="inPos" data-k="${esc(r.k)}" value="${esc(POS[r.k]||'')}" placeholder="Emplacement en magasin (ex. tête de gondole entrée, comptoir…)" style="margin:0;padding:5px 8px;font-size:13px"></div></div>`}).join('')}<button class="btn sec" style="width:100%;margin-top:8px" onclick="location.href='3d.html'">📺 Placer les écrans sur la 3D (bouton « Écrans »)</button></div>`}
 function brancherRegistre(){document.querySelectorAll('.inPos').forEach(i=>i.onchange=async()=>{const P=jsonEt('ecr_pos',{});P[i.dataset.k]=i.value.trim();if(await majEtat('ecr_pos',JSON.stringify(P)))toast('Emplacement enregistré')})}
 /* ================= 6.8 : PRIORITÉS — tout ce qui est à traiter, du plus impactant au moins impactant ================= */
 const NAT={marge:['💶','Marge'],clients:['👥','Clients'],tresorerie:['🏦','Trésorerie'],obligation:['⚖️','Obligation'],risque:['⚠️','Risque'],socle:['🧱','Fiabilité des données'],mesure:['📏','Mesure']};

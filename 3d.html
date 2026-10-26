@@ -125,12 +125,13 @@ let actives=(()=>{try{return JSON.parse(ls.get('p3d_couches')||'null')||['univer
 let mode='dessus';
 function barre(){
   const m=[['dessus','⬆ Dessus'],['survol','🌀 Survol'],['visite','🚶‍♂️ Visite']];
-  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+`<button data-a="dep">🔁 À déplacer</button>`+`<button data-a="qual">${QUAL==='hd'?'Maquette : détaillée':'Maquette : légère'}</button>`+
+  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+`<button data-a="dep">🔁 À déplacer</button>`+`<button data-a="ecr">📺 Écrans</button>`+`<button data-a="qual">${QUAL==='hd'?'Maquette : détaillée':'Maquette : légère'}</button>`+
     COUCHES.map(([k,t])=>`<button class="${actives.includes(k)?'on':''}" data-c="${k}">${t}</button>`).join('');
   $('#cmd').querySelectorAll('button').forEach(b=>b.onclick=()=>{
     if(b.dataset.m){changerMode(b.dataset.m);return}
     if(b.dataset.a==='ajout'){ficheAjout();return}
     if(b.dataset.a==='dep'){ficheDeplacer();return}
+    if(b.dataset.a==='ecr'){ficheEcrans();return}
     if(b.dataset.a==='qual'){try{localStorage.setItem('p3d_q2',QUAL==='hd'?'leger':'hd')}catch(e){}location.reload();return}
     const k=b.dataset.c;if(actives.includes(k))actives=actives.filter(x=>x!==k);else{actives.push(k);if(k==='passage')actives=actives.filter(x=>x!=='marge');if(k==='marge')actives=actives.filter(x=>x!=='passage')}
     ls.set('p3d_couches',JSON.stringify(actives));appliquerCouches();barre()});
@@ -301,6 +302,14 @@ function ficheDeplacer(){if(!ZON||!GR){ouvrir('<h3><span>À déplacer</span><but
    <h4>📣 Rentables mais cachés (${caches.length})</h4><div class="sub">Dans le quart des laboratoires qui margent le plus, mais placés où passent peu de clients (moins de 30 %). À rapprocher de l'allée principale, ou à annoncer (écran, tête de gondole).</div>${caches.map(li).join('')||'<div class="sub">Aucun.</div>'}
    <h4>⚠️ Places chaudes peu rentables (${chauds.length})</h4><div class="sub">Dans le quart qui marge le moins, mais sur un passage fort (55 % et plus). Places à proposer aux laboratoires ci-dessus.</div>${chauds.map(li).join('')||'<div class="sub">Aucune.</div>'}
    <div class="sub" style="margin-top:8px">Proposition à valider par vous. Chaque déplacement fait : noter la date, puis comparer les ventes du laboratoire 4 semaines avant / 4 semaines après.</div>`)}
+/* Les écrans réels (noms Cenareo / MagicInfo, liste écrite par l'application dans « ecr_liste ») : les placer à leur emplacement exact ; l'emplacement est repris dans Médias › Écrans */
+function ficheEcrans(){let L=[];try{L=JSON.parse(ETAT.ecr_liste||'[]')}catch(e){}const E=objEtat(),idOf=k=>'ecr_'+String(k).replace(/[^A-Za-z0-9]/g,'_');
+  if(!L.length){ouvrir('<h3><span>📺 Écrans</span><button class="x">✕</button></h3><div class="sub">Ouvrez une fois l\'application › Clients › Médias › Écrans pour charger la liste de vos écrans, puis revenez ici.</div>');return}
+  ouvrir(`<h3><span>📺 Vos écrans (${L.length})</span><button class="x">✕</button></h3><div class="sub">Touchez « Placer », puis touchez le sol à l'endroit exact de l'écran. Ensuite, touchez l'écran dans la 3D pour le déplacer, le tourner, changer sa hauteur ou le retirer.</div>
+   ${L.map(([k,n])=>{const o=E[idOf(k)],ok=o&&!o.del;return `<div class="l"><span>${ok?'✅':'⬜'} ${esc(n)}</span><button class="btn s" data-pe="${esc(k)}" style="padding:4px 10px">${ok?'Déplacer':'Placer'}</button></div>`}).join('')}`);
+  document.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>{const k=b.dataset.pe,n=(L.find(x=>x[0]===k)||[k,k])[1],id=idOf(k);$('#fiche').style.display='none';msg('Touchez le sol à l\'emplacement de « '+n+' »',3500);
+    attente=async(x,z)=>{const o=objEtat()[id]||{};sauverObj(id,{t:'ecran',lib:n,x:+x.toFixed(2),z:+z.toFixed(2),h:o.h||1.9,r:o.r||0,del:0});sel=OBJ.find(q=>q.id===id);majObjets();
+      let P={};try{P=JSON.parse(ETAT.ecr_pos||'{}')}catch(e){}const u=universEn(x,z);P[k]=`Placé sur la 3D${u?' : '+u:''} (x ${x.toFixed(1)} ; z ${z.toFixed(1)})`;await etatSet('ecr_pos',JSON.stringify(P));ficheEcrans()}})}
 function ouvrir(html){const f=$('#fiche');f.innerHTML=html;f.style.display='block';$('#leg').style.display='none';f.querySelector('.x').onclick=fermer}
 const dans=(p,x,y)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const [xi,yi]=p[i],[xj,yj]=p[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)c=!c}return c};
 function universEn(x,z){let best=null,bd=1.2;ZON.U.forEach(([c,p])=>{if(dans(p,x,z)){best=c;bd=0;return}const cx=p.reduce((s,q)=>s+q[0],0)/p.length,cz=p.reduce((s,q)=>s+q[1],0)/p.length;
