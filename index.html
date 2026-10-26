@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.19';
+const APP_V='7.20';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -2229,7 +2229,7 @@ function vuePasPlan(){const P=PA(),PL=P.plan,S=pasScenarios(),C=pasCapa(),B=PL.b
    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px">
     <label class="sub w">Remise proposée aux chirographaires (%)<input type="number" id="psRem" min="0" max="90" step="5" value="${p.rem}" style="width:100%"></label>
     <label class="sub w">Part qui l’accepte (%)<input type="number" id="psAcc" min="0" max="100" step="5" value="${p.acc}" style="width:100%"></label>
-    <label class="sub w">Hausse des ventes (%)<input type="number" id="psCa" step="1" value="${p.caPct}" style="width:100%"></label>
+    <label class="sub w">Hausse des ventes (%)<input type="number" id="psCa" step="1" value="${p.caPct}" style="width:100%">${(()=>{const M=moisVif();return M&&M.ev!=null?`<span class="${M.ev<0&&p.caPct>0?'neg':''}" style="display:block;margin-top:2px">Constaté : marge ${(M.ev>0?'+':'')+(M.ev*100).toLocaleString('fr-FR',{maximumFractionDigits:1})} % vs les mêmes dates de l'an dernier (au ${dfr(M.date).slice(0,5)}).${M.ev<0&&p.caPct>0?' L\'hypothèse est au-dessus de la tendance actuelle.':''}</span>`:''})()}</label>
     <label class="sub w">Points de taux de marge gagnés<input type="number" id="psMp" step="0.5" value="${p.mPts}" style="width:100%"></label>
     <label class="sub w">Baisse de charges (€/an)<input type="number" id="psCh" step="5000" value="${p.charges}" style="width:100%"></label>
     <label class="sub w">Apport d’argent frais (€)<input type="number" id="psApp" step="10000" value="${p.apport}" style="width:100%"></label>
@@ -2300,7 +2300,8 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);setTimeout((
   const nA=A?toutes().filter(a=>!actFaite(a.id)).length:null;
   const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur '+(A?toutes().length:'—'),'act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
   const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
-  $('#m').innerHTML=`${(()=>{try{return carteMaj()}catch(e){return ''}})()}${(()=>{try{return cartePayer(true)}catch(e){return ''}})()}${(()=>{try{return carteTropPercus(true)}catch(e){return ''}})()}${(()=>{try{return cartePassifAccueil()}catch(e){return ''}})()}${cartePrioAccueil()}${alertes()}${carteCourrier()}${(()=>{try{return carteReel(true)}catch(e){return ""}})()}${carteSemaine()}${carteBilanSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
+  /* 7.20 : l'Accueil s'ouvre sur les priorités du jour (après la ligne du mois en tête), puis l'argent, puis les mises à jour proposées par les mails */
+  $('#m').innerHTML=`${cartePrioAccueil()}${(()=>{try{return cartePayer(true)}catch(e){return ''}})()}${(()=>{try{return carteMaj()}catch(e){return ''}})()}${(()=>{try{return carteTropPercus(true)}catch(e){return ''}})()}${(()=>{try{return cartePassifAccueil()}catch(e){return ''}})()}${alertes()}${carteCourrier()}${(()=>{try{return carteReel(true)}catch(e){return ""}})()}${carteSemaine()}${carteBilanSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
    <div class="titre">Mois en cours</div>${carteEnCours()}${carteMarche()}
    <details class="plusAcc"${ls.get('pil_plusAcc')==='1'?' open':''}><summary class="titre" style="cursor:pointer">▸ Plus d'analyses : mois complets, exercice, contexte</summary>
    <div class="titre">Mois complets (Vindilis, chargés dans l'application)</div>
