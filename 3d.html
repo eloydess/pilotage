@@ -289,7 +289,9 @@ function toucher(e){ray.setFromCamera(pointer(e),cam);
 function fermer(){$('#fiche').style.display='none';if(sel){sel=null;majObjets()}appliquerCouches()}
 /* Marge × passage : quels laboratoires déplacer (estimation à valider, puis mesure avant / après) */
 function ficheDeplacer(){if(!ZON||!GR){ouvrir('<h3><span>À déplacer</span><button class="x">✕</button></h3><div class="sub">Plan pas encore chargé.</div>');return}
-  const P={};ZON.L.forEach(([n,[x,z]])=>{const m=margeLab(n),p=passage(x,z);if(m===null||p===null)return;const k=norm(n);const o=P[k]||(P[k]={n,m,pmax:0,pmin:1,nb:0});o.pmax=Math.max(o.pmax,p);o.pmin=Math.min(o.pmin,p);o.nb++});
+  /* passage de l'allée devant le rayon : on cherche jusqu'à 2 m autour de l'étiquette (l'étiquette est posée sur le meuble, pas dans l'allée) */
+  const passAllee=(x,z)=>{const [i,j]=cellOf(x,z);let b=0;for(let dj=-8;dj<=8;dj++)for(let di=-8;di<=8;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<GW&&jj<GH&&GR.walk[jj*GW+ii])b=Math.max(b,GR.pass[jj*GW+ii])}return b/255};
+  const P={};ZON.L.forEach(([n,[x,z]])=>{const m=margeLab(n),p=passAllee(x,z);if(m===null||p===null)return;const k=norm(n);const o=P[k]||(P[k]={n,m,pmax:0,pmin:1,nb:0});o.pmax=Math.max(o.pmax,p);o.pmin=Math.min(o.pmin,p);o.nb++});
   const L=Object.values(P);if(!L.length){ouvrir('<h3><span>À déplacer</span><button class="x">✕</button></h3><div class="sub">Aucune étiquette rapprochée des ventes.</div>');return}
   const ms=L.map(x=>x.m).sort((a,b)=>a-b),q=f=>ms[Math.min(ms.length-1,Math.floor(f*ms.length))],haut=q(.75),bas=q(.25),e=v=>Math.round(v).toLocaleString('fr-FR')+' €',pc=v=>Math.round(v*100)+' %';
   const caches=L.filter(x=>x.m>=haut&&x.pmax<.30).sort((a,b)=>b.m-a.m).slice(0,12),chauds=L.filter(x=>x.m<=bas&&x.pmax>=.55).sort((a,b)=>a.m-b.m).slice(0,12);
