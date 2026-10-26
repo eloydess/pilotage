@@ -6912,8 +6912,8 @@
   ]
  },
  "rdv": {
-  "titre": "Rendez-vous laboratoires de la semaine du 26/10",
-  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lu le 25/10/2026 à 19 h 55. Chiffres : Vindilis (CA et marge sur 12 mois, commandes directes du 01/01 au 25/10, 2025 et 2026), Opeaz (25/10), Digipharmacie, fichiers labos du cloud Apothical, « Quoi payer ».",
+  "titre": "Rendez-vous laboratoires du 26/10 au 02/11",
+  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT].",
   "l": [
    {
     "d": "2026-10-26",
@@ -7267,6 +7267,134 @@
     ],
     "apres": [
      "Ventes dentaire de novembre vs octobre"
+    ]
+   },
+   {
+    "d": "2026-11-02",
+    "t": "2026-11-02 09:00",
+    "jour": "Lun. 02/11",
+    "h": "9 h – 10 h",
+    "titre": "Rogé Cavaillès",
+    "resume": "Chiffres Vindilis et Opeaz non relus ce soir (poste « bureau » non accessible) : fiche à compléter avant le rendez-vous. Une compensation Opeaz est à demander.",
+    "chiffres": [
+     [
+      "CA HT 12 mois",
+      "[MANQUANT]"
+     ],
+     [
+      "Marge 12 mois (taux) — classe",
+      "[MANQUANT]"
+     ],
+     [
+      "Commandes directes N-1 → N",
+      "[MANQUANT]"
+     ],
+     [
+      "Commandé non reçu",
+      "[MANQUANT]"
+     ],
+     [
+      "En alerte sans commande (EAN)",
+      "[MANQUANT]"
+     ],
+     [
+      "À payer / litiges (« Quoi payer », 25/10)",
+      "Aucun dossier Rogé Cavaillès"
+     ],
+     [
+      "Opeaz : terminées, compensation pas encore demandée",
+      "Au moins une opération Rogé Cavaillès (relevé du 25/10) ; détail [MANQUANT]"
+     ],
+     [
+      "Opeaz : en cours",
+      "[MANQUANT]"
+     ],
+     [
+      "Coop / RFA (cloud Apothical)",
+      "[MANQUANT]"
+     ]
+    ],
+    "obtenir": [
+     "Le paiement de la compensation Opeaz en attente (à déposer sur Opeaz avant le rendez-vous)",
+     "Les conditions 2026 en direct : remise, franco, paiement à réception"
+    ],
+    "dire": [
+     "Vos achats directs ont baissé à cause du blocage d'avant le redressement, pas des ventes"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Vérifier sur Opeaz que la compensation est « transmise » puis payée"
+    ]
+   },
+   {
+    "d": "2026-11-02",
+    "t": "2026-11-02 11:00",
+    "jour": "Lun. 02/11",
+    "h": "11 h – 12 h",
+    "titre": "EA Pharma (Granions)",
+    "resume": "7e fournisseur par la marge (37,7 %) ; achats directs en forte baisse ; 7 Granions en rupture ; avoir de 1 080,22 € en votre faveur à imputer.",
+    "chiffres": [
+     [
+      "CA HT 12 mois (26/10/2025 → 24/10/2026)",
+      "40 336 €"
+     ],
+     [
+      "Marge 12 mois (taux)",
+      "15 200 € (37,7 %) — classe [MANQUANT]"
+     ],
+     [
+      "Achats directs (cloud Apothical, même période)",
+      "2025 : 26 756 € → 2026 : 10 668 €, −60 %"
+     ],
+     [
+      "Commandes directes reçues (Vindilis, 01/01 → 24/10)",
+      "−73 % (montants [MANQUANT])"
+     ],
+     [
+      "Commandé non reçu",
+      "[MANQUANT]"
+     ],
+     [
+      "En rupture (stock 0, Vindilis 25/10)",
+      "GRANIONS MAGNESIUM Cpr Pilul/60 — 3760155212471 ; GRANIONS VITANIN ENERGIE 1000mg Cpr eff B/30 — 3760155216080 ; GRANIONS VITAMIN IMMUNITE 1000mg Cpr eff B/30 — 3760155216103 ; GRANIONS HYDROP COLLAG Cpr eff framb cas T/18 — 3760155219265 ; GRANIONS KID TOUX S buv Fl/125ml — 3760155215625 ; GRANIONS DETOX FOIE Cpr B/60 — 3760155216486 ; GRANIONS GUMMIES MELATONINE 1,9mg Gom Fl/60 — 3760155217506"
+     ],
+     [
+      "Ventes Granions sur 12 mois",
+      "−1 730 €"
+     ],
+     [
+      "Litige (« Quoi payer », dossier 89)",
+      "Avoir en votre faveur −1 080,22 € (n° de facture : 0) — ne pas payer en l'état"
+     ],
+     [
+      "Opeaz",
+      "[MANQUANT]"
+     ],
+     [
+      "Coop / RFA (cloud Apothical)",
+      "[MANQUANT]"
+     ]
+    ],
+    "obtenir": [
+     "L'imputation de l'avoir de 1 080,22 € sur une commande Granions (écrit, avec n° d'avoir)",
+     "La livraison des 7 Granions en rupture, à commencer par Magnésium (3760155212471) et Vitamin Immunité (3760155216103) pour l'hiver, dès le paiement validé par l'administrateur",
+     "Des conditions de paiement à réception pour reprendre les commandes directes"
+    ],
+    "dire": [
+     "EA Pharma est votre 7e fournisseur par la marge : vous voulez reprendre les volumes, la baisse vient du blocage de trésorerie"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Vérifier l'imputation de l'avoir sur la facture suivante et clôturer le dossier 89",
+     "Contrôler la réception des 7 Granions et les ventes de novembre"
     ]
    }
   ]
