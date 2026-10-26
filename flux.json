@@ -1,8 +1,9 @@
 {
- "maj": "2026-10-25",
- "version": "7.12",
+ "maj": "2026-10-26",
+ "version": "7.13",
  "but": "Faire revenir et entrer plus de clients, sans baisser la marge par client : chaque action de l'officine doit servir ce seul but.",
  "constat": [
+  "Point du lundi 26/10 — semaine du 19 au 24/10 (Vindilis › Statistiques › Comparatif jour, poste de bureau) : 2 353 ventes et 16 116 € de marge, contre 2 856 ventes et 18 335 € la même semaine de 2025 (20 au 25/10). Recyclage estimé (pas de chiffre à la semaine : octobre 2026 = 77, octobre 2025 = 559, ramenés à 6 jours) : clients réels ≈ 2 307 contre ≈ 2 608, soit ≈ −300 (−11,5 %), ≈ 50 clients de moins par jour d'ouverture ; marge −2 220 € (−12,1 %). Marge par client ≈ 6,99 € contre 7,03 € : stable. Vendredi 23/10 très faible (328 ventes, 980 boîtes). Cartes ZeFid, réactivés SMS et abonnés Instagram non relevés ce lundi (poste déconnecté).",
   "Vindilis (25/10) : commandes directes reçues 597 669 € contre 1 547 916 € à période égale (−61 %) ; CERP +8 % dans Vindilis, +21 % sur l'extranet CERP à fin septembre.",
   "Cloud Apothical (25/10) : achats directs aux labos −70 % (trésorerie, livraisons bloquées, paiement d'avance depuis le redressement judiciaire) ; rétrocessions 2026 de 4 607 € HT contre 36 456 € en 2025 ; quatre seuils de remise encore atteignables avant le 31/12 (Sigvaris, Orliman, Boiron, Kenvue).",
   "Expertise Vindilis du 25/10 : réassort réglé sur « Économe » ; 1 063 produits en alerte sans commande ; 58 % des promis sur des produits bloqués ; 1 844 clients réguliers perdus depuis juillet ; 41 902 € de tiers payant non soldé et 11 477 € de crédits clients.",
@@ -430,6 +431,12 @@
     {
      "d": "2026-10-26",
      "t": [
+      {
+       "id": "s1x",
+       "txt": "Poste de bureau : dans l'extension Claude de Chrome, nommer « Bureau » le navigateur de ce poste, et répondre à la fenêtre « accès au dossier C:\\Temp » restée ouverte devant Vindilis ; laisser l'application Claude ouverte (le poste s'est déconnecté à 7 h 45)",
+       "qui": "Titulaire",
+       "mesure": "Relevé automatique du lundi complet"
+      },
       {
        "id": "s1o",
        "txt": "Ordonnance : lister les produits promis non servis et les génériques Zentiva en rupture (Statistiques › Produits › Ruptures, détail du jour) et les commander en priorité, chaque jour",
@@ -1159,6 +1166,17 @@
    "opts": [
     "Oui",
     "Non"
+   ]
+  },
+  {
+   "id": "q11",
+   "q": "Vendredi 23/10 : seulement 328 ventes (980 boîtes), le plus bas de la semaine. Que s'est-il passé (absence, panne, fermeture partielle, travaux dans la galerie) ?",
+   "reco": "",
+   "opts": [
+    "Absence",
+    "Panne",
+    "Galerie",
+    "Je ne sais pas"
    ]
   }
  ],
