@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.26';
+const APP_V='7.27';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -3051,6 +3051,7 @@ function actions(){fab(null);
   const nc=k=>TOUT.filter(FST[k]).length;
   $('#m').innerHTML=sousNav('sa',[['ord','🔥 Par quoi commencer'],['dix','Plan d\'action'],['av','Avant / après'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct)+
    `<div class="carte"><b>Plan d'action global : toutes les actions de tous les onglets</b><div class="sub w">Chaque action a un responsable, une échéance, la façon de faire et sa mesure avant / après. Ouvrez « Suivi et mesure » pour noter la mise en place, les chiffres avant / après et le verdict : c'est enregistré sur le serveur, visible sur le téléphone comme sur l'ordinateur.</div><div class="ba-btn"><button class="mini" id="paAdd">+ Ajouter une action</button></div></div>
+   ${(()=>{/* 7.27 : 10 actions actives au maximum (Gallup : au-delà, on ne suit plus) ; le reste en réserve */try{const P=prioListe().filter(x=>x.k==='act'&&!actFaite(x.id)).slice(0,10),res=TOUT.filter(a=>!actFaite(a.id)).length-P.length;return `<div class="carte" style="border-left:6px solid var(--vert2)"><b>🎯 Les 10 actions actives</b><div class="sub w">Les plus rentables et les plus urgentes, dans l'ordre (même classement que « Par quoi commencer »). Les ${res} autres sont en réserve : on ne les commence pas avant d'avoir fini celles-ci. Chaque action finie libère une place.</div>${P.map((x,i)=>`<div class="ligne" style="cursor:pointer" onclick="document.getElementById('act-${esc(x.id)}')?.scrollIntoView({behavior:'smooth'})"><span><b>${i+1}. ${esc(x.id)}</b> ${esc(x.titre)}</span><b class="sub">${x.val?'≈ '+eur(x.val)+'/mois':''}</b></div>`).join('')}</div>`}catch(e){return ''}})()}
    ${tableauPlan(TOUT)}
    <div class="filtres" id="fst">${Object.keys(FST).map(k=>`<button data-f="${k}" class="${k===filtreSt?'on':''}">${k} (${nc(k)})</button>`).join('')}</div>
    <div class="filtres" id="fth">${['Tous',...TH].map(k=>`<button data-f="${esc(k)}" class="${k===filtreTh?'on':''}">${k==='Tous'?'Tous les thèmes':esc(k)+' ('+TOUT.filter(a=>a.theme===k&&!actFaite(a.id)).length+')'}</button>`).join('')}</div>
@@ -3703,7 +3704,9 @@ function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
      <div class="kpis" style="margin-top:8px;grid-template-columns:repeat(${Math.min(ans.length,4)},1fr)">${ans.slice(-4).map(a=>`<div><div class="sub">${a} (${moisA(a)} mois)</div><b>${eur(tot(a))}</b><div class="sub">${eur(tot(a)/(moisA(a)||1))} / mois</div></div>`).join('')}</div></div>
      <div class="carte"><b>Coût employeur moyen par mois, par année</b>${barresH(ans.map(a=>[a+' ('+moisA(a)+' mois)',[[tot(a)/(moisA(a)||1),'var(--vert2)']],'',eur(tot(a)/(moisA(a)||1))]))}</div>
      <div class="carte"><div class="tw"><table class="t"><tr><th>Collaborateur</th>${ans.map(a=>`<th class="n">${a}</th>`).join('')}<th class="n">Coût horaire ${der}</th></tr>
-     ${noms.map(n=>{const q=resp(n),hD=S(n,der,'h');return `<tr><td><b>${esc(n)}</b><div class="sub">${esc((q&&q['Titre'])||P.filter(r=>r.c===n).slice(-1)[0].f||'')}</div></td>${ans.map(a=>{const v=S(n,a,'k');return `<td class="n">${v?eur(v)+`<div class="sub">${nbM(n,a)} mois</div>`:'—'}</td>`}).join('')}<td class="n">${hD?eur2(S(n,der,'k')/hD):'—'}</td></tr>`}).join('')}
+     ${(()=>{/* 7.27 : l'équipe actuelle d'abord ; les anciens collaborateurs repliés (leurs coûts restent dans les totaux) */const ligne=n=>{const q=resp(n),hD=S(n,der,'h');return `<tr><td><b>${esc(n)}</b><div class="sub">${esc((q&&q['Titre'])||P.filter(r=>r.c===n).slice(-1)[0].f||'')}</div></td>${ans.map(a=>{const v=S(n,a,'k');return `<td class="n">${v?eur(v)+`<div class="sub">${nbM(n,a)} mois</div>`:'—'}</td>`}).join('')}<td class="n">${hD?eur2(S(n,der,'k')/hD):'—'}</td></tr>`};
+       const dm=[...new Set(P.map(r=>r.m))].sort().slice(-2),actuel=n=>P.some(r=>r.c===n&&dm.includes(r.m))&&!parti(n),A1=noms.filter(actuel),A0=noms.filter(n=>!actuel(n));
+       return A1.map(ligne).join('')+(A0.length?`<tr><td colspan="${ans.length+2}"><details><summary class="sub" style="cursor:pointer">Anciens collaborateurs (${A0.length}) : toucher pour voir</summary><div class="tw"><table class="t">${A0.map(ligne).join('')}</table></div></details></td></tr>`:'')})()}
      <tr><td><b>Total</b></td>${ans.map(a=>`<td class="n"><b>${eur(tot(a))}</b></td>`).join('')}<td></td></tr></table></div></div>
      <button class="btn sec" id="vMois">Détail mois par mois (bulletins)</button>`;
   } else if(sousCol==='masse'){
