@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.21';
+const APP_V='7.22';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
 const $=s=>document.querySelector(s);
@@ -414,10 +414,10 @@ function labosListe(){
    <div class="sub" style="font-size:12px;color:var(--doux)">${mT?Math.round(mF/mT*100):0} % de la marge du périmètre prix est à jour (${eur(mF)} sur ${eur(mT)}) · ✅ ${nb('Fait')} fait · 🟠 ${nb('À valider')} à valider · 🟡 ${nb('À revoir')} à revoir · ⭕ ${nb('À faire')} à faire</div></div>
   <input id="q" placeholder="Rechercher parmi les ${tous.length} laboratoires" value="${esc(recherche)}">
   <div class="filtres" style="margin-top:8px">${grp.map(g=>`<button class="${g===filtreLab?'on':''}" data-g="${g}">${g} (${nb(g)})</button>`).join('')}</div>
-  <p class="titre">${l.length} laboratoire(s) — tri par marge sur 12 mois (sept. 2025 → août 2026)</p></div>
+  <p class="titre">${l.length} laboratoire(s) — tri par marge sur 12 mois (sept. 2025 → août 2026) · flèche = évolution de la marge vs les 12 mois précédents</p></div>
   ${l.map(x=>{const e=etatPrix(x);return `<div class="carte item" data-k="${esc(x['Laboratoire'])}"><span class="ico" title="${esc(e[1])}">${e[0]}</span>
    <div class="grow"><b>${esc(x['Laboratoire'])}</b><div class="sub">${eur(x['Marge € 12 mois'])} de marge sur 12 mois · ${esc(e[1])}${x['Date repricing']?' le '+dfr(x['Date repricing']):''}${x['Suivi repricing']?' · '+esc(String(x['Suivi repricing']).split(' — ')[0]):''}</div></div>
-   ${EM[x['Laboratoire']]!==null?`<span style="font-size:12px">${fleche(EM[x['Laboratoire']])}</span>`:''}
+   ${EM[x['Laboratoire']]!==null?`<span style="font-size:12px;text-align:right" title="Marge des 12 derniers mois comparée aux 12 mois précédents">${fleche(EM[x['Laboratoire']])}<br><small class="sub">marge vs N−1</small></span>`:''}
    ${x['Classe']?`<span class="badge ${esc(x['Classe'])}">${esc(x['Classe'])}</span>`:''}</div>`}).join('')||'<p class="vide">Aucun laboratoire.</p>'}`;
   const qi=$('#q'); qi.oninput=()=>{recherche=qi.value;labos();const n=$('#q');n.focus();n.setSelectionRange(n.value.length,n.value.length)};
   document.querySelectorAll('.filtres button').forEach(b=>b.onclick=()=>{filtreLab=b.dataset.g;labos()});
@@ -694,7 +694,7 @@ function signaux(t){if(!A)return [];const S=[];
 /* Bloc « Actions de cet onglet », posé en tête de chaque onglet */
 const BLOC_ONG=['lab','pro','stk','eve','ecr','con','col','mois'];
 function blocActions(t){const L=actsOnglet(t),c=k=>L.filter(a=>statutA(a)===k).length,f=c('faite'),S=signaux(t);
-  const ouv=ls.get('pil_bloc_'+t);const open=ouv===null?innerWidth>=1024:ouv==='1';
+  const ouv=ls.get('pil_bloc2_'+t);const open=ouv==='1';/* 7.22 : replié par défaut, le contenu du sous-onglet passe en premier */
   const ord=L.slice().sort((a,b)=>({retard:0,encours:1,afaire:2,faite:3}[statutA(a)]-{retard:0,encours:1,afaire:2,faite:3}[statutA(b)])||String(a.quand).localeCompare(String(b.quand)));
   return `<details class="carte blocact" id="blocAct" data-t="${t}" ${open?'open':''}><summary><span class="ba-t">📌 Actions de cet onglet</span>
    <span class="ba-c">${c('retard')?`<b class="neg">${c('retard')} en retard</b> · `:''}${c('afaire')+c('encours')} à faire · ${f}/${L.length} faites${S.length?` · <b style="color:var(--orange)">${S.length} signal${S.length>1?'s':''}</b>`:''}</span>
@@ -708,7 +708,7 @@ function injecterBloc(){const m=$('#m');if(!m||!A||!BLOC_ONG.includes(vue)||docu
   const t=vue,first=m.firstElementChild;const html=blocActions(t);
   if(first&&first.classList.contains('filtres'))first.insertAdjacentHTML('afterend',html);else if(first&&first.id==='ret')first.insertAdjacentHTML('afterend',html);else m.insertAdjacentHTML('afterbegin',html);
   const b=document.getElementById('blocAct');const retour=()=>{vue=t;rendre();scrollTo(0,0)};
-  b.ontoggle=()=>ls.set('pil_bloc_'+t,b.open?'1':'0');
+  b.ontoggle=()=>ls.set('pil_bloc2_'+t,b.open?'1':'0');
   b.querySelectorAll('[data-ouvre]').forEach(e=>e.onclick=()=>{ouvrirAction(e.dataset.ouvre)});
   b.querySelectorAll('[data-sig]').forEach(e=>e.onclick=()=>formAction(signaux(t)[+e.dataset.sig].pre,retour));
   b.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]&&vue==='act'){sousAct=p[1]==='rec'?'rec':p[1];if(p[1]==='rec')filtre='Ouvertes'}rendre();scrollTo(0,0)});
@@ -948,14 +948,14 @@ function recompense(m,R,p){if(!A||!A.vendeurs)return '';const E=equipeObj(A.vend
        <td><select class="selChal" data-k="${esc(x.k)}" style="width:auto;margin:0">${O.map(o=>`<option value="${o[0]}" ${String((C[mk]||{})[x.k]||0)===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select></td><td class="n"><b>${'⭐'.repeat(Math.min(etoiles(x.k),12))||'—'}</b> ${etoiles(x.k)}</td></tr>`).join('')}</table></div>
     <div style="margin-top:10px"><b>Les récompenses</b></div><div class="tw"><table class="t"><tr><th></th><th>Quand</th><th>Récompense</th><th>Coût pour la pharmacie</th></tr>${RECOMP.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td class="sub">${r[3]}</td></tr>`).join('')}</table></div>
     <div class="sub w" style="margin-top:8px">Un cadeau payé par la pharmacie pour récompenser un résultat est un complément de salaire : il passe sur la fiche de paie, avec cotisations, même sous forme de bon d'achat ou de billets. D'où l'intérêt de faire doter les gros lots par les laboratoires, dans les challenges dermocosmétique et parapharmacie : le laboratoire déclare et paie la contribution. Challenges sur la parapharmacie et le conseil, jamais sur la quantité de médicaments. À valider avec l'expert-comptable avant de lancer.</div></div>`}
-function equipeObj(V,m){const c=objCfg(),EQ=D.equipe||[];
+function equipeObj(V,m){const c=objCfg(),EQ=equipeActive();
   const L=V.lignes.filter(x=>x.ventes>=300).map(x=>{const t=sansAcc(x.nom).split(/\s+/);const e=EQ.find(e=>t.includes(sansAcc(e['Collaborateur']).split(/\s+/)[0]));if(!e)return null;const k=sansAcc(e['Collaborateur']).split(/\s+/)[0].toUpperCase();
     return {...x,k,qui:nomCollab(x.nom),tit:/titulaire/i.test(e['Titre']||''),pres:c.pres[k]||'plein'}}).filter(Boolean);
   const vus=L.filter(x=>!x.tit);const act=vus.filter(x=>x.pres!=='parti'&&x.pres!=='partiel'&&(x.ventesLibre/12>=150||x.pres==='sam')).sort((a,b)=>b.margeLibre-a.margeLibre);
   const occ=vus.filter(x=>x.pres==='partiel'||(x.pres==='plein'&&x.ventesLibre/12<150));
   const md=a=>{a=a.sort((x,y)=>x-y);return a.length?a[Math.floor(a.length/2)]:0},ref=act.filter(x=>x.ventesLibre>=150);
   return {act,occ,vus,panMed:md(ref.map(x=>x.caLibre/x.ventesLibre)),mvMed:md(ref.map(x=>x.margeLibre/x.ventesLibre)),caMed:md(ref.filter(x=>x.lignesLibre).map(x=>(x.lignesLibre-x.ventesLibre)/x.ventesLibre))}}
-function nomCollab(n){const t=sansAcc(n).split(/\s+/);const e=(D.equipe||[]).find(e=>t.includes(sansAcc(e['Collaborateur']).split(/\s+/)[0]));return e?e['Collaborateur'].split(/\s+/)[0]+(e['Titre']?' ('+e['Titre'].split(' —')[0].toLowerCase()+')':''):n}
+function nomCollab(n){const t=sansAcc(n).split(/\s+/);const e=equipeActive().find(e=>t.includes(sansAcc(e['Collaborateur']).split(/\s+/)[0]));return e?e['Collaborateur'].split(/\s+/)[0]+(e['Titre']?' ('+e['Titre'].split(' —')[0].toLowerCase()+')':''):n}
 const joursMois=m=>new Date(+m.slice(0,4),+m.slice(5,7),0).getDate();
 
 function brancherObjectifs(){const s=$('#moSel');if(s)s.onchange=e=>{moisObj=e.target.value;mois()};
@@ -2823,10 +2823,10 @@ const ORGA_MARS={aline:'Entretiens · Onco · TROD · Grossiste · Stup.',christ
 let orgAn='',orgResp=true,orgFerme={},orgZoom=0;
 function classeOrg(t){t=sansAcc(t);if(/titulaire|directrice|gerant/.test(t))return 'dir';if(/pharmacien/.test(t))return 'pha';if(/etudiant/.test(t))return 'etu';if(/esth|mecp|parapharm|conseill/.test(t))return 'para';if(/apprenti|jeune preparant|eleve/.test(t))return 'app';if(/preparat/.test(t))return 'pre';if(/rayonn|magasin|recept|condition/.test(t))return 'ray';if(/administ|rejet|secret/.test(t))return 'adm';return 'surf'}
 function membresOrg(P,an){const {parC,der}=equipeAnnees(P),dern=der.slice(0,4),M=[],vu=new Set();const prem=n=>sansAcc(n).split(' ')[0];
-  const FAM={pierre:'GOUIN',emmanuella:'GOUIN'};const ajoute=(nom,titre,src,extra)=>{const k=prem(nom);if(vu.has(k))return;if(an===dern&&parti(nom)&&!(extra&&extra.parti))return;vu.add(k);const f=ficheRh(nom),q=resp(nom);
+  const FAM={pierre:'GOUIN',emmanuella:'GOUIN'};const ajoute=(nom,titre,src,extra)=>{const k=prem(nom);if(vu.has(k))return;if(an===dern&&parti(nom)&&!(extra&&extra.parti))return;if(an===dern&&!(extra&&extra.parti)&&(PRES0[k.toUpperCase()]==='parti'||(jsonEt('partis',[])||[]).some(x=>sansAcc(String(x)).toLowerCase()===k.toLowerCase())))return;vu.add(k);const f=ficheRh(nom),q=resp(nom);
     let r=q&&q['Responsabilités']&&!/MANQUANT/.test(q['Responsabilités'])?q['Responsabilités']:null,rM=false;if(!r&&ORGA_MARS[k]){r=ORGA_MARS[k];rM=true}const dirX=classeOrg(titre)==='dir';
     M.push(Object.assign({nom,prenom:f?f.prenom:nom.split(' ')[0],famille:f?f.nom:(FAM[k]||''),titre,g:classeOrg(titre),resp:r,respMars:rM,manque:!r&&!dirX,tel:f&&f.tel,src,cle:parC[nom]&&(src!=='Sivan'||!parC[nom].sortie)?nom:(Object.keys(parC).find(n=>prem(n)===k&&(src!=='Sivan'||!parC[n].sortie))||(src==='Sivan'?'§'+nom:nom))},extra||{}))};
-  if(an===dern){(D.equipe||[]).forEach(e=>{const t=e['Titre']||'',x=Object.values(parC).find(p=>prem(p.c)===prem(e['Collaborateur']));
+  if(an===dern){equipeActive().forEach(e=>{const t=e['Titre']||'',x=Object.values(parC).find(p=>prem(p.c)===prem(e['Collaborateur']));
       if(/titulaire/i.test(t)||(x&&!x.sortie))ajoute(e['Collaborateur'],t,'ÉQUIPE')});
     Object.values(parC).filter(x=>!x.sortie).forEach(x=>ajoute(x.c,x.f||'','paie'));
     (RHX&&RHX.fiches||[]).forEach(f=>ajoute(f.prenom,f.fonction||'','Sivan',{nouveau:!!(f.entree&&f.entree.startsWith(an))}))}
@@ -2881,7 +2881,7 @@ function rechercheGlobale(){const ov=document.createElement('div');ov.id='rg';ov
   if(A){(A.actions||[]).forEach(x=>idx.push(['✅ Action '+x.id,x.titre,(x.qui||'')+(x.quand?' · '+dfr(x.quand):''),()=>ouvrirAction(x.id)]));
     (A.concurrence&&A.concurrence.officines||[]).forEach(o=>idx.push(['🏥 Pharmacie',o.nom,(o.adresse||'')+', '+o.commune,()=>ouvrirFicheCon(o.nom)]));
     (A.pourquoi&&A.pourquoi.promos||[]).forEach(p=>idx.push(['🏷️ Promotion',p.nom,'',()=>{vue='pro';rendre()}]))}
-  (D.equipe||[]).forEach(e=>idx.push(['👥 Collaborateur',e['Collaborateur'],e['Titre']||'',()=>{vue='col';sousCol='orga';rendre()}]));
+  equipeActive().forEach(e=>idx.push(['👥 Collaborateur',e['Collaborateur'],e['Titre']||'',()=>{vue='col';sousCol='orga';rendre()}]));
   const go=()=>{const t=sansAcc(q.value);if(t.length<2){$('#rgr').innerHTML='<p class="sub">Tapez au moins 2 lettres.</p>';return}
     const T=t.split(/\s+/),R=idx.filter(x=>{const s=sansAcc(x[0]+' '+x[1]+' '+x[2]);return T.every(w=>s.includes(w))}).slice(0,40);
     $('#rgr').innerHTML=R.length?R.map((x,i)=>`<div class="carte item rgi" data-i="${idx.indexOf(x)}" style="margin-bottom:6px"><div class="grow"><div class="sub">${esc(x[0])}</div><b>${esc(x[1])}</b><div class="sub">${esc(x[2])}</div></div><span>›</span></div>`).join(''):'<p class="vide">Aucun résultat.</p>';
@@ -2958,8 +2958,8 @@ function incidences(){if(!D)return [];const I=[],add=(id,src,to,sev,txt,go,v)=>I
     add('col-couv|S'+cv.sem+'|'+T.length,'col',['col','mois'],'rouge',`Semaine S${cv.sem} du cycle (cette semaine), d'après Sivan : la règle « 2 personnes à l'ordonnance et 1 à la caisse rapide » n'est pas tenue sur ${T.length} créneau(x). ${Object.entries(parJ).map(([j,l])=>j+' '+l.slice(0,3).join(', ')+(l.length>3?' …':'')).join(' ; ')}. Hors titulaire et Directrice Générale, qui ne sont pas dans Sivan.`,'col')}}
   if(RHX&&RHX.fiches)RHX.fiches.filter(f=>!(f.planning||[]).length).forEach(f=>add('col-edt|'+f.prenom,'col',['col'],'orange',`${f.prenom} (${f.fonction}) est dans Sivan sans emploi du temps type : il ou elle n'est compté(e) dans aucun créneau du comptoir.`,'col'));
   if(PAIE&&D.equipe){const P=PAIE.map(r=>({m:isoMois(r['Mois']),c:r['Collaborateur']})).filter(r=>r.m);const der=P.reduce((s,r)=>r.m>s?r.m:s,'');const act=new Set(P.filter(r=>r.m===der).map(r=>sansAcc(r.c).split(' ')[0]));
-    Object.entries(DEPARTS).forEach(([k,x])=>{const r=((D.equipe||[]).find(e=>sansAcc(e['Collaborateur']).split(' ')[0].toUpperCase()===k)||{})['Responsabilités']||x.resp;if(r&&!/MANQUANT/.test(r))add('col-depart|'+k,'col',['col','act'],'orange',`${x.nom} (${x.poste}) a quitté la pharmacie le ${dfr(x.d)} : ses missions sont à réattribuer — « ${String(r).slice(0,90)} ». La vaccination ne peut être confiée qu'à un pharmacien habilité.`,'col')});
-    D.equipe.forEach(e=>{const n=sansAcc(e['Collaborateur']).split(' ')[0];if(/titulaire/i.test(e['Titre']||'')||act.has(n)||!e['Responsabilités']||parti(e['Collaborateur']))return;add('col-resp|'+n,'col',['col','act'],'orange',`${e['Collaborateur']} n'a plus de bulletin en ${moisFr(der)} mais porte encore des responsabilités (« ${String(e['Responsabilités']).slice(0,80)} ») : à réattribuer dans l'onglet ÉQUIPE.`,'col')})}
+    Object.entries(DEPARTS).forEach(([k,x])=>{const r=(equipeActive().find(e=>sansAcc(e['Collaborateur']).split(' ')[0].toUpperCase()===k)||{})['Responsabilités']||x.resp;if(r&&!/MANQUANT/.test(r))add('col-depart|'+k,'col',['col','act'],'orange',`${x.nom} (${x.poste}) a quitté la pharmacie le ${dfr(x.d)} : ses missions sont à réattribuer — « ${String(r).slice(0,90)} ». La vaccination ne peut être confiée qu'à un pharmacien habilité.`,'col')});
+    equipeActive().forEach(e=>{const n=sansAcc(e['Collaborateur']).split(' ')[0];if(/titulaire/i.test(e['Titre']||'')||act.has(n)||!e['Responsabilités']||parti(e['Collaborateur']))return;add('col-resp|'+n,'col',['col','act'],'orange',`${e['Collaborateur']} n'a plus de bulletin en ${moisFr(der)} mais porte encore des responsabilités (« ${String(e['Responsabilités']).slice(0,80)} ») : à réattribuer dans l'onglet ÉQUIPE.`,'col')})}
   try{crIncidences(add)}catch(e){}
   return I}
 /* signaux automatiques du classeur, rangés dans l'onglet qu'ils concernent */
@@ -2990,15 +2990,15 @@ function blocIncidences(t){const I=incidences().filter(i=>i.to.includes(t)),R=re
   const ouvertes=I.filter(enCoursInc).sort((a,b)=>(aTraiter(a)?0:1)-(aTraiter(b)?0:1)||(a.sev==='rouge'?0:1)-(b.sev==='rouge'?0:1));
   const hist=Object.entries(E).filter(([k,v])=>(v.to||[]).includes(t)&&v.st!=='vu').sort((a,b)=>String(b[1].le).localeCompare(String(a[1].le)));
   if(!ouvertes.length&&!R.length&&!hist.length)return '';const nv=ouvertes.filter(aTraiter).length;
-  return `<div class="carte incid ${nv?'':'calme'}" id="blocInc"><b>🔗 Ce qui vient des autres onglets</b> <span class="sub">${nv} à traiter · ${ouvertes.length-nv} vue(s) non corrigée(s)${R.length?' · '+R.length+' signal(aux) automatique(s)':''}</span>
+  return `<details class="carte incid ${nv?'':'calme'}" id="blocInc"><summary style="cursor:pointer"><b>🔗 Ce qui vient des autres onglets</b> <span class="sub">${nv} à traiter · ${ouvertes.length-nv} vue(s) non corrigée(s)${R.length?' · '+R.length+' signal(aux) automatique(s)':''} — toucher pour ouvrir</span></summary>
    <div class="sub w" style="margin:4px 0 2px">La pastille du menu reste tant qu'une incidence n'est pas traitée. « Vu » la garde ici jusqu'à correction ; « Corrigé », « En faire une action » ou « Ignorer » la range dans l'historique. Si la situation change, une nouvelle incidence apparaît.</div>
    ${ouvertes.map(i=>ligneInc(i,t)).join('')||'<div class="sub" style="padding:6px 0">Rien à traiter dans cet onglet. ✅</div>'}
    ${hist.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">🗂 Historique du suivi (${hist.length})</summary>${hist.slice(0,40).map(([k,v])=>`<div class="ligne"><span><b style="font-size:11px;color:${ST_INC[v.st][1]}">${ST_INC[v.st][0]} le ${dfr(v.le)}</b> <span class="sub w">${esc(v.txt)}</span>${I.some(i=>i.id===k)?' <span class="badge">toujours présente dans les données</span>':' <span class="badge A">résolue</span>'}</span>${I.some(i=>i.id===k)?`<button class="mini" data-rouvre="${esc(k)}">↩</button>`:''}</div>`).join('')}</details>`:''}
-   ${R.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">📋 ${R.length} signal(aux) automatique(s) de la semaine (${[...new Set(R.map(r=>r['Domaine']))].join(', ')})</summary>${R.slice(0,30).map(carteReco).join('')}${R.length>30?`<div class="sub">… et ${R.length-30} autres, les moins prioritaires.</div>`:''}</details>`:''}</div>`}
+   ${R.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">📋 ${R.length} signal(aux) automatique(s) de la semaine (${[...new Set(R.map(r=>r['Domaine']))].join(', ')})</summary>${R.slice(0,30).map(carteReco).join('')}${R.length>30?`<div class="sub">… et ${R.length-30} autres, les moins prioritaires.</div>`:''}</details>`:''}</details>`}
 function injecterIncidences(){const m=$('#m');if(!m||!D||(vue==='cou'&&$('#crHold')&&$('#crHold').style.display!=='none')||document.getElementById('blocInc')||document.getElementById('retCon')||document.getElementById('retCol')||document.getElementById('na_t'))return;
   if(!m.firstElementChild||/^Chargement/.test(m.textContent.trim()))return;if(vue==='act'||vue==='cfg'||(vue==='cou'&&sousCou==='tri'))return;const html=vue==='acc'?vueIncidencesAccueil():blocIncidences(vue);if(!html)return;
   const ba=document.getElementById('blocAct'),f=m.firstElementChild,pa=document.getElementById('prioAcc');if(vue==='acc'&&pa)pa.insertAdjacentHTML('afterend',html);else if(ba)ba.insertAdjacentHTML('afterend',html);else if(f&&f.classList.contains('filtres'))f.insertAdjacentHTML('afterend',html);else m.insertAdjacentHTML('afterbegin',html);
-  const b=document.getElementById('blocInc');if(!b)return;const t=vue,refaire=()=>{const y=scrollY,o=b.querySelector('details[open]')?1:0;b.remove();injecterIncidences();const n=document.getElementById('blocInc');if(n&&o){const d=n.querySelector('details');if(d)d.open=true}scrollTo(0,y)};
+  const b=document.getElementById('blocInc');if(!b)return;const t=vue,refaire=()=>{const y=scrollY,ob=b.open,o=b.querySelector('details[open]')?1:0;b.remove();injecterIncidences();const n=document.getElementById('blocInc');if(n){n.open=!!ob;if(o){const d=n.querySelector('details');if(d)d.open=true}}scrollTo(0,y)};
   b.querySelectorAll('[data-incgo]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();vue=e.dataset.incgo;rendre();scrollTo(0,0)});brancherStatuts();
   b.querySelectorAll('[data-ist]').forEach(x=>x.onclick=async ev=>{ev.stopPropagation();const id=x.closest('[data-iid]').dataset.iid,i=incidences().find(z=>z.id===id);if(!i)return;const st=x.dataset.ist;
     if(st==='act'){const th={stk:'Stock & commandes',pro:'Prix & promotions',lab:'Prix & promotions',eve:'Événements & écrans',ecr:'Événements & écrans',col:'Équipe',con:'Concurrence & clients'}[t]||THEMES_DEF[0];
@@ -3438,7 +3438,7 @@ function vueReseaux(){const R=A&&A.reseaux;const top=vueRS();if(!R)return top+pa
   ${R.tiktok?`<div class="carte"><b>TikTok — @${esc(R.tiktok.compte)}</b><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(4,1fr)"><div><div class="sub">Abonnés</div><b>${ent(R.tiktok.abonnes)}</b></div><div><div class="sub">J'aime</div><b>${ent(R.tiktok.jaime)}</b></div><div><div class="sub">Vidéos</div><b>${R.tiktok.videos}</b></div><div><div class="sub">Vues médianes</div><b>${ent(R.tiktok.vuesMediane)}</b></div></div><div class="sub w" style="margin-top:6px">${esc(R.tiktok.lecture)}</div>${act('A23')}
    <div class="tw" style="margin-top:6px"><table class="t"><tr><th>Date</th><th class="n">Vues</th><th>Sujet</th></tr>${R.tiktok.videosListe.map(v=>`<tr><td>${dfr(v.date)}</td><td class="n"><b>${ent(v.vues)}</b></td><td>${esc(v.texte)}</td></tr>`).join('')}</table></div></div>`:`<div class="carte"><b>TikTok</b><div class="sub w">Pas encore analysé.</div>${act('A23')}</div>`}`}
 
-async function ecransMenu(){const nav=sousNav('sc',[['ecr','Écrans'],['res','Réseaux sociaux'],['plan','Plan du magasin'],['ray','Emplacements rayon']],sousEcr);$('#ht').textContent='Médias';
+async function ecransMenu(){if(sousEcr==='plan')sousEcr='ecr';/* 7.22 : le plan du magasin n'est plus en double ici : Événements › Plan du magasin (bouton Écrans) et la 3D */const nav=sousNav('sc',[['ecr','Écrans'],['res','Réseaux sociaux'],['ray','Emplacements rayon']],sousEcr);$('#ht').textContent='Médias';
   if(sousEcr==='res'){fab(null);if(!RS){$('#m').innerHTML=nav+'<div class="carte">Chargement…</div>';await chargerRS()}$('#m').innerHTML=nav+vueReseaux();brancherRS();document.querySelectorAll('#sc button').forEach(b=>b.onclick=()=>{sousEcr=b.dataset.k;ecransMenu();scrollTo(0,0)});return}
   const bind=()=>document.querySelectorAll('#sc button').forEach(b=>b.onclick=()=>{sousEcr=b.dataset.k;ecransMenu();scrollTo(0,0)});
   if(sousEcr==='plan'){await vuePlan(nav,ecransMenu);bind();return}
@@ -3569,8 +3569,10 @@ function mois(){
 const ss={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}},del(k){try{sessionStorage.removeItem(k)}catch(e){}}};
 let PAIE=null, moisRh='';
 const sansAcc=t=>String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-const resp=n=>(D.equipe||[]).find(e=>sansAcc(e['Collaborateur'])===sansAcc(n));
-function blocOrga(){const e=D.equipe||[];if(!e.length)return '';
+const resp=n=>equipeActive().find(e=>sansAcc(e['Collaborateur'])===sansAcc(n));
+/* 7.22 : les personnes parties (clé ETAT « partis », prénoms) disparaissent de l'équipe, de l'organigramme et des objectifs ; l'historique de paie reste */
+function equipeActive(){const P=(jsonEt('partis',[])||[]).map(x=>sansAcc(String(x)).toLowerCase());return (D&&D.equipe||[]).filter(e=>!P.includes(sansAcc(String(e['Collaborateur']||'')).split(/\s+/)[0].toLowerCase()))}
+function blocOrga(){const e=equipeActive();if(!e.length)return '';
   return `<div class="titre">L'équipe — qui fait quoi</div>${e.map(x=>`<div class="carte"><b>${esc(x['Collaborateur'])}</b> — ${esc(x['Titre']||'')}${x['Responsabilités']?`<div class="sub" style="font-size:12px;white-space:normal;margin-top:4px">🎯 ${esc(x['Responsabilités'])}</div>`:''}${x['Laboratoires référents']?`<div class="sub" style="font-size:12px;color:var(--doux)">Labos référents : ${esc(x['Laboratoires référents'])}</div>`:''}</div>`).join('')}`}
 async function equipe(){
   $('#ht').textContent='Équipe 🔒'; fab(null);

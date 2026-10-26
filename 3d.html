@@ -125,11 +125,12 @@ let actives=(()=>{try{return JSON.parse(ls.get('p3d_couches')||'null')||['univer
 let mode='dessus';
 function barre(){
   const m=[['dessus','⬆ Dessus'],['survol','🌀 Survol'],['visite','🚶‍♂️ Visite']];
-  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+`<button data-a="qual">${QUAL==='hd'?'Maquette : détaillée':'Maquette : légère'}</button>`+
+  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+`<button data-a="dep">🔁 À déplacer</button>`+`<button data-a="qual">${QUAL==='hd'?'Maquette : détaillée':'Maquette : légère'}</button>`+
     COUCHES.map(([k,t])=>`<button class="${actives.includes(k)?'on':''}" data-c="${k}">${t}</button>`).join('');
   $('#cmd').querySelectorAll('button').forEach(b=>b.onclick=()=>{
     if(b.dataset.m){changerMode(b.dataset.m);return}
     if(b.dataset.a==='ajout'){ficheAjout();return}
+    if(b.dataset.a==='dep'){ficheDeplacer();return}
     if(b.dataset.a==='qual'){try{localStorage.setItem('p3d_q2',QUAL==='hd'?'leger':'hd')}catch(e){}location.reload();return}
     const k=b.dataset.c;if(actives.includes(k))actives=actives.filter(x=>x!==k);else{actives.push(k);if(k==='passage')actives=actives.filter(x=>x!=='marge');if(k==='marge')actives=actives.filter(x=>x!=='passage')}
     ls.set('p3d_couches',JSON.stringify(actives));appliquerCouches();barre()});
@@ -286,6 +287,18 @@ function toucher(e){ray.setFromCamera(pointer(e),cam);
     if(u.type==='labo'){const p=h1.object.position;ficheLieu(p.x,p.z,null);return}}
   if(hs){ficheLieu(hs.point.x,hs.point.z,null)}}
 function fermer(){$('#fiche').style.display='none';if(sel){sel=null;majObjets()}appliquerCouches()}
+/* Marge × passage : quels laboratoires déplacer (estimation à valider, puis mesure avant / après) */
+function ficheDeplacer(){if(!ZON||!GR){ouvrir('<h3><span>À déplacer</span><button class="x">✕</button></h3><div class="sub">Plan pas encore chargé.</div>');return}
+  const P={};ZON.L.forEach(([n,[x,z]])=>{const m=margeLab(n),p=passage(x,z);if(m===null||p===null)return;const k=norm(n);const o=P[k]||(P[k]={n,m,pmax:0,pmin:1,nb:0});o.pmax=Math.max(o.pmax,p);o.pmin=Math.min(o.pmin,p);o.nb++});
+  const L=Object.values(P);if(!L.length){ouvrir('<h3><span>À déplacer</span><button class="x">✕</button></h3><div class="sub">Aucune étiquette rapprochée des ventes.</div>');return}
+  const ms=L.map(x=>x.m).sort((a,b)=>a-b),q=f=>ms[Math.min(ms.length-1,Math.floor(f*ms.length))],haut=q(.75),bas=q(.25),e=v=>Math.round(v).toLocaleString('fr-FR')+' €',pc=v=>Math.round(v*100)+' %';
+  const caches=L.filter(x=>x.m>=haut&&x.pmax<.30).sort((a,b)=>b.m-a.m).slice(0,12),chauds=L.filter(x=>x.m<=bas&&x.pmax>=.55).sort((a,b)=>a.m-b.m).slice(0,12);
+  const li=x=>`<div class="l"><span>${esc(x.n)}</span><b>${e(x.m)} · passage ${pc(x.pmax)}</b></div>`;
+  ouvrir(`<h3><span>🔁 À déplacer : marge × passage</span><button class="x">✕</button></h3>
+   <div class="sub">${L.length} laboratoires repérés sur le plan et rapprochés des ventes (marge 12 mois Vindilis). Passage = <b>estimation</b> par le chemin le plus court entrée → comptoirs (pas un comptage).</div>
+   <h4>📣 Rentables mais cachés (${caches.length})</h4><div class="sub">Dans le quart des laboratoires qui margent le plus, mais placés où passent peu de clients (moins de 30 %). À rapprocher de l'allée principale, ou à annoncer (écran, tête de gondole).</div>${caches.map(li).join('')||'<div class="sub">Aucun.</div>'}
+   <h4>⚠️ Places chaudes peu rentables (${chauds.length})</h4><div class="sub">Dans le quart qui marge le moins, mais sur un passage fort (55 % et plus). Places à proposer aux laboratoires ci-dessus.</div>${chauds.map(li).join('')||'<div class="sub">Aucune.</div>'}
+   <div class="sub" style="margin-top:8px">Proposition à valider par vous. Chaque déplacement fait : noter la date, puis comparer les ventes du laboratoire 4 semaines avant / 4 semaines après.</div>`)}
 function ouvrir(html){const f=$('#fiche');f.innerHTML=html;f.style.display='block';$('#leg').style.display='none';f.querySelector('.x').onclick=fermer}
 const dans=(p,x,y)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const [xi,yi]=p[i],[xj,yj]=p[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)c=!c}return c};
 function universEn(x,z){let best=null,bd=1.2;ZON.U.forEach(([c,p])=>{if(dans(p,x,z)){best=c;bd=0;return}const cx=p.reduce((s,q)=>s+q[0],0)/p.length,cz=p.reduce((s,q)=>s+q[1],0)/p.length;
