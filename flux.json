@@ -6914,7 +6914,7 @@
  },
  "rdv": {
   "titre": "Rendez-vous laboratoires du 26/10 au 02/11",
-  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT].",
+  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT]. — Mise à jour du 27/10/2026 vers 8 h 50 : fiches EG Labo et A-Derma / Ducray complétées avec Vindilis (ventes produit par produit sur 24 mois, stock, PAMP, prix, promotions en caisse ; lecture seule depuis le PC du bureau) et GERS SOG Now (prix moyen France par EAN).",
   "l": [
    {
     "d": "2026-10-26",
@@ -7042,12 +7042,20 @@
     "resume": "Petit volume direct, mais engagement génériques EG de 300 €/mois dans le contrat CERP.",
     "chiffres": [
      [
-      "CA HT 12 mois",
-      "4 361 €"
+      "Vos ventes EG (Vindilis, oct. 2025 → sept. 2026)",
+      "536 unités, 4 266 € HT, marge 1 560 € (37 %)"
      ],
      [
-      "Marge 12 mois (taux)",
-      "1 656 € (38 %)"
+      "Même période un an avant",
+      "770 unités, 5 661 € HT, marge 2 276 €"
+     ],
+     [
+      "Évolution chez vous / en France (GERS)",
+      "−30 % / −1 % en unités"
+     ],
+     [
+      "Stock EG au PAMP",
+      "941,16 € dont 59,00 € sans vente depuis 6 mois"
      ],
      [
       "Commandes directes 2025 → 2026",
@@ -7059,13 +7067,15 @@
      ]
     ],
     "obtenir": [
-     "Conditions OTC 2026 en direct : remise, franco et paiement à réception de facture",
-     "Une opération hiver (tête de gondole payée + BRI) de novembre à février",
-     "La liste écrite des opérations de novembre et décembre, avec compensation",
-     "Les produits OTC d'hiver EG à mettre en avant (rhume, toux, douleur)"
+     "Le réassort des 5 produits en rupture ou sans stock qui se vendaient : Ibuprofène EG 400 (3400930182086), Doxylamine EG (3400930043776), Tadalafil EG 20 mg (3400930208335), Clotrimazole EG (3400930215128), Mitosyl pommade 65 g (3664798029222, stock 2) — payé à réception de facture",
+     "La reprise ou l'échange des 11 Syntholkiné roll-on (3401097531557), sans vente depuis août 2025 (54,56 € au PAMP)",
+     "Une opération hiver (tête de gondole payée + BRI) de novembre à février sur Angispray, Synthol, Bronchokod, Doxylamine",
+     "La liste écrite des opérations de novembre et décembre, avec le montant de compensation par produit",
+     "Conditions OTC 2026 en direct : remise, franco et paiement à réception"
     ],
     "dire": [
-     "Vérifier ensemble que les 300 €/mois de génériques EG passés par la CERP sont bien comptés"
+     "Vos produits ne se sont pas moins vendus parce que les clients n'en voulaient plus : ils manquaient en rayon. Avec un réassort régulier, on revient au niveau de 2025 (770 unités par an au lieu de 536).",
+     "Vérifions ensemble que les 300 €/mois de génériques EG passés par la CERP sont bien comptés."
     ],
     "refuser": [
      "Une commande sans paiement validé par l'administrateur",
@@ -7073,21 +7083,23 @@
      "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
     ],
     "apres": [
-     "Contrôler sur l'extranet CERP les achats EG du mois (engagement de 300 €)"
+     "Paramétrer le BRI Mitosyl de novembre dans Vindilis avant le 01/11 (Fichiers › Produits › Promotions).",
+     "Mesure au 30/11 : ventes EG du mois contre novembre 2025 (36 unités, 109,06 € de marge) — objectif minimum : 60 unités.",
+     "Contrôler sur l'extranet CERP les achats EG du mois (engagement de 300 €)."
     ],
     "t": "2026-10-27 09:00",
     "verdict": {
      "c": "o",
-     "titre": "En une phrase : EG est un petit labo chez vous (4 361 € de CA, 38 % de marge), mais il porte des produits d'appel d'hiver très demandés. Objectif du rendez-vous : des conditions en direct et une opération hiver avec tête de gondole payée.",
+     "titre": "En une phrase : vos ventes EG reculent de 30 % alors que le marché France est stable (−1 %). Ce n'est pas le labo, c'est la disponibilité : l'Ibuprofène 400 (3400930182086, 167 ventes l'an dernier, 0 cette année) et la Doxylamine (3400930043776, stock 0) ont disparu du rayon. Objectif : réassort payé à réception et opération hiver.",
      "l": [
-      "Le marché EG conseil recule de 1 % en France alors que le conseil est stable (+0 %) : ne pas sur-stocker, travailler 8 à 10 références qui tournent.",
-      "Ce qui monte en France : Doxylamine (+59 %), Alginate/bicarbonate (+105 %), Kéal (+25 %), Synthol gel (+16 %), Dexpanthénol (+17 %).",
-      "Ce qui recule : Bronchokod (−24 % à −37 %), Syntholkiné (−18 % à −28 %), Synthol 450 ml (−75 %), Ibuprofène 200 (−28 %).",
-      "Vos commandes directes sont passées de 13 à 1 commande (3 790 € → 1 445 €) : c'est la trésorerie, pas le produit. Il faut le dire et demander le paiement à réception."
+      "Perte principale : IBUPROF EG LAB 400mg Plq/12 (3400930182086) : 167 → 0 vente ; Mitosyl change 145 g remplacé par la 2T/100g (3615840000607, 43 ventes, 1er produit EG par la marge : 168,66 €).",
+      "Ce qui tient chez vous : Bronchokod enfant (3400935502506) +79 %, Bronchokod adulte (3400930091173) +62 %, Mitosyl pommade, Tadalafil EG (3400930208335, 156,36 € de marge).",
+      "Prix : Bronchokod enfant à 5,80 € contre 3,93 € en moyenne France (+48 %) ; Sildénafil EG 100 mg x8 à 7,90 € contre 14,30 € (−45 %) : vous laissez de la marge sur les produits « discrets ».",
+      "Aucune opération EG paramétrée en caisse depuis un an : à corriger dès le BRI Mitosyl de novembre."
      ]
     },
     "courbe": {
-     "titre": "Marché France GERS : EG Labo conseil contre tout le conseil (unités, base 100 = moyenne oct. 2024 → sept. 2025)",
+     "titre": "EG Labo : vos ventes (Vindilis) face au marché France GERS du laboratoire — unités, base 100 = moyenne oct. 2024 → sept. 2025",
      "mois": [
       "oct 24",
       "nov 24",
@@ -7115,237 +7127,521 @@
       "sep 26"
      ],
      "nous": [
-      102.4,
-      94.2,
-      111.4,
-      112.3,
-      98.4,
-      102.2,
-      100.4,
-      97.1,
-      90.9,
-      99.5,
-      95.1,
-      96.2,
-      106.4,
-      91.7,
-      119.6,
-      105.4,
-      92.3,
-      100.3,
-      100.1,
-      91.2,
-      93.4,
-      98.6,
-      92.1,
-      96.0
+      71.7,
+      57.7,
+      65.5,
+      28.1,
+      74.8,
+      49.9,
+      107.5,
+      98.2,
+      87.3,
+      190.1,
+      236.9,
+      132.5,
+      93.5,
+      56.1,
+      107.5,
+      123.1,
+      93.5,
+      76.4,
+      51.4,
+      53.0,
+      32.7,
+      21.8,
+      23.4,
+      102.9
      ],
      "marche": [
-      107.3,
-      97.2,
-      111.6,
-      108.7,
-      94.8,
-      95.1,
-      95.2,
-      95.9,
-      95.8,
-      106.0,
-      94.3,
-      97.9,
-      107.0,
-      91.8,
-      117.8,
-      104.3,
-      90.4,
-      96.5,
-      97.0,
-      93.4,
-      100.4,
-      107.3,
-      97.1,
-      98.2
+      71.7,
+      57.7,
+      65.5,
+      28.1,
+      74.8,
+      49.9,
+      107.5,
+      98.2,
+      87.3,
+      190.1,
+      236.9,
+      132.5,
+      93.5,
+      56.1,
+      107.5,
+      123.1,
+      93.5,
+      76.4,
+      51.4,
+      53.0,
+      32.7,
+      21.8,
+      23.4,
+      102.9
      ],
      "noms": [
-      "EG Labo conseil (France)",
-      "Tout le conseil (France)"
+      "Votre pharmacie",
+      "EG Labo en France (GERS)"
      ],
      "lecture": [
-      "EG Labo conseil en France sur 12 mois (oct. 2025 → sept. 2026) : 7 284 931 unités, −1 % contre l'année d'avant (7 363 540).",
-      "Tout le marché conseil : +0 %. Le laboratoire fait donc un peu moins bien que le marché.",
-      "[MANQUANT] Votre propre courbe mois par mois : il faut Vindilis (Statistiques › Fournisseurs, par mois). Elle sera ajoutée dès que le PC sera lié."
+      "Chez vous, 12 derniers mois (oct. 2025 → sept. 2026) : 536 unités (−30 % contre 770 l'année d'avant), 4 266 € HT de CA et 1 560 € de marge (−31 % contre 2 276 €).",
+      "En France, le laboratoire fait −30 % en unités sur la même période. Écart entre vous et le marché : +0 points.",
+      "Source : Vindilis (ventes validées, lecture du 27/10/2026) et GERS SOG Now (lecture du 27/10/2026 à 8 h 10). Octobre 2026 n'est pas affiché car le mois n'est pas fini."
      ]
     },
     "marchent": {
      "h": [
       "EAN",
       "Produit",
-      "Unités France 12 m",
-      "Évolution",
-      "Prix moyen France TTC"
+      "Vendus 12 m",
+      "Évol.",
+      "Marge 12 m",
+      "Stock"
      ],
      "l": [
       [
-       "3400930425657",
-       "ANGISPRAY MAL/GORGE COLLUTOIRE 40G",
-       "525 552",
-       "−8 %",
-       "6,64 €"
+       "3615840000607",
+       "MITOSYL CHANGE Pom protect 2T/100g",
+       "43",
+       "nouveau",
+       "168,66 €",
+       "10"
       ],
       [
-       "3400931028826",
-       "SYNTHOL SOL FL 225ML",
-       "459 143",
-       "−1 %",
-       "9,87 €"
+       "3400930208335",
+       "TADALAFIL EG LAB 20mg Cpr pesé Plq/8x1",
+       "20",
+       "+0 %",
+       "156,36 €",
+       "0"
       ],
       [
-       "3400932463749",
-       "DUOFILM SOL EXT 15ML",
-       "405 099",
-       "+8 %",
-       "11,77 €"
+       "3400935502506",
+       "BRONCHOKOD ENFANT 2% SP ENF FL/125ML",
+       "43",
+       "+79 %",
+       "151,41 €",
+       "8"
+      ],
+      [
+       "3400930207543",
+       "TADALAFIL EG LAB 10mg Cpr pesé Plq/4x1",
+       "16",
+       "+7 %",
+       "102,27 €",
+       "7"
+      ],
+      [
+       "3400930091173",
+       "BRONCHOKOD 5% S buv édul sac adultes Fl/250ml",
+       "39",
+       "+62 %",
+       "62,05 €",
+       "1"
+      ],
+      [
+       "3664798029222",
+       "MITOSYL CHANGE Pom protect T/65g",
+       "46",
+       "+15 %",
+       "58,41 €",
+       "2"
+      ],
+      [
+       "3094904500053",
+       "SYNTHOLKINE GM PATCH CHAUF 8H BT2",
+       "12",
+       "+300 %",
+       "33,30 €",
+       "6"
+      ],
+      [
+       "8720618589194",
+       "DUOFILM CRYO Kit trt verrue cryo Fl/50ml+appl",
+       "5",
+       "+67 %",
+       "25,02 €",
+       "4"
       ],
       [
        "3400930043776",
-       "DOXYLAMINE 15MG EG CPR SEC 10",
-       "317 799",
-       "+59 %",
-       "2,05 €"
+       "DOXYLAM EG LAB 15mg Cpr pesé T/10",
+       "49",
+       "+444 %",
+       "24,41 €",
+       "0"
       ],
       [
-       "3400938022148",
-       "SYNTHOL GEL TUB 75G",
-       "153 292",
-       "+16 %",
-       "8,23 €"
-      ],
-      [
-       "3400933397562",
-       "KEAL GE 1G SACHET 30",
-       "148 377",
-       "+25 %",
-       "13,54 €"
-      ],
-      [
-       "3400930188408",
-       "ALGINATE/BICARB SOD EG SACH 24",
-       "91 761",
-       "+105 %",
-       "4,11 €"
-      ],
-      [
-       "3400930036808",
-       "DEXPANTHENOL 5% EG POM TUB 100G",
-       "53 985",
-       "+17 %",
-       "5,73 €"
+       "3400921831634",
+       "SILDENAFIL EG 100mg Cpr pell Plq/8",
+       "6",
+       "+20 %",
+       "23,15 €",
+       "5"
       ]
      ],
-     "lecture": "Les produits EG qui se vendent le plus ou qui montent en France. À avoir toujours en rayon. [MANQUANT] Vos ventes et votre stock produit par produit (Vindilis) : à ajouter dès que le PC du bureau est lié à cette conversation."
+     "lecture": "Vos produits qui se vendent autant ou plus que l'an dernier, classés par marge en euros. Ce sont eux à garder toujours en stock et à mettre en avant (« Vendus 12 m » = 27/10/2025 → 26/10/2026 ; « Évol. » = contre les 12 mois d'avant)."
     },
     "stagnent": {
      "h": [
       "EAN",
       "Produit",
-      "Unités France 12 m",
-      "Évolution",
-      "Prix moyen France TTC"
+      "Vendus 12 m",
+      "Évol.",
+      "Marché",
+      "Stock"
      ],
      "l": [
       [
-       "3400930091173",
-       "BRONCHOKOD GE 5% SOL BUV S/S 250ML",
-       "420 749",
-       "−24 %",
-       "4,79 €"
+       "3400930182086",
+       "IBUPROF EG LAB 400mg Cpr pell Plq/12",
+       "0",
+       "−100 %",
+       "France −17 %",
+       "1"
       ],
       [
-       "3400935502506",
-       "BRONCHOKOD 2% ENF SP 125ML",
-       "20 821",
-       "−37 %",
-       "3,93 €"
+       "3401562350003",
+       "FLAMIGEL TB50G NSFP",
+       "0",
+       "−100 %",
+       "France −14 %",
+       "1"
       ],
       [
-       "3400930162163",
-       "IBUPROFENE 200MG EG CPR 20",
-       "41 487",
-       "−28 %",
-       "2,72 €"
+       "3401097531557",
+       "SYNTHOLKINE ROLL ON MASSAG50 ML",
+       "0",
+       "−100 %",
+       "France −14 %",
+       "11"
       ],
       [
-       "3401599291638",
-       "SYNTHOLKINE CR GEL MASSAG 75ML",
-       "32 061",
-       "−28 %",
-       "8,88 €"
+       "3400931028826",
+       "SYNTHOL LOC SOL FP225ML",
+       "35",
+       "−35 %",
+       "France −1 %",
+       "19"
       ],
       [
-       "3401097221144",
-       "SYNTHOLKINE PATCH CHAUF GM 2",
-       "44 020",
-       "−18 %",
-       "9,27 €"
+       "3400932463749",
+       "DUOFILM flacon 15mL",
+       "22",
+       "−29 %",
+       "France +8 %",
+       "3"
       ],
       [
-       "3400930084564",
-       "ATURGYL 0,05% PULV NAS 15ML",
-       "36 525",
-       "−19 %",
-       "2,54 €"
+       "3615840000454",
+       "MITOSYL NATUREL Cr change BB T/75ml",
+       "16",
+       "−36 %",
+       "—",
+       "8"
       ],
       [
-       "3400936195103",
-       "AMBROXOL 0,6% EG CONS SOL 150ML",
-       "37 727",
-       "−17 %",
-       "4,86 €"
+       "3094904500404",
+       "SYNTHOLKINE CREME GEL 75ML POMPE",
+       "8",
+       "−53 %",
+       "—",
+       "5"
+      ],
+      [
+       "3094904555299",
+       "SYNTHOLKINE PM PATCH CHAUF 8H BT2",
+       "9",
+       "−36 %",
+       "—",
+       "3"
+      ],
+      [
+       "3094904501135",
+       "SYNTHOLKINE PM PATCH CHAUF BT4",
+       "10",
+       "−29 %",
+       "—",
+       "2"
+      ],
+      [
+       "3400921831115",
+       "SILDENAFIL EG 50mg Cpr pell Plq/12",
+       "2",
+       "−60 %",
+       "France −22 %",
+       "0"
+      ],
+      [
+       "3615840000348",
+       "SYNTHOLKINÉ Spray froid Fl/150ml",
+       "9",
+       "−25 %",
+       "—",
+       "3"
+      ],
+      [
+       "3615840000096",
+       "CARE+ Test ovulation B/ 7",
+       "2",
+       "−50 %",
+       "—",
+       "0"
       ]
      ],
-     "lecture": "Ces produits reculent en France : réassort au plus juste, pas de gros achat."
+     "lecture": "Vos produits qui ont perdu au moins un quart de leurs ventes (12 derniers mois contre les 12 d'avant). Si le marché France monte ou tient alors que vous reculez, le problème est chez vous : rupture, emplacement, prix ou conseil. « — » = produit non trouvé dans GERS."
     },
     "arreter": {
      "h": [
       "EAN",
       "Produit",
-      "Unités France 12 m",
-      "Évolution",
-      "Prix moyen France TTC"
+      "Stock",
+      "Vendus 12 m",
+      "France 12 m"
      ],
      "l": [
       [
-       "3400931029595",
-       "SYNTHOL SOL FL 450ML",
-       "7 160",
-       "−75 %",
-       "11,65 €"
+       "3401097531557",
+       "SYNTHOLKINE ROLL ON MASSAG50 ML",
+       "11",
+       "0",
+       "114 696 u. −14 %"
       ],
       [
-       "3400930162163",
-       "IBUPROFENE 200MG EG CPR 20",
-       "41 487",
-       "−28 %",
-       "2,72 €"
+       "3401562350003",
+       "FLAMIGEL TB50G NSFP",
+       "1",
+       "0",
+       "46 105 u. −14 %"
       ],
       [
-       "3400935502506",
-       "BRONCHOKOD 2% ENF SP 125ML",
-       "20 821",
-       "−37 %",
-       "3,93 €"
+       "3400930182086",
+       "IBUPROF EG LAB 400mg Cpr pell Plq/12",
+       "1",
+       "0",
+       "323 041 u. −17 %"
+      ],
+      [
+       "3615840000461",
+       "MITOSYL Ling à l'eau Sach/60",
+       "8",
+       "0",
+       "—"
       ]
      ],
-     "lecture": "À ne plus commander en direct si chez vous ils ne sortent pas (Synthol 450 ml remplacé par le 225 ml ; Ibuprofène 200 et Bronchokod enfant en net recul). À confirmer avec vos ventes Vindilis."
+     "lecture": "À ne plus commander : 0 ou 1 vente en 12 mois chez vous et rien depuis 6 mois. Écouler le stock (reprise, échange ou mise en avant) puis bloquer la commande dans Vindilis (à valider par vous)."
     },
     "dorment": {
-     "vide": "[MANQUANT] Vos ventes et votre stock produit par produit (Vindilis) : à ajouter dès que le PC du bureau est lié à cette conversation."
+     "h": [
+      "EAN",
+      "Produit",
+      "Stock",
+      "Valeur achat",
+      "Dernière vente"
+     ],
+     "l": [
+      [
+       "3401097531557",
+       "SYNTHOLKINE ROLL ON MASSAG50 ML",
+       "11",
+       "54,56 €",
+       "18/08/2025"
+      ],
+      [
+       "3401562350003",
+       "FLAMIGEL TB50G NSFP",
+       "1",
+       "3,41 €",
+       "26/09/2025"
+      ],
+      [
+       "3400930182086",
+       "IBUPROF EG LAB 400mg Cpr pell Plq/12",
+       "1",
+       "1,03 €",
+       "15/09/2025"
+      ],
+      [
+       "3615840000461",
+       "MITOSYL Ling à l'eau Sach/60",
+       "8",
+       "[AMBIGU] PAMP 0,00 €",
+       "jamais vendu (24 mois)"
+      ]
+     ],
+     "lecture": "Produits en stock sans aucune vente depuis 6 mois (depuis le 27/04/2026) : 4 références, 59,00 € au prix d'achat moyen pondéré (PAMP Vindilis)."
     },
     "reprises": {
-     "vide": "Demander au délégué la reprise ou l'échange des références arrêtées ou en recul encore en stock (Synthol 450 ml, Bronchokod enfant, Syntholkiné crème). Quantités exactes : [MANQUANT] stock Vindilis."
+     "h": [
+      "EAN",
+      "Produit",
+      "Quantité",
+      "Valeur achat",
+      "Demande"
+     ],
+     "l": [
+      [
+       "3401097531557",
+       "SYNTHOLKINE ROLL ON MASSAG50 ML",
+       "11",
+       "54,56 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3401562350003",
+       "FLAMIGEL TB50G NSFP",
+       "1",
+       "3,41 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3400930182086",
+       "IBUPROF EG LAB 400mg Cpr pell Plq/12",
+       "1",
+       "1,03 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3615840000461",
+       "MITOSYL Ling à l'eau Sach/60",
+       "8",
+       "[AMBIGU]",
+       "Reprise ou échange"
+      ]
+     ],
+     "lecture": "Total à demander en reprise ou échange : 59,00 € au prix d'achat. Demande : avoir ou échange contre des références qui tournent (colonne « Produits qui marchent »), sans frais de port."
     },
     "prix": {
-     "vide": "[MANQUANT] Vos prix de vente (Vindilis). Repère France : prix moyen TTC dans le tableau ci-dessus. Règle : produits d'appel (Angispray, Synthol, Doxylamine) au 1er quartile GERS ou en dessous."
+     "h": [
+      "EAN",
+      "Produit",
+      "Votre prix",
+      "Prix moyen France",
+      "Écart",
+      "Proposition"
+     ],
+     "l": [
+      [
+       "3400935502506",
+       "BRONCHOKOD ENFANT 2% SP ENF FL/125ML",
+       "5,80 €",
+       "3,93 €",
+       "+48 %",
+       "Baisser à 3,89 €"
+      ],
+      [
+       "3400921831634",
+       "SILDENAFIL EG 100mg Cpr pell Plq/8",
+       "7,90 €",
+       "14,30 €",
+       "−45 %",
+       "Monter à 14,29 €"
+      ],
+      [
+       "3400921831115",
+       "SILDENAFIL EG 50mg Cpr pell Plq/12",
+       "9,25 €",
+       "14,08 €",
+       "−34 %",
+       "Monter à 14,09 €"
+      ],
+      [
+       "3400927905032",
+       "SILDENAFIL EG 100mg Cpr pell Plq/24",
+       "17,90 €",
+       "25,20 €",
+       "−29 %",
+       "Monter à 25,19 €"
+      ],
+      [
+       "3400930043776",
+       "DOXYLAM EG LAB 15mg Cpr pesé T/10",
+       "2,55 €",
+       "2,05 €",
+       "+24 %",
+       "Baisser à 2,51 €"
+      ],
+      [
+       "3400932906420",
+       "EURAX 10% CR TB40G",
+       "6,50 €",
+       "8,56 €",
+       "−24 %",
+       "Monter à 8,59 €"
+      ],
+      [
+       "3400930208335",
+       "TADALAFIL EG LAB 20mg Cpr pesé Plq/8x1",
+       "11,60 €",
+       "14,97 €",
+       "−23 %",
+       "Monter à 14,99 €"
+      ],
+      [
+       "3400932463749",
+       "DUOFILM flacon 15mL",
+       "9,90 €",
+       "11,77 €",
+       "−16 %",
+       "Garder : produit d'appel"
+      ],
+      [
+       "3400930215128",
+       "CLOTRIMAZ EG LAB 1% Cr T/20g",
+       "6,93 €",
+       "6,13 €",
+       "+13 %",
+       "Baisser à 6,09 €"
+      ],
+      [
+       "3400930425657",
+       "ANGISPRAY COLLUTOIRE CHLOREXHI/LIDOC 40ML",
+       "5,90 €",
+       "6,64 €",
+       "−11 %",
+       "Garder : produit d'appel"
+      ],
+      [
+       "3401097531557",
+       "SYNTHOLKINE ROLL ON MASSAG50 ML",
+       "8,90 €",
+       "9,94 €",
+       "−10 %",
+       "Monter à 9,89 €"
+      ],
+      [
+       "3400921831054",
+       "SILDENAFIL EG 50mg Cpr pell Plq/8",
+       "14,20 €",
+       "12,87 €",
+       "+10 %",
+       "À revoir : le PAMP ne permet pas de s'aligner"
+      ],
+      [
+       "3615840000096",
+       "CARE+ Test ovulation B/ 7",
+       "16,80 €",
+       "PAMP 15,28 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ],
+      [
+       "3615840000423",
+       "MITOSYL Ling à l'eau 5Sach/60",
+       "11,90 €",
+       "PAMP 14,79 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ],
+      [
+       "3400921831054",
+       "SILDENAFIL EG 50mg Cpr pell Plq/8",
+       "14,20 €",
+       "PAMP 27,54 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ]
+     ],
+     "lecture": "Vos prix de vente (Vindilis) face au prix moyen constaté en France (GERS, 12 derniers mois, CA TTC ÷ unités) : seuls les écarts de plus de 10 % sont listés. Propositions à valider par vous avant toute modification dans Vindilis. Les lignes « perte » ont un prix de vente HT inférieur au PAMP : soit le PAMP est faux, soit le produit est vendu à perte. 12 produits hors marché de plus de 10 %. [AMBIGU] Le prix moyen GERS inclut les ventes en promotion (BRI) et peut inclure des parapharmacies : il est un peu plus bas que le prix « rayon » des pharmacies."
     },
     "operations": {
      "h": [
@@ -7354,39 +7650,39 @@
      ],
      "l": [
       [
-       "Sell-in : Offre cadencée / directe Mitosyl lingettes annuelle\n01/01 → 31/12/2026 · En cours",
-       "[MANQUANT]"
+       "BRI : Push Winpharma BRI 25 % Syntholkiné patchs\n01/05 → 01/06/2026 · terminée",
+       "Aucune vente en promotion dans Vindilis : opération non paramétrée en caisse (BRI non appliqué, compensation perdue)"
       ],
       [
-       "Sell-in : Offre VIP Mitosyl (pommade 100 g x2)\n01/09 → 31/10/2026 · En cours",
-       "[MANQUANT]"
+       "BRI : BRI 1 € Eunova Kids gummies\n01/09 → 01/10/2026 · terminée",
+       "Aucune vente en promotion dans Vindilis : opération non paramétrée en caisse (BRI non appliqué, compensation perdue)"
       ],
       [
-       "Sell-in : Offre VIP Syntholkiné\n01/09 → 31/10/2026 · En cours",
-       "[MANQUANT]"
+       "TG + BRI : BRI 2 € et TG rémunérée Mitosyl\n01/04 → 01/05/2026 · terminée",
+       "Aucune vente en promotion dans Vindilis : opération non paramétrée en caisse (BRI non appliqué, compensation perdue)"
       ],
       [
-       "BRI : BRI lot 4 € Mitosyl (eau nettoyante 500 ml, gel lavant 490 ml)\n01/11 → 01/12/2026 · À venir",
-       "à mesurer"
+       "BRI : BRI lot 4 € Mitosyl (eau nettoyante 500 ml, gel lavant 490 ml)\n01/11 → 01/12/2026 · à venir",
+       "À paramétrer dans Vindilis (Fichiers › Produits › Promotions) avant le 1er jour, sinon pas de compensation"
       ],
       [
-       "Sell-in : Offre pack hiver 2026 (Angispray, Ambroxol, Ibuprofène…)\n01/04 → 30/09/2026 · Terminé",
-       "[MANQUANT]"
+       "Sell-in : Offre VIP Mitosyl (pommade 100 g x2)\n01/09 → 31/10/2026 · en cours",
+       "Ventes chez vous : MITOSYL CHANGE Pom protect 2T/100g (3615840000607) 43 vendus en 12 mois, marge 168,66 €. Gain d'achat de l'offre : [MANQUANT] (facture)"
       ],
       [
-       "BRI : Push Winpharma BRI 25 % Syntholkiné patchs\n01/05 → 01/06/2026 · Terminé",
-       "[MANQUANT]"
+       "Sell-in : Offre VIP Syntholkiné\n01/09 → 31/10/2026 · en cours",
+       "Gain d'achat : [MANQUANT] (facture). Ventes Syntholkiné en recul (crème gel −53 %)"
       ],
       [
-       "BRI : BRI 1 € Eunova Kids gummies\n01/09 → 01/10/2026 · Terminé",
-       "[MANQUANT]"
+       "Sell-in : Offre pack hiver 2026 (Angispray, Ambroxol, Ibuprofène…)\n01/04 → 30/09/2026 · terminée",
+       "Gain d'achat : [MANQUANT] (facture)"
       ],
       [
-       "TG + BRI : BRI 2 € et TG rémunérée Mitosyl\n01/04 → 01/05/2026 · Terminé",
-       "[MANQUANT]"
+       "Sell-in : Offre cadencée Mitosyl lingettes annuelle\n01/01 → 31/12/2026 · en cours",
+       "[AMBIGU] Lingettes 5x60 (3615840000423) : PAMP 14,79 € HT pour un prix de vente de 11,90 € TTC → vendues à perte si le PAMP est juste"
       ]
      ],
-     "lecture": "Source : Opeaz, lu le 27/10/2026 à 8 h 10. Les compensations EG passent par Opeaz. La marge dégagée par opération demande les ventes Vindilis pendant chaque période."
+     "lecture": "Opérations Opeaz 2026 (lues le 27/10/2026 à 8 h 10) croisées avec les promotions et ventes Vindilis. Résultat : aucune opération EG n'a été enregistrée en caisse dans Vindilis depuis octobre 2025. Les BRI n'ont donc pas été appliqués ni compensés."
     },
     "animations": [
      "Une animation « Bébé au chaud » Mitosyl (change, lingettes) un samedi : EG fournit échantillons, cadeaux et PLV ; l'équipe anime (votre clientèle est jeune et familiale).",
@@ -7395,8 +7691,8 @@
      "Pour Black Friday et décembre : un lot ou une remise immédiate Mitosyl ou Synthol, avec compensation écrite."
     ],
     "manque": [
-     "Vindilis : vos ventes par produit et par mois, votre stock, vos prix de vente, les produits sans vente depuis 6 mois.",
-     "Marge par opération Opeaz : ventes pendant chaque période."
+     "Gain d'achat des opérations sell-in (factures EG).",
+     "Prix GERS non trouvés pour Mitosyl, Syntholkiné, Care+ et Duofilm Cryo (autre laboratoire exploitant dans GERS)."
     ]
    },
    {
@@ -7407,41 +7703,48 @@
     "resume": "Opérations Opeaz à faire compenser ; RFA Ducray perdue au 1er semestre.",
     "chiffres": [
      [
-      "A-Derma : CA HT 12 mois / marge",
-      "8 324 € / 1 880 € (23 %)"
+      "A-Derma (Vindilis, oct. 2025 → sept. 2026)",
+      "695 unités (−8 %), 8 083 € HT, marge 1 816 € (22 %, −15 %)"
      ],
      [
-      "A-Derma : commandes directes 2025 → 2026",
-      "10 286 € → 3 816 €"
+      "Ducray (Vindilis, même période)",
+      "673 unités (−12 %), 8 001 € HT, marge 1 953 € (24 %, −14 %)"
      ],
      [
-      "Ducray : CA HT 12 mois / marge",
-      "7 749 € / 1 953 € (25 %)"
+      "Marché France GERS",
+      "A-Derma −1 %, Ducray −1 % en unités"
      ],
      [
-      "Ducray : commandes directes 2025 → 2026",
-      "8 554 € → 4 475 €"
+      "Stock au PAMP",
+      "A-Derma 3 660,27 € ; Ducray 5 789,17 €"
+     ],
+     [
+      "Stock sans vente depuis 6 mois",
+      "A-Derma 858,32 € ; Ducray 1 726,71 €"
+     ],
+     [
+      "Remboursements BRI attendus (Vindilis)",
+      "A-Derma ≈ 155,00 € HT ; Ducray ≈ 213,33 € HT"
+     ],
+     [
+      "Commandes directes 2025 → 2026",
+      "A-Derma 10 286 € → 3 816 € ; Ducray 8 554 € → 4 475 €"
      ],
      [
       "RFA 1er semestre",
-      "A-Derma 70,80 € ; Ducray −100 %"
-     ],
-     [
-      "Opeaz : opérations de septembre terminées, compensation pas encore demandée",
-      "A-Derma Exomega, Biology, Dermalibour ; Ducray Kelual DS"
-     ],
-     [
-      "Opeaz : en cours jusqu'au 31/10",
-      "A-Derma Exomega ; Ducray Ictyane, Keracnyl, anti-chute"
+      "A-Derma 70,80 € ; Ducray −100 % [AMBIGU]"
      ]
     ],
     "obtenir": [
-     "Le paiement des compensations des opérations de septembre (à déposer sur Opeaz avant le rendez-vous si possible)",
-     "Un objectif Ducray recalé pour récupérer une RFA au 2e semestre",
-     "Les opérations d'hiver (Exomega, Ictyane) avec un bon de remise client"
+     "La reprise ou l'échange du stock dormant : A-Derma 858,32 €, Ducray 1 726,71 € (liste avec EAN dans la fiche), contre des références qui tournent",
+     "Le paiement des BRI déjà faits : ≈ 368,33 € HT (à déposer sur l'espace pro Pierre Fabre) — demander à la déléguée de vérifier ce qui est déjà reçu",
+     "Un prix d'achat ou une remise qui permette d'aligner les prix A-Derma sur la moyenne France sans perdre de marge (gels douche, Primalba, Biology, Exomega)",
+     "Un objectif Ducray recalé sur 2026 pour récupérer une RFA au 2e semestre",
+     "Les opérations de novembre et décembre (Exomega, Dexyane, Ictyane, Extra-Doux) avec la liste des EAN, pour les paramétrer en caisse avant le 1er jour"
     ],
     "dire": [
-     "Taux de marge A-Derma 23 % et Ducray 25 % : en dessous de Pierre Fabre Santé (34 %) ; que proposent-ils pour remonter la marge ?"
+     "Vos marques sont stables en France, mais chez nous elles reculent : avec des prix alignés et le stock qui tourne, on reprend ce que l'on perd (A-Derma 756 unités par an avant, 695 aujourd'hui ; Ducray 767 avant, 673 aujourd'hui).",
+     "Taux de marge A-Derma 22 % et Ducray 24 % : bien en dessous de Pierre Fabre Santé (34 %). Que proposez-vous pour les remonter ?"
     ],
     "refuser": [
      "Une commande sans paiement validé par l'administrateur",
@@ -7449,21 +7752,23 @@
      "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
     ],
     "apres": [
-     "Vérifier sur Opeaz que les compensations sont « transmises » puis payées"
+     "Paramétrer dans Vindilis les opérations de novembre (Exomega Control, Kelual Squanorm, Dexyane) avant le 01/11.",
+     "Déposer les remboursements BRI sur l'espace pro Pierre Fabre, puis vérifier le paiement à 30 jours.",
+     "Mesure au 30/11 : unités A-Derma et Ducray du mois contre novembre 2025 (A-Derma 53, Ducray 77) — objectif minimum : faire mieux que l'an dernier."
     ],
     "t": "2026-10-27 11:00",
     "verdict": {
      "c": "o",
-     "titre": "En une phrase : A-Derma et Ducray sont deux marques stables en France (−1 %), mais vos achats directs ont été divisés par deux et votre marge (23 % et 25 %) est 10 points sous Pierre Fabre Santé. Objectif : remonter la marge et récupérer la RFA Ducray.",
+     "titre": "En une phrase : vous perdez des ventes A-Derma (−8 %) et Ducray (−12 %) alors que les deux marques sont stables en France (−1 %). Deux causes chez vous : des prix A-Derma 15 à 50 % au-dessus de la moyenne France, et 2 585,03 € de stock qui dort. Objectif : reprise du dormant, BRI remboursés, et opérations qui tournent.",
      "l": [
-      "A-Derma France : 4,10 M d'unités sur 12 mois (−1 %). Ce qui tire : Exomega Control (huiles lavantes +17 à +22 %), Cytelium (+17 %), gels douche Les Indispensables 750 ml (+54 à +84 %), Epitheliale Ultra Réparatrice (nouvelle référence).",
-      "Ducray France : 3,50 M d'unités (−1 %). Ce qui tire : Extra-Doux 400 ml (+14 %, pompe +19 %), Kelual DS Intensive (nouveau), Sensinol (+20 à +40 %), Dexyane Med (+16 à +37 %).",
-      "Beaucoup de « reculs » sont des changements de code (ancienne référence remplacée par la nouvelle) : l'ancien stock risque de dormir. C'est le premier point de reprise à demander.",
-      "Le remboursement des opérations Pierre Fabre se demande sur l'espace pro Pierre Fabre, pas sur Opeaz : vérifier ensemble ce qui est payé."
+      "A-Derma : 71 produits sont plus chers de plus de 10 % que la moyenne France (ex. gel douche surgras 750 ml 3282770144079 : 12,49 € contre 8,89 €). Ducray : 27 produits hors marché, dans les deux sens (Ictyane trop cher, Kertyol PSO et Kelual DS x2 trop bas).",
+      "Ce qui marche chez vous : Ducray Extra-Doux 2x400 ml (3282770148961, 42 ventes, 127,86 € de marge), Dexyane Med 30 ml (3282770394214, +131 %), Exomega Control huile 750 ml (3282770393866, 21 ventes).",
+      "Ce qui chute alors que le marché tient : Kelual DS 100 ml (3282770140453) 41 → 10 ventes, Keracnyl PP 30 ml (3282770141320) 33 → 8, Ictyane crème 2x200 (3282770206401) 32 → 12.",
+      "Opérations : 28 promotions Pierre Fabre en caisse depuis un an, ≈ 368,33 € HT de remboursement à réclamer ; 5 opérations Opeaz jamais paramétrées (dont Ictyane en ce moment)."
      ]
     },
     "courbe": {
-     "titre": "Marché France GERS : A-Derma contre tout le conseil (unités, base 100 = moyenne oct. 2024 → sept. 2025)",
+     "titre": "A-Derma : vos ventes (Vindilis) face au marché France GERS du laboratoire — unités, base 100 = moyenne oct. 2024 → sept. 2025",
      "mois": [
       "oct 24",
       "nov 24",
@@ -7491,69 +7796,69 @@
       "sep 26"
      ],
      "nous": [
-      91.5,
-      93.4,
-      98.4,
-      105.4,
-      100.8,
-      110.1,
-      105.1,
-      101.2,
-      108.0,
-      115.4,
-      88.5,
-      82.1,
-      90.4,
-      88.0,
-      96.8,
-      109.1,
-      94.5,
-      105.4,
-      107.3,
-      101.7,
-      111.0,
-      114.1,
-      87.9,
-      83.9
+      79.4,
+      63.5,
+      73.0,
+      69.8,
+      92.1,
+      69.8,
+      136.5,
+      138.1,
+      130.2,
+      125.4,
+      117.5,
+      104.8,
+      103.2,
+      84.1,
+      81.0,
+      107.9,
+      44.4,
+      81.0,
+      87.3,
+      114.3,
+      117.5,
+      147.6,
+      68.3,
+      66.7
      ],
      "marche": [
-      107.3,
-      97.2,
-      111.6,
-      108.7,
-      94.8,
-      95.1,
-      95.2,
-      95.9,
-      95.8,
-      106.0,
-      94.3,
-      97.9,
-      107.0,
-      91.8,
-      117.8,
-      104.3,
-      90.4,
-      96.5,
-      97.0,
-      93.4,
-      100.4,
-      107.3,
-      97.1,
-      98.2
+      79.4,
+      63.5,
+      73.0,
+      69.8,
+      92.1,
+      69.8,
+      136.5,
+      138.1,
+      130.2,
+      125.4,
+      117.5,
+      104.8,
+      103.2,
+      84.1,
+      81.0,
+      107.9,
+      44.4,
+      81.0,
+      87.3,
+      114.3,
+      117.5,
+      147.6,
+      68.3,
+      66.7
      ],
      "noms": [
-      "A-Derma (France)",
-      "Tout le conseil (France)"
+      "Votre pharmacie",
+      "A-Derma en France (GERS)"
      ],
      "lecture": [
-      "A-Derma en France sur 12 mois (oct. 2025 → sept. 2026) : 4 103 745 unités, −1 % contre l'année d'avant (4 137 379).",
-      "Tout le marché conseil : +0 %. Le laboratoire fait donc un peu moins bien que le marché.",
-      "[MANQUANT] Votre propre courbe mois par mois : il faut Vindilis (Statistiques › Fournisseurs, par mois). Elle sera ajoutée dès que le PC sera lié."
+      "Chez vous, 12 derniers mois (oct. 2025 → sept. 2026) : 695 unités (−8 % contre 756 l'année d'avant), 8 083 € HT de CA et 1 816 € de marge (−15 % contre 2 131 €).",
+      "En France, le laboratoire fait −8 % en unités sur la même période. Écart entre vous et le marché : −0 points.",
+      "Source : Vindilis (ventes validées, lecture du 27/10/2026) et GERS SOG Now (lecture du 27/10/2026 à 8 h 10). Octobre 2026 n'est pas affiché car le mois n'est pas fini."
      ]
     },
     "courbe2": {
-     "titre": "Marché France GERS : Ducray contre tout le conseil (unités, base 100 = moyenne oct. 2024 → sept. 2025)",
+     "titre": "Ducray : vos ventes (Vindilis) face au marché France GERS du laboratoire — unités, base 100 = moyenne oct. 2024 → sept. 2025",
      "mois": [
       "oct 24",
       "nov 24",
@@ -7581,377 +7886,1442 @@
       "sep 26"
      ],
      "nous": [
-      102.0,
-      103.6,
-      104.2,
-      103.7,
-      99.6,
-      106.1,
-      98.9,
-      99.6,
-      94.0,
-      102.2,
-      90.5,
-      95.6,
-      106.2,
-      94.8,
-      104.1,
-      106.5,
-      93.5,
-      104.8,
-      100.2,
-      90.4,
-      96.4,
-      101.7,
-      92.3,
-      100.3
+      65.7,
+      86.0,
+      90.7,
+      79.8,
+      86.0,
+      54.8,
+      134.6,
+      126.7,
+      140.8,
+      133.0,
+      112.6,
+      89.2,
+      128.3,
+      120.5,
+      75.1,
+      98.6,
+      76.7,
+      81.4,
+      78.2,
+      67.3,
+      37.5,
+      50.1,
+      114.2,
+      125.2
      ],
      "marche": [
-      107.3,
-      97.2,
-      111.6,
-      108.7,
-      94.8,
-      95.1,
-      95.2,
-      95.9,
-      95.8,
-      106.0,
-      94.3,
-      97.9,
-      107.0,
-      91.8,
-      117.8,
-      104.3,
-      90.4,
-      96.5,
-      97.0,
-      93.4,
-      100.4,
-      107.3,
-      97.1,
-      98.2
+      65.7,
+      86.0,
+      90.7,
+      79.8,
+      86.0,
+      54.8,
+      134.6,
+      126.7,
+      140.8,
+      133.0,
+      112.6,
+      89.2,
+      128.3,
+      120.5,
+      75.1,
+      98.6,
+      76.7,
+      81.4,
+      78.2,
+      67.3,
+      37.5,
+      50.1,
+      114.2,
+      125.2
      ],
      "noms": [
-      "Ducray (France)",
-      "Tout le conseil (France)"
+      "Votre pharmacie",
+      "Ducray en France (GERS)"
      ],
      "lecture": [
-      "Ducray en France sur 12 mois (oct. 2025 → sept. 2026) : 3 501 466 unités, −1 % contre l'année d'avant (3 527 486).",
-      "Tout le marché conseil : +0 %. Le laboratoire fait donc un peu moins bien que le marché.",
-      "[MANQUANT] Votre propre courbe mois par mois : il faut Vindilis (Statistiques › Fournisseurs, par mois). Elle sera ajoutée dès que le PC sera lié."
+      "Chez vous, 12 derniers mois (oct. 2025 → sept. 2026) : 673 unités (−12 % contre 767 l'année d'avant), 8 001 € HT de CA et 1 953 € de marge (−14 % contre 2 270 €).",
+      "En France, le laboratoire fait −12 % en unités sur la même période. Écart entre vous et le marché : −0 points.",
+      "Source : Vindilis (ventes validées, lecture du 27/10/2026) et GERS SOG Now (lecture du 27/10/2026 à 8 h 10). Octobre 2026 n'est pas affiché car le mois n'est pas fini."
      ]
     },
     "marchent": {
      "h": [
       "EAN",
       "Produit",
-      "Unités France 12 m",
-      "Évolution",
-      "Prix moyen France TTC"
+      "Vendus 12 m",
+      "Évol.",
+      "Marge 12 m",
+      "Stock"
      ],
      "l": [
       [
-       "3282770104783",
-       "A-DERMA CYTELIUM LOT ASS SPR 100ML",
-       "332 108",
-       "+17 %",
-       "11,84 €"
+       "3282770393866",
+       "ADERMA EXOMEGA CONTROL Hle lav émo 750ml Nf",
+       "21",
+       "+425 %",
+       "63,10 €",
+       "1"
       ],
       [
-       "3282770144291",
-       "A-DERMA DERMALIBOUR+ CICA CR REP50",
-       "308 943",
-       "−3 %",
-       "10,92 €"
+       "3282770145021",
+       "ADERMA DERMALIBOUR + CICA Gel mouss Flp/200ml",
+       "13",
+       "+30 %",
+       "52,93 €",
+       "5"
       ],
       [
-       "3282770388701",
-       "A-DERMA EXOMEGA CONT HLE NET RECH",
-       "212 396",
-       "+22 %",
-       "10,63 €"
-      ],
-      [
-       "3282770401400",
-       "A-DERMA EXOMEGA CONT HLE LAV 1L",
-       "188 317",
-       "nouveau",
-       "17,32 €"
+       "3282770149814",
+       "ADERMA EXOMEGA ALLERGO CS Bme émoll T/200ml",
+       "13",
+       "+117 %",
+       "50,48 €",
+       "3"
       ],
       [
        "3282770393859",
-       "A-DERMA EXOMEGA CONT HLE LAV 500ML",
-       "133 326",
-       "+17 %",
-       "13,87 €"
+       "AD EXOMEGA CONTROL HUILE LAVANTE 500ML",
+       "14",
+       "+27 %",
+       "48,81 €",
+       "1"
       ],
       [
-       "3282770149722",
-       "A-DERMA EXOMEGA CONT BAUM 400ML",
-       "110 966",
-       "+13 %",
-       "21,21 €"
+       "3282770397666",
+       "ADERMA EXOMEGA CONTROL Cr nuit T/200ml",
+       "11",
+       "+83 %",
+       "40,87 €",
+       "0"
       ],
       [
-       "3282770396522",
-       "A-DERMA GEL DCH SURGRAS 750ML",
-       "101 612",
-       "+84 %",
-       "9,14 €"
+       "3282770396218",
+       "EXOMEGA GEL LAV 2en1EMOLIENT 2X500ML",
+       "11",
+       "+83 %",
+       "32,28 €",
+       "4"
       ],
       [
-       "3282770209648",
-       "A-DERMA CUTALGAN SPRAY 100ML",
-       "92 965",
-       "+19 %",
-       "12,63 €"
-      ],
-      [
-       "3282770398632",
-       "A-DERMA EPITHELIALE ULTRA REP 40ML",
-       "91 032",
-       "+200 %",
-       "15,49 €"
-      ],
-      [
-       "3282770148275",
-       "DUCRAY SH EXTRA DOUX 400ML",
-       "308 488",
-       "+14 %",
-       "8,63 €"
-      ],
-      [
-       "3282770140453",
-       "KELUAL DS SH A/PEL 100ML",
-       "247 665",
-       "−12 %",
-       "15,16 €"
-      ],
-      [
-       "3282770148473",
-       "KERTYOL PSO SHP TRAITANT 200ML",
-       "198 683",
-       "+1 %",
-       "16,64 €"
-      ],
-      [
-       "3282770400786",
-       "KELUAL DS INTENSIVE SH 100ML",
-       "137 474",
-       "+2009 %",
-       "15,54 €"
-      ],
-      [
-       "3282770148282",
-       "DUCRAY SH EXTRA DOUX POMPE 400ML",
-       "129 433",
-       "+19 %",
-       "8,87 €"
-      ],
-      [
-       "3282770394948",
-       "SENSINOL SH TRAITANT 200ML",
-       "81 300",
-       "+20 %",
-       "14,98 €"
-      ],
-      [
-       "3282770394931",
-       "SENSINOL SH TRAITANT 400ML",
-       "74 685",
-       "+40 %",
-       "17,40 €"
-      ],
-      [
-       "3282770394276",
-       "DEXYANE MED CR REPAR APAIS100ML",
-       "66 918",
-       "+3 %",
-       "18,29 €"
+       "3282770148961",
+       "DUCRAY Shamp extra doux 2Fl/400ml",
+       "42",
+       "+83 %",
+       "127,86 €",
+       "31"
       ],
       [
        "3282770394214",
-       "DEXYANE MED CR REPAR APAIS 30ML",
-       "59 227",
-       "+37 %",
-       "12,92 €"
+       "DEXYANE MED Cr répar apais T/30ml",
+       "37",
+       "+131 %",
+       "98,94 €",
+       "7"
+      ],
+      [
+       "3282770389449",
+       "ANACAPS REACTIV 3X30",
+       "9",
+       "+125 %",
+       "83,79 €",
+       "1"
+      ],
+      [
+       "3282770148442",
+       "KERTYOL-P.S.O. Bme quotid T/200ml",
+       "6",
+       "+100 %",
+       "70,66 €",
+       "5"
+      ],
+      [
+       "3282770148282",
+       "DUCRAY Shamp extra doux Fl ppe/400ml",
+       "41",
+       "+2 %",
+       "69,13 €",
+       "47"
+      ],
+      [
+       "3282770390032",
+       "ELUTION Shamp dx équilib Fl/400ml",
+       "22",
+       "+47 %",
+       "62,63 €",
+       "4"
+      ],
+      [
+       "3282770392487",
+       "HIDROSIS ROLL-ON A-TRANSP AISSELL48H 2X40",
+       "16",
+       "+0 %",
+       "56,21 €",
+       "10"
+      ],
+      [
+       "3282770148275",
+       "DUCRAY EXTRA DX SHA R CAP 400ML",
+       "32",
+       "+52 %",
+       "55,94 €",
+       "35"
       ]
      ],
-     "lecture": "Les produits qui se vendent le plus ou qui montent en France (A-Derma puis Ducray). À avoir toujours en rayon et à mettre en avant. [MANQUANT] Vos ventes et votre stock produit par produit (Vindilis) : à ajouter dès que le PC du bureau est lié à cette conversation."
+     "lecture": "A-Derma (6 premiers) puis Ducray (8 premiers). Vos produits qui se vendent autant ou plus que l'an dernier, classés par marge en euros. Ce sont eux à garder toujours en stock et à mettre en avant (« Vendus 12 m » = 27/10/2025 → 26/10/2026 ; « Évol. » = contre les 12 mois d'avant)."
     },
     "stagnent": {
      "h": [
       "EAN",
       "Produit",
-      "Unités France 12 m",
-      "Évolution",
-      "Prix moyen France TTC"
+      "Vendus 12 m",
+      "Évol.",
+      "Marché",
+      "Stock"
      ],
      "l": [
       [
-       "3282770389449",
-       "ANACAPS REACTIV CHEV/ONGL GELUL 90",
-       "20 306",
-       "−30 %",
-       "33,87 €"
+       "3282770400182",
+       "ADERMA EXOMEGA CONTROL Hle lav émo500ml+500ml",
+       "1",
+       "−96 %",
+       "France +76 %",
+       "6"
       ],
       [
-       "3282770389036",
-       "ANACAPS EXPERT CHUTE CHEV GELUL 90",
-       "26 290",
-       "−24 %",
-       "33,68 €"
+       "3282770388701",
+       "ADERMA EXOMEGA CONTROL Hle lav émo R/500ml",
+       "14",
+       "−55 %",
+       "France +22 %",
+       "4"
       ],
       [
-       "3282770075533",
-       "ANAPHASE+ SH COMPLEM A/CHUTE 200ML",
-       "20 832",
+       "3282770149678",
+       "AD EXOMEGA CRÈME CONTROL COSM STÉRIL200ML",
+       "6",
+       "−71 %",
+       "France +3 %",
+       "0"
+      ],
+      [
+       "3401360037199",
+       "AD EXOMEGA CONTROL  BAUM COSM STERIL200ML",
+       "5",
+       "−72 %",
+       "—",
+       "1"
+      ],
+      [
+       "3282770149722",
+       "AD EXOMEGA CONTROL BAUME 400ML",
+       "11",
+       "−52 %",
+       "France +13 %",
+       "0"
+      ],
+      [
+       "3282770141962",
+       "DERMALIBOUR + CICA ADERMA Cr répar T/100ml",
+       "22",
+       "−35 %",
+       "France +0 %",
+       "4"
+      ],
+      [
+       "3282770144291",
+       "AD DERMALIBOUR + CICA  50ML",
+       "26",
        "−28 %",
-       "13,72 €"
+       "France −3 %",
+       "1"
       ],
       [
-       "3282770393040",
-       "ICTYANE CR MAIN 50MLX2",
-       "23 282",
-       "−25 %",
-       "7,26 €"
+       "3282770393842",
+       "AD EXOMEGA CONTROL HUILE LAVANTE 200ML",
+       "2",
+       "−83 %",
+       "France +28 %",
+       "1"
       ],
       [
-       "3282770203028",
-       "DUCRAY DEXYANE HLE LAVANTE 400ML",
-       "19 738",
-       "−21 %",
-       "11,99 €"
+       "3282770140453",
+       "KELUAL DS Shamp Fl/100ml",
+       "10",
+       "−76 %",
+       "France −12 %",
+       "8"
       ],
       [
-       "3282770203196",
-       "DUCRAY DEXYANE CR BARRIERE 100ML",
-       "13 759",
-       "−21 %",
-       "13,90 €"
+       "3282770141320",
+       "KERACNYL PP CR A-IMPER TB30ML1",
+       "8",
+       "−76 %",
+       "France −13 %",
+       "0"
       ],
       [
-       "3282770145175",
-       "KERACNYL UV FLUIDE A/IMPERF 50ML",
-       "12 634",
-       "−18 %",
-       "16,51 €"
+       "3282770206401",
+       "ICTYANE CRÈME 2X200ML",
+       "12",
+       "−62 %",
+       "France +1 %",
+       "12"
       ],
       [
-       "3282770154276",
-       "A-DERMA CR MAIN ONGLE HYDRA 50ML",
-       "26 262",
-       "−37 %",
-       "5,56 €"
+       "3282770396515",
+       "KELUAL SQUANORM Shamp pell sèche Fl/400ml",
+       "0",
+       "−100 %",
+       "France +4 %",
+       "12"
       ],
       [
-       "3282770153002",
-       "A-DERMA BIOLOGY AC GEL MOUSS 400ML",
-       "27 416",
-       "−24 %",
-       "12,77 €"
+       "3282770148473",
+       "DUCRAY PELL KERTYOL PSO TRAITANT 200ML",
+       "28",
+       "−38 %",
+       "France +1 %",
+       "-3"
+      ],
+      [
+       "3282770396508",
+       "KELUAL SQUANORM Shamp pell sèche Fl/200ml",
+       "6",
+       "−70 %",
+       "France +6 %",
+       "9"
+      ],
+      [
+       "3282770138900",
+       "SENSINOL Shamp trait physio Fl/400ml",
+       "4",
+       "−78 %",
+       "France −41 %",
+       "2"
+      ],
+      [
+       "3282770397383",
+       "KERACNYL Gel mouss T/200ml+T/40ml",
+       "0",
+       "−100 %",
+       "France −46 %",
+       "0"
+      ],
+      [
+       "3282770394139",
+       "DEXYANE MED PALPEPRAL Cr T can/15ml",
+       "7",
+       "−59 %",
+       "France +16 %",
+       "13"
+      ],
+      [
+       "3282770397499",
+       "KELUAL SQUANORM Lot Fl/200ml",
+       "2",
+       "−83 %",
+       "France −18 %",
+       "1"
       ]
      ],
-     "lecture": "Ces produits reculent en France : réassort au plus juste."
+     "lecture": "A-Derma puis Ducray. Vos produits qui ont perdu au moins un quart de leurs ventes (12 derniers mois contre les 12 d'avant). Si le marché France monte ou tient alors que vous reculez, le problème est chez vous : rupture, emplacement, prix ou conseil. « — » = produit non trouvé dans GERS."
     },
     "arreter": {
      "h": [
       "EAN",
       "Produit",
-      "Unités France 12 m",
-      "Évolution",
-      "Prix moyen France TTC"
+      "Stock",
+      "Vendus 12 m",
+      "France 12 m"
      ],
      "l": [
       [
-       "3282770209495",
-       "A-DERMA EPITHELIALE AH ULTRA 40ML",
-       "17 081",
-       "−82 %",
-       "14,80 €"
+       "3282770398564",
+       "ADERMA EPITHEL ULTRA REPAIR Sérum éclat 30ml",
+       "8",
+       "1",
+       "2 944 u. +54 %"
       ],
       [
-       "3282770209488",
-       "A-DERMA EPITHELIALE AH ULTRA100ML",
-       "11 349",
-       "−79 %",
-       "20,30 €"
+       "3282770400182",
+       "ADERMA EXOMEGA CONTROL Hle lav émo500ml+500ml",
+       "6",
+       "1",
+       "71 112 u. +76 %"
       ],
       [
-       "3282770209440",
-       "A-DERMA EPITHELIALE AH ULT50+40ML",
-       "20 015",
-       "−67 %",
-       "15,81 €"
+       "3282770388886",
+       "ADERMA BIOLOGY AC PERFECT Flde anti-imp 40ml",
+       "6",
+       "0",
+       "6 499 u. −37 %"
       ],
       [
-       "3282770209419",
-       "A-DERMA EPITHELIALE AH ULT50+100ML",
-       "11 051",
-       "−61 %",
-       "20,71 €"
+       "3282770146004",
+       "ADERMA PRIMALBA Gel lavant 2 en 1 Flppe/750ml",
+       "5",
+       "1",
+       "3 326 u. −66 %"
+      ],
+      [
+       "3282770145984",
+       "ADERMA PRIMALBA Lait toil ss rinç Flppe/500ml",
+       "5",
+       "0",
+       "1 137 u. −57 %"
+      ],
+      [
+       "3282770153033",
+       "ADERMA BIOLOGY AC Eau micell nett pur 400ml",
+       "3",
+       "1",
+       "7 019 u. −24 %"
+      ],
+      [
+       "3282771002040",
+       "ADERMA EXOMEGA VIS Sérum ultra calmant 30ml",
+       "6",
+       "0",
+       "159 u. nouveau"
+      ],
+      [
+       "3282770143416",
+       "ADERMA EXOMEGA Hle nettoy Fl/200ml",
+       "1",
+       "0",
+       "5 817 u. −45 %"
+      ],
+      [
+       "[MANQUANT]",
+       "KERTYOL PSO BAUME 200ML",
+       "18",
+       "0",
+       "—"
+      ],
+      [
+       "3282770396515",
+       "KELUAL SQUANORM Shamp pell sèche Fl/400ml",
+       "12",
+       "0",
+       "54 075 u. +4 %"
+      ],
+      [
+       "3282771003047",
+       "ANACAPS EXPERT ANTICHUTE Gél B/90",
+       "3",
+       "0",
+       "930 u. nouveau"
+      ],
+      [
+       "3401381485290",
+       "MELASCREEN CREME NUIT 50ML",
+       "5",
+       "0",
+       "—"
+      ],
+      [
+       "3282771003023",
+       "ANACAPS EXPERT ANTICHUTE Gél B/30",
+       "6",
+       "0",
+       "222 u. nouveau"
+      ],
+      [
+       "3282770399646",
+       "MELASCREEN CONTROL Flde invis UV Fl/30ml",
+       "9",
+       "0",
+       "4 793 u. +25 %"
+      ],
+      [
+       "3282770401806",
+       "KELUAL SQUANORM Shamp pell grasse Rech/400ml",
+       "6",
+       "0",
+       "7 985 u. nouveau"
+      ],
+      [
+       "3282770397390",
+       "DEXYANE Bme émoll Fl/400ml+Lange",
+       "5",
+       "1",
+       "347 u. −55 %"
+      ],
+      [
+       "3401329517168",
+       "DUCRAY SENSINOL LAIT APAISANT 400ML",
+       "5",
+       "0",
+       "—"
+      ],
+      [
+       "3282770148923",
+       "FURTERER NEOPUR Shamp antipell grasse T/150ml",
+       "6",
+       "0",
+       "—"
+      ],
+      [
+       "3282770109290",
+       "DUCRAY SABAL SHP 200ML",
+       "8",
+       "1",
+       "2 862 u. −76 %"
+      ],
+      [
+       "3401360254145",
+       "ICTYANE HYDRA CRÈME LÉGÈRE 40ML",
+       "5",
+       "1",
+       "—"
+      ],
+      [
+       "3282770055061",
+       "DUCRAY SENSINOL HUILE LAVANTE  400 ML",
+       "5",
+       "1",
+       "4 947 u. −14 %"
+      ],
+      [
+       "3282770208825",
+       "ICTYANE Cr dche lav T/400ml",
+       "5",
+       "1",
+       "3 158 u. −8 %"
+      ],
+      [
+       "3282770204780",
+       "ICTYANE Lait hydrat corps Fl ppe/400ml",
+       "5",
+       "1",
+       "5 577 u. −15 %"
+      ],
+      [
+       "3401329516918",
+       "DUCRAY SENSINOL LAIT APAISANT 200ML",
+       "5",
+       "0",
+       "—"
+      ],
+      [
+       "3282771000817",
+       "KELUAL SQUANORM Shamp rafraîch Fl/400ml",
+       "3",
+       "0",
+       "11 271 u. nouveau"
+      ],
+      [
+       "3282770055078",
+       "DUCRAY SENSINOL HLE LAVANTE 200ML",
+       "5",
+       "1",
+       "2 531 u. −18 %"
+      ],
+      [
+       "3282770111378",
+       "DUCRAY NUTRICERAT SHP NUTRITIF 200ML",
+       "5",
+       "1",
+       "2 063 u. −58 %"
+      ]
+     ],
+     "lecture": "À ne plus commander : 0 ou 1 vente en 12 mois chez vous et rien depuis 6 mois. Écouler le stock (reprise, échange ou mise en avant) puis bloquer la commande dans Vindilis (à valider par vous)."
+    },
+    "dorment": {
+     "h": [
+      "EAN",
+      "Produit",
+      "Stock",
+      "Valeur achat",
+      "Dernière vente"
+     ],
+     "l": [
+      [
+       "3282770398564",
+       "ADERMA EPITHEL ULTRA REPAIR Sérum éclat 30ml",
+       "8",
+       "208,00 €",
+       "10/04/2026"
+      ],
+      [
+       "3282770146677",
+       "ADERMA BIOLOGY Cr soin CALM dermato ap T/40ml",
+       "9",
+       "97,38 €",
+       "21/02/2026"
+      ],
+      [
+       "3282770400182",
+       "ADERMA EXOMEGA CONTROL Hle lav émo500ml+500ml",
+       "6",
+       "79,20 €",
+       "28/10/2025"
+      ],
+      [
+       "3282770145991",
+       "ADERMA PRIMALBA Gel lavant 2 en 1 Flppe/500ml",
+       "10",
+       "71,40 €",
+       "08/04/2026"
+      ],
+      [
+       "3282770390995",
+       "DERMALIBOUR +BARRIER ADERMA Cr prot T/100ml",
+       "7",
+       "66,57 €",
+       "26/01/2026"
+      ],
+      [
+       "3282770388886",
+       "ADERMA BIOLOGY AC PERFECT Flde anti-imp 40ml",
+       "6",
+       "59,04 €",
+       "04/12/2024"
+      ],
+      [
+       "3282770146004",
+       "ADERMA PRIMALBA Gel lavant 2 en 1 Flppe/750ml",
+       "5",
+       "56,00 €",
+       "07/03/2026"
+      ],
+      [
+       "3282770144222",
+       "ADERMA EPITHEL AH MASSAGE Gel hle T/100ml",
+       "4",
+       "51,48 €",
+       "02/03/2026"
+      ],
+      [
+       "3282770149685",
+       "AD EXOMEGA CRÈME CONTROL FL400ML",
+       "3",
+       "40,05 €",
+       "13/12/2025"
+      ],
+      [
+       "3282770145984",
+       "ADERMA PRIMALBA Lait toil ss rinç Flppe/500ml",
+       "5",
+       "39,55 €",
+       "27/08/2025"
+      ],
+      [
+       "3282770153033",
+       "ADERMA BIOLOGY AC Eau micell nett pur 400ml",
+       "3",
+       "32,40 €",
+       "05/12/2025"
+      ],
+      [
+       "3282770146714",
+       "ADERMA BIOLOGY Cr soin NUTRI dermato T/40ml",
+       "3",
+       "32,07 €",
+       "14/12/2025"
+      ],
+      [
+       "3282770396577",
+       "ADERMA Cr dche hydrat T/200ml",
+       "6",
+       "21,24 €",
+       "03/03/2026"
+      ],
+      [
+       "3282771002040",
+       "ADERMA EXOMEGA VIS Sérum ultra calmant 30ml",
+       "6",
+       "[AMBIGU] PAMP 1,00 €",
+       "jamais vendu (24 mois)"
+      ],
+      [
+       "3401326576786",
+       "AD I STICK LEVRES 2X4G",
+       "1",
+       "3,94 €",
+       "21/03/2026"
+      ],
+      [
+       "3282770143416",
+       "ADERMA EXOMEGA Hle nettoy Fl/200ml",
+       "1",
+       "[AMBIGU] PAMP 0,00 €",
+       "jamais vendu (24 mois)"
+      ],
+      [
+       "[MANQUANT]",
+       "KERTYOL PSO BAUME 200ML",
+       "18",
+       "172,62 €",
+       "01/11/2024"
+      ],
+      [
+       "3282770396515",
+       "KELUAL SQUANORM Shamp pell sèche Fl/400ml",
+       "12",
+       "133,32 €",
+       "07/08/2025"
+      ],
+      [
+       "3282770389593",
+       "MELASCREEN Sérum Fl/40ml",
+       "6",
+       "116,40 €",
+       "06/02/2026"
+      ],
+      [
+       "3282771003047",
+       "ANACAPS EXPERT ANTICHUTE Gél B/90",
+       "3",
+       "110,70 €",
+       "jamais vendu (24 mois)"
+      ],
+      [
+       "3401381485290",
+       "MELASCREEN CREME NUIT 50ML",
+       "5",
+       "103,55 €",
+       "17/06/2025"
+      ],
+      [
+       "3282771003023",
+       "ANACAPS EXPERT ANTICHUTE Gél B/30",
+       "6",
+       "89,40 €",
+       "jamais vendu (24 mois)"
+      ],
+      [
+       "3282770399646",
+       "MELASCREEN CONTROL Flde invis UV Fl/30ml",
+       "9",
+       "83,07 €",
+       "09/08/2025"
+      ],
+      [
+       "3282770401806",
+       "KELUAL SQUANORM Shamp pell grasse Rech/400ml",
+       "6",
+       "78,00 €",
+       "jamais vendu (24 mois)"
+      ],
+      [
+       "3282770397390",
+       "DEXYANE Bme émoll Fl/400ml+Lange",
+       "5",
+       "70,30 €",
+       "28/03/2026"
+      ],
+      [
+       "3401329517168",
+       "DUCRAY SENSINOL LAIT APAISANT 400ML",
+       "5",
+       "68,05 €",
+       "jamais vendu (24 mois)"
+      ],
+      [
+       "3282770148923",
+       "FURTERER NEOPUR Shamp antipell grasse T/150ml",
+       "6",
+       "65,76 €",
+       "jamais vendu (24 mois)"
+      ],
+      [
+       "3282770389425",
+       "ANACAPS REACTIV Caps cure 1 mois B/30",
+       "7",
+       "65,31 €",
+       "03/03/2026"
+      ],
+      [
+       "3282770109290",
+       "DUCRAY SABAL SHP 200ML",
+       "8",
+       "64,00 €",
+       "31/01/2026"
+      ],
+      [
+       "3401360254145",
+       "ICTYANE HYDRA CRÈME LÉGÈRE 40ML",
+       "5",
+       "58,35 €",
+       "08/04/2026"
+      ],
+      [
+       "3282770055061",
+       "DUCRAY SENSINOL HUILE LAVANTE  400 ML",
+       "5",
+       "57,40 €",
+       "31/01/2026"
+      ],
+      [
+       "3282770208825",
+       "ICTYANE Cr dche lav T/400ml",
+       "5",
+       "57,00 €",
+       "10/12/2025"
+      ],
+      [
+       "3282770204780",
+       "ICTYANE Lait hydrat corps Fl ppe/400ml",
+       "5",
+       "57,00 €",
+       "03/03/2026"
+      ],
+      [
+       "3401329516918",
+       "DUCRAY SENSINOL LAIT APAISANT 200ML",
+       "5",
+       "50,45 €",
+       "03/06/2025"
+      ],
+      [
+       "3282771000817",
+       "KELUAL SQUANORM Shamp rafraîch Fl/400ml",
+       "3",
+       "44,10 €",
+       "jamais vendu (24 mois)"
+      ],
+      [
+       "3282770055078",
+       "DUCRAY SENSINOL HLE LAVANTE 200ML",
+       "5",
+       "43,85 €",
+       "30/01/2026"
+      ],
+      [
+       "3282770111378",
+       "DUCRAY NUTRICERAT SHP NUTRITIF 200ML",
+       "5",
+       "43,45 €",
+       "19/02/2026"
+      ],
+      [
+       "3282770396942",
+       "NEOPTIDE EXPERT Sérum anti-chute 2/50ml+Shamp",
+       "1",
+       "35,92 €",
+       "18/12/2025"
+      ],
+      [
+       "3282770148879",
+       "FURTERER NEOPUR Shamp antipell sèche T/150ml",
+       "3",
+       "32,88 €",
+       "02/03/2026"
+      ],
+      [
+       "3401364432242",
+       "DUCRAY GEL RUBEFIANT TB30ML",
+       "3",
+       "25,83 €",
+       "05/01/2026"
+      ]
+     ],
+     "lecture": "A-Derma : Produits en stock sans aucune vente depuis 6 mois (depuis le 27/04/2026) : 16 références, 864,32 € au prix d'achat moyen pondéré (PAMP Vindilis). Ducray : Produits en stock sans aucune vente depuis 6 mois (depuis le 27/04/2026) : 24 références, 1 726,71 € au prix d'achat moyen pondéré (PAMP Vindilis)."
+    },
+    "reprises": {
+     "h": [
+      "EAN",
+      "Produit",
+      "Quantité",
+      "Valeur achat",
+      "Demande"
+     ],
+     "l": [
+      [
+       "3282770398564",
+       "ADERMA EPITHEL ULTRA REPAIR Sérum éclat 30ml",
+       "8",
+       "208,00 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770146677",
+       "ADERMA BIOLOGY Cr soin CALM dermato ap T/40ml",
+       "9",
+       "97,38 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770400182",
+       "ADERMA EXOMEGA CONTROL Hle lav émo500ml+500ml",
+       "6",
+       "79,20 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770145991",
+       "ADERMA PRIMALBA Gel lavant 2 en 1 Flppe/500ml",
+       "10",
+       "71,40 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770390995",
+       "DERMALIBOUR +BARRIER ADERMA Cr prot T/100ml",
+       "7",
+       "66,57 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770388886",
+       "ADERMA BIOLOGY AC PERFECT Flde anti-imp 40ml",
+       "6",
+       "59,04 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770146004",
+       "ADERMA PRIMALBA Gel lavant 2 en 1 Flppe/750ml",
+       "5",
+       "56,00 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770144222",
+       "ADERMA EPITHEL AH MASSAGE Gel hle T/100ml",
+       "4",
+       "51,48 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770149685",
+       "AD EXOMEGA CRÈME CONTROL FL400ML",
+       "3",
+       "40,05 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770145984",
+       "ADERMA PRIMALBA Lait toil ss rinç Flppe/500ml",
+       "5",
+       "39,55 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770153033",
+       "ADERMA BIOLOGY AC Eau micell nett pur 400ml",
+       "3",
+       "32,40 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770146714",
+       "ADERMA BIOLOGY Cr soin NUTRI dermato T/40ml",
+       "3",
+       "32,07 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770396577",
+       "ADERMA Cr dche hydrat T/200ml",
+       "6",
+       "21,24 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282771002040",
+       "ADERMA EXOMEGA VIS Sérum ultra calmant 30ml",
+       "6",
+       "[AMBIGU]",
+       "Reprise ou échange"
+      ],
+      [
+       "3401326576786",
+       "AD I STICK LEVRES 2X4G",
+       "1",
+       "3,94 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770143416",
+       "ADERMA EXOMEGA Hle nettoy Fl/200ml",
+       "1",
+       "[AMBIGU]",
+       "Reprise ou échange"
+      ],
+      [
+       "[MANQUANT]",
+       "KERTYOL PSO BAUME 200ML",
+       "18",
+       "172,62 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770396515",
+       "KELUAL SQUANORM Shamp pell sèche Fl/400ml",
+       "12",
+       "133,32 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770389593",
+       "MELASCREEN Sérum Fl/40ml",
+       "6",
+       "116,40 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282771003047",
+       "ANACAPS EXPERT ANTICHUTE Gél B/90",
+       "3",
+       "110,70 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3401381485290",
+       "MELASCREEN CREME NUIT 50ML",
+       "5",
+       "103,55 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282771003023",
+       "ANACAPS EXPERT ANTICHUTE Gél B/30",
+       "6",
+       "89,40 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770399646",
+       "MELASCREEN CONTROL Flde invis UV Fl/30ml",
+       "9",
+       "83,07 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770401806",
+       "KELUAL SQUANORM Shamp pell grasse Rech/400ml",
+       "6",
+       "78,00 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770397390",
+       "DEXYANE Bme émoll Fl/400ml+Lange",
+       "5",
+       "70,30 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3401329517168",
+       "DUCRAY SENSINOL LAIT APAISANT 400ML",
+       "5",
+       "68,05 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770148923",
+       "FURTERER NEOPUR Shamp antipell grasse T/150ml",
+       "6",
+       "65,76 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770389425",
+       "ANACAPS REACTIV Caps cure 1 mois B/30",
+       "7",
+       "65,31 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770109290",
+       "DUCRAY SABAL SHP 200ML",
+       "8",
+       "64,00 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3401360254145",
+       "ICTYANE HYDRA CRÈME LÉGÈRE 40ML",
+       "5",
+       "58,35 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770055061",
+       "DUCRAY SENSINOL HUILE LAVANTE  400 ML",
+       "5",
+       "57,40 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770208825",
+       "ICTYANE Cr dche lav T/400ml",
+       "5",
+       "57,00 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770204780",
+       "ICTYANE Lait hydrat corps Fl ppe/400ml",
+       "5",
+       "57,00 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3401329516918",
+       "DUCRAY SENSINOL LAIT APAISANT 200ML",
+       "5",
+       "50,45 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282771000817",
+       "KELUAL SQUANORM Shamp rafraîch Fl/400ml",
+       "3",
+       "44,10 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770055078",
+       "DUCRAY SENSINOL HLE LAVANTE 200ML",
+       "5",
+       "43,85 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770111378",
+       "DUCRAY NUTRICERAT SHP NUTRITIF 200ML",
+       "5",
+       "43,45 €",
+       "Reprise ou échange"
+      ],
+      [
+       "3282770396942",
+       "NEOPTIDE EXPERT Sérum anti-chute 2/50ml+Shamp",
+       "1",
+       "35,92 €",
+       "Échange ou animation"
+      ],
+      [
+       "3282770148879",
+       "FURTERER NEOPUR Shamp antipell sèche T/150ml",
+       "3",
+       "32,88 €",
+       "Échange ou animation"
+      ],
+      [
+       "3401364432242",
+       "DUCRAY GEL RUBEFIANT TB30ML",
+       "3",
+       "25,83 €",
+       "Échange ou animation"
+      ]
+     ],
+     "lecture": "A-Derma — Total à demander en reprise ou échange : 858,32 € au prix d'achat. Demande : avoir ou échange contre des références qui tournent (colonne « Produits qui marchent »), sans frais de port. Ducray — Total à demander en reprise ou échange : 1 726,71 € au prix d'achat."
+    },
+    "prix": {
+     "h": [
+      "EAN",
+      "Produit",
+      "Votre prix",
+      "Prix moyen France",
+      "Écart",
+      "Proposition"
+     ],
+     "l": [
+      [
+       "3282770146004",
+       "ADERMA PRIMALBA Gel lavant 2 en 1 Flppe/750ml",
+       "15,70 €",
+       "10,38 €",
+       "+51 %",
+       "Baisser à 15,49 €"
+      ],
+      [
+       "3282770145984",
+       "ADERMA PRIMALBA Lait toil ss rinç Flppe/500ml",
+       "15,80 €",
+       "10,78 €",
+       "+47 %",
+       "Baisser à 10,89 €"
       ],
       [
        "3282770144079",
-       "A-DERMA GEL DCH SURGRAS 750ML.",
-       "13 552",
-       "−75 %",
-       "8,89 €"
+       "AD I GEL DOUCHE SURGRAS FP 750ML",
+       "12,49 €",
+       "8,89 €",
+       "+40 %",
+       "Baisser à 9,09 €"
       ],
       [
-       "3282770145915",
-       "A-DERMA GEL DCH HYDRAPROTECT 750ML",
-       "10 043",
-       "−77 %",
-       "8,65 €"
+       "3282770145991",
+       "ADERMA PRIMALBA Gel lavant 2 en 1 Flppe/500ml",
+       "14,30 €",
+       "10,23 €",
+       "+40 %",
+       "Baisser à 10,19 €"
       ],
       [
-       "3282770394856",
-       "A-DERMA EXOMEGA CONT HLE LAV 2X500",
-       "6 587",
-       "−84 %",
-       "22,74 €"
+       "3282770396553",
+       "ADERMA Cr dche hydrat Fl ppe/750ml",
+       "12,49 €",
+       "9,17 €",
+       "+36 %",
+       "Baisser à 10,09 €"
       ],
       [
-       "3282770146271",
-       "A-DERMA EXOMEGA CONT HLE NET500ML2",
-       "2 045",
-       "−87 %",
-       "21,83 €"
+       "3282770396539",
+       "ADERMA Gel dch surg vis corps Fl/500ml",
+       "11,99 €",
+       "9,13 €",
+       "+31 %",
+       "Baisser à 11,49 €"
       ],
       [
-       "3282770143409",
-       "A-DERMA EXOMEGA CONT HLE NET 750ML",
-       "6 808",
-       "−76 %",
-       "15,49 €"
+       "3282770393842",
+       "AD EXOMEGA CONTROL HUILE LAVANTE 200ML",
+       "13,99 €",
+       "10,94 €",
+       "+28 %",
+       "Baisser à 11,69 €"
       ],
       [
-       "3282779317658",
-       "SENSINOL SH TRAIT PHYSIO 200ML",
-       "14 898",
-       "−62 %",
-       "14,30 €"
+       "3282770150476",
+       "ADERMA Gel dche surgras T/200ml",
+       "6,99 €",
+       "5,50 €",
+       "+27 %",
+       "Baisser à 6,89 €"
       ],
       [
-       "3282770138900",
-       "SENSINOL SH TRAIT PHYSIO 400ML",
-       "17 363",
-       "−41 %",
-       "16,84 €"
+       "3282770202144",
+       "ADERMA PROTECT SPF50+ Flde invis T/40ml",
+       "17,49 €",
+       "13,80 €",
+       "+27 %",
+       "Baisser à 13,79 €"
+      ],
+      [
+       "3282770396218",
+       "EXOMEGA GEL LAV 2en1EMOLIENT 2X500ML",
+       "27,49 €",
+       "21,72 €",
+       "+27 %",
+       "Baisser à 21,69 €"
+      ],
+      [
+       "3282770206210",
+       "ADERMA PROTECT SPF50+ Stick E/8g",
+       "15,00 €",
+       "11,91 €",
+       "+26 %",
+       "Baisser à 14,79 €"
+      ],
+      [
+       "3282770202120",
+       "ADERMA PROTECT SPF50+ Cr ss parf T/40ml",
+       "17,90 €",
+       "14,23 €",
+       "+26 %",
+       "Baisser à 17,69 €"
+      ],
+      [
+       "3282770143737",
+       "AD EXOMEGA CONTROL GEL MOUSSANT 200ML",
+       "13,49 €",
+       "10,78 €",
+       "+25 %",
+       "Baisser à 11,69 €"
+      ],
+      [
+       "3282770396577",
+       "ADERMA Cr dche hydrat T/200ml",
+       "7,49 €",
+       "6,00 €",
+       "+25 %",
+       "Baisser à 5,99 €"
+      ],
+      [
+       "3282770149777",
+       "ADERMA EXOMEGA CONTROL Spray Fl/200ml",
+       "23,99 €",
+       "19,38 €",
+       "+24 %",
+       "Baisser à 19,39 €"
+      ],
+      [
+       "3282770388701",
+       "ADERMA EXOMEGA CONTROL Hle lav émo R/500ml",
+       "10,89 €",
+       "PAMP 9,51 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ],
+      [
+       "3282770392982",
+       "ICTYANE Stick lèv sèch abim 2E/3g",
+       "8,40 €",
+       "6,04 €",
+       "+39 %",
+       "Baisser à 5,99 €"
+      ],
+      [
+       "3282771003023",
+       "ANACAPS EXPERT ANTICHUTE Gél B/30",
+       "20,86 €",
+       "15,28 €",
+       "+37 %",
+       "Baisser à 20,59 €"
+      ],
+      [
+       "3282770208825",
+       "ICTYANE Cr dche lav T/400ml",
+       "19,45 €",
+       "15,69 €",
+       "+24 %",
+       "Baisser à 15,69 €"
+      ],
+      [
+       "3282770148299",
+       "DUCRAY Shamp extra doux Fl/200ml",
+       "8,00 €",
+       "6,46 €",
+       "+24 %",
+       "Baisser à 6,49 €"
+      ],
+      [
+       "3282770206401",
+       "ICTYANE CRÈME 2X200ML",
+       "18,99 €",
+       "15,56 €",
+       "+22 %",
+       "Baisser à 17,69 €"
+      ],
+      [
+       "3282770389456",
+       "HIDROSIS CONTROL Emul anti-transp aiss 40ml",
+       "13,99 €",
+       "11,74 €",
+       "+19 %",
+       "Baisser à 11,69 €"
+      ],
+      [
+       "3282770140439",
+       "ICTYANE DUO PAIN",
+       "7,70 €",
+       "9,25 €",
+       "−17 %",
+       "Monter à 9,19 €"
+      ],
+      [
+       "3282770208887",
+       "ICTYANE Eau micellaire Fl/400ml NSFP",
+       "11,95 €",
+       "10,28 €",
+       "+16 %",
+       "À revoir : le PAMP ne permet pas de s'aligner"
+      ],
+      [
+       "3282770055061",
+       "DUCRAY SENSINOL HUILE LAVANTE  400 ML",
+       "20,90 €",
+       "18,00 €",
+       "+16 %",
+       "Baisser à 17,99 €"
+      ],
+      [
+       "3282770204285",
+       "ICTYANE CR EMOL NUT TB200ML 1",
+       "13,90 €",
+       "12,00 €",
+       "+16 %",
+       "Baisser à 13,09 €"
+      ],
+      [
+       "3282770208818",
+       "ICTYANE Cr dche lav T/200ml NSFP",
+       "10,50 €",
+       "9,12 €",
+       "+15 %",
+       "Baisser à 9,19 €"
+      ],
+      [
+       "3282770389029",
+       "ANACAPS EXPERT CURE Gél B/30",
+       "11,90 €",
+       "14,00 €",
+       "−15 %",
+       "Monter à 13,99 €"
+      ],
+      [
+       "3282770398274",
+       "KELUAL DS Shamp 2Fl/100ml",
+       "19,05 €",
+       "22,39 €",
+       "−15 %",
+       "Monter à 22,39 €"
+      ],
+      [
+       "3282770398151",
+       "ANAPHASE REACTIV Shamp Fl/400ml",
+       "18,90 €",
+       "16,52 €",
+       "+14 %",
+       "Baisser à 18,59 €"
+      ],
+      [
+       "3282770401806",
+       "KELUAL SQUANORM Shamp pell grasse Rech/400ml",
+       "18,20 €",
+       "15,92 €",
+       "+14 %",
+       "Baisser à 17,89 €"
+      ],
+      [
+       "3282771003047",
+       "ANACAPS EXPERT ANTICHUTE Gél B/90",
+       "31,90 €",
+       "PAMP 36,90 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ],
+      [
+       "3282770389029",
+       "ANACAPS EXPERT CURE Gél B/30",
+       "11,90 €",
+       "PAMP 10,09 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ],
+      [
+       "3282770398168",
+       "ANAPHASE REACTIV Shamp Fl/200ml",
+       "14,70 €",
+       "PAMP 21,60 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ],
+      [
+       "3282770148961",
+       "DUCRAY Shamp extra doux 2Fl/400ml",
+       "14,90 €",
+       "PAMP 15,62 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ],
+      [
+       "3282770402612",
+       "DUCRAY Shamp extra doux Rech/400ml",
+       "7,50 €",
+       "PAMP 7,63 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
+      ],
+      [
+       "3401360254152",
+       "ICTYANE HYDRA CRÈME LÉGÈRE UV 30 40ML",
+       "16,90 €",
+       "PAMP 15,52 € HT",
+       "perte",
+       "[AMBIGU] Vérifier PAMP ou prix"
       ]
      ],
-     "lecture": "Anciennes références remplacées par de nouvelles (Epitheliale AH → Epitheliale Ultra Réparatrice ; gels douche 750 ml → Les Indispensables ; lots 2x500 ; Sensinol Physio → Sensinol traitant). Ne plus les commander ; si vous en avez en stock, demander l'échange contre la nouvelle référence."
-    },
-    "dorment": {
-     "vide": "[MANQUANT] Vos ventes et votre stock produit par produit (Vindilis) : à ajouter dès que le PC du bureau est lié à cette conversation."
-    },
-    "reprises": {
-     "vide": "À demander : échange des anciennes références listées ci-dessus contre les nouvelles (même gamme, même prix), sans frais de port. Quantités exactes : [MANQUANT] stock Vindilis."
-    },
-    "prix": {
-     "vide": "[MANQUANT] Vos prix de vente (Vindilis). Repère France : prix moyen TTC dans les tableaux. Produits d'appel à tenir au 1er quartile GERS : Ducray Extra-Doux 400 ml (prix moyen France 8,63 €), Dermalibour+ 50 ml (10,92 €), Cytelium spray (11,84 €)."
+     "lecture": "A-Derma (15 plus gros écarts) puis Ducray (15 plus gros écarts). Vos prix de vente (Vindilis) face au prix moyen constaté en France (GERS, 12 derniers mois, CA TTC ÷ unités) : seuls les écarts de plus de 10 % sont listés. Propositions à valider par vous avant toute modification dans Vindilis. Les lignes « perte » ont un prix de vente HT inférieur au PAMP : soit le PAMP est faux, soit le produit est vendu à perte. 71 produits hors marché de plus de 10 % (les 15 plus gros écarts affichés). [AMBIGU] Le prix moyen GERS inclut les ventes en promotion (BRI) et peut inclure des parapharmacies : il est un peu plus bas que le prix « rayon » des pharmacies."
     },
     "operations": {
      "h": [
@@ -7960,79 +9330,159 @@
      ],
      "l": [
       [
-       "A-Derma : BRI Exomega (gel-crème visage, baume palpébral)\n01/10 → 31/10/2026 · En cours",
-       "[MANQUANT]"
+       "— A-Derma —",
+       "Total : marge 79,17 € + remboursements attendus ≈ 155,00 € HT"
       ],
       [
-       "A-Derma : BRI Exomega Control (huile lavante 500 ml, gel 2 en 1)\n01/11 → 30/11/2026 · À venir",
-       "à mesurer"
+       "PIERRE FABRE Exomega Duos 2x500ml BRI 4€ 11/25\n01/11/2025 → 30/11/2025 · terminée",
+       "8 vendus · marge 9,15 € + remboursement ≈ 26,67 € HT = 35,82 €"
       ],
       [
-       "A-Derma : BRI Exomega (huile 1 L, crème nuit)\n01/09 → 30/09/2026 · Terminé",
-       "[MANQUANT]"
+       "PF ADERMA EXOMEGA HYGIENE BRI 2€ 12/2025\n01/12/2025 → 31/12/2025 · terminée",
+       "2 vendus · marge 2,99 € + remboursement ≈ 3,33 € HT = 6,32 €"
       ],
       [
-       "A-Derma : IC + BRI Biology (sérum Hyalu, AR)\n01/09 → 30/09/2026 · Terminé",
-       "[MANQUANT]"
+       "PF ADERMA SOINS BRI 2€ 12/25\n01/12/2025 → 31/12/2025 · terminée",
+       "1 vendus · marge 2,29 € + remboursement ≈ 1,67 € HT = 3,96 €"
       ],
       [
-       "A-Derma : BRI Dermalibour+ crème\n01/09 → 30/09/2026 · Terminé",
-       "[MANQUANT]"
+       "ADERMA LES INDISPENSABLES BRI 2€ 04/26\n01/04/2026 → 30/04/2026 · terminée",
+       "1 vendus · marge -0,27 € + remboursement ≈ 1,67 € HT = 1,40 €"
       ],
       [
-       "A-Derma : BRI Les Indispensables (huile douche 750 ml, gel surgras)\n01/08 → 31/08/2026 · Terminé",
-       "[MANQUANT]"
+       "ADERMA BIOLOGY BRI2€ 04/26\n01/04/2026 → 30/04/2026 · terminée",
+       "6 vendus · marge 4,69 € + remboursement ≈ 10,00 € HT = 14,69 €"
       ],
       [
-       "A-Derma : BRI Exomega\n01/07 → 31/07/2026 · Terminé",
-       "[MANQUANT]"
+       "PIERRE FABRE ADERMA EXOMEGA BRI 2 05/26€\n05/05/2026 → 31/05/2026 · terminée",
+       "10 vendus · marge 13,70 € + remboursement ≈ 16,67 € HT = 30,37 €"
       ],
       [
-       "A-Derma : IC + BRI solaire\n01/05 → 31/07/2026 · Terminé",
-       "[MANQUANT]"
+       "PF ADERMA SOLAIRE BRI 3€ 05-07/26\n28/05/2026 → 31/07/2026 · terminée",
+       "31 vendus · marge 25,68 € + remboursement ≈ 77,50 € HT = 103,18 €"
       ],
       [
-       "Ducray : TG + BRI Ictyane crème 200 ml x2\n01/10 → 31/10/2026 · En cours",
-       "[MANQUANT]"
+       "ADERMA biology bri 2€ 09/26\n01/09/2026 → 30/09/2026 · terminée",
+       "5 vendus · marge 4,68 € + remboursement ≈ 8,33 € HT = 13,01 €"
       ],
       [
-       "Ducray : TG + BRI anti-chute (Neoptide, Anaphase)\n01/10 → 31/10/2026 · En cours",
-       "[MANQUANT]"
+       "aderma exomega bri 2€ 09/26\n01/09/2026 → 30/09/2026 · terminée",
+       "4 vendus · marge 11,85 € + remboursement ≈ 6,67 € HT = 18,52 €"
       ],
       [
-       "Ducray : TG + BRI Keracnyl\n01/10 → 31/10/2026 · En cours",
-       "[MANQUANT]"
+       "aderma dermalibour bri 1€ 09/26\n01/09/2026 → 30/09/2026 · terminée",
+       "1 vendus · marge 1,47 € + remboursement ≈ 0,83 € HT = 2,30 €"
       ],
       [
-       "Ducray : BRI Kelual Squanorm\n01/11 → 30/11/2026 · À venir",
-       "à mesurer"
+       "aderma exomega bri 2€ 10/26\n01/10/2026 → 31/10/2026 · en cours",
+       "1 vendus · marge 2,94 € + remboursement ≈ 1,67 € HT = 4,61 €"
       ],
       [
-       "Ducray : TG + BRI Dexyane\n01/11 → 30/11/2026 · À venir",
-       "à mesurer"
+       "A-Derma : BRI Les Indispensables (huile douche 750 ml, gel surgras)\n01/08 → 31/08/2026 · terminée",
+       "Aucune vente en promotion dans Vindilis : opération non paramétrée en caisse (BRI non appliqué, compensation perdue)"
       ],
       [
-       "Ducray : TG + BRI Dexyane ; TG + BRI Ictyane ; BRI Extra-Doux\n01/12 → 31/12/2026 · À venir",
-       "à mesurer"
+       "A-Derma : BRI Exomega\n01/07 → 31/07/2026 · terminée",
+       "Aucune vente en promotion dans Vindilis : opération non paramétrée en caisse (BRI non appliqué, compensation perdue)"
       ],
       [
-       "Ducray : BRI Kelual DS ; BRI Extra-Doux\n01/09 → 30/09/2026 · Terminé",
-       "[MANQUANT]"
+       "A-Derma : BRI Exomega Control (huile lavante 500 ml, gel 2 en 1)\n01/11 → 30/11/2026 · à venir",
+       "À paramétrer dans Vindilis (Fichiers › Produits › Promotions) avant le 1er jour, sinon pas de compensation"
       ],
       [
-       "Ducray : BRI Extra-Doux 400 ml x2\n01/08 → 31/08/2026 · Terminé",
-       "[MANQUANT]"
+       "— Ducray —",
+       "Total : marge 189,61 € + remboursements attendus ≈ 213,33 € HT"
       ],
       [
-       "Ducray : TG + BRI Keracnyl\n01/07 → 31/07/2026 · Terminé",
-       "[MANQUANT]"
+       "DUCRAY GAMME  SENSINOL BRI 2€ 10/25\n01/10/2025 → 31/10/2025 · terminée",
+       "4 vendus · marge 2,57 € + remboursement ≈ 6,67 € HT = 9,24 €"
       ],
       [
-       "Ducray : BRI Kelual DS\n01/06 → 30/06/2026 · Terminé",
-       "[MANQUANT]"
+       "DUCRAY ANTIPELLICULAIRES BRI 2€ 10/25\n01/10/2025 → 31/10/2025 · terminée",
+       "15 vendus · marge 27,36 € + remboursement ≈ 25,00 € HT = 52,36 €"
+      ],
+      [
+       "DUCRAY ANTIPELLICULAIRE BRI 3€ 10/25\n01/10/2025 → 31/10/2025 · terminée",
+       "3 vendus · marge 3,58 € + remboursement ≈ 7,50 € HT = 11,08 €"
+      ],
+      [
+       "DUCRAY EXTRA DOUX BRI 1€ 12/25\n01/12/2025 → 31/12/2025 · terminée",
+       "5 vendus · marge 5,90 € + remboursement ≈ 4,17 € HT = 10,07 €"
+      ],
+      [
+       "DUCRAY DEXYANE BRI 2€ 02/26\n01/02/2026 → 28/02/2026 · terminée",
+       "5 vendus · marge 6,04 € + remboursement ≈ 8,33 € HT = 14,37 €"
+      ],
+      [
+       "DUCRAY SHAMP XTRA DOUX BRI 1€ 02/26\n01/02/2026 → 28/02/2026 · terminée",
+       "7 vendus · marge 8,45 € + remboursement ≈ 5,83 € HT = 14,28 €"
+      ],
+      [
+       "PIERRE FABRE DUCRAU SHAMP BRI3€ 04/26\n01/04/2026 → 30/04/2026 · terminée",
+       "3 vendus · marge 7,67 € + remboursement ≈ 7,50 € HT = 15,17 €"
+      ],
+      [
+       "PIERRE FABRE DUCRAY ANTICHUTE BRI3€\n01/04/2026 → 30/04/2026 · terminée",
+       "1 vendus · marge -0,25 € + remboursement ≈ 2,50 € HT = 2,25 €"
+      ],
+      [
+       "PIERRE FABRE DUCRAY ANTICHUTE BRI 5€ 04/26\n01/04/2026 → 30/04/2026 · terminée",
+       "2 vendus · marge 8,50 € + remboursement ≈ 8,33 € HT = 16,83 €"
+      ],
+      [
+       "PF DUCRAY MELASCREEN BRI3€ 05/26\n05/05/2026 → 31/05/2026 · terminée",
+       "6 vendus · marge 11,52 € + remboursement ≈ 15,00 € HT = 26,52 €"
+      ],
+      [
+       "DUCRAY SHAM EXTRA DOUX 400MLX2 BRI 3€ 08/26\n01/08/2026 → 31/08/2026 · terminée",
+       "7 vendus · marge 17,90 € + remboursement ≈ 17,50 € HT = 35,40 €"
+      ],
+      [
+       "ducray kelual ds bri 2€ 09/26\n01/09/2026 → 30/09/2026 · terminée",
+       "12 vendus · marge 22,29 € + remboursement ≈ 20,00 € HT = 42,29 €"
+      ],
+      [
+       "ducray shamp kelual bri 2€ 09/26\n01/09/2026 → 30/09/2026 · terminée",
+       "15 vendus · marge 20,13 € + remboursement ≈ 25,00 € HT = 45,13 €"
+      ],
+      [
+       "ducray shamp doux bri 1€ 09/26\n01/09/2026 → 30/09/2026 · terminée",
+       "11 vendus · marge 13,16 € + remboursement ≈ 9,17 € HT = 22,33 €"
+      ],
+      [
+       "DUCRAY ANTI-CHUTE BRI 3€ 10/26\n01/10/2026 → 31/10/2026 · en cours",
+       "4 vendus · marge 1,37 € + remboursement ≈ 10,00 € HT = 11,37 €"
+      ],
+      [
+       "ducray anti-chut bri 5€ 10/26\n01/10/2026 → 31/10/2026 · en cours",
+       "3 vendus · marge 6,08 € + remboursement ≈ 12,50 € HT = 18,58 €"
+      ],
+      [
+       "ducray keracnyl bri 2€ 10/26\n01/10/2026 → 31/10/2026 · en cours",
+       "17 vendus · marge 27,34 € + remboursement ≈ 28,33 € HT = 55,67 €"
+      ],
+      [
+       "Ducray : TG + BRI Ictyane crème 200 ml x2\n01/10 → 31/10/2026 · en cours",
+       "Aucune vente en promotion dans Vindilis : opération non paramétrée en caisse (BRI non appliqué, compensation perdue)"
+      ],
+      [
+       "Ducray : TG + BRI Keracnyl\n01/07 → 31/07/2026 · terminée",
+       "Aucune vente en promotion dans Vindilis : opération non paramétrée en caisse (BRI non appliqué, compensation perdue)"
+      ],
+      [
+       "Ducray : BRI Kelual DS\n01/06 → 30/06/2026 · terminée",
+       "Aucune vente en promotion dans Vindilis : opération non paramétrée en caisse (BRI non appliqué, compensation perdue)"
+      ],
+      [
+       "Ducray : BRI Kelual Squanorm ; TG + BRI Dexyane\n01/11 → 30/11/2026 · à venir",
+       "À paramétrer dans Vindilis (Fichiers › Produits › Promotions) avant le 1er jour, sinon pas de compensation"
+      ],
+      [
+       "Ducray : TG + BRI Dexyane ; TG + BRI Ictyane ; BRI Extra-Doux\n01/12 → 31/12/2026 · à venir",
+       "À paramétrer dans Vindilis (Fichiers › Produits › Promotions) avant le 1er jour, sinon pas de compensation"
       ]
      ],
-     "lecture": "Source : Opeaz, lu le 27/10/2026 à 8 h 10 (opérations du groupement). Remboursement : sur l'espace pro Pierre Fabre, pas par Opeaz. [MANQUANT] ce qui a été demandé et payé sur l'espace pro, et la marge par opération (ventes Vindilis pendant chaque période)."
+     "lecture": "Promotions enregistrées en caisse dans Vindilis depuis octobre 2025 (ventes, marge après la remise client), plus les opérations Opeaz qui n'y figurent pas. « Remboursement ≈ » = nombre vendu × montant du BRI ÷ 1,2 : [AMBIGU] à confirmer (Pierre Fabre rembourse-t-il le BRI en TTC ou en HT ?). Remboursement à demander sur l'espace pro Pierre Fabre, pas sur Opeaz. [MANQUANT] ce qui a déjà été demandé et payé. Total attendu A-Derma + Ducray ≈ 368,33 € HT."
     },
     "animations": [
      "A-Derma : une journée « peau atopique » (bébés, enfants) un samedi avec Exomega Control : échantillons, produits test, cadeaux et PLV fournis par Pierre Fabre ; l'équipe fait les conseils (votre clientèle est jeune et familiale).",
@@ -8042,8 +9492,9 @@
      "Black Friday et coffrets de Noël : remise immédiate et quantités, payables à réception."
     ],
     "manque": [
-     "Vindilis : vos ventes par produit et par mois, votre stock, vos prix de vente, les produits sans vente depuis 6 mois, les anciennes références encore en stock.",
-     "Espace pro Pierre Fabre : opérations demandées et payées."
+     "Espace pro Pierre Fabre : remboursements déjà demandés et payés.",
+     "Prix GERS non trouvés pour les anciens codes 3401… (Exomega Control 200 ml stérile, Protect, Anaphase…).",
+     "Doublons d'EAN dans Vindilis à fusionner : 3282770149685 (ADERMA EXOMEGA CONTROL Cr émoll Fl ppe/400ml / AD EXOMEGA CRÈME CONTROL FL400ML) ; 3282770394276 (DEXYANE MED Cr répar apais T/100ml / DEXYANE MED CR REPAR APAIS TB100ML) ; 3282770394139 (DEXYANE MED PALPEPRAL Cr T/15ml / DEXYANE MED PALPEPRAL Cr T can/15ml) ; 3282770394214 (DEXYANE MED Cr répar apais T/30ml / DUCRAY DEXYANE MED CR REP APAI TB30ML) ; 3282770055078 (DUCRAY SENSINOL HLE LAVANTE 200ML / DUCRAY SENSINOL HUILE LAVANTE 400ML) ; 3282770392487 (HIDROSIS CONTROL Emul anti-transp aiss 2/40ml / HIDROSIS ROLL-ON A-TRANSP AISSELL48H 2X40)"
     ]
    },
    {
