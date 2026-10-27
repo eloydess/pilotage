@@ -3,7 +3,7 @@
    en arrière-plan échouait toujours et l'ancienne copie était servie indéfiniment.
    Désormais : la page (HTML) est lue sur le réseau en premier (3 s maximum), la copie de l'appareil ne sert
    qu'en secours (hors ligne ou réseau trop lent) ; les gros fichiers 3D restent en cache. */
-const C='pilotage-v152';
+const C='pilotage-v153';
 const ESSENTIEL=['./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./icon-180.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>Promise.all(ESSENTIEL.map(u=>fetch(u,{cache:'no-store'}).then(r=>{if(r.ok)return c.put(u,r)}).catch(()=>{})))));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
