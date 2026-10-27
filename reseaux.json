@@ -246,39 +246,29 @@
   "date": "2026-11-07",
   "heure": "heure de vente à annoncer (14h30 le 24/10)",
   "quantite": 30,
-  "quantiteNote": "30 calendriers le 07/11 (reste 110 sur 152 achetés au 24/10, agenda).",
+  "quantiteNote": "30 calendriers le 07/11 ; reste 110 sur 152 achetés au 24/10 (agenda).",
   "premiereSession": "Session 2 du 24/10 : 20 vendus, 13 avant l'heure annoncée, 19 tickets sur 20 sans autre achat : vendre à l'heure annoncée et préparer l'offre accompagnante en caisse.",
-  "stock": 132,
+  "stock": 110,
   "sessions": [
-   [
-    "2026-10-24",
-    30,
-    "Vacances de la Toussaint ; vente déjà prévue"
-   ],
-   [
-    "2026-10-31",
-    0,
-    "Pas de vente : Halloween et week-end de la Toussaint (1er novembre), dernier week-end des vacances"
-   ],
    [
     "2026-11-07",
     30,
-    "1er samedi du mois : plus forte affluence"
+    "Même jour : diagnostic de peau Caudalie"
    ],
    [
     "2026-11-14",
     30,
-    "2e samedi du mois : plus forte affluence"
+    "Même jour : animation Nuhanciam"
    ],
    [
     "2026-11-21",
-    22,
+    25,
     ""
    ],
    [
     "2026-11-28",
-    20,
-    "Dernière vente : week-end du Black Friday, 3 jours avant le 1er décembre"
+    25,
+    "Dernière vente (solde du stock), week-end du Black Friday ; le calendrier s'ouvre le 1er décembre"
    ]
   ],
   "sessionsRegle": "Ce qui n'est pas vendu un samedi reste en vente jusqu'à 20h, puis s'ajoute au samedi suivant. Pas de vente après le 28 novembre : le calendrier s'ouvre le 1er décembre. Ne pas annoncer les dates suivantes à l'avance : la date suivante est annoncée après chaque vente.",
