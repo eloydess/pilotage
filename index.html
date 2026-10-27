@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.33';
+const APP_V='7.34';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -3145,6 +3145,13 @@ const tabMarche=m=>`<details style="margin-top:6px"><summary class="sub" style="
 function mesuresPromos(){if(!A||!A.promoStats)return '';return `<div class="carte"><b>Promotions d'octobre mesurées (Vindilis › Promotions › Stats)</b><div class="tw"><table class="t"><tr><th>Promotion</th><th class="n">Au prix promo</th><th class="n">Hors promo</th><th>Effet sur le labo (1–14 oct. vs 2025)</th><th>Verdict</th></tr>
      ${A.promoStats.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td>${esc(r[3])}</td><td>${esc(r[4])}</td></tr>`).join('')}</table></div></div>
      <div class="carte al o"><b class="t">Compensations à réclamer</b><div class="sub w">Topicrem Octobre Rose −30 % (marge négative sans compensation) et Avène Octobre Rose : vérifier dans Opeaz, les accords directs et les factures Digipharmacie. Lifescan : vendu sans marge (12,96 € pour 2 349,15 € de CA au T3).</div></div>`}
+/* 7.34 : compensations Opeaz à demander (relevé Opeaz du PC de bureau, opérations terminées sans demande) */
+let OPC=null;fetch('opeaz_comp.json?v='+APP_V).then(r=>r.ok?r.json():null).then(j=>{OPC=j;if(vue==='pro')rendre()}).catch(()=>{});
+function carteCompOpeaz(){if(!OPC||!OPC.l||!OPC.l.length)return '';const L=OPC.l.slice().sort((a,b)=>String(a.fin).localeCompare(String(b.fin)));const parLab={};L.forEach(o=>{parLab[o.lab]=(parLab[o.lab]||0)+1});
+  return `<div class="carte" style="border-left:6px solid var(--orange)"><b>💶 ${L.length} compensations Opeaz à demander</b><div class="sub w">Opérations terminées pour lesquelles la demande de compensation n'a pas été envoyée, date limite non dépassée (relevé Opeaz du ${dfr(OPC.releve)}). Sans demande, la remise accordée au client reste à votre charge. Montant : il dépend des unités vendues pendant chaque opération (Vindilis) ; Opeaz le calcule à la demande. À faire dans Opeaz › Opérations › « Demande à envoyer », avec le listing de ventes et la photo.</div>
+   <div class="sub w" style="margin-top:4px"><b style="color:var(--txt)">Par laboratoire :</b> ${Object.entries(parLab).sort((a,b)=>b[1]-a[1]).map(([k,v])=>esc(k)+' ('+v+')').join(' · ')}</div>
+   <details style="margin-top:6px"><summary class="sub" style="cursor:pointer">Voir les ${L.length} opérations</summary><div class="tw"><table class="t"><tr><th>Fin</th><th>Laboratoire</th><th>Offre</th><th>Produits</th></tr>${L.map(o=>`<tr><td>${dfr(o.fin)}</td><td><b>${esc(o.lab)}</b></td><td class="sub">${esc(String(o.offre).slice(0,80))}</td><td class="sub">${esc(String(o.prod).slice(0,80))}</td></tr>`).join('')}</table></div></details>
+   <a class="btn sec" style="display:block;text-align:center;margin-top:6px" href="https://app.opeaz.com/deals?compensation_requested=false&status=FINISHED&send_date_expired=false&active=true" target="_blank" rel="noopener">Ouvrir Opeaz : demandes à envoyer</a></div>`}
 function promos(){$('#ht').textContent='Promos';fab(null);
   if(sousPro==='eff'){vue='act';sousAct='av';return actions()}const nav=sousNav('sp',[['why','Pourquoi ça ne sort pas'],['oct','Octobre : manquantes'],['nov','Novembre']],sousPro);
   if(!A){$('#m').innerHTML=nav+pasAudit();document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos()});return}
@@ -3183,7 +3190,7 @@ function promos(){$('#ht').textContent='Promos';fab(null);
   } else {
     h=mesuresPromos()+regle;
   }
-  $('#m').innerHTML=nav+h;document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos();scrollTo(0,0)});document.querySelectorAll('#fw button').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f;promos()});document.querySelectorAll('#m .donut [data-f2]').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f2;promos()});}
+  $('#m').innerHTML=nav+(sousPro==='why'?carteCompOpeaz():'')+h;document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sousPro=b.dataset.k;promos();scrollTo(0,0)});document.querySelectorAll('#fw button').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f;promos()});document.querySelectorAll('#m .donut [data-f2]').forEach(b=>b.onclick=()=>{filtreWhy=b.dataset.f2;promos()});}
 
 /* ---------- STOCK & COMMANDES ---------- */
 let sousStk='tre',labStk='';

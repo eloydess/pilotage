@@ -1,0 +1,310 @@
+{
+"releve": "2026-10-27",
+"source": "Opeaz › Opérations terminées sans demande de compensation (date limite non dépassée)",
+"l": [
+{
+"deb": "2025-05-01",
+"fin": "2026-07-31",
+"lab": "Mayoly Topicrem",
+"offre": "BRI BRI TOPICREM",
+"prod": "TOPICREM MELA LAIT UNIFIANT 500ML",
+"proprio": "Apothical"
+},
+{
+"deb": "2025-07-01",
+"fin": "2026-08-30",
+"lab": "Mayoly Topicrem",
+"offre": "BRI BRI TOPICREM",
+"prod": "TOPICREM ESSENTIEL UH LAIT CORPS 500ML X2 TOPICREM ULT/HYDR LAIT CORP 1L",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-06-01",
+"fin": "2026-06-21",
+"lab": "Joone",
+"offre": "BRI Push Winpharma BRI -2€",
+"prod": "JOONE COUCHE MALO T2 3-5KG 32 JOONE COUCHE MALO T1 2-4KG30 +10",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-06-01",
+"fin": "2026-07-01",
+"lab": "Mayoly Topicrem",
+"offre": "TG + BRI Push Winpharma TG TOPICREM",
+"prod": "TOPICREM ULT/HYDR LAIT CORP 500ML",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-06-01",
+"fin": "2026-07-31",
+"lab": "La Roche Posay",
+"offre": "TG + BRI Push Winpharma Trade Prioritaire TG + BRI LIPIKAR SOINS -3€",
+"prod": "LIPIKAR BAUME AP+MAX 400ML Lipikar creme 400ml +2",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-06-01",
+"fin": "2026-07-31",
+"lab": "Pierre Fabre Oral Care",
+"offre": "TG + BRI Push Winpharma RI 10€ TOUTE LA GAMME",
+"prod": "INAVA BROSSE À DENTS POWER BLUE INAVA BROSSE À DENTS POWER ROSE +1",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-06-01",
+"fin": "2026-08-31",
+"lab": "Laboratoires Dermat. Eucerin",
+"offre": "BRI [Juin - Aout] Hyaluron Filler ELASTICITY : BRI 20% remboursé",
+"prod": "EUCERIN HYALURON+ELAST NUIT RECH EUCERIN HYALURON+ELAST ROSE RECH +18",
+"proprio": "Laboratoires Dermat. Eucerin"
+},
+{
+"deb": "2026-07-01",
+"fin": "2026-07-31",
+"lab": "Cerave",
+"offre": "BRI BRI CORPS -2€",
+"prod": "CERAVE LAIT HYDRATANT 473ML CERAVE LAIT HYDRATANT RECH 473ML",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-07-01",
+"fin": "2026-07-31",
+"lab": "La Roche Posay",
+"offre": "TG + BRI TG + BRI LIPIKAR HYGIENE 1L -4€",
+"prod": "GEL LAVANT 1L HUILE LAVANTE 1L",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-07-01",
+"fin": "2026-07-31",
+"lab": "Forte Pharma",
+"offre": "BRI BRI HYDRA FORTE",
+"prod": "HYDRA FORTE ANANAS PASS CPR EFF24 HYDRA FORTE FRUIT ROUGE CPR EFF24 +9",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-07-01",
+"fin": "2026-08-31",
+"lab": "Urgo",
+"offre": "BRI BRI URGO PANSEMENTS PROTECTEURS ET CICATRISATIONS - JUILLET / AOUR 2026",
+"prod": "URGO PANS SILICONE PROTECT+ LARG 5 URGO BRULURES EXTENSIBLE 5 X 7 CM BTE 6 PST +6",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Procter Gamble Pharmaceuticals",
+"offre": "TG + BRI MEA BION3 SEPTEMBRE",
+"prod": "BION 3 DEFENSE ADULTES COMPRIME 60 NOUVEAU - BION3® GOMMES ENERGIE +2",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "A Derma",
+"offre": "BRI Trade Prioritaire AD 26 OP GC EXOMEGA €",
+"prod": "HUILE EXOMEGA 1L Crème nuit émolliente réparatrice +5",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "A Derma",
+"offre": "IC + BRI Trade Prioritaire AD 26 OP BIOLOGY",
+"prod": "A DERMA BIOLOGY HYALU SERUM 3EN1 30ML + EAU MICELLAIRE 25ML OFFERTE A-DERMA — BIOLOGY AR SOIN DERMATOLOGIQUE ANTI-ROUGEURS — Crème anti-rougeurs visage — BIOLOGY +18",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "AVENE",
+"offre": "TG + BRI Trade Prioritaire AV 26 OP GC CLEANANCE €",
+"prod": "Avène Cleanance gel nettoyant sans savon - 400 ml CLEANANCE COMEDOMED PEELING +6",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Ducray",
+"offre": "BRI Trade Prioritaire DU 26 OP GC KELUAL DS €",
+"prod": "Ducray Shampooing traitant anti-pelliculaire KELUAL DS INTENSIVE Ducray Shampooing traitant anti-pelliculaire KELUAL DS SEBOCONTROL +4",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Klorane",
+"offre": "TG + BRI Trade Prioritaire KL Bebe duo gel lavant",
+"prod": "KLORANE BEBE GEL LAVANT DOUX 500ML X2",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Klorane",
+"offre": "BRI Super Promos Trade Prioritaire RI 3€ VO trio, sérum",
+"prod": "ANTICHUTE Traitement fortifiant intense à la Quinine Klorane - CROISSANCE Sérum accélérateur de pousse intense à la Quinine +2",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Pierre Fabre Oral Care",
+"offre": "BRI Trade Prioritaire OC 26 OP GC ARTHRODONT € SEPTEMBRE",
+"prod": "Arthrodont Protect + - Gel Dentifrice fluoré protection gencives et dents - Lot de 2 Arthrodont Classic - dentifrice gencives irritées +1",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "René Furterer",
+"offre": "BRI Trade Prioritaire RI Triphasic traitants : Coffrets réactional + progressiv & VO + serum",
+"prod": "René Furterer Traitement antichute réactionnelle - Solution 2-en-1 chute & pousse des cheveux - TRIPHASIC REACTIONAL René Furterer - Complément alimentaire antichute de cheveux - TRIPHASIC CAPS +4",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Urgo",
+"offre": "BRI BRI ACNE - SEPTEMBRE 2026",
+"prod": "URGO SYNDET NETTOYANT PURIFIANT, TUBE 200 ML URGO CRÈME NORMALISANTE, FLACON 30 ML +2",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Bioderma",
+"offre": "TG + BRI 2€ SEBIUM H2O 500ml, 4€ lot 500ml, 2€ NODE DS+, K 150ml, Fluide 400ml",
+"prod": "SEBIUM H2O 500ML LOT X 2 SEBIUM H2O 500ML +6",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Roge Cavailles SAS",
+"offre": "BRI DEODORANTS LOTS BRI 3€ SEPTEMBRE 2026 VOIR CONDITIONS D'ACCES A L'OPERATION",
+"prod": "DERMATO 48H ROLL-ON 50ML X2 DERMATO 48H SPRAY 150ML X2 +10",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Laboratoires Dermat. Eucerin",
+"offre": "TG + BRI [Septembre] Anti-Pigment : Offre Conso -20% compensée en RSF + TG rémunurée",
+"prod": "EUCERIN ANTI PIGMENT YEUX 15ML EUCERIN ANTI PIGMENT GEL NETT400ML +7",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Uriage",
+"offre": "PROMO CONSO RI 30% HYSEAC GEL NETTOYANT 500ML (hors lots promo)",
+"prod": "HYSÉAC GEL NETTOYANT 500ML",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Uriage",
+"offre": "TG + BRI TG + RI 20% GAMME HYSEAC (hors lots promo)",
+"prod": "HYSÉAC HUILE PURIFIANTE 100ML HYSÉAC GEL NETTOYANT 150ML +13",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Noreva Pharma - Nutréov",
+"offre": "BRI BRI EXFOLIAC -20%",
+"prod": "EXFOLIAC SOLAIRE FLUIDE MATIFIANT SPF 50+ 40ML EXFOLIAC ROLL ON SOIN ANTIIMPERFECTION CIBLEE 5ML +14",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Vichy Cosmetique Active France",
+"offre": "TG + BRI TG + BRI DERCOS BRI 2€",
+"prod": "SHAMPOING ANTIPELLICULAIRE CHEVEUX SECS - ECO RECHARGE - 390 ML DERCOS PSOLUTION SH KERATO 200ML +16",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Cerave",
+"offre": "TG + BRI TG + BRI CLEANSER & ACNE -2€",
+"prod": "CERAVE GEL MOUSSANT RECH 473ML CERAVE CR LAVANTE HYDRATANTE 473ML +6",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "A Derma",
+"offre": "BRI AD 26 OP GC DERMALIBOUR €",
+"prod": "A-DERMA CICA-Crème réparatrice assainissante DERMALIBOUR+",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Ducray",
+"offre": "BRI DU 26 OP GC KELUAL DS €",
+"prod": "Ducray Shampooing traitant anti-pelliculaire KELUAL DS INTENSIVE Ducray Shampooing traitant anti-pelliculaire KELUAL DS SEBOCONTROL +14",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Ducray",
+"offre": "BRI DU 26 OP GC USAGE FREQUENT €",
+"prod": "Ducray Shampooing dermo-protecteur EXTRA-DOUX Ducray - Extra-Doux - Shampooing dermo-protecteur - Cheveux normaux et délicats pompe +1",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "AVENE",
+"offre": "TG + BRI Trade Prioritaire AV 26 OP CONSO CLEANANCE €",
+"prod": "Avène Cleanance gel nettoyant sans savon - 400 ml CLEANANCE HYDRA CREME APAISANTE 40ML +12",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "SVR",
+"offre": "TG + BRI Super Promos SEBIACLEAR TG SEPTEMBRE RI 25% - Hors format promo",
+"prod": "SVR SEBIACLEAR MAT+PORES 40ML SEBIACLEAR SPRAY CORPS 150ML +18",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Mayoly Topicrem",
+"offre": "TG + BRI TG TOPICREM",
+"prod": "TOPICREM ULT/HYDR LAIT CORP 500ML",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-09-30",
+"lab": "Mayoly Topicrem",
+"offre": "BRI BRI TOPICREM",
+"prod": "TOPICREM DA PROT GEL NETT SUR500ML ULTRA-HYDRATANT LAIT DE DOUCHE 1L +6",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-01",
+"fin": "2026-10-01",
+"lab": "Les 3 Chenes",
+"offre": "BRI Trade fidélité BRI SELL-OUT -10€/-5€ CARTE DE FIDELITE",
+"prod": "ERIC FAVRE ISO 100% WHEY ZERO VANILLE 1KG5 ERIC FAVRE ISO 100% WHEY ZERO FRAMBOISIER 500G +52",
+"proprio": "Apothical"
+},
+{
+"deb": "2026-09-21",
+"fin": "2026-09-27",
+"lab": "Bioderma",
+"offre": "BRI OPERATION FLASH : FRENCH DAYS",
+"prod": "ATODERM PP BAUME ULTRA NOURRISSANT PTS 500ML ATODERM SOS SPRAY ANTIDEMANGEAISONS 200ML +139",
+"proprio": "Apothical"
+}
+]
+}
