@@ -241,110 +241,13 @@
   "TikTok : l'humour et les tendances avec l'équipe font 5 à 15 fois plus de vues que les annonces produit (14 000 et 4 815 vues contre 600 à 1 600) ; l'annonce du calendrier n'y a fait que 941 vues et 4 J'aime."
  ],
  "operation": {
-  "id": "cal2",
-  "titre": "Calendrier de l'Avent — 2e session",
-  "date": "2026-10-24",
-  "heure": "14h30",
+  "id": "cal3bf",
+  "titre": "Calendrier de l'Avent session 3 puis Black Friday",
+  "date": "2026-11-07",
+  "heure": "heure de vente à annoncer (14h30 le 24/10)",
   "quantite": 30,
-  "quantiteNote": "30 calendriers ce samedi (stock total : 132, chiffre donné par Pierre).",
-  "premiereSession": "Samedi 10 octobre 2026 : 20 calendriers vendus en 20 minutes (chiffre donné par Pierre).",
-  "etapes": [
-   {
-    "id": "e1",
-    "quand": "2026-10-20T18:00",
-    "ou": "Instagram",
-    "impact": 1,
-    "txt": "Reel d'annonce (21 s, refrain « Allô ? Il est arrivé ? ») : gros plan sur le calendrier puis zoom arrière lent jusqu'au sakura ; texte « OUI ! Il est de retour ! · Samedi 24 octobre · dès 14h30 · quantité limitée, 1 par personne ». Légende sans les dates suivantes (pour garder l'urgence) : « D'autres ventes suivront : abonnez-vous pour être prévenu(e) en premier ». + story « Compte à rebours » réglée sur samedi 14h30 (à faire depuis l'application Instagram du téléphone)."
-   },
-   {
-    "id": "e2",
-    "quand": "2026-10-20T18:00",
-    "ou": "Magasin",
-    "impact": 1,
-    "txt": "Annoncer en magasin dès aujourd'hui : écrans (dont l'écran INSTAGRAM), affiche vitrine et côté galerie Carrefour, une phrase de l'équipe en caisse."
-   },
-   {
-    "id": "e3",
-    "quand": "2026-10-21T19:30",
-    "ou": "TikTok",
-    "impact": 2,
-    "txt": "Vidéo d'humour avec l'équipe (pas l'annonce produit), ex. « Quand tu arrives à 14h31 et qu'il n'en reste plus », date et heure en texte à l'écran ; à tourner avec Dylan, publier mercredi ou jeudi vers 19h–20h."
-   },
-   {
-    "id": "e4",
-    "quand": "2026-10-22T18:00",
-    "ou": "Instagram",
-    "impact": 2,
-    "txt": "Story « plus que 2 jours » (repartager le compte à rebours)."
-   },
-   {
-    "id": "e5",
-    "quand": "2026-10-23T18:00",
-    "ou": "Instagram",
-    "impact": 2,
-    "txt": "Story ou court reel « c'est demain, dès 14h30 »."
-   },
-   {
-    "id": "e6",
-    "quand": "2026-10-24T12:00",
-    "ou": "Instagram",
-    "impact": 2,
-    "txt": "Story « dans 2 h 30 »."
-   },
-   {
-    "id": "e7",
-    "quand": "2026-10-24T14:30",
-    "ou": "Instagram",
-    "impact": 2,
-    "txt": "Stories en direct : la file et le départ de la vente, puis « plus que X calendriers », puis « tout est parti » (preuve de succès pour la session suivante)."
-   },
-   {
-    "id": "e8",
-    "quand": "2026-10-24T14:30",
-    "ou": "Magasin",
-    "impact": 1,
-    "txt": "Transformer l'affluence en chiffre : offre beauté pour ceux qui repartent sans calendrier (Flash Beauté, Octobre Rose) et annonce sur place de la date de la session suivante (« abonnez-vous pour être prévenu »)."
-   },
-   {
-    "id": "e9",
-    "quand": "2026-10-26T10:00",
-    "ou": "Mesure",
-    "impact": 1,
-    "txt": "Point de retour : relever abonnés Instagram et TikTok, vues du reel d'annonce, temps pour écouler le stock, entrées 14h–16h (compteurs) et CA/marge du samedi après-midi hors calendriers, comparés au samedi 17 octobre."
-   }
-  ],
-  "mesure": [
-   {
-    "k": "Abonnés Instagram",
-    "avant": "758 (20/10)",
-    "apres": ""
-   },
-   {
-    "k": "Abonnés TikTok",
-    "avant": "80 (20/10)",
-    "apres": ""
-   },
-   {
-    "k": "Vues du reel d'annonce",
-    "avant": "1 042 (reel du 9/10)",
-    "apres": ""
-   },
-   {
-    "k": "Temps pour écouler le stock",
-    "avant": "20 min pour 20 calendriers (10/10)",
-    "apres": ""
-   },
-   {
-    "k": "Entrées 14h–16h (compteurs)",
-    "avant": "samedi 17/10 : à relever",
-    "apres": ""
-   },
-   {
-    "k": "CA et marge du samedi après-midi, hors calendriers",
-    "avant": "samedi 17/10 : à relever (Vindilis)",
-    "apres": ""
-   }
-  ],
+  "quantiteNote": "30 calendriers le 07/11 (reste 110 sur 152 achetés au 24/10, agenda).",
+  "premiereSession": "Session 2 du 24/10 : 20 vendus, 13 avant l'heure annoncée, 19 tickets sur 20 sans autre achat : vendre à l'heure annoncée et préparer l'offre accompagnante en caisse.",
   "stock": 132,
   "sessions": [
    [
@@ -378,6 +281,162 @@
     "Dernière vente : week-end du Black Friday, 3 jours avant le 1er décembre"
    ]
   ],
-  "sessionsRegle": "Ce qui n'est pas vendu un samedi reste en vente jusqu'à 20h, puis s'ajoute au samedi suivant. Pas de vente après le 28 novembre : le calendrier s'ouvre le 1er décembre. Ne pas annoncer les dates suivantes à l'avance : la date suivante est annoncée après chaque vente."
- }
+  "sessionsRegle": "Ce qui n'est pas vendu un samedi reste en vente jusqu'à 20h, puis s'ajoute au samedi suivant. Pas de vente après le 28 novembre : le calendrier s'ouvre le 1er décembre. Ne pas annoncer les dates suivantes à l'avance : la date suivante est annoncée après chaque vente.",
+  "etapes": [
+   {
+    "id": "s1",
+    "quand": "2026-11-03T18:00",
+    "ou": "Instagram",
+    "impact": 1,
+    "txt": "Reel d'annonce de la session du samedi 07/11 (J-4, vers 18h : pic d'audience 18h–21h) + story « Compte à rebours » réglée sur l'heure de vente. Rappel « 1 calendrier par foyer »."
+   },
+   {
+    "id": "s2",
+    "quand": "2026-11-03T18:00",
+    "ou": "Magasin",
+    "impact": 1,
+    "txt": "Entrer le stock des calendriers dans Vindilis (stock à −22 le 24/10), puis écrans, affiche vitrine et galerie, phrase de l'équipe en caisse."
+   },
+   {
+    "id": "s3",
+    "quand": "2026-11-04T19:30",
+    "ou": "TikTok",
+    "impact": 2,
+    "txt": "Vidéo d'humour avec l'équipe (format qui fait 5 à 15 fois plus de vues que l'annonce produit), date et heure en texte à l'écran."
+   },
+   {
+    "id": "s4",
+    "quand": "2026-11-05T18:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Story « plus que 2 jours » (repartager le compte à rebours)."
+   },
+   {
+    "id": "s5",
+    "quand": "2026-11-06T18:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Story « c'est demain »."
+   },
+   {
+    "id": "s6",
+    "quand": "2026-11-07T12:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Story « cet après-midi » + rappel : vente uniquement à l'heure annoncée."
+   },
+   {
+    "id": "s7",
+    "quand": "2026-11-07T14:30",
+    "ou": "Magasin",
+    "impact": 1,
+    "txt": "Vendre à l'heure annoncée, pas de remise fidélité sur le calendrier, offre accompagnante prête en caisse, carte fidélité ouverte à chaque acheteur. Stories en direct : la file, « plus que X », « tout est parti »."
+   },
+   {
+    "id": "s8",
+    "quand": "2026-11-09T10:00",
+    "ou": "Mesure",
+    "impact": 1,
+    "txt": "Relever : abonnés Instagram et TikTok, vues du reel, temps pour écouler les 30, nombre de tickets avec un autre achat (19 sur 20 sans autre achat le 24/10)."
+   },
+   {
+    "id": "b1",
+    "quand": "2026-11-10T10:00",
+    "ou": "Magasin",
+    "impact": 1,
+    "txt": "Black Friday (27–30/11) : choisir 10 prix d'appel maximum, uniquement dermo et coffrets, jamais le médicament, chacun validé par la marge ; vérifier 4 semaines de stock avant toute annonce (agenda)."
+   },
+   {
+    "id": "b2",
+    "quand": "2026-11-19T10:00",
+    "ou": "Magasin",
+    "impact": 1,
+    "txt": "Étiquettes Black Friday posées 8 jours avant (agenda) ; un seul message sur l'écran galerie."
+   },
+   {
+    "id": "b3",
+    "quand": "2026-11-23T18:00",
+    "ou": "Instagram",
+    "impact": 1,
+    "txt": "Reel teaser « Black Friday du vendredi 27 au lundi 30 novembre » sans les prix (pour faire revenir sur le compte) + story compte à rebours."
+   },
+   {
+    "id": "b4",
+    "quand": "2026-11-24T19:30",
+    "ou": "TikTok",
+    "impact": 2,
+    "txt": "Vidéo d'humour avec l'équipe sur le Black Friday, dates en texte à l'écran."
+   },
+   {
+    "id": "b5",
+    "quand": "2026-11-26T18:00",
+    "ou": "Instagram",
+    "impact": 1,
+    "txt": "Publication carrousel des 10 prix d'appel (photo du produit + prix), à épingler en haut du profil jusqu'au 30/11."
+   },
+   {
+    "id": "b6",
+    "quand": "2026-11-27T09:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Story « c'est parti » à l'ouverture, puis une story par jour jusqu'au lundi 30."
+   },
+   {
+    "id": "b7",
+    "quand": "2026-11-28T14:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Samedi 28 : dernière vente du calendrier (session 6) le même jour que le Black Friday : stories communes calendrier + prix d'appel."
+   },
+   {
+    "id": "b8",
+    "quand": "2026-11-30T18:00",
+    "ou": "Instagram",
+    "impact": 2,
+    "txt": "Story « dernier jour »."
+   },
+   {
+    "id": "b9",
+    "quand": "2026-12-01T10:00",
+    "ou": "Mesure",
+    "impact": 1,
+    "txt": "Bilan Black Friday : ventes et marge des 10 prix d'appel, panier moyen et nombre de clients du 27 au 30/11 comparés au même week-end N−1, abonnés gagnés."
+   }
+  ],
+  "mesure": [
+   {
+    "k": "Abonnés Instagram",
+    "avant": "758 (20/10)",
+    "apres": ""
+   },
+   {
+    "k": "Abonnés TikTok",
+    "avant": "80 (20/10)",
+    "apres": ""
+   },
+   {
+    "k": "Vues du reel d'annonce",
+    "avant": "726 (reel du 24/10)",
+    "apres": ""
+   },
+   {
+    "k": "Temps pour écouler le stock",
+    "avant": "20 calendriers de 14h08 à 15h00 (24/10)",
+    "apres": ""
+   },
+   {
+    "k": "Tickets calendrier avec un autre achat",
+    "avant": "1 sur 20 (24/10)",
+    "apres": ""
+   }
+  ]
+ },
+ "historique": [
+  {
+   "id": "cal2",
+   "titre": "Calendrier de l'Avent — 2e session",
+   "date": "2026-10-24",
+   "bilan": "20 calendriers vendus (1 198 € TTC), 1er à 14h08, 20e à 15h00 ; 13 vendus avant l'heure annoncée ; 19 tickets sur 20 sans autre achat. Reel : 726 vues, 68 % non-abonnés, +5 abonnés (agenda, bilan du 24/10)."
+  }
+ ]
 }
