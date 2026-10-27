@@ -6913,8 +6913,8 @@
   ]
  },
  "rdv": {
-  "titre": "Rendez-vous laboratoires du 26/10 au 02/11",
-  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT]. — Mise à jour du 27/10/2026 vers 8 h 50 : fiches EG Labo et A-Derma / Ducray complétées avec Vindilis (ventes produit par produit sur 24 mois, stock, PAMP, prix, promotions en caisse ; lecture seule depuis le PC du bureau) et GERS SOG Now (prix moyen France par EAN).",
+  "titre": "Rendez-vous laboratoires du 26/10 au 03/11",
+  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT]. — Mise à jour du 27/10/2026 vers 8 h 50 : fiches EG Labo et A-Derma / Ducray complétées avec Vindilis (ventes produit par produit sur 24 mois, stock, PAMP, prix, promotions en caisse ; lecture seule depuis le PC du bureau) et GERS SOG Now (prix moyen France par EAN). — Mise à jour du 27/10/2026 à 19 h 55 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 28/10 au 03/11) ; ajout des fiches Aunea et Bouchara du 03/11 à partir de flux.json (ruptures Vindilis du 25/10, « Quoi payer », cloud Apothical). Vindilis, Opeaz et la page Pilotage (D.labos) non relus ce soir (trois Chrome connectés, aucun sélectionné ; contrôle du poste non autorisé ; aucun dossier du poste partagé) : données marquées [MANQUANT]. Les fiches du 26/10 au 02/11 sont inchangées.",
   "l": [
    {
     "d": "2026-10-26",
@@ -9764,6 +9764,140 @@
     "apres": [
      "Vérifier l'imputation de l'avoir sur la facture suivante et clôturer le dossier 89",
      "Contrôler la réception des 7 Granions et les ventes de novembre"
+    ]
+   },
+   {
+    "d": "2026-11-03",
+    "t": "2026-11-03 10:00",
+    "jour": "Mar. 03/11",
+    "h": "10 h – 11 h",
+    "titre": "Aunea",
+    "doute": "Laboratoire non identifié : « Aunea » n'apparaît ni dans les relevés Vindilis du 25/10, ni dans « Quoi payer », ni dans le cloud Apothical, ni dans les compensations Opeaz. Rendez-vous ajouté le 27/10 à 10 h 13. Enchaîné sans pause avec Bouchara à 11 h.",
+    "resume": "Rendez-vous ajouté aujourd'hui ; je ne sais pas encore quel fournisseur se cache derrière « Aunea ». Chiffres non relus ce soir (Vindilis, Opeaz et page Pilotage du poste « bureau » non accessibles) : fiche à compléter avant le rendez-vous.",
+    "chiffres": [
+     [
+      "CA HT 12 mois",
+      "[MANQUANT]"
+     ],
+     [
+      "Marge 12 mois (taux) — classe",
+      "[MANQUANT]"
+     ],
+     [
+      "Commandes directes N-1 → N",
+      "[MANQUANT]"
+     ],
+     [
+      "Commandé non reçu",
+      "[MANQUANT]"
+     ],
+     [
+      "En alerte sans commande (EAN)",
+      "[MANQUANT]"
+     ],
+     [
+      "À payer / litiges (« Quoi payer », 25/10)",
+      "Aucun dossier au nom d'Aunea"
+     ],
+     [
+      "Opeaz : terminées, compensation pas encore demandée",
+      "[MANQUANT]"
+     ],
+     [
+      "Opeaz : en cours",
+      "[MANQUANT]"
+     ],
+     [
+      "Coop / RFA (cloud Apothical)",
+      "[MANQUANT]"
+     ]
+    ],
+    "obtenir": [
+     "Savoir précisément ce qu'Aunea vend et sous quelle raison sociale il facture (pour le retrouver dans Vindilis)",
+     "Les conditions écrites : remise, franco, délai de paiement, reprise des invendus"
+    ],
+    "dire": [
+     "La pharmacie est en redressement judiciaire depuis le 30/06/2026 : toute commande passe par la validation de l'administrateur et un paiement à réception"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Retrouver le fournisseur dans Vindilis et compléter la fiche"
+    ]
+   },
+   {
+    "d": "2026-11-03",
+    "t": "2026-11-03 11:00",
+    "jour": "Mar. 03/11",
+    "h": "11 h – 12 h",
+    "titre": "Bouchara-Recordati (Hexaspray, Hextril, Saint-Bernard)",
+    "doute": "Enchaîné sans pause après Aunea (10 h – 11 h).",
+    "resume": "4 produits Bouchara qui font venir des clients sont à 0 ou en négatif en stock à l'entrée de l'hiver (relevé Vindilis du 25/10) : 399 tickets sur 12 mois. Le reste (CA, marge, commandes, Opeaz) n'a pas pu être relu ce soir.",
+    "chiffres": [
+     [
+      "CA HT 12 mois",
+      "[MANQUANT]"
+     ],
+     [
+      "Marge 12 mois (taux) — classe",
+      "[MANQUANT]"
+     ],
+     [
+      "Commandes directes N-1 → N",
+      "[MANQUANT]"
+     ],
+     [
+      "Commandé non reçu",
+      "[MANQUANT]"
+     ],
+     [
+      "En alerte sans commande (Vindilis, 25/10 ; tickets 12 mois, stock)",
+      "SAINT-BERNARD BAUME CR TB100G — 3400934155178 (154 tickets, stock 0) ; HEXASPRAY GOÛT ANIS COLLUTOI FL PRESS 30G — 3400932779727 (140, stock 0) ; HEXTRIL MENT 200ML — 3400935970565 (67, stock −2) ; SAINT-BERNARD BAUME CR TB42G — 3400934155000 (38, stock 0)"
+     ],
+     [
+      "Quantité proposée pour 4 semaines (Vindilis, 25/10)",
+      "3400934155178 : 13 ; 3400932779727 : 11 ; 3400935970565 : 6 ; 3400934155000 : 4"
+     ],
+     [
+      "À payer / litiges (« Quoi payer », 25/10)",
+      "Aucun dossier Bouchara"
+     ],
+     [
+      "Opeaz : terminées, compensation pas encore demandée",
+      "[MANQUANT]"
+     ],
+     [
+      "Opeaz : en cours",
+      "[MANQUANT]"
+     ],
+     [
+      "Coop / RFA (cloud Apothical)",
+      "[MANQUANT]"
+     ],
+     [
+      "Prix vs médiane France (GERS)",
+      "Aucun produit Bouchara dans la comparaison du 25/10"
+     ]
+    ],
+    "obtenir": [
+     "Le réassort des 4 produits en rupture (Hexaspray 3400932779727, Hextril 3400935970565, Saint-Bernard 3400934155178 et 3400934155000), payé à réception après validation de l'administrateur, avec une date de livraison écrite",
+     "Une opération hiver (gorge) sur Hexaspray / Hextril avec compensation Opeaz",
+     "Les conditions 2026 en direct : remise, franco, paiement à réception"
+    ],
+    "dire": [
+     "Ces produits sont demandés (près de 400 tickets en 12 mois) : la rupture vient de la trésorerie et du blocage d'avant le redressement, pas de la demande",
+     "Si le direct reste bloqué, ils seront commandés par la CERP"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Commander les quantités validées (ou par la CERP si le direct bloque) et cocher dans « Ruptures »"
     ]
    }
   ]
