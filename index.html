@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.42';
+const APP_V='7.43';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -1989,11 +1989,11 @@ function cartePasAFaire(){const L=(toutes()||[]).filter(a=>/^Passif/.test(a.them
    ${L2.map(({a,x,st})=>`<div class="ligne" data-pasact="${esc(a.id)}" style="cursor:pointer;display:block${st==='faite'?';opacity:.5':''}"><div style="display:flex;gap:8px;align-items:baseline"><span class="prk ${x&&x.band||'C'}">${x&&x.rang||'·'}</span><span class="grow"><b>${esc(a.id)} · ${esc(a.titre)}</b><div class="sub">${esc(a.qui||'')} · ${st==='faite'?'fait':delaiTxt(jours(a.quand)??0)} · ${esc(a.enjeu||'')}</div></span></div></div>`).join('')}</div>`}
 /* 7.42 : état des dettes de l'expert-comptable (SAPEC, 26/10/2026) — passif réellement dû et ce qui manque pour le plan */
 function pasSapec(){const P=PA();if(!P||!P.sapec)return null;const Z=P.sapec,lea=Z.lea;let capA=0;try{capA=pasSimCalc({...PAS_DEF}).capA}catch(e){}
-  const A=Z.ret,B=A-lea.loyersFuturs-lea.interetsGrenke-lea.leasecom-lea.doublonNoreva,C=B-lea.indemnites;
+  const OFF=jsonEt('aj_off',[]),lcOff=(P.ajust||[]).some(a=>/^Leasecom/.test(a.lib)&&OFF.includes(ajK(a)));const A=Z.ret,B=A-lea.loyersFuturs-lea.interetsGrenke-(lcOff?0:lea.leasecom)-lea.doublonNoreva,C=B-lea.indemnites;
   const pl=(Pt,rem,acc)=>{const P0=Pt-Z.cca,chiro=Math.max(0,P0-Z.priv),remise=chiro*(acc/100)*(rem/100),P1=P0-remise,annu=P1/10,manque=Math.max(0,annu-capA);let tx=0.2545;try{const e=ecoBase();if(e&&e.tx)tx=e.tx}catch(e){}return {P0,chiro,remise,P1,annu,manque,ca:manque/tx,ans:capA>0?P1/capA:null}};
-  const sc=[['A','Montants du comptable (lignes noires gardées au montant du site)',A],['B','A − corrections de crédit-bail déjà prouvées (loyers futurs, Leasecom poursuivi, intérêts Grenke) et doublon Noreva',B],['C','B − indemnités de crédit-bail ramenées aux impayés (si la contestation aboutit)',C]];
-  return {Z,capA,sc:sc.map(([k,t,Pt])=>({k,t,P:Pt,sans:pl(Pt,0,0),avec:pl(Pt,50,60)}))}}
-function cartePasSapec(){const X=pasSapec();if(!X)return '';const {Z,capA,sc}=X,C=Z.parCouleur,col={vert:'var(--vert2)',rouge:'var(--rouge)',noir:'var(--txt)'};
+  const sc=[['A','Montants du comptable (lignes noires gardées au montant du site)',A],['B',lcOff?'A − corrections de crédit-bail déjà prouvées (loyers futurs, intérêts Grenke) et doublon Noreva ; Leasecom (274 344,84 €) gardé dans le passif pour être étalé sur le plan':'A − corrections de crédit-bail déjà prouvées (loyers futurs, Leasecom poursuivi, intérêts Grenke) et doublon Noreva',B],['C','B − indemnités de crédit-bail ramenées aux impayés (si la contestation aboutit)',C]];
+  return {Z,capA,lcOff,sc:sc.map(([k,t,Pt])=>({k,t,P:Pt,sans:pl(Pt,0,0),avec:pl(Pt,50,60)}))}}
+function cartePasSapec(){const X=pasSapec();if(!X)return '';const {Z,capA,sc,lcOff}=X,C=Z.parCouleur,col={vert:'var(--vert2)',rouge:'var(--rouge)',noir:'var(--txt)'};
   const ln=(a,b,c)=>`<div class="ligne"><span>${a}</span><b>${b}</b></div>${c?`<div class="sub w">${c}</div>`:''}`;
   return `<div class="carte" style="border-left:6px solid var(--violet,#7b4fd6)"><b>🧮 Ce que vous devez vraiment, selon votre expert-comptable</b><div class="sub w">Source : ${esc(Z.source)}. Vert = d’accord ; rouge = le comptable corrige le montant ; noir = à préciser (laboratoire non retrouvé, crédit-bail à détailler).</div>
    <div class="kpis" style="margin-top:8px"><div class="kpi"><div class="l">Déclaré sur le site</div><div class="v">${eur(Z.site)}</div></div><div class="kpi"><div class="l">Selon le comptable</div><div class="v">${eur(Z.ret)}</div></div><div class="kpi"><div class="l">Écart</div><div class="v pos">−${eur(Z.site-Z.ret)}</div></div><div class="kpi"><div class="l">Capacité / an${aide('Capacité de remboursement calculée par l’application (relevés bancaires, charges mensuelles, changements de gestion), hausse de loyer Carmila de 2027 déduite. Elle se met à jour toute seule.')}</div><div class="v">${eur(capA)}</div></div></div>
