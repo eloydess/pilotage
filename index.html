@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.34';
+const APP_V='7.35';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -590,7 +590,9 @@ let _bfT=null;new MutationObserver(()=>{clearTimeout(_bfT);_bfT=setTimeout(()=>{
 const pc1=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.abs(v).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %');
 const ev=(a,b)=>num(a)!==null&&num(b)!==null&&+b!==0?a/b-1:null;
 const eurS=v=>num(v)===null?'—':((v>0?'+':v<0?'−':'')+Math.round(Math.abs(v)).toLocaleString('fr-FR')+' €');
-const sousNav=(id,opts,cur)=>`<div class="filtres" id="${id}">${opts.map(o=>`<button data-k="${o[0]}" class="${o[0]===cur?'on':''}">${o[1]}</button>`).join('')}</div>`;
+const sousNav=(id,opts,cur)=>`<div class="filtres" id="${id}">${opts.map(o=>`<button data-k="${o[0]}" class="${o[0]===cur?'on':''}">${o[1]}</button>`).join('')}</div>`,
+/* 7.35 : rubriques principales visibles, les autres repliées (même conteneur : les boutons restent branchés pareil) */
+sousNav2=(id,opts,cur,main)=>{const b=o=>`<button data-k="${o[0]}" class="${o[0]===cur?'on':''}">${o[1]}</button>`,M=opts.filter(o=>main.includes(o[0])||o[0]===cur),R=opts.filter(o=>!M.includes(o));return `<div class="filtres" id="${id}">${M.map(b).join('')}${R.length?`<details style="flex-basis:100%;margin-top:2px"><summary class="sub" style="cursor:pointer">Autres rubriques (${R.length})</summary><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px">${R.map(b).join('')}</div></details>`:''}</div>`};
 const lienV=(t,v)=>`<span class="lien" data-go="${v}">${t}</span>`;
 function brancherLiens(){document.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]){if(vue==='act')sousAct=p[1];if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1];if(vue==='ecr')sousEcr=p[1];if(vue==='mois')sousMois=p[1];if(vue==='cou')sousCou=p[1];if(vue==='pas')sousPas=p[1]}rendre();scrollTo(0,0)})}
 const pasAudit=()=>`<div class="carte al o"><b class="t">Analyses du 15/10 non chargées</b><div class="sub w">${esc(auditErr||'Chargement…')} Les données du serveur restent affichées.</div></div>`;
@@ -2299,7 +2301,7 @@ function vuePasBil(){const B=(PA()||{}).bilan;if(!B)return '<p class="vide">Bila
   <div class="carte"><b>Contrats de crédit-bail inscrits en comptabilité</b><div class="tw" style="margin-top:6px"><table class="t"><tr><th>Contrat</th><th>Période</th><th class="n">Loyer HT</th></tr>${B.leasing.map(l=>`<tr><td>${esc(l[0])}</td><td>${esc(l[1])}</td><td class="n">${esc(l[2])}</td></tr>`).join('')}</table></div></div>`}
 function vuePasProc(){return typeof vueProcedure==='function'?vueProcedure():''}
 function passifV(){$('#ht').textContent='Passif & plan';fab(null);const P=PA();if(!P){$('#m').innerHTML=pasAudit();return}
-  const nav=sousNav('pasn',[['syn','⚖️ Synthèse'],['ctr','🎯 À contester'],['lea','🧾 Crédit-bail'],['cre','📋 Toutes les créances'],['ban','🏦 Vérif. bancaire'],['plan','📐 Plan'],['bil','📊 Bilans'],['proc','👥 Procédure']],sousPas);
+  const nav=sousNav2('pasn',[['syn','⚖️ Synthèse'],['ctr','🎯 À contester'],['lea','🧾 Crédit-bail'],['cre','📋 Toutes les créances'],['ban','🏦 Vérif. bancaire'],['plan','📐 Plan'],['bil','📊 Bilans'],['proc','👥 Procédure']],sousPas,['syn','ctr','plan']);
   const f={syn:vuePasSyn,ctr:vuePasCtr,lea:vuePasLea,cre:vuePasCre,ban:vuePasBan,plan:vuePasPlan,bil:vuePasBil,proc:vuePasProc}[sousPas]||vuePasSyn;
   $('#m').innerHTML=nav+f();
   const re=()=>{const y=scrollY;passifV();scrollTo(0,y)};
@@ -2356,7 +2358,9 @@ function fEntete(){const O=fObjMois(),b=FLX.objectifs.base;const nbj=O?new Date(
   ${O?`<div class="kpis" style="margin-top:10px"><div class="carte kpi"><div class="l">Objectif ${esc(moisFr(O.m+'-01'))} : clients</div><div class="v">${ent(O.clients)}</div><div class="e">= même mois l'an dernier · ≈ ${ent(O.clients/nbj*7)} par semaine</div></div><div class="carte kpi"><div class="l">Objectif marge €</div><div class="v">${eur(O.marge)}</div><div class="e">même mois l'an dernier</div></div><div class="carte kpi"><div class="l">Dernier mois connu (${esc(moisFr(b.mois+'-01'))})</div><div class="v">${ent(b.clients)}</div><div class="e">clients · ${eur(b.marge)} de marge</div></div>${O.jour?`<div class="carte kpi"><div class="l">Écart à combler</div><div class="v neg">≈ +${ent(O.jour)} / jour</div><div class="e">clients de plus par jour d'ouverture ${aide(esc(O.calc||''))}</div></div>`:''}</div>`:''}
   <div class="sub w" style="margin-top:6px">${esc(FLX.objectifs.regle)}</div></div>`}
 function fluxV(){$('#ht').textContent='Flux : le guide';fab(null);
-  const nav=sousNav('sfx',[['jour','📌 Aujourd\'hui'],['sem','🗓️ Semaine par semaine'],['rdv','🤝 Rendez-vous'],['prio','🥇 Priorités 1-2-3'],['rupt','🧯 Ruptures'],['pay','💶 Quoi payer'],['mea','🛍️ Mise en avant'],['noel','🎄 Décembre'],['prix','🏷️ Prix d\'appel'],['vindi','📈 Vindilis'],['apo','🏢 Apothical'],['bord','📊 Tableau de bord'],['tres','🏦 Trésorerie'],['q','❓ Mes questions'],['cartes','💳 Cartes fidélité'],['meth','📚 Méthode']],sousFlx);
+  /* 7.35 : 4 rubriques principales ; les autres (doublons d'autres onglets ou annexes) sont repliées */
+  const FXP=[['jour','📌 Aujourd\'hui'],['sem','🗓️ Semaine par semaine'],['prio','🥇 Priorités 1-2-3'],['q','❓ Mes questions']],FXA=[['rdv','🤝 Rendez-vous'],['rupt','🧯 Ruptures'],['pay','💶 Quoi payer'],['mea','🛍️ Mise en avant'],['noel','🎄 Décembre'],['prix','🏷️ Prix d\'appel'],['cartes','💳 Cartes fidélité'],['bord','📊 Tableau de bord'],['tres','🏦 Trésorerie'],['vindi','📈 Diagnostic Vindilis'],['apo','🏢 Diagnostic Apothical'],['meth','📚 Méthode']];
+  const nav=sousNav('sfx',FXP.concat(FXA.filter(x=>x[0]===sousFlx)),sousFlx)+`<details class="sub" style="margin:-4px 12px 8px"><summary style="cursor:pointer">Autres rubriques du guide (${FXA.length}) : annexes et raccourcis vers les autres onglets</summary><div class="filtres" id="sfx2">${FXA.map(o=>`<button data-k="${o[0]}" class="${o[0]===sousFlx?'on':''}">${o[1]}</button>`).join('')}</div></details>`;
   if(!FLX){$('#m').innerHTML=nav+`<div class="carte">${_flxErr?esc(_flxErr):'Chargement du plan…'}</div>`;if(!_flxErr)chargerFlux();fBind();return}
   let h='';const F=fJ('flux_fait');
   if(sousFlx==='jour'){const a=auj(),S=fSemCour();const tous=FLX.semaines.flatMap(s=>s.jours.flatMap(j=>j.t.map(x=>({x,d:j.d}))));
@@ -2430,7 +2434,7 @@ function fluxV(){$('#ht').textContent='Flux : le guide';fab(null);
   }else if(sousFlx==='meth'){h=`<div class="carte"><b>Ce qui marche depuis toujours, appliqué à votre officine</b></div>`+FLX.methode.map(m=>`<div class="carte demi"><b>${esc(m.p)}</b><div class="sub">${esc(m.src)}</div><div style="margin-top:6px;font-size:14px">→ ${esc(m.ici)}</div></div>`).join('')
     +`<div class="carte"><b>Le constat</b>${FLX.constat.map(c=>`<div class="ligne" style="align-items:flex-start"><span>• ${esc(c)}</span></div>`).join('')}</div>`}
   $('#m').innerHTML=nav+`<div id="fxWrap" style="grid-column:1/-1">`+h+`<p class="sub" style="text-align:center;margin:14px 0">Plan du ${dfr(FLX.maj)} · mis à jour par Claude chaque lundi</p></div>`;fBind();try{brancherLiens()}catch(e){}}
-function fBind(){document.querySelectorAll('#sfx button').forEach(b=>b.onclick=()=>{sousFlx=b.dataset.k;fluxV();scrollTo(0,0)});
+function fBind(){document.querySelectorAll('#sfx button,#sfx2 button').forEach(b=>b.onclick=()=>{sousFlx=b.dataset.k;fluxV();scrollTo(0,0)});
   document.querySelectorAll('.fxT').forEach(c=>c.onchange=async()=>{const F=fJ('flux_fait');if(c.checked)F[c.dataset.id]=auj();else delete F[c.dataset.id];await majEtat('flux_fait',JSON.stringify(F))});
   document.querySelectorAll('.fxR').forEach(c=>c.onchange=async()=>{const R=fJ('flux_rupt');if(c.checked)R[c.dataset.e]=auj();else delete R[c.dataset.e];await majEtat('flux_rupt',JSON.stringify(R))});
   document.querySelectorAll('.fxM').forEach(i=>i.onchange=async()=>{const M=fJ('flux_mes');M[i.dataset.id]=i.value.trim();await majEtat('flux_mes',JSON.stringify(M));toast('Résultat enregistré')});
@@ -2462,7 +2466,7 @@ let sousCon='carte',rayonCon=3,filtreCon='3';
 const NIVC=n=>/^Élevée/.test(n)?'var(--rouge)':/élevée|^Moyenne$/.test(n)?'var(--orange)':/Moyenne|Faible à/.test(n)?'#c9a227':'var(--doux)';
 const ouiNon=v=>v===true?'oui':v===false?'non':'<span class="sub">?</span>';
 function concurrence(){libererCarte();fab(null);$('#ht').textContent='Concurrence';
-  const nav=sousNav('scn',[['carte','🗺️ Carte'],['cls','Classement'],['tous','Toutes les officines'],['cli','Clientèle du quartier'],['aff','📈 Affluence'],['opp','Constats & actions']],sousCon);
+  const nav=sousNav2('scn',[['carte','🗺️ Carte'],['cls','Classement'],['tous','Toutes les officines'],['cli','Clientèle du quartier'],['aff','📈 Affluence'],['opp','Constats & actions']],sousCon,['opp','carte','aff']);
   if(!A||!A.concurrence){$('#m').innerHTML=nav+pasAudit();bindCon();return}
   const C=A.concurrence,S=C.stat,O=C.officines.filter(o=>o.statut==='ouverte'),F=C.officines.filter(o=>o.statut==='fermée');
   const tete=`<div class="carte"><b>${S.n} officines actives à moins de 8 km</b> <span class="sub">(${S.nMans} au Mans)</span><div class="kpis" style="margin-top:8px;grid-template-columns:repeat(4,1fr)"><div><div class="sub">À moins de 1 km</div><b>${S.n1}</b></div><div><div class="sub">À moins de 3 km</div><b>${S.n3}</b></div><div><div class="sub">Ouvertes le dimanche</div><b>${S.dimanche.length}</b></div><div><div class="sub">Fermées depuis 2023</div><b>${S.fermees.length}</b></div></div><div class="sub w" style="margin-top:6px">Relevé du ${dfr(C.releve)}. ${esc(C.source)}</div></div>`;
@@ -3196,7 +3200,7 @@ function promos(){$('#ht').textContent='Promos';fab(null);
 let sousStk='tre',labStk='';
 const DEC={commander:['Commander','var(--vert2)'],completer:['Clôturer l\'ancienne, puis compléter','var(--bleu)'],option:['Optionnel','var(--doux)'],bloque:['Ne pas recommander : débloquer l\'attente','var(--orange)']};
 function stock(){$('#ht').textContent='Stock & trésorerie';fab(null);
-  const nav=sousNav('sk',[['tre','💶 Trésorerie 13 semaines'],['rel','🏦 Entrées & sorties réelles'],['eng','🧾 Engagements'],['att','🛒 Commandes en attente'],['rec','Recommandes'],['sur','📦 Surstocks & couverture'],['cerp','CERP'],['rup','Ruptures']],sousStk);
+  const nav=sousNav2('sk',[['tre','💶 Trésorerie 13 semaines'],['rel','🏦 Entrées & sorties réelles'],['eng','🧾 Engagements'],['att','🛒 Commandes en attente'],['rec','Recommandes'],['sur','📦 Surstocks & couverture'],['cerp','CERP'],['rup','Ruptures']],sousStk,['tre','att','rup','sur']);
   const bind=()=>{document.querySelectorAll('#sk button').forEach(b=>b.onclick=()=>{sousStk=b.dataset.k;stock();scrollTo(0,0)});brancherLiens()};
   if(sousStk==='rup'){commandes();$('#ht').textContent='Stock & trésorerie';$('#m').insertAdjacentHTML('afterbegin',nav);$('#m').insertAdjacentHTML('beforeend',blocDemandesPerdues());brancherDemandesPerdues();bind();return}
   if(sousStk==='tre'){$('#m').innerHTML=nav+vueTresorerie();bind();brancherTresorerie();brancherTropPercus();return}
@@ -3700,7 +3704,7 @@ document.addEventListener('click',e=>{const t=e.target;if(t&&t.dataset&&t.datase
 /* ---------- Collaborateurs : coût, masse salariale / marge, ventes par vendeur (code RH) ---------- */
 let sousCol='annee',sousColAvant='annee',RHXtente=false;
 function collaborateurs(){fab(null);$('#ht').textContent='Collaborateurs 🔒';
-  const nav=sousNav('scl',[['annee','📅 Équipe par année'],['chal','🏆 Challenges & formations'],['orga','Organigramme'],['cout','Coût par collaborateur'],['masse','Masse salariale / marge'],['ventes','Ventes par collaborateur']],sousCol);
+  const nav=sousNav2('scl',[['annee','📅 Équipe par année'],['chal','🏆 Challenges & formations'],['orga','Organigramme'],['cout','Coût par collaborateur'],['masse','Masse salariale / marge'],['ventes','Ventes par collaborateur']],sousCol,['annee','orga','masse']);
   const bind=()=>document.querySelectorAll('#scl button').forEach(b=>b.onclick=()=>{sousCol=b.dataset.k;collaborateurs();scrollTo(0,0)});
   const code2=ss.get('pil_code2');
   if(!code2||!PAIE){
