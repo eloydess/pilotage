@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.38';
+const APP_V='7.39';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -3114,7 +3114,7 @@ const UNIV={'Parapharmacie':'#2b8bd6','Conseil (médicament sans ordonnance)':'v
 const n1=v=>v==null?'—':String(v).replace('.',',');
 /* 7.33 : code EAN (13 chiffres) à côté du nom de produit — table ean.json tirée des exports Vindilis du PC de bureau */
 let EAN=null;fetch('ean.json?v='+APP_V).then(r=>r.ok?r.json():{}).then(j=>{EAN=j||{};if(vue==='lab')rendre()}).catch(()=>{EAN={}});
-const eanDe=n=>EAN&&EAN[n]||'',nomEAN=n=>esc(n)+(eanDe(n)?` <span class="sub">${eanDe(n)}</span>`:''),avecEAN=n=>n+(eanDe(n)?' · '+eanDe(n):'');
+let EANn=null;const eanDe=n=>{if(!EAN)return '';if(EAN[n])return EAN[n];if(!EANn){EANn={};for(const k in EAN)EANn[k.replace(/\s+/g,' ').trim().toUpperCase()]=EAN[k]}return EANn[String(n).replace(/\s+/g,' ').trim().toUpperCase()]||''},nomEAN=n=>esc(n)+(eanDe(n)?` <span class="sub">${eanDe(n)}</span>`:''),avecEAN=n=>n+(eanDe(n)?' · '+eanDe(n):'');
 function vuePrio(){const Q=A&&A.prioritaires;if(!Q)return pasAudit();const T=Q.totaux;
   const nav2=`<div class="filtres" id="spr">${[['cons','🛍️ Conseil & parapharmacie'],['ordo','💊 Ordonnance']].map(o=>`<button data-k="${o[0]}" class="${o[0]===sousPrio?'on':''}">${o[1]}</button>`).join('')}</div>`;
   const tete=`<div class="carte"><b>Produits à vendre en priorité</b><div class="sub w">${esc(Q.periode)}. Classement sur la <b>marge en euros</b> sur 12 mois (pas sur le chiffre d'affaires). ${Q.notes.map(esc).join(' ')}</div></div>`;
