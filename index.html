@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.47';
+const APP_V='7.48';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -1703,7 +1703,7 @@ function ligneP(x){const n=NAT[x.nat]||NAT.marge,e=EFF[x.eff];const val=x.nat===
   return `<div class="prl" data-pk="${x.k}" data-pid="${esc(x.id)}"><span class="prk ${x.band}">${x.rang||'·'}</span><div class="grow"><b>${x.k==='act'?esc(x.id)+' · ':''}${esc(x.titre)}</b>
    <div class="prm"><span>${n[0]} ${n[1]} : <b style="color:var(--txt)">${val}</b></span><span>📅 ${x.k==='inc'?(x.j===0?'<b class="neg">urgent</b>':'cette semaine'):delaiTxt(x.j)}</span><span>${e[0]} ${e[1]}</span><span>📂 ${esc(NOM_ONG[String(x.go).split(':')[0]]||'Actions')}</span>${x.st==='vu'?'<span>👁 vue</span>':x.st==='encours'?'<span>🔵 en cours</span>':''}</div>
    ${x.pq?`<div class="sub w">Pourquoi : ${esc(x.pq)}</div>`:''}
-   <div class="prb"><button class="mini" data-pgo>Ouvrir ›</button>${x.k==='inc'?`<button class="mini" data-pst="corr">✅ Traité</button><button class="mini" data-pst="ign">🚫 Ignorer</button>`:''}</div></div></div>`}
+   <div class="prb"><button class="mini" data-pgo>Ouvrir ›</button>${x.k==='inc'?`<button class="mini" data-pst="corr">✅ Traité</button><button class="mini" data-pst="ign">🚫 Ignorer</button>`:''}</div>${blocCom('prio:'+x.k+':'+x.id,x.titre)}</div></div>`}
 function vuePriorites(){const L=prioListe(),P=L.filter(x=>!x.claude),C=L.filter(x=>x.claude);const b=k=>P.filter(x=>x.band===k);
   const gain=P.filter(x=>x.band!=='P3'&&(x.nat==='marge'||x.nat==='clients')).reduce((s,x)=>s+(x.val||0),0);
   return `<div class="carte al b"><b class="t">Par quoi commencer</b><div class="sub w">Toutes les actions du plan et tout ce que les onglets signalent, rangés <b style="color:var(--txt)">du plus impactant au moins impactant</b>. Le rang = ce que ça rapporte ou protège (marge ou trésorerie par mois) × l'urgence (retard, échéance proche) ÷ le temps que ça demande. Il se recalcule à chaque nouvelle donnée : une rupture, un paiement urgent ou une action en retard remonte toute seule.</div>
@@ -2379,7 +2379,15 @@ function blocCom(cle,titre){const L=(comAll()[cle]||{}).l||[],n=L.length,der=L[n
   return `<details class="com" data-cle="${esc(cle)}" style="margin-top:8px"><summary style="cursor:pointer;font-size:.9em;color:var(--vert2)">💬 ${n?`Commentaires (${n})${att?' · en attente de réponse de Claude':' · Claude a répondu'}`:'Ajouter un commentaire'}</summary>
   <div style="margin-top:6px">${L.map(c=>`<div style="margin:4px 0;padding:6px 8px;border-radius:8px;background:${c.de==='Claude'?'rgba(46,125,50,.08)':'rgba(0,0,0,.04)'}"><small style="color:var(--doux)">${c.de==='Claude'?'Claude':'Vous'} · ${esc(dfr(c.d))}</small><div style="white-space:pre-wrap">${esc(c.t)}</div></div>`).join('')}
   <textarea class="comTxt" rows="3" style="width:100%;box-sizing:border-box;margin-top:4px;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--ligne)" placeholder="Votre commentaire, question ou précision (Claude le lira et vous répondra ici)"></textarea>
-  <button class="btn comOk" type="button" style="margin-top:6px">Enregistrer le commentaire</button></div></details>`}
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"><button class="btn sec comMic" type="button">🎤 Dicter (oral)</button><button class="btn comOk" type="button">Enregistrer le commentaire</button></div></div></details>`}
+/* 7.48 : commentaire oral = dictée (reconnaissance vocale du téléphone / de Chrome) écrite dans la zone de texte, relue ensuite par Claude */
+document.addEventListener('click',e=>{const b=e.target.closest('.comMic');if(!b)return;e.preventDefault();e.stopPropagation();
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;const ta=b.closest('.com').querySelector('.comTxt');
+  if(!SR){toast('Dictée non disponible ici : utilisez le micro du clavier de votre téléphone');ta.focus();return}
+  if(b._rec){b._rec.stop();return}
+  const r=new SR();r.lang='fr-FR';r.interimResults=false;r.continuous=true;b._rec=r;const lib=b.textContent;b.textContent='⏹ Arrêter la dictée';
+  r.onresult=ev=>{let t='';for(let i=ev.resultIndex;i<ev.results.length;i++)if(ev.results[i].isFinal)t+=ev.results[i][0].transcript;if(t)ta.value=(ta.value?ta.value.trim()+' ':'')+t.trim()};
+  r.onerror=ev=>toast('Dictée : '+(ev.error==='not-allowed'?'micro non autorisé':ev.error));r.onend=()=>{b._rec=null;b.textContent=lib};try{r.start()}catch(_){b._rec=null;b.textContent=lib}});
 document.addEventListener('click',async e=>{const b=e.target.closest('.comOk');if(!b)return;e.preventDefault();e.stopPropagation();
   const box=b.closest('.com'),ta=box.querySelector('.comTxt'),t=(ta.value||'').trim();if(!t){toast('Commentaire vide');return}
   const cle=box.dataset.cle,A=comAll(),o=A[cle]||{l:[]};o.l.push({de:'Pierre',t,d:auj()});o.maj=new Date().toISOString();A[cle]=o;
