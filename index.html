@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.49';
+const APP_V='7.50';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -721,7 +721,7 @@ function injecterBloc(){const m=$('#m');if(!m||!A||!BLOC_ONG.includes(vue)||docu
   $('#baPlan').onclick=()=>{filtreOng=t;filtreTh='Tous';filtreSt='Toutes';sousAct='dix';vue='act';rendre();scrollTo(0,0)};
   $('#baAdd').onclick=()=>formAction({go:t},retour);}
 /* 7.49 : depuis une action, aller directement à l'élément concerné (fiche labo ou ligne de l'onglet), pas seulement à l'onglet */
-function laboDeAction(a){try{const t=(' '+(a.titre||'')+' '+(a.enjeu||'')+' ').toLowerCase();let best=null;(D.labos||[]).forEach(l=>{const n=String(l['Laboratoire']||'');const m=n.toLowerCase().replace(/\bt20\d\d\b.*$/,'').replace(/[^a-zà-ÿ0-9 &'-]/g,' ').trim().split(/\s+/).filter(w=>w.length>=4&&!/^(labo|laboratoire|laboratoires|pharma|france|sante|santé|healthcare)$/.test(w))[0];if(m&&new RegExp('[^a-zà-ÿ]'+m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[^a-zà-ÿ]').test(t)&&(!best||n.length<best.length))best=n});return best}catch(e){return null}}
+function laboDeAction(a){try{if(!/^(stk|lab|pro)$/.test(String(a.go||'')))return null;const t=(' '+(a.titre||'')+' ').toLowerCase();let best=null;(D.labos||[]).forEach(l=>{const n=String(l['Laboratoire']||'');const m=n.toLowerCase().replace(/\bt20\d\d\b.*$/,'').replace(/[^a-zà-ÿ0-9 &'-]/g,' ').trim().split(/\s+/).filter(w=>w.length>=4&&!/^(labo|laboratoire|laboratoires|pharma|france|sante|santé|healthcare|accord|groupe|medical|médical)$/.test(w))[0];if(m&&new RegExp('[^a-zà-ÿ]'+m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[^a-zà-ÿ]').test(t)&&(!best||n.length<best.length))best=n});return best}catch(e){return null}}
 function allerVers(id){const a=toutes().find(x=>x.id===id);if(!a)return;const lb=laboDeAction(a);
   if(lb){vue='lab';rendre();fiche(lb,'syn');scrollTo(0,0);return}
   const p=String(a.go).split(':');vue=p[0];if(p[1]){if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1];if(vue==='ecr')sousEcr=p[1];if(vue==='mois')sousMois=p[1];if(vue==='cou')sousCou=p[1];if(vue==='pas')sousPas=p[1]}
