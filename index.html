@@ -167,7 +167,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.51';
+const APP_V='7.52';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -2356,9 +2356,10 @@ function tuilesAcc(tu){const T=[],sf=f=>{try{return f()}catch(e){return null}};
   const P=sf(()=>prioListe().filter(x=>!x.claude))||[],p1=P.filter(x=>x.band==='P1');
   T.push({k:'prio',ic:'🔥',t:'Vos priorités',v:String(p1.length),s:p1[0]?'1. '+p1[0].titre:'rien d\'urgent',go:'act:ord',vs:P.length+' en tout'});
   const C=sf(capacite);T.push({k:'payer',ic:'💶',t:'Ce que vous pouvez payer',v:C?eur(Math.max(0,Math.floor(C.cap/100)*100)):'—',s:'Caisse d\'Épargne, après CERP, prélèvements et réserve',c:C&&C.cap<0?'neg':'',det:()=>cartePayer(false)+(sf(()=>carteTropPercus(false))||'')+(sf(()=>carteReel(false))||'')});
-  const cc=sf(carteCourrier)||'';T.push({k:'cou',ic:'✉️',t:'Courrier & paiements',v:'',s:resumeHtml(cc)||'à jour',det:()=>cc,go:cc?'':'cou'});
+  const cc=sf(carteCourrier)||'',kp=(()=>{try{const d=document.createElement('div');d.innerHTML=cc;return [...d.querySelectorAll('.kpi')].map(k=>[(k.querySelector('.l')||{}).textContent||'',(k.querySelector('.v')||{}).textContent||''].map(x=>x.replace(/\s+/g,' ').trim()))}catch(e){return []}})();
+  T.push({k:'cou',ic:'✉️',t:'Courrier & paiements',v:kp[0]?kp[0][1]:'',s:kp.length?kp.map((x,i)=>i?x[0].toLowerCase()+' '+x[1]:'mails '+x[0].toLowerCase()).join(' · '):(resumeHtml(cc)||'à jour'),det:()=>cc,go:cc?'':'cou'});
   const mj=sf(()=>majProposees().filter(x=>!x.dec).length);T.push({k:'maj',ic:'🔔',t:'Mises à jour proposées (mails)',v:mj==null?'—':String(mj),s:mj?'à décider':'rien à décider',det:()=>carteMaj()});
-  const L=sf(toutes)||[],re=L.filter(a=>statutA(a)==='retard').length,se=L.filter(a=>!actFaite(a.id)&&(jours(a.quand)??-99)>=-7).length;
+  const L=sf(toutes)||[],re=L.filter(a=>statutA(a)==='retard').length,se=L.filter(a=>!actFaite(a.id)&&(jours(a.quand)??-99)>=-7&&(jours(a.quand)??1)<=0).length;
   T.push({k:'sem',ic:'⏰',t:'Actions : retard & semaine',v:String(re),s:`en retard · ${se} à faire cette semaine`,c:re?'neg':'',det:()=>carteSemaine()+(sf(carteBilanSemaine)||'')});
   const pa=sf(cartePassifAccueil)||'';if(pa)T.push({k:'pas',ic:'⚖️',t:'Passif & plan',v:'',s:resumeHtml(pa),det:()=>pa});
   const al=sf(alertes)||'';if(al)T.push({k:'al',ic:'⚠️',t:'Alertes',v:'',s:resumeHtml(al),det:()=>al});
