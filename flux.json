@@ -6913,8 +6913,8 @@
   ]
  },
  "rdv": {
-  "titre": "Rendez-vous laboratoires du 26/10 au 03/11",
-  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT]. — Mise à jour du 27/10/2026 vers 8 h 50 : fiches EG Labo et A-Derma / Ducray complétées avec Vindilis (ventes produit par produit sur 24 mois, stock, PAMP, prix, promotions en caisse ; lecture seule depuis le PC du bureau) et GERS SOG Now (prix moyen France par EAN). — Mise à jour du 27/10/2026 à 19 h 55 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 28/10 au 03/11) ; ajout des fiches Aunea et Bouchara du 03/11 à partir de flux.json (ruptures Vindilis du 25/10, « Quoi payer », cloud Apothical). Vindilis, Opeaz et la page Pilotage (D.labos) non relus ce soir (trois Chrome connectés, aucun sélectionné ; contrôle du poste non autorisé ; aucun dossier du poste partagé) : données marquées [MANQUANT]. Les fiches du 26/10 au 02/11 sont inchangées.",
+  "titre": "Rendez-vous laboratoires du 26/10 au 04/11",
+  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT]. — Mise à jour du 27/10/2026 vers 8 h 50 : fiches EG Labo et A-Derma / Ducray complétées avec Vindilis (ventes produit par produit sur 24 mois, stock, PAMP, prix, promotions en caisse ; lecture seule depuis le PC du bureau) et GERS SOG Now (prix moyen France par EAN). — Mise à jour du 27/10/2026 à 19 h 55 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 28/10 au 03/11) ; ajout des fiches Aunea et Bouchara du 03/11 à partir de flux.json (ruptures Vindilis du 25/10, « Quoi payer », cloud Apothical). Vindilis, Opeaz et la page Pilotage (D.labos) non relus ce soir (trois Chrome connectés, aucun sélectionné ; contrôle du poste non autorisé ; aucun dossier du poste partagé) : données marquées [MANQUANT]. Les fiches du 26/10 au 02/11 sont inchangées. — Mise à jour du 28/10/2026 à 19 h 58 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 29/10 au 04/11, aucun nouveau rendez-vous) ; D.labos (page Pilotage ouverte dans le Chrome du poste « bureau ») lu le 28/10/2026 à 19 h 58 pour CA, marge et classe ; Opeaz par opeaz_comp.json (relevé du 27/10), page Opeaz ouverte mais tableau non lisible automatiquement ; « Quoi payer » et cloud Apothical par flux.json. Vindilis non relu (contrôle du poste non autorisé) : commandes N-1/N et commandé non reçu restent [MANQUANT] pour Rogé Cavaillès, Aunea et Bouchara.",
   "l": [
    {
     "d": "2026-10-26",
@@ -9500,13 +9500,13 @@
    {
     "d": "2026-10-29",
     "jour": "Jeu. 29/10",
-    "h": "9 h",
+    "h": "9 h – 10 h",
     "titre": "Urgo",
     "resume": "Labo classe A ; 3 factures à payer dont les montants sont illisibles ; plusieurs opérations Opeaz.",
     "chiffres": [
      [
-      "CA HT 12 mois / marge",
-      "34 511 € / 10 545 € (31 %)"
+      "CA HT 12 mois / marge (taux) — classe",
+      "34 510,64 € / 10 545,03 € (30,6 %) — classe A"
      ],
      [
       "Commandes directes 2025 → 2026",
@@ -9553,8 +9553,17 @@
     "jour": "Jeu. 29/10",
     "h": "11 h – 12 h 15",
     "titre": "Webinar Lilly × Apothical : obésité",
-    "resume": "Formation en ligne d'1 heure (agenda pharmaciecsudpg), invitation pas encore acceptée.",
-    "chiffres": [],
+    "resume": "Formation en ligne d'1 heure sur la prise en charge de l'obésité (Lilly, via Apothical). Pas une négociation : Lilly pèse peu chez vous (marge 13 %).",
+    "chiffres": [
+     [
+      "Lilly France : CA HT 12 mois / marge (taux) — classe",
+      "1 879,57 € / 244,04 € (13,0 %) — sans classe dans D.labos"
+     ],
+     [
+      "Invitation (agenda pharmaciecsudpg)",
+      "Pas encore acceptée (organisatrice : Apothical)"
+     ]
+    ],
     "obtenir": [
      "Décider qui y assiste (pharmacien)"
     ],
@@ -9565,25 +9574,29 @@
    {
     "d": "2026-10-30",
     "jour": "Ven. 30/10",
-    "h": "9 h",
+    "h": "9 h – 10 h",
     "titre": "Sanofi (Opella et vaccins)",
     "resume": "Votre premier laboratoire : 18,5 % de toute la marge. Vaccins grippe à payer en décembre.",
     "chiffres": [
      [
-      "Opella : CA HT 12 mois / marge",
-      "175 795 € / 88 084 € (50 %)"
+      "Opella : CA HT 12 mois / marge (taux) — classe",
+      "175 795,43 € / 88 084,11 € (50,1 %) — classe A"
      ],
      [
       "Opella : commandes directes 2025 → 2026",
       "63 812 € (27 commandes) → 28 864 € (14 commandes)"
      ],
      [
-      "Sanofi Pasteur (vaccins) : CA / marge",
-      "13 943 € / 1 103 € (8 %)"
+      "Sanofi Pasteur (vaccins) : CA / marge (taux)",
+      "13 943,01 € / 1 103,27 € (7,9 %) — sans classe"
      ],
      [
       "Vaccins grippe à payer (vague 3)",
       "9 949,23 €, échéances du 01/12 au 22/12"
+     ],
+     [
+      "À payer (Quoi payer, vague 2)",
+      "Opella, facture 7121855923 : 62,02 €"
      ]
     ],
     "obtenir": [
@@ -9614,8 +9627,8 @@
     "resume": "Petit labo, marge faible ; commandes directes en forte baisse.",
     "chiffres": [
      [
-      "CA HT 12 mois / marge",
-      "5 887 € / 1 276 € (22 %)"
+      "CA HT 12 mois / marge (taux) — classe",
+      "5 886,91 € / 1 275,61 € (21,7 %) — classe B"
      ],
      [
       "Commandes directes 2025 → 2026",
@@ -9644,15 +9657,15 @@
     "jour": "Lun. 02/11",
     "h": "9 h – 10 h",
     "titre": "Rogé Cavaillès",
-    "resume": "Chiffres Vindilis et Opeaz non relus ce soir (poste « bureau » non accessible) : fiche à compléter avant le rendez-vous. Une compensation Opeaz est à demander.",
+    "resume": "Labo classe B (marge 29,5 %). Une compensation Opeaz (déodorants, septembre) est à demander avant le rendez-vous. Commandes Vindilis non relues ce soir.",
     "chiffres": [
      [
       "CA HT 12 mois",
-      "[MANQUANT]"
+      "7 814,85 €"
      ],
      [
       "Marge 12 mois (taux) — classe",
-      "[MANQUANT]"
+      "2 303,91 € (29,5 %) — classe B"
      ],
      [
       "Commandes directes N-1 → N",
@@ -9671,8 +9684,8 @@
       "Aucun dossier Rogé Cavaillès"
      ],
      [
-      "Opeaz : terminées, compensation pas encore demandée",
-      "Au moins une opération Rogé Cavaillès (relevé du 25/10) ; détail [MANQUANT]"
+      "Opeaz : terminées, compensation pas encore demandée (relevé du 27/10)",
+      "BRI Déodorants lots BRI 3 € septembre 2026 (01/09 → 30/09) : DERMATO 48H ROLL-ON 50ML X2 — EAN [MANQUANT] ; DERMATO 48H SPRAY 150ML X2 — EAN [MANQUANT] ; +10 produits"
      ],
      [
       "Opeaz : en cours",
@@ -9705,15 +9718,15 @@
     "jour": "Lun. 02/11",
     "h": "11 h – 12 h",
     "titre": "EA Pharma (Granions)",
-    "resume": "7e fournisseur par la marge (37,7 %) ; achats directs en forte baisse ; 7 Granions en rupture ; avoir de 1 080,22 € en votre faveur à imputer.",
+    "resume": "Labo classe A (marge 37,5 %) ; achats directs en forte baisse ; 7 Granions en rupture ; avoir de 1 080,22 € en votre faveur à imputer.",
     "chiffres": [
      [
-      "CA HT 12 mois (26/10/2025 → 24/10/2026)",
-      "40 336 €"
+      "CA HT 12 mois (D.labos)",
+      "42 132,96 € (40 336 € sur 26/10/2025 → 24/10/2026 selon le relevé précédent)"
      ],
      [
-      "Marge 12 mois (taux)",
-      "15 200 € (37,7 %) — classe [MANQUANT]"
+      "Marge 12 mois (taux) — classe",
+      "15 799,03 € (37,5 %) — classe A"
      ],
      [
       "Achats directs (cloud Apothical, même période)",
@@ -9754,7 +9767,7 @@
      "Des conditions de paiement à réception pour reprendre les commandes directes"
     ],
     "dire": [
-     "EA Pharma est votre 7e fournisseur par la marge : vous voulez reprendre les volumes, la baisse vient du blocage de trésorerie"
+     "EA Pharma est un fournisseur de classe A chez vous : vous voulez reprendre les volumes, la baisse vient du blocage de trésorerie"
     ],
     "refuser": [
      "Une commande sans paiement validé par l'administrateur",
@@ -9771,17 +9784,17 @@
     "t": "2026-11-03 10:00",
     "jour": "Mar. 03/11",
     "h": "10 h – 11 h",
-    "titre": "Aunea",
-    "doute": "Laboratoire non identifié : « Aunea » n'apparaît ni dans les relevés Vindilis du 25/10, ni dans « Quoi payer », ni dans le cloud Apothical, ni dans les compensations Opeaz. Rendez-vous ajouté le 27/10 à 10 h 13. Enchaîné sans pause avec Bouchara à 11 h.",
-    "resume": "Rendez-vous ajouté aujourd'hui ; je ne sais pas encore quel fournisseur se cache derrière « Aunea ». Chiffres non relus ce soir (Vindilis, Opeaz et page Pilotage du poste « bureau » non accessibles) : fiche à compléter avant le rendez-vous.",
+    "titre": "Aunea (Aunea Cosmétique)",
+    "doute": "Enchaîné sans pause avec Bouchara à 11 h. Fournisseur retrouvé dans D.labos sous « AUNEA COSMETIQUE ».",
+    "resume": "Petit fournisseur cosmétique (classe C) : 1 735 € de CA sur 12 mois. Commandes Vindilis non relues ce soir.",
     "chiffres": [
      [
       "CA HT 12 mois",
-      "[MANQUANT]"
+      "1 735,06 €"
      ],
      [
       "Marge 12 mois (taux) — classe",
-      "[MANQUANT]"
+      "557,48 € (32,1 %) — classe C"
      ],
      [
       "Commandes directes N-1 → N",
@@ -9800,8 +9813,8 @@
       "Aucun dossier au nom d'Aunea"
      ],
      [
-      "Opeaz : terminées, compensation pas encore demandée",
-      "[MANQUANT]"
+      "Opeaz : terminées, compensation pas encore demandée (relevé du 27/10)",
+      "Aucune opération Aunea"
      ],
      [
       "Opeaz : en cours",
@@ -9813,8 +9826,8 @@
      ]
     ],
     "obtenir": [
-     "Savoir précisément ce qu'Aunea vend et sous quelle raison sociale il facture (pour le retrouver dans Vindilis)",
-     "Les conditions écrites : remise, franco, délai de paiement, reprise des invendus"
+     "Les conditions écrites : remise, franco, délai de paiement, reprise des invendus",
+     "Une offre de lancement ou de visibilité payée par le labo si nouvelle gamme"
     ],
     "dire": [
      "La pharmacie est en redressement judiciaire depuis le 30/06/2026 : toute commande passe par la validation de l'administrateur et un paiement à réception"
@@ -9825,7 +9838,7 @@
      "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
     ],
     "apres": [
-     "Retrouver le fournisseur dans Vindilis et compléter la fiche"
+     "Compléter les commandes Vindilis (AUNEA COSMETIQUE) dans la fiche"
     ]
    },
    {
@@ -9834,16 +9847,16 @@
     "jour": "Mar. 03/11",
     "h": "11 h – 12 h",
     "titre": "Bouchara-Recordati (Hexaspray, Hextril, Saint-Bernard)",
-    "doute": "Enchaîné sans pause après Aunea (10 h – 11 h).",
-    "resume": "4 produits Bouchara qui font venir des clients sont à 0 ou en négatif en stock à l'entrée de l'hiver (relevé Vindilis du 25/10) : 399 tickets sur 12 mois. Le reste (CA, marge, commandes, Opeaz) n'a pas pu être relu ce soir.",
+    "doute": "Enchaîné sans pause après Aunea (10 h – 11 h). Deux fournisseurs dans D.labos : « BOUCHARA CSP » et « recordati » — vérifier lequel le délégué représente.",
+    "resume": "Bouchara CSP est classe A mais avec une marge faible (15,1 %) ; 4 produits d'appel à 0 ou en négatif à l'entrée de l'hiver (399 tickets sur 12 mois).",
     "chiffres": [
      [
       "CA HT 12 mois",
-      "[MANQUANT]"
+      "BOUCHARA CSP : 22 866,07 € ; recordati : 16 203,24 €"
      ],
      [
       "Marge 12 mois (taux) — classe",
-      "[MANQUANT]"
+      "BOUCHARA CSP : 3 449,92 € (15,1 %) — classe A ; recordati : 1 118,09 € (6,9 %) — sans classe"
      ],
      [
       "Commandes directes N-1 → N",
@@ -9867,7 +9880,7 @@
      ],
      [
       "Opeaz : terminées, compensation pas encore demandée",
-      "[MANQUANT]"
+      "Aucune opération Bouchara (relevé du 27/10)"
      ],
      [
       "Opeaz : en cours",
@@ -9884,6 +9897,7 @@
     ],
     "obtenir": [
      "Le réassort des 4 produits en rupture (Hexaspray 3400932779727, Hextril 3400935970565, Saint-Bernard 3400934155178 et 3400934155000), payé à réception après validation de l'administrateur, avec une date de livraison écrite",
+     "Une remise ou une coop qui remonte la marge Bouchara au-dessus de 20 % (15,1 % aujourd'hui)",
      "Une opération hiver (gorge) sur Hexaspray / Hextril avec compensation Opeaz",
      "Les conditions 2026 en direct : remise, franco, paiement à réception"
     ],
