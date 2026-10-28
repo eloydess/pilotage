@@ -96,6 +96,9 @@ table.t tr.tot td{font-weight:700;border-top:2px solid var(--ligne)}
 .sig{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:7px 9px;margin:8px 0 2px;border-radius:8px;background:var(--ocl);font-size:13px}
 .ba-btn{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .semaine{display:grid;grid-template-columns:1fr;gap:0;align-items:start}
+.accg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}@media(min-width:900px){.accg{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}}
+.acct{background:var(--carte);border:1px solid var(--ligne);border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:118px}.acct:hover{border-color:var(--vert2)}
+.acch{font-weight:700;font-size:14px}.accv{font-size:24px;font-weight:800;line-height:1.1}.accs{font-size:12.5px;color:var(--doux);line-height:1.3;flex:1}.acco{font-size:12px;color:var(--vert2);font-weight:600}
 .flash{animation:fl 1.6s ease-out}@keyframes fl{0%{box-shadow:0 0 0 4px var(--vert2)}100%{box-shadow:0 0 0 0 transparent}}
 .voile{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
 .panneau{background:var(--fond);width:100%;max-width:640px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
@@ -164,7 +167,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.50';
+const APP_V='7.51';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -261,7 +264,7 @@ function navig(){
   const G=GROUPES.find(g=>g[4].includes(vue)),dv=g=>g===G?vue:g[4][0];
   $('#nav').innerHTML=GROUPES.map(g=>`<button data-v="${dv(g)}" data-g="${g[0]}" class="${g===G?'on':''}"><span>${g[1]}</span><em class="sc">${g[3]}</em><em class="lc">${g[2]}</em></button>`).join('');
   const gn=$('#gnav');if(gn){gn.innerHTML=G&&G[4].length>1?G[4].map(v=>{const o=ONGLETS.find(x=>x[0]===v)||[v,'',v,v];return `<button data-v="${v}" class="${v===vue?'on':''}">${o[1]} ${esc(o[2])}</button>`}).join(''):'';gn.style.display=G&&G[4].length>1?'':'none'}
-  document.querySelectorAll('#nav button,#gnav button').forEach(b=>b.onclick=()=>{const v=b.dataset.v; if(v==='3d'){location.href='3d.html';return} if(v==='cfg'){vue='cfg';navig();reglages();return} vue=v;recherche='';rendre();scrollTo(0,0)});
+  document.querySelectorAll('#nav button,#gnav button').forEach(b=>b.onclick=()=>{const v=b.dataset.v; if(v==='3d'){location.href='3d.html';return} if(v==='cfg'){vue='cfg';navig();reglages();return} if(v==='acc')accDet='';vue=v;recherche='';rendre();scrollTo(0,0)});
   pastilles();
 }
 /* Opérations Opeaz : on ne garde que les laboratoires que la pharmacie travaille (présents avec des ventes sur 12 mois) */
@@ -2344,6 +2347,25 @@ function passifV(){$('#ht').textContent='Passif & plan';fab(null);const P=PA();i
   document.querySelectorAll('[data-pasact]').forEach(e=>e.onclick=()=>{if(typeof ouvrirAction==='function')ouvrirAction(e.dataset.pasact)});brancherPasPlan();
   document.querySelectorAll('select[data-pasv]').forEach(s=>s.onchange=async e=>{const E=pasEtat();E[s.dataset.pasv]={v:e.target.value,d:auj()};if(await majEtat('pas_st',JSON.stringify(E)))re()});
   brancherLiens()}
+let accDet='';
+const retourAcc=t=>`<div style="display:flex;align-items:center;gap:10px;margin:0 0 10px"><button class="btn sec" id="accRet" style="width:auto;margin:0;padding:8px 14px">‹ Accueil</button><b style="font-size:17px">${esc(t)}</b></div>`;
+function resumeHtml(h){try{if(!h)return '';const d=document.createElement('div');d.innerHTML=h;const b=d.querySelector('b');return (b?b.textContent:d.textContent).replace(/\s+/g,' ').trim()}catch(e){return ''}}
+function tuilesAcc(tu){const T=[],sf=f=>{try{return f()}catch(e){return null}};
+  const M=sf(moisVif),pc=v=>(v>0?'+':'')+(v*100).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %';
+  T.push({k:'mois',ic:'📅',t:'Le mois en cours',v:M?eur(Math.round(M.mg)):'—',s:M?`marge au ${dfr(M.date).slice(0,5)}${M.ev!=null?' · '+pc(M.ev)+' vs N−1':''}${M.proj!=null?' · fin de mois ≈ '+eur(Math.round(M.proj)):''}`:'relevé du soir à venir',c:M&&M.ev!=null?(M.ev<0?'neg':'pos'):''});
+  const P=sf(()=>prioListe().filter(x=>!x.claude))||[],p1=P.filter(x=>x.band==='P1');
+  T.push({k:'prio',ic:'🔥',t:'Vos priorités',v:String(p1.length),s:p1[0]?'1. '+p1[0].titre:'rien d\'urgent',go:'act:ord',vs:P.length+' en tout'});
+  const C=sf(capacite);T.push({k:'payer',ic:'💶',t:'Ce que vous pouvez payer',v:C?eur(Math.max(0,Math.floor(C.cap/100)*100)):'—',s:'Caisse d\'Épargne, après CERP, prélèvements et réserve',c:C&&C.cap<0?'neg':'',det:()=>cartePayer(false)+(sf(()=>carteTropPercus(false))||'')+(sf(()=>carteReel(false))||'')});
+  const cc=sf(carteCourrier)||'';T.push({k:'cou',ic:'✉️',t:'Courrier & paiements',v:'',s:resumeHtml(cc)||'à jour',det:()=>cc,go:cc?'':'cou'});
+  const mj=sf(()=>majProposees().filter(x=>!x.dec).length);T.push({k:'maj',ic:'🔔',t:'Mises à jour proposées (mails)',v:mj==null?'—':String(mj),s:mj?'à décider':'rien à décider',det:()=>carteMaj()});
+  const L=sf(toutes)||[],re=L.filter(a=>statutA(a)==='retard').length,se=L.filter(a=>!actFaite(a.id)&&(jours(a.quand)??-99)>=-7).length;
+  T.push({k:'sem',ic:'⏰',t:'Actions : retard & semaine',v:String(re),s:`en retard · ${se} à faire cette semaine`,c:re?'neg':'',det:()=>carteSemaine()+(sf(carteBilanSemaine)||'')});
+  const pa=sf(cartePassifAccueil)||'';if(pa)T.push({k:'pas',ic:'⚖️',t:'Passif & plan',v:'',s:resumeHtml(pa),det:()=>pa});
+  const al=sf(alertes)||'';if(al)T.push({k:'al',ic:'⚠️',t:'Alertes',v:'',s:resumeHtml(al),det:()=>al});
+  (tu||[]).forEach((t,i)=>{if(i===1)T.push({k:'stk',ic:'📦',t:'À commander',v:String(t[0]),s:t[1],go:t[2]});if(i===2)T.push({k:'pro',ic:'🏷️',t:'Promotions',v:String(t[0]),s:t[1],go:t[2]})});
+  return T}
+function grilleAccueil(tu){const T=tuilesAcc(tu);
+  return `<div class="accg">${T.map(x=>`<div class="acct" ${x.go?`data-go="${esc(x.go)}"`:`data-acc="${x.k}"`}><div class="acch">${x.ic} ${esc(x.t)}</div>${x.v?`<div class="accv ${x.c||''}">${esc(x.v)}</div>`:''}<div class="accs">${esc((x.s||'').length>110?(x.s||'').slice(0,108)+'…':(x.s||''))}</div><div class="acco">${x.go?'Ouvrir ›':'Voir le détail ›'}</div></div>`).join('')}</div>`}
 function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);setTimeout(()=>chargerCR(),50);
   const ms=moisDispo(); if(!moisSel||!ms.includes(moisSel))moisSel=ms[ms.length-1]||'';
   const p=(D.perf||[]).find(x=>isoMois(x['Mois'])===moisSel)||{};const i=ms.indexOf(moisSel);
@@ -2351,9 +2373,14 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);setTimeout((
   const tu=[[nA===null?'—':nA,'action(s) ouverte(s) sur '+(A?toutes().length:'—'),'act'],[A?eur(A.stock.filter(s=>s.decision==='commander').reduce((s,x)=>s+x.besoin,0)):'—','à commander maintenant','stk:rec'],[A?A.opeazManquantes.length:'—','opérations Opeaz sans promo Vindilis','pro:oct'],[A?A.avantApres.filter(x=>x.verdict==='ok').length+' ✅ · '+A.avantApres.filter(x=>x.verdict==='ko').length+' ❌':'—','actions mesurées avant / après','act:av']];
   const tx=(m,c)=>num(m)!==null&&num(c)!==null&&+c!==0?m/c:null;const tN=tx(p['Marge € N'],p['CA HT N']),tN1=tx(p['Marge € N-1'],p['CA HT N-1']);
   /* 7.20 : l'Accueil s'ouvre sur les priorités du jour (après la ligne du mois en tête), puis l'argent, puis les mises à jour proposées par les mails */
-  $('#m').innerHTML=`${cartePrioAccueil()}${(()=>{try{return cartePayer(true)}catch(e){return ''}})()}${(()=>{try{return carteMaj()}catch(e){return ''}})()}${(()=>{try{return carteTropPercus(true)}catch(e){return ''}})()}${(()=>{try{return cartePassifAccueil()}catch(e){return ''}})()}${alertes()}${carteCourrier()}${(()=>{try{return carteReel(true)}catch(e){return ""}})()}${carteSemaine()}${carteBilanSemaine()}<div class="tuiles">${tu.map(t=>`<div class="tuile" data-go="${t[2]}"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('')}</div>
-   <div class="titre">Mois en cours</div>${carteEnCours()}${carteMarche()}
-   <details class="plusAcc"${ls.get('pil_plusAcc')==='1'?' open':''}><summary class="titre" style="cursor:pointer">▸ Plus d'analyses : mois complets, exercice, contexte</summary>
+  /* 7.51 : l'Accueil est une grille de cases (un seul écran) ; chaque case ouvre son détail */
+  if(!accDet){$('#m').innerHTML=grilleAccueil(tu);document.querySelectorAll('[data-acc]').forEach(e=>e.onclick=()=>{accDet=e.dataset.acc;accueil();scrollTo(0,0)});brancherLiens();return}
+  if(accDet!=='mois'){const T=tuilesAcc(tu).find(x=>x.k===accDet);$('#m').innerHTML=retourAcc(T?T.ic+' '+T.t:'')+(T&&T.det?(()=>{try{return T.det()}catch(e){return '<div class="carte sub">Détail indisponible ('+esc(e.message)+')</div>'}})():'');
+    $('#accRet').onclick=()=>{accDet='';accueil();scrollTo(0,0)};brancherLiens();document.querySelectorAll('.semaine [data-ouvre]').forEach(e=>e.onclick=()=>ouvrirAction(e.dataset.ouvre));
+    document.querySelectorAll('.semaine [data-f2]').forEach(e=>e.onclick=()=>{filtreSt=e.dataset.f2;filtreTh='Tous';filtreOng='';sousAct='dix';vue='act';rendre();scrollTo(0,0)});return}
+  $('#m').innerHTML=`${retourAcc('📅 Le mois en cours')}<div class="carte">${ligneMois()}</div>
+   ${carteEnCours()}${carteMarche()}
+   <details class="plusAcc" open><summary class="titre" style="cursor:pointer">▸ Plus d'analyses : mois complets, exercice, contexte</summary>
    <div class="titre">Mois complets (Vindilis, chargés dans l'application)</div>
    <div class="carte" style="display:flex;align-items:center;gap:8px;padding:8px 10px">
     <button class="btn sec" id="mPrev" style="width:auto;margin:0;padding:8px 14px" ${i<=0?'disabled':''}>‹</button>
@@ -2364,7 +2391,7 @@ function accueil(){majHH();$('#ht').textContent='Accueil';fab(null);setTimeout((
    <div class="carte"><div class="ligne"><span>Effet fréquentation</span><b class="${cls(p['Effet fréquentation €'])}">${eur(p['Effet fréquentation €'])}</b></div><div class="ligne"><span>Effet marge par client</span><b class="${cls(p['Effet marge/client €'])}">${eur(p['Effet marge/client €'])}</b></div><div class="ligne"><span>CA HT (pour information)</span><b>${eur(p['CA HT N'])} <span style="color:var(--doux);font-weight:400">vs ${eur(p['CA HT N-1'])}</span></b></div></div>
    ${carteExercice()}
    ${A?`<div class="carte"><div class="sub w"><b style="color:var(--txt)">Contexte local.</b> ${esc(A.contexte)}</div></div>`:''}</details>`;
-  {const pa=document.querySelector('.plusAcc');if(pa)pa.ontoggle=()=>ls.set('pil_plusAcc',pa.open?'1':'0')}
+  $('#accRet').onclick=()=>{accDet='';accueil();scrollTo(0,0)};
   const go=m=>{moisSel=m;accueil()};$('#mSel').onchange=e=>go(e.target.value);
   if($('#mPrev'))$('#mPrev').onclick=()=>{if(i>0)go(ms[i-1])};if($('#mNext'))$('#mNext').onclick=()=>{if(i<ms.length-1)go(ms[i+1])};
   document.querySelectorAll('#exMode button').forEach(b=>b.onclick=()=>{modeEx=b.dataset.m;const y=scrollY;accueil();scrollTo(0,y)});
@@ -3091,7 +3118,7 @@ function blocIncidences(t){const I=incidences().filter(i=>i.to.includes(t)),R=re
    ${hist.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">🗂 Historique du suivi (${hist.length})</summary>${hist.slice(0,40).map(([k,v])=>`<div class="ligne"><span><b style="font-size:11px;color:${ST_INC[v.st][1]}">${ST_INC[v.st][0]} le ${dfr(v.le)}</b> <span class="sub w">${esc(v.txt)}</span>${I.some(i=>i.id===k)?' <span class="badge">toujours présente dans les données</span>':' <span class="badge A">résolue</span>'}</span>${I.some(i=>i.id===k)?`<button class="mini" data-rouvre="${esc(k)}">↩</button>`:''}</div>`).join('')}</details>`:''}
    ${R.length?`<details style="margin-top:6px"><summary class="sub" style="cursor:pointer">📋 ${R.length} signal(aux) automatique(s) de la semaine (${[...new Set(R.map(r=>r['Domaine']))].join(', ')})</summary>${R.slice(0,30).map(carteReco).join('')}${R.length>30?`<div class="sub">… et ${R.length-30} autres, les moins prioritaires.</div>`:''}</details>`:''}</details>`}
 function injecterIncidences(){const m=$('#m');if(!m||!D||(vue==='cou'&&$('#crHold')&&$('#crHold').style.display!=='none')||document.getElementById('blocInc')||document.getElementById('retCon')||document.getElementById('retCol')||document.getElementById('na_t'))return;
-  if(!m.firstElementChild||/^Chargement/.test(m.textContent.trim()))return;if(vue==='act'||vue==='cfg'||(vue==='cou'&&sousCou==='tri'))return;const html=vue==='acc'?vueIncidencesAccueil():blocIncidences(vue);if(!html)return;
+  if(!m.firstElementChild||/^Chargement/.test(m.textContent.trim()))return;if(vue==='act'||vue==='cfg'||vue==='acc'||(vue==='cou'&&sousCou==='tri'))return;const html=vue==='acc'?vueIncidencesAccueil():blocIncidences(vue);if(!html)return;
   const ba=document.getElementById('blocAct'),f=m.firstElementChild,pa=document.getElementById('prioAcc');if(vue==='acc'&&pa)pa.insertAdjacentHTML('afterend',html);else if(ba)ba.insertAdjacentHTML('afterend',html);else if(f&&f.classList.contains('filtres'))f.insertAdjacentHTML('afterend',html);else m.insertAdjacentHTML('afterbegin',html);
   const b=document.getElementById('blocInc');if(!b)return;const t=vue,refaire=()=>{const y=scrollY,ob=b.open,o=b.querySelector('details[open]')?1:0;b.remove();injecterIncidences();const n=document.getElementById('blocInc');if(n){n.open=!!ob;if(o){const d=n.querySelector('details');if(d)d.open=true}}scrollTo(0,y)};
   b.querySelectorAll('[data-incgo]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();vue=e.dataset.incgo;rendre();scrollTo(0,0)});brancherStatuts();
