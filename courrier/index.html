@@ -453,10 +453,32 @@ function vue(v){
 
 /* 21/10/2026 : fiches déjà décidées (refusées, ou validées « à vérifier ») dont le mail n'a jamais été rangé : il reste dans la boîte de réception. */
 function nonRange(f){ return f['Statut'] !== 'À valider' && !/^C-/.test(f['ID'] || '') && !String(f['Date application'] || '').trim(); }
+/* 7.54 : une décision prise ici s'applique tout de suite dans Gmail (plus d'attente du passage automatique) : rangement dans l'étiquette, ou corbeille pour « Sans intérêt » */
+function rgDef(d){ return d === 'Sans intérêt' ? 'corbeille' : /^(Déjà payé|Information|Sans intérêt|Doublon|Créance antérieure|Suivi RJ|Déjà au suivi RJ)$/.test(d || '') ? 'ranger' : 'laisser'; }
+function enCorbeille(f){ return /^🗑/.test(f['Date application'] || ''); }
+function appliquerGmail(f, fini){
+  fini = fini || function(){};
+  if (!f || f['Statut'] === 'À valider' || /^C-/.test(f['ID'] || '') || String(f['Date application'] || '').trim()) { fini(false); return; }
+  var r = rgDef(f['Décision finale']), e = f['Étiquette finale'] || f['Étiquette proposée'] || '';
+  if (r === 'corbeille') appel('mob_corbeille', [JETON, f['ID']], function(x){ f['Date application'] = x && x.note || '🗑 corbeille'; fini(true); }, function(m){ fini(false, m); });
+  else if (r === 'ranger' && e) appel('mob_ranger', [JETON, f['ID'], e], function(x){ f['Étiquette finale'] = x.etiquette || e; f['Date application'] = x.date || 'à l\'instant'; fini(true); }, function(m){ fini(false, m); });
+  else fini(false);
+}
+function toutRanger(){
+  var l = FICHES.filter(function(f){ return nonRange(f) && rgDef(f['Décision finale']) !== 'laisser' && (f['Étiquette finale'] || f['Étiquette proposée'] || rgDef(f['Décision finale']) === 'corbeille'); });
+  if (!l.length) { alert('Rien à ranger automatiquement : les mails restants attendent une action de votre part (voir la note sur chaque fiche).'); return; }
+  var nc = l.filter(function(f){ return rgDef(f['Décision finale']) === 'corbeille'; }).length;
+  if (!confirm(l.length + ' mail(s) vont être rangés maintenant dans leur étiquette' + (nc ? ' (dont ' + nc + ' à la corbeille, récupérables 30 jours)' : '') + ' et sortir de la boîte de réception.\n\nContinuer ?')) return;
+  var i = 0, ok = 0, ko = 0, b = document.getElementById('btnToutRanger'); if (b) b.disabled = true;
+  var suite = function(){ if (i >= l.length) { afficher(); alert(ok + ' mail(s) rangé(s)' + (ko ? ' · ' + ko + ' en erreur (réessayez)' : '') + '.'); return; }
+    if (b) b.textContent = 'Rangement… ' + (i + 1) + ' / ' + l.length;
+    appliquerGmail(l[i++], function(r){ if (r) ok++; else ko++; suite(); }); };
+  suite();
+}
 function afficher(){
-  var garde = function(s, f){ return s === 'Traités' ? f['Statut'] !== 'À valider' : s === 'Restés en boîte' ? nonRange(f) : f['Statut'] === s; };
+  var garde = function(s, f){ return s === 'Traités' ? f['Statut'] !== 'À valider' && !enCorbeille(f) : s === 'Restés en boîte' ? nonRange(f) : s === '🗑 Corbeille' ? enCorbeille(f) : f['Statut'] === s && !enCorbeille(f); };
   var nb = function(s){ return FICHES.filter(function(f){ return garde(s, f); }).length; };
-  var choix = ['À valider', 'Restés en boîte', 'Traités'];
+  var choix = ['À valider', 'Restés en boîte', '🗑 Corbeille', 'Traités'];
   document.getElementById('filtres').innerHTML = choix.map(function(c){
     return '<button class="' + (c === FILTRE ? 'actif' : '') + '" onclick="FILTRE=\'' + c + '\';afficher()">' + c + ' (' + nb(c) + ')</button>';
   }).join('');
@@ -469,7 +491,7 @@ function afficher(){
   var GX = expGroupes(FICHES, function(f){ return f['Tiers']; });
   if (EXP_M && !GX.parCle[EXP_M]) { EXP_M = ''; lsEcrire('cr_expM', ''); }
   var nbParExp = {}; l.forEach(function(f){ var c = GX.cleDe(f); nbParExp[c] = (nbParExp[c] || 0) + 1; });
-  var quoi = FILTRE === 'À valider' ? 'mail(s) à valider' : FILTRE === 'Restés en boîte' ? 'mail(s) restés dans la boîte' : 'fiche(s) traitée(s)';
+  var quoi = FILTRE === 'À valider' ? 'mail(s) à valider' : FILTRE === 'Restés en boîte' ? 'mail(s) restés dans la boîte' : FILTRE === '🗑 Corbeille' ? 'mail(s) à la corbeille' : 'fiche(s) traitée(s)';
   document.getElementById('triExp').innerHTML = barreTriExp({ tri: TRI_M, fnTri: 'choisirTriM', fnExp: 'choisirExpM', exp: EXP_M, mot: 'expéditeurs',
     tris: [['prio', '⚡ Priorité'], ['recent', '📅 Arrivée : récents d\'abord'], ['ancien', '📅 Arrivée : anciens d\'abord'], ['exp', '🏢 Par expéditeur']],
     groupes: GX.liste.map(function(g){ return { cle: g.cle, nom: g.nom, nb: nbParExp[g.cle] || 0 }; }) });
@@ -491,7 +513,7 @@ function afficher(){
   if (!ECRAN_PC) {
     var cle = FILTRE + '|' + RECHERCHE + '|' + TRI_M + '|' + EXP_M; if (cle !== LIM_CLE) { LIM_CLE = cle; LIMITE = 30; }
     var reste = l.length - LIMITE;
-    var aideRB = FILTRE === 'Restés en boîte' ? '<div class="carte" style="border-left:4px solid var(--orange)"><b>Mails restés dans la boîte de réception</b><div class="meta">Vous avez déjà décidé ces fiches (refusées, ou validées sans rangement), mais le mail n\'a pas été rangé. Touchez « ↩︎ Annuler ma décision » : la fiche revient dans « À valider » et vous choisissez de nouveau (rangement, corbeille, suivi RJ…).</div></div>' : '';
+    var aideRB = FILTRE === 'Restés en boîte' ? '<div class="carte" style="border-left:4px solid var(--orange)"><b>Mails restés dans la boîte de réception</b><div class="meta">Vous avez déjà décidé ces fiches, mais le mail n\'est pas encore rangé. « 🗂 Tout ranger maintenant » les range tout de suite dans leur étiquette (ils sortent de la boîte de réception et de cette liste). Ceux qui demandent encore une action de votre part (réponse, paiement à faire…) restent ici : rangez-les un par un avec « 🗂 Ranger », ou « ↩︎ Annuler ma décision » pour choisir de nouveau.</div><button id="btnToutRanger" class="btn b-ok" style="margin-top:8px" onclick="toutRanger()">🗂 Tout ranger maintenant</button></div>' : FILTRE === '🗑 Corbeille' ? '<div class="carte"><b>Mails mis à la corbeille</b><div class="meta">Ils sont traités (fiche classée « Sans intérêt ») et récupérables 30 jours dans la corbeille de Gmail. « ↩ restaurer » remet le mail dans la boîte de réception et la fiche dans « À valider ».</div></div>' : '';
     document.getElementById('liste').innerHTML = bandeau + aideRB + rendreListe(l.slice(0, LIMITE), carte) +
       (reste > 0 ? '<button class="btn b-voir" style="width:100%;margin:8px 0" onclick="LIMITE+=30;afficher()">Afficher ' + Math.min(30, reste) + ' fiches de plus (encore ' + reste + ')</button>' : '');
     return;
@@ -636,11 +658,17 @@ function boutonCorbeille(f){
 function supprimerMail(id){
   var f = trouver(id);
   if (!confirm('Mettre ce mail à la corbeille, sans étiquette ?\n« ' + (f['Objet'] || f['Tiers'] || '') + ' »\n\nIl reste récupérable 30 jours dans la Corbeille de Gmail (bouton « ↩ restaurer » sur la fiche).')) return;
-  appel('mob_corbeille', [JETON, id], function(r){ f['Date application'] = r.note; afficher(); }, function(m){ alert('Non effectué : ' + m); });
+  var jeter = function(){ appel('mob_corbeille', [JETON, id], function(r){ f['Date application'] = r.note || '🗑 corbeille'; afficher(); }, function(m){ alert('Non effectué : ' + m); }); };
+  if (f['Statut'] !== 'À valider') { jeter(); return; }
+  appel('mob_decider', [JETON, id, 'Corrigé', 'Sans intérêt', '', 'mail supprimé (corbeille)'], function(r){
+    f['Statut'] = r.statut || 'Corrigé'; f['Décision finale'] = r.finale || 'Sans intérêt'; f['Commentaire Pierre'] = 'mail supprimé (corbeille)'; f['Date validation'] = 'à l\'instant'; jeter();
+  }, function(m){ alert('Non effectué : ' + m); });
 }
 function restaurer(id){
   var f = trouver(id);
-  appel('mob_restaurer', [JETON, id], function(r){ f['Date application'] = r.note; afficher(); }, function(m){ alert('Non effectué : ' + m); });
+  appel('mob_restaurer', [JETON, id], function(r){ f['Date application'] = r.note;
+    if (f['Statut'] !== 'À valider' && f['Décision finale'] === 'Sans intérêt') appel('mob_decider', [JETON, id, 'À valider', '', '', ''], function(){ f['Statut'] = 'À valider'; f['Décision finale'] = ''; f['Date validation'] = ''; afficher(); }, function(){ afficher(); });
+    else afficher(); }, function(m){ alert('Non effectué : ' + m); });
 }
 function desranger(id){
   var f = trouver(id);
@@ -668,6 +696,7 @@ function decider(id, statut, decision, etiquette, commentaire){
     f['Statut'] = r.statut; f['Décision finale'] = r.finale; f['Étiquette finale'] = r.etiquette;
     f['Commentaire Pierre'] = commentaire || ''; f['Date validation'] = r.statut === 'À valider' ? '' : 'à l\'instant';
     fermer(); afficher();
+    if (r.statut === 'Validé' || r.statut === 'Corrigé') appliquerGmail(f, function(ok, m){ if (m) alert('Décision enregistrée, mais le mail n\'a pas pu être rangé : ' + m + '\nIl est dans « Restés en boîte » : « 🗂 Tout ranger maintenant » pour réessayer.'); afficher(); });
   });
 }
 
