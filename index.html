@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.48';
+const APP_V='7.49';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -623,7 +623,7 @@ const dateMesure=a=>{const s=suivi(a.id);return s.dmes||ajJ(s.debut||a.quand,14)
 function statutA(a){if(actFaite(a.id))return 'faite';const j=jours(a.quand);if(j!==null&&j>0)return 'retard';return suivi(a.id).st==='encours'?'encours':'afaire'}
 const aMesurer=a=>actFaite(a.id)&&!suivi(a.id).verdict&&a.mesure&&a.mesure!=='—'&&(jours(dateMesure(a))??-1)>=0;
 const ST={faite:['Faite','var(--vert2)','✅'],encours:['En cours','var(--bleu)','🔵'],afaire:['À faire','#90a4ae','⭕'],retard:['En retard','var(--rouge)','⏰']};
-const VD={garder:['On garde','var(--vert2)','✅'],corriger:['À corriger','var(--orange)','🟠'],arreter:['On arrête','var(--rouge)','⛔']};
+const VD={garder:['Ça marche : on garde','var(--vert2)','✅'],corriger:['Résultat moyen : on corrige','var(--orange)','🟠'],arreter:['Ça ne marche pas : on arrête','var(--rouge)','⛔']};
 const ongletA=a=>String(a.go||'act').split(':')[0];
 const actsOnglet=t=>toutes().filter(a=>ongletA(a)===t||(t==='mois'&&ongletA(a)==='col'));
 
@@ -652,11 +652,11 @@ function tableauPlan(L){const n=k=>L.filter(a=>statutA(a)===k).length,F=L.filter
 
 /* Fiche de suivi d'une action */
 function blocSuivi(a){const s=suivi(a.id),st=statutA(a),f=actFaite(a.id);
-  return `<details class="suivi" ${s.verdict||s.avant||s.st==='encours'?'':''}><summary><b>📏 Suivi et mesure</b>${s.debut?` · mise en place le ${dfr(s.debut)}`:''}${f&&!s.verdict?` · <span class="${aMesurer(a)?'neg':''}">mesure le ${dfr(dateMesure(a))}</span>`:''}</summary>
+  return `<details class="suivi" ${s.verdict||s.avant||s.st==='encours'?'':''}><summary><b>📏 Suivi et mesure</b> <span class="sub">(noter quand c'est fait, le chiffre avant / après et le verdict)</span>${s.debut?` · mise en place le ${dfr(s.debut)}`:''}${f&&!s.verdict?` · <span class="${aMesurer(a)?'neg':''}">mesure le ${dfr(dateMesure(a))}</span>`:''}</summary>
    <div class="statuts" data-sid="${esc(a.id)}">${[['afaire','À faire'],['encours','En cours'],['faite','Faite']].map(k=>`<button data-st="${k[0]}" class="${(k[0]==='faite'?f:!f&&(k[0]==='encours'?s.st==='encours':s.st!=='encours'))?'on':''}">${k[1]}</button>`).join('')}</div>
    <div class="g2"><div><label>Mise en place le</label><input type="date" data-k="debut" value="${esc(s.debut||'')}"></div><div><label>Mesure prévue le</label><input type="date" data-k="dmes" value="${esc(s.dmes||ajJ(s.debut||a.quand,14))}"></div>
    <div><label>Chiffre avant</label><input data-k="avant" value="${esc(s.avant||'')}" placeholder="ex. 12 ventes / sem."></div><div><label>Chiffre après</label><input data-k="apres" value="${esc(s.apres||'')}" placeholder="ex. 19 ventes / sem."></div></div>
-   <label>Verdict</label><div class="statuts" data-vid="${esc(a.id)}">${Object.entries(VD).map(([k,v])=>`<button data-vd="${k}" class="${s.verdict===k?'on':''}" style="${s.verdict===k?`background:${v[1]};border-color:${v[1]}`:''}">${v[2]} ${v[0]}</button>`).join('')}</div>
+   <label>Verdict</label><div class="sub w" style="margin:-2px 0 4px">À choisir une fois la mesure faite : comparez le chiffre avant et le chiffre après. « On garde » = l'action rapporte, on la continue · « On corrige » = elle rapporte peu, on change la façon de faire · « On arrête » = elle ne rapporte rien, on la stoppe.</div><div class="statuts" data-vid="${esc(a.id)}">${Object.entries(VD).map(([k,v])=>`<button data-vd="${k}" class="${s.verdict===k?'on':''}" style="${s.verdict===k?`background:${v[1]};border-color:${v[1]}`:''}">${v[2]} ${v[0]}</button>`).join('')}</div>
    <label>Note</label><textarea data-k="note" rows="2" placeholder="Ce qui a été fait, ce qu'on change">${esc(s.note||'')}</textarea>
    <button class="btn" data-save="${esc(a.id)}" style="margin-top:10px">Enregistrer le suivi</button>${a.perso?`<button class="btn sec" data-del="${esc(a.id)}" style="margin-top:8px">Retirer cette action ajoutée</button>`:''}</details>`}
 function puce(a){const st=statutA(a),s=suivi(a.id),v=VD[s.verdict];
@@ -720,6 +720,16 @@ function injecterBloc(){const m=$('#m');if(!m||!A||!BLOC_ONG.includes(vue)||docu
   b.querySelectorAll('[data-go]').forEach(e=>e.onclick=ev=>{ev.stopPropagation();const p=e.dataset.go.split(':');vue=p[0];if(p[1]&&vue==='act'){sousAct=p[1]==='rec'?'rec':p[1];if(p[1]==='rec')filtre='Ouvertes'}rendre();scrollTo(0,0)});
   $('#baPlan').onclick=()=>{filtreOng=t;filtreTh='Tous';filtreSt='Toutes';sousAct='dix';vue='act';rendre();scrollTo(0,0)};
   $('#baAdd').onclick=()=>formAction({go:t},retour);}
+/* 7.49 : depuis une action, aller directement à l'élément concerné (fiche labo ou ligne de l'onglet), pas seulement à l'onglet */
+function laboDeAction(a){try{const t=(' '+(a.titre||'')+' '+(a.enjeu||'')+' ').toLowerCase();let best=null;(D.labos||[]).forEach(l=>{const n=String(l['Laboratoire']||'');const m=n.toLowerCase().replace(/\bt20\d\d\b.*$/,'').replace(/[^a-zà-ÿ0-9 &'-]/g,' ').trim().split(/\s+/).filter(w=>w.length>=4&&!/^(labo|laboratoire|laboratoires|pharma|france|sante|santé|healthcare)$/.test(w))[0];if(m&&new RegExp('[^a-zà-ÿ]'+m.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'[^a-zà-ÿ]').test(t)&&(!best||n.length<best.length))best=n});return best}catch(e){return null}}
+function allerVers(id){const a=toutes().find(x=>x.id===id);if(!a)return;const lb=laboDeAction(a);
+  if(lb){vue='lab';rendre();fiche(lb,'syn');scrollTo(0,0);return}
+  const p=String(a.go).split(':');vue=p[0];if(p[1]){if(vue==='lab')sousLab=p[1];if(vue==='pro')sousPro=p[1];if(vue==='stk')sousStk=p[1];if(vue==='eve')sousEve=p[1];if(vue==='ecr')sousEcr=p[1];if(vue==='mois')sousMois=p[1];if(vue==='cou')sousCou=p[1];if(vue==='pas')sousPas=p[1]}
+  rendre();scrollTo(0,0);
+  setTimeout(()=>{const mots=String(a.titre||'').split(/[\s:,;()·—-]+/).filter(w=>w.length>=5&&/^[A-ZÀ-Ý]/.test(w));const M=document.getElementById('m');let cible=null;
+    for(const w of mots){const els=[...M.querySelectorAll('.carte,.ligne,tr,.prl')].filter(e=>e.textContent.includes(w));if(els.length){cible=els.sort((x,y)=>x.textContent.length-y.textContent.length)[0];break}}
+    if(cible){cible.scrollIntoView({behavior:'smooth',block:'center'});cible.classList.add('flash')}else toast('Cet onglet n\'a pas de ligne dédiée à cette action : le détail est dans l\'action elle-même')},120)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-vers]');if(!b)return;e.preventDefault();e.stopPropagation();allerVers(b.dataset.vers)},true);
 function ouvrirAction(id){filtreOng='';filtreTh='Tous';filtreSt='Toutes';sousAct='dix';vue='act';focusAct=id;rendre();
   setTimeout(()=>{const e=document.getElementById('act-'+id);if(e){e.scrollIntoView({behavior:'smooth',block:'start'});e.classList.add('flash');const d=e.querySelector('details.suivi');if(d)d.open=true}focusAct=''},60)}
 let filtreOng='',focusAct='';
@@ -3120,13 +3130,13 @@ function actions(){fab(null);
     ${a.mesure&&a.mesure!=='—'?`<div class="sub w" style="margin-top:6px">📏 <b>Avant / après :</b> ${esc(a.mesure)}</div>`:''}
     ${s.avant||s.apres?`<div class="kpis" style="margin-top:6px;grid-template-columns:1fr 1fr"><div><div class="sub">Avant</div><b>${esc(s.avant||'—')}</b></div><div><div class="sub">Après</div><b>${esc(s.apres||'—')}</b></div></div>`:''}
     ${s.note?`<div class="sub w" style="margin-top:4px">📝 ${esc(s.note)}</div>`:''}
-    ${a.go&&a.go!=='act'?`<button class="lien" data-go="${esc(a.go)}" style="margin-top:6px;background:none;border:0;padding:0;font-size:14px">Ouvrir l'onglet ${esc(NOM_ONG[ongletA(a)]||'')} ›</button>`:''}
+    ${a.go&&a.go!=='act'?(()=>{const lb=laboDeAction(a);return `<button class="lien" data-vers="${esc(a.id)}" style="margin-top:6px;background:none;border:0;padding:0;font-size:14px">${lb?'Voir la fiche '+esc(lb)+' (onglet Labos) ›':'Voir le détail dans l\'onglet '+esc(NOM_ONG[ongletA(a)]||'')+' ›'}</button>`})():''}
     ${blocSuivi(a)}</div></div></div>`};
   const groupes=filtreTh==='Tous'?TH.map(t=>[t,L.filter(a=>(a.theme||'Autres')===t)]).filter(g=>g[1].length):[[filtreTh,L]];
   const nc=k=>TOUT.filter(FST[k]).length;
   $('#m').innerHTML=sousNav2('sa',[['ord','🔥 Par quoi commencer'],['dix','Plan d\'action'],['av','📏 Mesures'],['msg','Remarques ('+retours().filter(r=>r.st!=='faite'&&r.st!=='classee').length+')'],['cls','Classement des labos']],sousAct,['ord','dix','av'])+
    `<div class="carte"><b>Plan d'action global : toutes les actions de tous les onglets</b><div class="sub w">Chaque action a un responsable, une échéance, la façon de faire et sa mesure avant / après. Ouvrez « Suivi et mesure » pour noter la mise en place, les chiffres avant / après et le verdict : c'est enregistré sur le serveur, visible sur le téléphone comme sur l'ordinateur.</div><div class="ba-btn"><button class="mini" id="paAdd">+ Ajouter une action</button></div></div>
-   ${(()=>{/* 7.27 : 10 actions actives au maximum (Gallup : au-delà, on ne suit plus) ; le reste en réserve */try{const P=prioListe().filter(x=>x.k==='act'&&!actFaite(x.id)).slice(0,10),res=TOUT.filter(a=>!actFaite(a.id)).length-P.length;return `<div class="carte" style="border-left:6px solid var(--vert2)"><b>🎯 Les 10 actions actives</b><div class="sub w">Les plus rentables et les plus urgentes, dans l'ordre (même classement que « Par quoi commencer »). Les ${res} autres sont en réserve : on ne les commence pas avant d'avoir fini celles-ci. Chaque action finie libère une place.</div>${P.map((x,i)=>`<div class="ligne" style="cursor:pointer" onclick="document.getElementById('act-${esc(x.id)}')?.scrollIntoView({behavior:'smooth'})"><span><b>${i+1}. ${esc(x.id)}</b> ${esc(x.titre)}</span><b class="sub">${x.val?'≈ '+eur(x.val)+'/mois':''}</b></div>`).join('')}</div>`}catch(e){return ''}})()}
+   ${(()=>{/* 7.27 : 10 actions actives au maximum (Gallup : au-delà, on ne suit plus) ; le reste en réserve */try{const P=prioListe().filter(x=>x.k==='act'&&!actFaite(x.id)).slice(0,10),res=TOUT.filter(a=>!actFaite(a.id)).length-P.length;return `<div class="carte" style="border-left:6px solid var(--vert2)"><b>🎯 Les 10 actions actives</b><div class="sub w">Les plus rentables et les plus urgentes, dans l'ordre (même classement que « Par quoi commencer »). Les ${res} autres sont en réserve : on ne les commence pas avant d'avoir fini celles-ci. Chaque action finie libère une place.</div>${P.map((x,i)=>`<div class="ligne" style="cursor:pointer" onclick="ouvrirAction('${esc(x.id)}')" title="Ouvrir le détail de l'action"><span><b>${i+1}. ${esc(x.id)}</b> ${esc(x.titre)}</span><b class="sub">${x.val?'≈ '+eur(x.val)+'/mois':''}</b></div>`).join('')}</div>`}catch(e){return ''}})()}
    ${tableauPlan(TOUT)}
    <div class="filtres" id="fst">${Object.keys(FST).map(k=>`<button data-f="${k}" class="${k===filtreSt?'on':''}">${k} (${nc(k)})</button>`).join('')}</div>
    <div class="filtres" id="fth">${['Tous',...TH].map(k=>`<button data-f="${esc(k)}" class="${k===filtreTh?'on':''}">${k==='Tous'?'Tous les thèmes':esc(k)+' ('+TOUT.filter(a=>a.theme===k&&!actFaite(a.id)).length+')'}</button>`).join('')}</div>
