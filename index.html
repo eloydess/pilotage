@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.43';
+const APP_V='7.44';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -296,7 +296,7 @@ function carteReco(r,i){
   <div class="cible" style="margin-top:6px">${esc(r['Cible'])}</div><div class="meta">${esc(r['Constat'])}</div>
   <div class="act">→ ${esc(r['Action recommandée'])}</div>
   <div class="meta">${num(r['Impact € estimé /an'])!==null?'Impact estimé : <b>'+eur(r['Impact € estimé /an'])+'/an</b> · ':''}${r['Responsable']?'Responsable : '+esc(r['Responsable'])+' · ':''}détectée le ${dfr(r['Détectée le'])}</div>
-  <div class="statuts">${st.map(s=>`<button data-id="${esc(r['ID'])}" data-s="${s}" class="${r['Statut']===s?'on':''}">${s}</button>`).join('')}<button class="voirReco" data-id="${esc(r['ID'])}" style="margin-left:auto;border-color:var(--vert2);color:var(--vert2)">Voir ›</button></div></div>`;
+  <div class="statuts">${st.map(s=>`<button data-id="${esc(r['ID'])}" data-s="${s}" class="${r['Statut']===s?'on':''}">${s}</button>`).join('')}<button class="voirReco" data-id="${esc(r['ID'])}" style="margin-left:auto;border-color:var(--vert2);color:var(--vert2)">Voir ›</button></div>${blocCom('reco:'+r['ID'],r['Cible']+' — '+r['Action recommandée'])}</div>`;
 }
 function brancherStatuts(){
   document.querySelectorAll('.voirReco').forEach(x=>x.onclick=e=>{e.stopPropagation();allerReco(D.recos.find(y=>y['ID']===x.dataset.id))});
@@ -2368,7 +2368,21 @@ const fJ=k=>{try{return JSON.parse(ETAT[k]||'{}')||{}}catch(e){return {}}};
 const fDate=d=>new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
 const fQui=q=>`<span class="badge" style="background:var(--bcl);color:var(--bleu)">${esc(q)}</span>`;
 function fSemCour(){const a=auj(),S=FLX.semaines;return S.find(s=>a>=s.du&&a<=s.au)||S.find(s=>s.du>a)||S[S.length-1]}
-function fTache(x,d){const F=fJ('flux_fait'),ok=!!F[x.id];return `<label class="carte demi" style="display:flex;gap:10px;align-items:flex-start;cursor:pointer;${ok?'opacity:.55':''}"><input type="checkbox" class="fxT" data-id="${x.id}" ${ok?'checked':''} style="width:22px;height:22px;margin-top:2px;flex:none"><div style="flex:1"><div style="${ok?'text-decoration:line-through':''}">${esc(x.txt)}</div><div class="sub" style="margin-top:4px">${fQui(x.qui)}${d?' · '+esc(fDate(d)):''}${x.mesure?' · 📏 '+esc(x.mesure):''}${ok?' · fait le '+dfr(F[x.id]):''}</div></div></label>`}
+/* Commentaires (v7.44) : un fil par tâche / recommandation, stocké dans ETAT « commentaires » ;
+   Claude les relit à chaque passage et y répond (de:'Claude'). */
+function comAll(){try{return JSON.parse(ETAT['commentaires']||'{}')||{}}catch(e){return {}}}
+function blocCom(cle,titre){const L=(comAll()[cle]||{}).l||[],n=L.length,der=L[n-1];
+  const att=der&&der.de!=='Claude';
+  return `<details class="com" data-cle="${esc(cle)}" style="margin-top:8px"><summary style="cursor:pointer;font-size:.9em;color:var(--vert2)">💬 ${n?`Commentaires (${n})${att?' · en attente de réponse de Claude':' · Claude a répondu'}`:'Ajouter un commentaire'}</summary>
+  <div style="margin-top:6px">${L.map(c=>`<div style="margin:4px 0;padding:6px 8px;border-radius:8px;background:${c.de==='Claude'?'rgba(46,125,50,.08)':'rgba(0,0,0,.04)'}"><small style="color:var(--doux)">${c.de==='Claude'?'Claude':'Vous'} · ${esc(dfr(c.d))}</small><div style="white-space:pre-wrap">${esc(c.t)}</div></div>`).join('')}
+  <textarea class="comTxt" rows="3" style="width:100%;box-sizing:border-box;margin-top:4px;font:inherit;padding:8px;border-radius:8px;border:1px solid var(--ligne)" placeholder="Votre commentaire, question ou précision (Claude le lira et vous répondra ici)"></textarea>
+  <button class="btn comOk" type="button" style="margin-top:6px">Enregistrer le commentaire</button></div></details>`}
+document.addEventListener('click',async e=>{const b=e.target.closest('.comOk');if(!b)return;e.preventDefault();e.stopPropagation();
+  const box=b.closest('.com'),ta=box.querySelector('.comTxt'),t=(ta.value||'').trim();if(!t){toast('Commentaire vide');return}
+  const cle=box.dataset.cle,A=comAll(),o=A[cle]||{l:[]};o.l.push({de:'Pierre',t,d:auj()});o.maj=new Date().toISOString();A[cle]=o;
+  await majEtat('commentaires',JSON.stringify(A));toast('Commentaire enregistré — Claude le lira');rendre();
+  setTimeout(()=>{const nb=document.querySelector(`.com[data-cle="${CSS.escape(cle)}"]`);if(nb)nb.open=true},50)});
+function fTache(x,d){const F=fJ('flux_fait'),ok=!!F[x.id];return `<div class="carte demi" style="${ok?'opacity:.75':''}"><label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer"><input type="checkbox" class="fxT" data-id="${x.id}" ${ok?'checked':''} style="width:22px;height:22px;margin-top:2px;flex:none"><div style="flex:1"><div style="${ok?'text-decoration:line-through':''}">${esc(x.txt)}</div><div class="sub" style="margin-top:4px">${fQui(x.qui)}${d?' · '+esc(fDate(d)):''}${x.mesure?' · 📏 '+esc(x.mesure):''}${ok?' · fait le '+dfr(F[x.id]):''}</div></div></label>${blocCom('flux:'+x.id,x.txt)}</div>`}
 function fObjMois(){const a=auj().slice(0,7),O=FLX.objectifs.mois.find(m=>m.m===a&&m.clients)||FLX.objectifs.mois.find(m=>m.m>a&&m.clients);return O}
 function fEntete(){const O=fObjMois(),b=FLX.objectifs.base;const nbj=O?new Date(+O.m.slice(0,4),+O.m.slice(5,7),0).getDate():30;
   return `<div class="carte" style="border-left:6px solid var(--vert2)"><b style="font-size:16px">🚀 ${esc(FLX.but)}</b>
