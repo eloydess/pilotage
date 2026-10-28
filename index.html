@@ -164,7 +164,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.44';
+const APP_V='7.45';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -1601,7 +1601,7 @@ function capacite(){const S0=crSyn(),S=crSoldes()?Object.assign({},S0||{},crSold
   const C=A&&A.cerp&&!CERP_CMD_ANNULEES?A.cerp:null,cerpAtt=C?C.lignes.reduce((s,l)=>s+Math.max(0,(+l[2]||0)-(+l[4]||0)),0)*1.021:0;
   const cd=cerpDates(dDeb,N+nAv);const J=[],PASSE=[];let b=solT;
   for(let k=-nAv;k<N;k++){const d=ajJ(d0,k),wd=new Date(d+'T12:00:00').getDay(),j=+d.slice(8),fm=joursMois(d.slice(0,7)+'-01');const ev=[];
-    const inc=apres(d,k),e=(wd>=1&&wd<=5&&inc)?enc:0;const ret=inc&&prem;if(inc)prem=false;
+    const inc=apres(d,k),e=(wd>=1&&wd<=5&&inc&&d!==dSolI)?enc:0;/* 7.45 : le jour de la saisie, les encaissements (CB de la veille, tiers payant) sont déjà dans le solde affiché par la banque : pas comptés une 2e fois */const ret=inc&&prem;if(inc)prem=false;
     ch.forEach(c=>{const cj=Math.min(+c.jour,fm);if(cj===j&&inc)ev.push([c.lib.replace(/\s*\(.*$/,''),+c.montant||0,c.cat])});
     if(inc)evtJour(d,ret).forEach(x=>ev.push(x));
     if(inc)Object.values(jsonEt('eng',{})).forEach(e=>{if(!e||e.statut!=='valide')return;const de=e.echeance||e.date;if(de===d||(ret&&de&&de<d))ev.push([(e.tiers||'Engagement')+' (engagement validé)',+e.ttc||0,e.cat||'aut'])});
