@@ -1448,23 +1448,58 @@ function enregistrerGroupe(champ){
 
 /* Envoi groupé des preuves : 1) vérifier que chaque dossier a sa preuve (capture de l'application de la banque),
    2) relire les mails préparés, 3) envoyer un mail par dossier, un par un. Rien ne part sans votre clic final. */
+/* 7.58 : plusieurs factures d'un même laboratoire réglées par UN virement → une seule capture, un seul mail listant toutes les factures */
+function cleLabo(x){ return String(x.tiers || '').trim().toUpperCase().replace(/\s+/g, ' '); }
+function paquetsGroupe(){
+  var P = [], idx = {};
+  GROUPE.lignes.forEach(function(x){ var c = cleLabo(x); if (idx[c] == null) { idx[c] = P.length; P.push({ cle: c, tiers: x.tiers, lignes: [] }); } P[idx[c]].lignes.push(x); });
+  return P;
+}
 function groupePreuves(){
   var l = cochesRJ();
-  GROUPE = { lignes: l };
+  GROUPE = { lignes: l, fusion: (GROUPE && GROUPE.fusion) || {} };
+  var P = paquetsGroupe();
   document.getElementById('mTitre').textContent = '📨 Envoyer les preuves de virement';
   document.getElementById('mCorps').innerHTML =
-    '<p class="meta">Étape 1 sur 3 — Chaque laboratoire reçoit SA preuve (la capture du virement faite dans l\'application de la banque), dans un mail séparé. ' +
-    'Ajoutez la capture là où elle manque, puis cochez les dossiers à envoyer maintenant.</p>' +
-    l.map(function(x, k){
-      var ok = x.preuves > 0;
-      return ligneChoix(x, ok, ok
-        ? '<div class="meta pos">📨 Preuve prête' + (x.preuves > 1 ? ' (la plus récente sera jointe)' : '') + ' · <a href="#" onclick="event.preventDefault();voirPiecesGroupe(\'' + esc(x.cle) + '\')">voir</a></div>'
-        : '<div class="meta neg">Pas encore de preuve.</div><label class="pj" style="display:inline-block;margin-top:4px">＋ Ajouter la capture du virement<input type="file" accept="image/*,application/pdf" style="display:none" onchange="preuveGroupe(this,' + k + ')"></label>' +
-          '<div class="meta" id="gP' + k + '"></div>');
+    '<p class="meta">Étape 1 sur 3 — Ajoutez la capture du virement faite dans l\'application de la banque là où elle manque, puis cochez les dossiers à envoyer maintenant. ' +
+    'Quand plusieurs factures d\'un même laboratoire sont cochées, vous pouvez les régler par <b>un seul virement</b> : une seule capture, un seul mail qui liste toutes les factures.</p>' +
+    P.map(function(g, gi){
+      var multi = g.lignes.length > 1, fus = multi && GROUPE.fusion[g.cle] !== false;
+      var tot = g.lignes.reduce(function(s, x){ return s + montantPos(x); }, 0);
+      var lignesH = g.lignes.map(function(x){
+        var k = GROUPE.lignes.indexOf(x), ok = x.preuves > 0;
+        return ligneChoix(x, fus ? true : ok, fus ? '' : (ok
+          ? '<div class="meta pos">📨 Preuve prête' + (x.preuves > 1 ? ' (la plus récente sera jointe)' : '') + ' · <a href="#" onclick="event.preventDefault();voirPiecesGroupe(\'' + esc(x.cle) + '\')">voir</a></div>'
+          : '<div class="meta neg">Pas encore de preuve.</div><label class="pj" style="display:inline-block;margin-top:4px">＋ Ajouter la capture du virement<input type="file" accept="image/*,application/pdf" style="display:none" onchange="preuveGroupe(this,' + k + ')"></label>' +
+            '<div class="meta" id="gP' + k + '"></div>'));
+      }).join('');
+      if (!multi) return lignesH;
+      var avec = g.lignes.filter(function(x){ return x.preuves > 0; }).length;
+      return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid var(--vert)"><b>' + esc(g.tiers) + '</b> — ' + g.lignes.length + ' factures cochées · ' + eur(tot) +
+        '<label style="display:flex;gap:8px;align-items:flex-start;margin:6px 0"><input type="checkbox"' + (fus ? ' checked' : '') + ' onchange="GROUPE.fusion[\'' + esc(g.cle).replace(/'/g, "\\'") + '\']=this.checked;groupePreuves()">' +
+        '<span><b>Un seul virement pour ces ' + g.lignes.length + ' factures</b> : une seule capture et un seul mail au laboratoire</span></label>' +
+        (fus ? '<div class="meta ' + (avec === g.lignes.length ? 'pos' : '') + '">' + (avec === g.lignes.length ? '📨 Preuve présente dans les ' + avec + ' dossiers' : (avec ? avec + ' dossier(s) sur ' + g.lignes.length + ' ont déjà une preuve. ' : '') + 'Ajoutez la capture du virement une seule fois : elle est rangée dans chacun des ' + g.lignes.length + ' dossiers.') + '</div>' +
+          '<label class="pj" style="display:inline-block;margin-top:4px">＋ ' + (avec === g.lignes.length ? 'Remplacer par une autre capture' : 'Ajouter la capture du virement (pour les ' + g.lignes.length + ' factures)') + '<input type="file" accept="image/*,application/pdf" style="display:none" onchange="preuvePaquet(this,' + gi + ')"></label><div class="meta" id="gQ' + gi + '"></div>' : '') +
+        lignesH + '</div>';
     }).join('') +
     '<div id="gErr" class="erreur"></div>' +
     '<button id="gOk" class="btn b-ok" style="width:100%" onclick="preparerGroupe()">Étape 2 : préparer les mails →</button>';
   ouvrir();
+}
+function preuvePaquet(input, gi){
+  var g = paquetsGroupe()[gi], zone = document.getElementById('gQ' + gi);
+  if (!input.files.length) return;
+  lireFichiers(input.files, function(fs){
+    if (!fs.length) { zone.textContent = 'Format non pris en charge (photo ou PDF).'; return; }
+    var reste = g.lignes.slice(), n = 0;
+    var suite = function(){
+      if (!reste.length) { zone.innerHTML = '<span class="pos">✓ Capture rangée dans les ' + n + ' dossiers.</span>'; setTimeout(groupePreuves, 600); return; }
+      var x = ligneTreso(reste.shift().cle);
+      zone.textContent = 'Enregistrement de la capture… ' + (n + 1) + ' / ' + g.lignes.length;
+      appel('mob_piece', [JETON, x.cle, 'preuve', fs[0]], function(r){ majCompte(x, r); n++; suite(); }, function(m){ zone.textContent = x.tiers + ' : ' + m; });
+    };
+    suite();
+  });
 }
 function voirPiecesGroupe(cle){
   var x = ligneTreso(cle);
@@ -1488,20 +1523,36 @@ function preuveGroupe(input, k){
     }, function(m){ zone.textContent = m; });
   });
 }
+function texteGroupe(g, total){
+  return 'Madame, Monsieur,\n\nVeuillez trouver ci-joint la preuve du virement de ' + eur(total) + ' effectué en règlement des ' + g.length + ' factures suivantes :\n' +
+    g.map(function(x){ return '- ' + (x.refs || 'facture') + (x.date ? ' du ' + x.date : '') + ' : ' + eur(montantPos(x)); }).join('\n') +
+    '\n\nTotal du virement : ' + eur(total) + '.\n\nNous vous remercions de bien vouloir lettrer ces factures et, si des marchandises sont en attente, de procéder à leur livraison.\n\nBien cordialement,';
+}
 function preparerGroupe(){
   var cles = clesChoisies(), err = document.getElementById('gErr');
   if (!cles.length) { err.textContent = 'Cochez au moins un dossier.'; return; }
   var sans = cles.map(ligneTreso).filter(function(x){ return !(x.preuves > 0); });
-  if (sans.length) { err.textContent = 'Pas de preuve pour : ' + sans.map(function(x){ return x.tiers; }).join(', ') + '. Ajoutez la capture ou décochez.'; return; }
+  if (sans.length) { err.textContent = 'Pas de preuve pour : ' + sans.map(function(x){ return x.tiers + (x.refs ? ' (' + x.refs + ')' : ''); }).join(', ') + '. Ajoutez la capture ou décochez.'; return; }
   var b = document.getElementById('gOk'); b.disabled = true;
-  GROUPE.mails = []; var reste = cles.slice();
+  /* un « mail » = un dossier, ou un paquet de factures du même laboratoire réglées par un seul virement */
+  var paq = {}, unites = [];
+  cles.forEach(function(c){ var x = ligneTreso(c), k = cleLabo(x);
+    if (GROUPE.fusion[k] !== false && cles.filter(function(c2){ return cleLabo(ligneTreso(c2)) === k; }).length > 1) { if (!paq[k]) { paq[k] = { cles: [] }; unites.push(paq[k]); } paq[k].cles.push(c); }
+    else unites.push({ cles: [c] }); });
+  GROUPE.mails = []; var reste = unites.slice();
   var suite = function(){
-    b.textContent = 'Préparation… ' + GROUPE.mails.length + ' / ' + cles.length;
+    b.textContent = 'Préparation… ' + GROUPE.mails.length + ' / ' + unites.length;
     if (!reste.length) return relireGroupe();
-    var cle = reste.shift();
+    var u = reste.shift(), cle = u.cles[0];
     appel('mob_infosEnvoi', [JETON, cle, 'preuve'], function(r){
-      GROUPE.mails.push({ cle: cle, a: r.a || '', o: r.objet || '', t: r.texte || '' }); suite();
-    }, function(m){ err.textContent = ligneTreso(cle).tiers + ' : ' + m; b.disabled = false; b.textContent = 'Réessayer'; });
+      var m = { cle: cle, cles: u.cles, a: r.a || '', o: r.objet || '', t: r.texte || '' };
+      if (u.cles.length > 1) {
+        var g = u.cles.map(ligneTreso), tot = g.reduce(function(s, x){ return s + montantPos(x); }, 0);
+        m.total = tot; m.o = 'Preuve de virement ' + eur(tot) + ' — ' + g.length + ' factures — ' + g.map(function(x){ return x.refs; }).filter(Boolean).join(', ');
+        m.t = texteGroupe(g, tot);
+      }
+      GROUPE.mails.push(m); suite();
+    }, function(msg){ err.textContent = ligneTreso(cle).tiers + ' : ' + msg; b.disabled = false; b.textContent = 'Réessayer'; });
   };
   suite();
 }
@@ -1510,18 +1561,19 @@ function relireGroupe(){
     '<p class="meta">Étape 2 sur 3 — Relisez chaque mail. La preuve est jointe automatiquement et votre signature ajoutée. ' +
     'S\'il ne reste rien à payer sur un dossier, il sera clôturé.</p>' +
     GROUPE.mails.map(function(m, k){
-      var x = ligneTreso(m.cle);
-      return '<div class="carte" style="margin:8px 0;padding:10px"><b>' + esc(x.tiers) + '</b> · ' + eur(montantPos(x)) + ' <span class="meta">' + esc(x.refs) + '</span>' +
+      var x = ligneTreso(m.cle), g = m.cles.map(ligneTreso);
+      return '<div class="carte" style="margin:8px 0;padding:10px"><b>' + esc(x.tiers) + '</b> · ' + eur(m.cles.length > 1 ? m.total : montantPos(x)) +
+        (m.cles.length > 1 ? ' <span class="meta">— <b>un seul virement, un seul mail</b> pour ' + g.length + ' factures :</span><div class="meta">' + g.map(function(y){ return '• ' + esc(y.refs || '—') + ' : ' + eur(montantPos(y)); }).join('<br>') + '</div>' : ' <span class="meta">' + esc(x.refs) + '</span>') +
         '<div class="champ"><label>À</label><input id="gA' + k + '" value="' + esc(m.a) + '" placeholder="adresse du laboratoire"></div>' +
         (m.a ? '' : '<div class="meta neg">Aucune adresse connue pour ce laboratoire : saisissez-la.</div>') +
         '<details><summary class="meta">Voir / modifier l\'objet et le message</summary>' +
         '<div class="champ"><label>Objet</label><input id="gO' + k + '" value="' + esc(m.o) + '"></div>' +
-        '<div class="champ"><label>Message</label><textarea id="gT' + k + '" rows="7">' + esc(m.t) + '</textarea></div></details>' +
+        '<div class="champ"><label>Message</label><textarea id="gT' + k + '" rows="' + (m.cles.length > 1 ? 12 : 7) + '">' + esc(m.t) + '</textarea></div></details>' +
         '<div class="meta" id="gR' + k + '"></div></div>';
     }).join('') +
     '<div id="gErr" class="erreur"></div>' +
     '<div class="actions"><button class="btn b-voir" onclick="groupePreuves()">← Retour</button>' +
-    '<button id="gOk" class="btn b-ok" onclick="envoyerGroupe()">Étape 3 : ✉️ Envoyer les ' + GROUPE.mails.length + ' mails</button></div>';
+    '<button id="gOk" class="btn b-ok" onclick="envoyerGroupe()">Étape 3 : ✉️ Envoyer ' + (GROUPE.mails.length > 1 ? 'les ' + GROUPE.mails.length + ' mails' : 'le mail') + '</button></div>';
 }
 function envoyerGroupe(){
   var err = document.getElementById('gErr'), b = document.getElementById('gOk');
@@ -1533,16 +1585,17 @@ function envoyerGroupe(){
   if (mauvais.length) { err.textContent = 'Adresse manquante ou invalide pour : ' + mauvais.map(function(m){ return ligneTreso(m.cle).tiers; }).join(', ') + '.'; return; }
   var aEnvoyer = GROUPE.mails.filter(function(m){ return !m.fait; });
   if (!confirm('Envoyer maintenant ' + aEnvoyer.length + ' mail(s), chacun avec sa preuve de virement ?\n\n' +
-    aEnvoyer.map(function(m){ return '• ' + ligneTreso(m.cle).tiers + ' → ' + m.a; }).join('\n'))) return;
+    aEnvoyer.map(function(m){ return '• ' + ligneTreso(m.cle).tiers + (m.cles.length > 1 ? ' (' + m.cles.length + ' factures, ' + eur(m.total) + ')' : '') + ' → ' + m.a; }).join('\n'))) return;
   b.disabled = true; err.textContent = '';
-  var k = 0, envoyes = 0, echecs = 0;
+  var k = 0, envoyes = 0, echecs = 0, CR = [];
   var suite = function(){
     while (k < GROUPE.mails.length && GROUPE.mails[k].fait) k++;
     if (k >= GROUPE.mails.length) {
       b.textContent = echecs ? 'Réessayer les ' + echecs + ' mail(s) non envoyés' : '✅ Terminé';
       b.disabled = !echecs;
-      if (echecs) b.onclick = function(){ envoyerGroupe(); }; 
+      if (echecs) b.onclick = function(){ envoyerGroupe(); };
       err.innerHTML = '<span class="pos">' + envoyes + ' mail(s) envoyé(s).</span>' + (echecs ? ' ' + echecs + ' en échec (voir ci-dessus).' : '') +
+        (CR.length ? '<div class="carte" style="margin-top:8px;padding:8px"><b>Compte rendu</b>' + CR.join('') + '</div>' : '') +
         ' <button class="btn b-voir" style="width:100%;margin-top:8px" onclick="fermer();chargerTreso()">Fermer</button>';
       return;
     }
@@ -1551,8 +1604,23 @@ function envoyerGroupe(){
     z.textContent = 'Envoi en cours…';
     appel('mob_envoiDossier', [JETON, m.cle, 'preuve', m.a, m.o, m.t, true], function(r){
       m.fait = true; envoyes++;
-      z.innerHTML = '<span class="pos">✅ Envoyé' + (r && r.cloture ? ' — dossier clôturé' : '') + '</span>';
-      k = i + 1; suite();
+      if (m.cles.length < 2) { z.innerHTML = '<span class="pos">✅ Envoyé' + (r && r.cloture ? ' — dossier clôturé' : '') + '</span>'; k = i + 1; return suite(); }
+      /* les autres factures du même virement : date de preuve renseignée (= dossier clôturé) et note dans leurs commentaires */
+      var g = m.cles.map(ligneTreso), d = aujourdhui(), dfr = d.split('-').reverse().join('/'), autres = m.cles.slice(1), faits = 1, ko = [];
+      var note = function(y){ return dfr + ' : preuve du virement groupé de ' + eur(m.total) + ' envoyée à ' + m.a + ' en un seul mail pour ' + g.length + ' factures (' + g.map(function(q){ return q.refs; }).filter(Boolean).join(', ') + ').'; };
+      var fin = function(){
+        z.innerHTML = '<span class="pos">✅ Un seul mail envoyé pour ' + g.length + ' factures — ' + faits + ' dossier(s) mis à jour' + (ko.length ? '</span> <span class="neg">· non mis à jour : ' + esc(ko.join(', ')) + '</span>' : '</span>');
+        CR.push('<div class="meta" style="margin-top:4px">✅ <b>' + esc(g[0].tiers) + '</b> — 1 preuve de virement (' + eur(m.total) + ') envoyée le ' + dfr + ' à ' + esc(m.a) + ' pour :<br>' + g.map(function(y){ return '• ' + esc(y.refs || '—') + ' : ' + eur(montantPos(y)) + (ko.indexOf(y.refs) >= 0 ? ' <span class="neg">(à clôturer à la main)</span>' : ''); }).join('<br>') + '</div>');
+        k = i + 1; suite();
+      };
+      var com = function(y, apres){ appel('mob_majDossier', [JETON, y.cle, 'commentaire', ((y.commentaire || '').trim() ? y.commentaire.trim() + '\n' : '') + note(y)], apres, apres); };
+      var suiteA = function(){
+        if (!autres.length) { var y0 = g[0], sv = (r && r.note) ? ' (' + r.note + ')' : ''; return appel('mob_majDossier', [JETON, y0.cle, 'commentaire', ((y0.commentaire || '').trim() ? y0.commentaire.trim() + '\n' : '') + note(y0) + sv], fin, fin); }
+        var y = ligneTreso(autres.shift());
+        appel('mob_majDossier', [JETON, y.cle, 'preuve', d], function(){ com(y, function(){ faits++; suiteA(); }); },
+          function(msg){ ko.push(y.refs || y.tiers); suiteA(); });
+      };
+      suiteA();
     }, function(msg){ echecs++; z.innerHTML = '<span class="neg">Non envoyé : ' + esc(msg) + '</span>'; k = i + 1; suite(); });
   };
   suite();
