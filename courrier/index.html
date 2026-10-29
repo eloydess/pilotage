@@ -1201,14 +1201,15 @@ function positionAdmin(cles){
   chargerPiecesPosition();
 }
 function totalCompte(c){ return Math.round(c.lignes.reduce(function(s, l){ return s + l.montant; }, 0) * 100) / 100; }
-function intitule(l){ return (String(l.tiers).toUpperCase() + (l.refs ? ' — ' + l.refs : '')).replace(/\s+/g, ' ').slice(0, 70); }
+function refsPropres(r){ return String(r || '').replace(/\s*\([^)]*\)/g, '').replace(/\s*\[[^\]]*\]/g, '').replace(/;?\s*n° de proforma dans \S+/gi, '').replace(/\s*—\s*n° cde.*$/i, '').replace(/^Proformas?\s+/i, 'Proforma ').replace(/\s*;\s*$/, '').replace(/\s+/g, ' ').trim(); }
+function intitule(l){ return (String(l.tiers).toUpperCase() + (l.refs ? ' — ' + refsPropres(l.refs) : '')).replace(/\s+/g, ' ').slice(0, 70); }
 function texteMailAdmin(){
   var morceaux = POS.comptes.map(function(c){
     var tot = totalCompte(c);
     return 'Position bancaire n° ' + c.num + ' — compte ' + NOMS_BANQUE[c.banque] + ' :\n' +
       (function(){ var G = {}, o = []; c.lignes.forEach(function(l){ var k = String(l.tiers || '').trim().toUpperCase().replace(/\s+/g, ' '); if (!G[k]) { G[k] = []; o.push(k); } G[k].push(l); });
         return o.map(function(k){ var L = G[k], s = Math.round(L.reduce(function(a, l){ return a + l.montant; }, 0) * 100) / 100;
-          return L.length === 1 ? '- ' + intitule(L[0]) + ' : ' + eur(s) : '- ' + String(L[0].tiers).toUpperCase() + ' : un virement de ' + eur(s) + ' pour ' + L.length + ' factures :\n' + L.map(function(l){ return '    • ' + String(l.refs || '—').replace(/\s+/g, ' ').slice(0, 80) + ' : ' + eur(l.montant); }).join('\n'); }).join('\n'); })() +
+          return L.length === 1 ? '- ' + intitule(L[0]) + ' : ' + eur(s) : '- ' + String(L[0].tiers).toUpperCase() + ' : un virement de ' + eur(s) + ' pour ' + L.length + ' factures :\n' + L.map(function(l){ return '    • ' + (refsPropres(l.refs) || '—').slice(0, 90) + ' : ' + eur(l.montant); }).join('\n'); }).join('\n'); })() +
       '\nTotal des virements : ' + eur(tot) +
       (c.solde != null ? '\nSolde avant virements : ' + eur(c.solde) + ' ; solde après virements : ' + eur(c.solde - tot) : '');
   });
