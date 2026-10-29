@@ -1127,7 +1127,7 @@ function afficherTreso(){
       '<div class="meta">' + esc(x.refs) + (x.date ? ' · ' + esc(x.date) : '') + '</div>' +
       (x.verse ? '<div class="meta verse">💶 Facture ' + eur(x.montantTTC) + ' · déjà versé ' + eur(x.verse) + ' (' + x.versements.length + ' fois) · <b>reste ' + eur(x.du) + '</b></div>' : '') +
       '<div class="meta">' + esc(x.statut) + (x.source !== 'Fichier RJ' ? ' · 📬 ' + esc(x.source) : '') + '</div>' +
-      (x.source === 'Fichier RJ' ? '<div class="etapes">' + etape('📤 Demande', x.demande) + etape('✔ Validé', x.validation) + etape('📨 Preuve envoyée', x.preuve) + '</div>' +
+      (x.source === 'Fichier RJ' ? '<div class="etapes"><span onclick="event.stopPropagation();demandeDepuisCarte(' + i + ')" style="cursor:pointer" title="Préparer la demande de virement à l\'administrateur">' + etape('📤 Demande', x.demande) + '</span>' + etape('✔ Validé', x.validation) + etape('📨 Preuve envoyée', x.preuve) + '</div>' +
         badgesPieces(x) + alerteDocs(x) +
         (x.commentaire ? '<div class="meta com">' + esc(x.commentaire) + '</div>' : '') +
         '<div class="opts"><button class="pj" onclick="dossier(' + i + ')">✏️ Mettre à jour le dossier</button>' +
@@ -1226,7 +1226,7 @@ function objetMailAdmin(){
 }
 function dessinerPosition(){
   document.getElementById('mTitre').textContent = 'Position bancaire pour l\'administrateur';
-  var h = '<p class="meta">À faire <b>après</b> avoir saisi les virements dans l\'application de la banque. Rien n\'est envoyé automatiquement.</p>' +
+  var h = '<p class="meta">À faire <b>après</b> avoir saisi les virements dans l\'application de la banque (sans les valider) : joignez pour chaque virement le <b>bordereau</b> (capture de la saisie) et la facture. La preuve de virement, elle, est pour le laboratoire, une fois le virement fait. Rien n\'est envoyé automatiquement.</p>' +
     '<div class="champ"><label>Date de la position</label><input type="date" value="' + POS.date + '" onchange="POS.date=this.value;dessinerPosition()"></div>';
   POS.comptes.forEach(function(c, ci){
     var tot = totalCompte(c);
@@ -1234,14 +1234,19 @@ function dessinerPosition(){
       '<div class="opts"><label class="meta">N° de position <input style="width:70px" inputmode="numeric" value="' + c.num + '" onchange="POS.comptes[' + ci + '].num=Number(this.value)||1;dessinerPosition()"></label>' +
       '<label class="meta">Solde avant virements <input style="width:120px" inputmode="decimal" value="' + (c.solde == null ? '' : String(c.solde).replace('.', ',')) + '" onchange="POS.comptes[' + ci + '].solde=nb(this.value);dessinerPosition()"></label></div>' +
       '<table class="tpos"><tr><th>Virement</th><th>Montant</th><th>Pièces à joindre</th></tr>' +
-      c.lignes.map(function(l, li){
-        return '<tr><td>' + esc(intitule(l)) + '</td><td style="text-align:right;white-space:nowrap">' + eur(l.montant) + '</td><td class="meta">' +
+      (function(){ var vus = {}; return c.lignes.map(function(l, li){
+        var k = cleLabo(l), L = c.lignes.filter(function(z){ return cleLabo(z) === k; }), entete = '';
+        if (L.length > 1 && !vus[k]) { vus[k] = 1; var s = L.reduce(function(a, z){ return a + z.montant; }, 0), avec = L.filter(function(z){ return piecesDe(z, 'bordereau').length; }).length;
+          entete = '<tr style="background:var(--fond2,#f6f7f9)"><td colspan="3"><b>' + esc(String(l.tiers).toUpperCase()) + ' — un virement de ' + eur(s) + ' pour ' + L.length + ' factures</b> · ' +
+            (avec === L.length ? '<span class="pos">📝 bordereau dans les ' + L.length + ' dossiers</span>' : (avec ? avec + '/' + L.length + ' avec bordereau · ' : '')) +
+            ' <label class="lienfic">＋ ' + (avec === L.length ? 'remplacer' : 'un seul bordereau pour les ' + L.length + ' factures') + '<input type="file" accept="application/pdf,image/*" style="display:none" onchange="bordereauLabo(this,' + ci + ',\'' + esc(k).replace(/'/g, "\\'") + '\')"></label></td></tr>'; }
+        return entete + '<tr><td>' + esc(intitule(l)) + '</td><td style="text-align:right;white-space:nowrap">' + eur(l.montant) + '</td><td class="meta">' +
           cellulePieces(l, ci, li) + '</td></tr>';
-      }).join('') +
+      }).join(''); })() +
       '<tr><td><b>Total</b></td><td style="text-align:right"><b>' + eur(tot) + '</b></td><td class="meta">' + (c.solde != null ? 'solde après : <b class="' + (c.solde - tot < 0 ? 'neg' : 'pos') + '">' + eur(c.solde - tot) + '</b>' : 'solde non saisi') + '</td></tr></table></div>';
   });
   h += '<button class="btn b-voir" style="width:100%" onclick="telechargerPositions()">⬇️ 1. (facultatif) Télécharger ' + (POS.comptes.length > 1 ? 'les positions bancaires' : 'la position bancaire') + ' (Excel, modèle de l\'administrateur)</button>' +
-    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="dossierPDF()">⬇️ 2. (facultatif) Télécharger les justificatifs en un seul PDF (preuve + facture de chaque virement)</button>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="dossierPDF()">⬇️ 2. (facultatif) Télécharger les justificatifs en un seul PDF (bordereau + facture de chaque virement)</button>' +
     '<div class="champ" style="margin-top:10px"><label>À</label><input id="pA" value="' + esc(POS.a) + '" onchange="POS.a=this.value;lsSet(\'triRJ_adminA\',this.value)"></div>' +
     '<div class="champ"><label>Copie</label><input id="pCc" value="' + esc(POS.cc) + '" onchange="POS.cc=this.value;lsSet(\'triRJ_adminCc\',this.value)"></div>' +
     '<div class="champ"><label>Objet</label><input id="pO" value="' + esc(POS.objet || objetMailAdmin()) + '" oninput="POS.objet=this.value"></div>' +
@@ -1253,17 +1258,22 @@ function dessinerPosition(){
     '<div id="pErr" class="erreur"></div>';
   document.getElementById('mCorps').innerHTML = h;
 }
-function piecesDe(l, g){ return (l.pieces || []).filter(function(p){ return p.genre === g; }); }
+/* 7.67 : le BORDEREAU (ordre de virement saisi à la banque, avant le virement) est pour l'administrateur ; la PREUVE (virement fait) est pour le laboratoire.
+   Le serveur ne connaît que preuve / facture / document : un bordereau est un « document » dont le nom porte « BORDEREAU ». */
+function estBordereau(p){ return p && p.genre === 'document' && /BORDEREAU/i.test(p.nom || ''); }
+function piecesDe(l, g){ return (l.pieces || []).filter(function(p){ return g === 'bordereau' ? estBordereau(p) : g === 'document' ? (p.genre === 'document' && !estBordereau(p)) : p.genre === g; }); }
+function genreServeur(g){ return g === 'bordereau' ? 'document' : g; }
+function nomPiece(g, f){ return g === 'bordereau' ? Object.assign({}, f, { nom: 'BORDEREAU de virement - ' + (f.nom || 'saisie banque') }) : f; }
 function cellulePieces(l, ci, li){
   if (l.etat === 'chargement') return '⏳ lecture des pièces du dossier…';
   if (l.etat === 'recherche') return '⏳ recherche de la facture dans le mail…';
   var ligne = function(g, libelle){
     var ps = piecesDe(l, g);
     return '<div>' + (ps.length ? '✅ ' + libelle + ' : ' + ps.map(function(p){ return '<a href="#" onclick="voirPiecePos(' + ci + ',' + li + ',\'' + esc(p.id) + '\');return false">👁 ' + esc(p.nom.replace(/^(PREUVE|FACTURE|DOCUMENT) \d{4}-\d{2}-\d{2} — /, '')) + '</a>'; }).join(', ')
-      : '<b style="color:var(--rouge)">✗ ' + libelle + ' manquante</b>') +
+      : '<b style="color:var(--rouge)">✗ ' + libelle + ' manquant' + (g === 'facture' ? 'e' : '') + '</b>') +
       ' <label class="lienfic">ajouter<input type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="fichiersLigne(this,' + ci + ',' + li + ',\'' + g + '\')"></label></div>';
   };
-  return ligne('preuve', 'preuve de virement') + ligne('facture', 'facture') +
+  return ligne('bordereau', 'bordereau de virement (saisie à la banque)') + ligne('facture', 'facture') +
     (piecesDe(l, 'document').length ? ligne('document', 'document') : '<div><label class="lienfic">＋ autre document<input type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="fichiersLigne(this,' + ci + ',' + li + ',\'document\')"></label></div>');
 }
 function lireFichiers(liste, fin){
@@ -1306,7 +1316,22 @@ function fichiersLigne(input, ci, li, genre){
     var suite = function(){
       if (!fs.length) { l.etat = 'ok'; dessinerPosition(); return; }
       if (err) err.textContent = 'Enregistrement du fichier dans le dossier…';
-      appel('mob_piece', [JETON, l.cle, genre, fs.shift()], function(r){ majLigne(l, r); suite(); }, function(m){ if (err) err.textContent = m; });
+      appel('mob_piece', [JETON, l.cle, genreServeur(genre), nomPiece(genre, fs.shift())], function(r){ majLigne(l, r); suite(); }, function(m){ if (err) err.textContent = m; });
+    };
+    suite();
+  });
+}
+/* un seul bordereau pour toutes les factures d'un même laboratoire (un virement = un bordereau) */
+function bordereauLabo(input, ci, k){
+  var c = POS.comptes[ci], L = c.lignes.filter(function(l){ return cleLabo(l) === k; }), err = document.getElementById('pErr');
+  var fichiers = Array.prototype.slice.call(input.files || []); input.value = '';
+  lireFichiers(fichiers, function(fs){
+    if (!fs.length) { if (err) err.textContent = 'Format non pris en charge (photo ou PDF).'; return; }
+    var reste = L.slice(), n = 0;
+    var suite = function(){
+      if (!reste.length) { if (err) err.innerHTML = '<span class="pos">✓ Bordereau rangé dans les ' + n + ' dossiers de ' + esc(L[0].tiers) + '.</span>'; dessinerPosition(); return; }
+      var l = reste.shift(); if (err) err.textContent = 'Bordereau… ' + (n + 1) + ' / ' + L.length;
+      appel('mob_piece', [JETON, l.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ majLigne(l, r); n++; suite(); }, function(m){ if (err) err.textContent = m; });
     };
     suite();
   });
@@ -1330,7 +1355,7 @@ function dossierPDF(){
   var err = document.getElementById('pErr'); err.textContent = '';
   var manque = [];
   POS.comptes.forEach(function(c){ c.lignes.forEach(function(l){
-    if (!piecesDe(l, 'preuve').length) manque.push(intitule(l) + ' : preuve de virement');
+    if (!piecesDe(l, 'bordereau').length) manque.push(intitule(l) + ' : bordereau de virement');
     if (!piecesDe(l, 'facture').length) manque.push(intitule(l) + ' : facture');
   }); });
   if (manque.length && !confirm('Il manque :\n- ' + manque.join('\n- ') + '\n\nCréer le PDF quand même ?')) return;
@@ -1348,7 +1373,7 @@ function dossierPDF(){
 function manquesPos(){
   var manque = [];
   POS.comptes.forEach(function(c){ c.lignes.forEach(function(l){
-    if (!piecesDe(l, 'preuve').length) manque.push(intitule(l) + ' : preuve de virement');
+    if (!piecesDe(l, 'bordereau').length) manque.push(intitule(l) + ' : bordereau de virement');
     if (!piecesDe(l, 'facture').length) manque.push(intitule(l) + ' : facture');
   }); });
   return manque;
@@ -1372,7 +1397,7 @@ function construirePDF(err){
         } catch (e) { echecs.push(titre + ' (' + f.nom + ')'); }
       };
       for (var c of POS.comptes) for (var l of c.lignes) {
-        for (var g of ['preuve', 'facture', 'document']) for (var p of piecesDe(l, g)) {
+        for (var g of ['bordereau', 'facture', 'document']) for (var p of piecesDe(l, g)) {
           err.textContent = 'Assemblage du PDF… (' + l.tiers + ')';
           try { await ajouter(await appelP('mob_fichier', [JETON, l.cle, p.id]), intitule(l) + ' - ' + g); } catch (e) { echecs.push(intitule(l) + ' - ' + g + ' (' + e.message + ')'); }
         }
@@ -1469,6 +1494,12 @@ function copierMailAdmin(){
   var t = document.getElementById('pT').value;
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ document.getElementById('pErr').innerHTML = '<span class="pos">✓ Texte copié.</span>'; }, function(){ prompt('Copiez ce texte :', t); });
   else prompt('Copiez ce texte :', t);
+}
+/* clic sur « 📤 Demande » : demande de virement pour ce dossier et toutes les factures cochées du même laboratoire */
+function demandeDepuisCarte(i){
+  var x = TRESO.lignes[i], k = cleLabo(x);
+  var cles = TRESO.lignes.filter(function(y){ return y.source === 'Fichier RJ' && cleLabo(y) === k && (y.choisi || y === x); }).map(function(y){ return y.cle; });
+  positionAdmin(cles);
 }
 function noterDemande(){
   var cles = [];
@@ -1961,7 +1992,7 @@ function afficherPieces(x){
   var z = document.getElementById('pcListe'); if (!z) return;
   var l = x.pieces || [];
   z.innerHTML = badgesPieces(x) + blocControleDocs(x) + (l.length ? l.map(function(p){
-    return '<div class="ligne1" style="margin-top:6px;align-items:center"><span>' + GENRES_PIECE[p.genre] + ' · <span class="meta">' + esc(p.nom) + '</span></span>' +
+    return '<div class="ligne1" style="margin-top:6px;align-items:center"><span>' + (estBordereau(p) ? '📝 Bordereau de virement' : GENRES_PIECE[p.genre]) + ' · <span class="meta">' + esc(p.nom) + '</span></span>' +
       '<span style="white-space:nowrap"><button class="pj" onclick="voirPiece(\'' + esc(p.id) + '\')">👁 Voir</button> ' +
       '<a href="#" onclick="retirerPiece(\'' + esc(p.id) + '\');return false">retirer</a></span></div>';
   }).join('') : '<div class="meta" style="margin-top:6px">Aucune pièce pour l\'instant.</div>');
