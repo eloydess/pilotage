@@ -1044,14 +1044,14 @@ function soldeDe(b){ var s = TRESO.soldes[b]; if (!s) return null; if (s.actuel 
 function detailSolde(b){
   var s = TRESO.soldes[b]; if (!s || s.actuel == null) return '';
   var d = s.depuis || { total: 0, liste: [], sansMontant: [] };
-  if (!d.liste.length && !d.sansMontant.length) return '<div class="meta">Aucun virement depuis cette saisie.</div>';
-  return '<details class="meta"><summary>Saisi ' + eur(s.saisi) + ' − ' + d.liste.length + ' virement(s) depuis : ' + eur(d.total) + '</summary>' +
+  if (!d.liste.length && !d.sansMontant.length) return '<div class="meta">Aucun virement fait (enregistré comme payé) depuis cette saisie.</div>';
+  return '<details class="meta"><summary>Saisi ' + eur(s.saisi) + ' − ' + d.liste.length + ' virement(s) déjà fait(s) depuis : ' + eur(d.total) + '</summary>' +
     d.liste.map(function(v){ return '<div>• ' + esc(v.tiers) + ' — ' + eur(v.montant) + ' <span class="meta">(' + esc(v.origine) + ', ' + esc(String(v.quand).slice(0, 10)) + ')</span></div>'; }).join('') +
     (d.sansMontant.length ? '<div class="neg">Montant inconnu, non déduit : ' + d.sansMontant.map(function(v){ return esc(v.tiers); }).join(', ') + '</div>' : '') +
     '<div>Si un de ces virements était déjà débité au moment de la saisie, mettez le solde à jour.</div></details>';
 }
 function totauxTreso(){
-  var t = { du: 0, nDu: 0, sansMontant: 0, vir: 0, nVir: 0, parBanque: { CEBPL: 0, BPGO: 0 }, duDeduit: 0 };
+  var t = { du: 0, nDu: 0, sansMontant: 0, vir: 0, nVir: 0, parBanque: { CEBPL: 0, BPGO: 0 }, duDeduit: 0, liste: { CEBPL: {}, BPGO: {} } };
   TRESO.lignes.forEach(function(l){
     if (soldesActualises() && l.du > 0 && (l.validation || l.preuve)) t.duDeduit += l.du;   // déjà sorti du compte
     if (l.du != null) { t.du += l.du; t.nDu++; } else t.sansMontant++;
@@ -1060,7 +1060,9 @@ function totauxTreso(){
       // Déjà déduit du solde actualisé (virement validé, preuve envoyée ou facture soldée) : ne pas le compter deux fois.
       var dejaDeduit = soldesActualises() && (l.validation || l.preuve || (l.du != null && l.du <= 0));
       if (dejaDeduit) m = 0;
-      t.vir += m; t.nVir++; t.parBanque[l.banqueVir] = (t.parBanque[l.banqueVir] || 0) + m;
+      var bq = l.banqueVir || 'CEBPL';   /* 7.68 : banque non choisie = Caisse d'Épargne (avant : le virement n'était compté nulle part) */
+      t.vir += m; t.nVir++; t.parBanque[bq] = (t.parBanque[bq] || 0) + m;
+      if (m > 0) { t.liste = t.liste || { CEBPL: {}, BPGO: {} }; var k = String(l.tiers || '').trim().toUpperCase(); var g = (t.liste[bq] = t.liste[bq] || {})[k] = t.liste[bq][k] || { tiers: l.tiers, n: 0, m: 0 }; g.n++; g.m += m; }
     }
   });
   return t;
@@ -1075,7 +1077,10 @@ function afficherTreso(){
       return '<div style="margin-top:8px"><div class="ligne1"><span>' + NOMS_BANQUE[b] + (s && s.actuel != null ? ' <span class="meta">(estimé maintenant)</span>' : '') + '</span><b>' + (s ? eur(sd) : 'non saisi') + '</b></div>' +
         '<div class="meta">' + (s ? 'saisi le ' + esc(s.date) : 'Saisissez le solde du jour') + ' · <a href="#" onclick="saisirSolde(\'' + b + '\');return false">mettre à jour</a></div>' +
         (s ? detailSolde(b) : '') +
-        (t.parBanque[b] ? '<div class="meta">Après les virements choisis : <b class="' + (reste != null && reste < 0 ? 'neg' : 'pos') + '">' + (reste == null ? '—' : eur(reste)) + '</b></div>' : '') +
+        (function(){ var G = Object.values((t.liste || {})[b] || {});
+          if (!G.length) return '<div class="meta">Aucun virement coché sur ce compte.</div>';
+          return '<div class="meta" style="margin-top:4px"><b>Virements cochés sur ce compte :</b>' + G.map(function(g){ return '<div class="ligne1"><span>• ' + esc(g.tiers) + (g.n > 1 ? ' (' + g.n + ' factures)' : '') + '</span><span>− ' + eur(g.m) + '</span></div>'; }).join('') +
+            '<div class="ligne1" style="margin-top:2px"><span><b>Il restera après ces virements</b></span><b class="' + (reste != null && reste < 0 ? 'neg' : 'pos') + '">' + (reste == null ? '—' : eur(reste)) + '</b></div></div>'; })() +
         '</div>';
     }).join('') + (function(){
       var mc = soldeDe('CEBPL'), mb = soldeDe('BPGO');
