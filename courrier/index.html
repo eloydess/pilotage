@@ -2137,10 +2137,26 @@ function badgesPieces(x){
 function ouvrirPieces(i, genre, n){
   var x = TRESO.lignes[i]; DOSSIER = i;
   var nb = { preuve: x.preuves, facture: x.factures, document: x.documents, bordereau: nbBordereaux(x) }[genre] || 0;
-  if (!nb && genre === 'bordereau') {
-    var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*,application/pdf';
-    inp.onchange = function(){ document.getElementById('mTitre').textContent = '📝 Bordereau — ' + x.tiers; document.getElementById('mCorps').innerHTML = '<div id="bordUn" class="meta">Enregistrement…</div>'; ouvrir();
-      ajouterBordereau(inp, [x.cle], 'bordUn', function(){ setTimeout(fermer, 1200); }); };
+  /* 7.76 : pièce absente → la fenêtre de choix du fichier s'ouvre directement (bordereau, preuve, facture, document) */
+  if (!nb) {
+    var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*,application/pdf'; inp.multiple = genre === 'facture';
+    var titres = { bordereau: '📝 Bordereau', preuve: '📨 Preuve de virement', facture: '🧾 Facture', document: '📄 Document' };
+    inp.onchange = function(){
+      if (!inp.files || !inp.files.length) return;
+      document.getElementById('mTitre').textContent = titres[genre] + ' — ' + x.tiers; document.getElementById('mCorps').innerHTML = '<div id="bordUn" class="meta">Enregistrement…</div>'; ouvrir();
+      if (genre === 'bordereau') return ajouterBordereau(inp, [x.cle], 'bordUn', function(){ setTimeout(fermer, 1200); });
+      var z = document.getElementById('bordUn');
+      lireFichiers(inp.files, function(fs){
+        if (!fs.length) { z.innerHTML = '<span class="neg">Format non pris en charge (photo ou PDF).</span>'; return; }
+        var n = 0, tot = fs.length;
+        var suite = function(){
+          if (!fs.length) { z.innerHTML = '<span class="pos">✓ ' + tot + ' fichier(s) rangé(s) dans le dossier.</span>'; afficherTreso(); setTimeout(fermer, 1200); return; }
+          z.textContent = 'Enregistrement… ' + (++n) + ' / ' + tot;
+          appel('mob_piece', [JETON, x.cle, genre, fs.shift()], function(r){ majCompte(x, r); suite(); }, function(m){ z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
+        };
+        suite();
+      });
+    };
     inp.click(); return;
   }
   if (!nb) { dossier(i); return; }
