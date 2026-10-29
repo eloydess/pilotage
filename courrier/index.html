@@ -1115,7 +1115,7 @@ function afficherTreso(){
       (x.verse ? '<div class="meta verse">💶 Facture ' + eur(x.montantTTC) + ' · déjà versé ' + eur(x.verse) + ' (' + x.versements.length + ' fois) · <b>reste ' + eur(x.du) + '</b></div>' : '') +
       '<div class="meta">' + esc(x.statut) + (x.source !== 'Fichier RJ' ? ' · 📬 ' + esc(x.source) : '') + '</div>' +
       (x.source === 'Fichier RJ' ? '<div class="etapes">' + etape('📤 Demande', x.demande) + etape('✔ Validé', x.validation) + etape('📨 Preuve envoyée', x.preuve) + '</div>' +
-        badgesPieces(x) +
+        badgesPieces(x) + alerteDocs(x) +
         (x.commentaire ? '<div class="meta com">' + esc(x.commentaire) + '</div>' : '') +
         '<div class="opts"><button class="pj" onclick="dossier(' + i + ')">✏️ Mettre à jour le dossier</button>' +
         (x.lien ? '<button class="pj" onclick="window.open(\'' + esc(x.lien) + '\',\'_blank\')">📧 Mail d\'origine</button>' : '') +
@@ -1814,6 +1814,36 @@ function blocVersements(x){
 }
 /* ---------- Pièces du dossier : preuve de virement, facture, autres documents (rangées dans Drive) ---------- */
 var GENRES_PIECE = { preuve: '📨 Preuve de virement', facture: '🧾 Facture', document: '📄 Document' };
+/* 7.61 : contrôle « un document par numéro de facture » — chaque n° de facture / proforma cité dans le dossier doit avoir son PDF */
+function refsFacture(x){
+  var s = String((x && x.refs) || '')
+    .replace(/(n°\s*)?cde\s+client.*?(?=\bclient\s|\n|$)/gi, ' ').replace(/(compte\s+)?client\b[^;\n]*/gi, ' ').replace(/\blabo\s+\d+/gi, ' ')
+    .replace(/\blivraison\s+\d+/gi, ' ').replace(/\bcontrat\s+\d+/gi, ' ').replace(/\bcommande\s+(AR\s+)?[A-Z]?\d[\d-]*/gi, ' ').replace(/ticket\s*#?\d+/gi, ' ')
+    .replace(/relance du [\d\/]+/gi, ' ').replace(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g, ' ').replace(/\bsiret\s*\d+/gi, ' ');
+  var m = s.match(/\b[A-Z]{0,6}-?\d[\dA-Z-]{4,}\b/g) || [], vus = {}, r = [];
+  m.forEach(function(v){ var c = v.replace(/[^0-9A-Z]/gi, '').toUpperCase(); if (!vus[c] && (c.match(/\d/g) || []).length >= 5) { vus[c] = 1; r.push(v); } });
+  return r;
+}
+function chiffresDe(s){ var m = String(s || '').match(/\d{5,}/g) || []; return m.sort(function(a, b){ return b.length - a.length; })[0] || ''; }
+/* pour chaque n° : la pièce dont le nom contient ce numéro (null si aucune) */
+function controleDocs(x){
+  var R = refsFacture(x), P = (x.pieces || []).filter(function(p){ return p.genre !== 'preuve'; });
+  return R.map(function(r){ var c = chiffresDe(r), u = r.replace(/[^0-9A-Z]/gi, '').toUpperCase();
+    var p = P.filter(function(q){ var n = String(q.nom || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); return (u && n.indexOf(u) >= 0) || (c && n.indexOf(c) >= 0); })[0];
+    return { ref: r, piece: p || null }; });
+}
+function alerteDocs(x){
+  var R = refsFacture(x), n = (x.factures || 0) + (x.documents || 0);
+  if (R.length < 2 || n >= R.length) return '';
+  return '<div class="meta" style="color:var(--orange);font-weight:600">⚠ ' + R.length + ' n° de facture pour ' + n + ' document' + (n > 1 ? 's' : '') + ' : il en manque probablement ' + (R.length - n) + '. Ouvrez le dossier pour voir lequel.</div>';
+}
+function blocControleDocs(x){
+  var C = controleDocs(x); if (C.length < 2 && !(C.length === 1 && !C[0].piece && (x.pieces || []).filter(function(p){ return p.genre !== 'preuve'; }).length === 0)) return '';
+  var manq = C.filter(function(c){ return !c.piece; }).length, nDoc = (x.pieces || []).filter(function(p){ return p.genre !== 'preuve'; }).length;
+  return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid ' + (manq ? 'var(--orange)' : 'var(--vert)') + '"><b>📑 Un document par n° de facture</b>' +
+    '<div class="meta">' + C.length + ' n° cité(s) dans le dossier, ' + nDoc + ' document(s) rangé(s).' + (manq ? ' Un ✗ veut dire : aucun document dont le nom porte ce numéro (il peut être dans un PDF regroupé : vérifiez en l\'ouvrant).' : ' Chaque numéro a son document.') + '</div>' +
+    C.map(function(c){ return '<div class="ligne1" style="margin-top:4px"><span>' + (c.piece ? '✅' : '<span class="neg">✗</span>') + ' ' + esc(c.ref) + '</span><span class="meta">' + (c.piece ? esc(c.piece.nom) : 'document manquant — « ＋ 🧾 Facture » ci-dessous') + '</span></div>'; }).join('') + '</div>';
+}
 function badgesPieces(x){
   var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
   var b = function(n, ok, txt, genre){
@@ -1859,7 +1889,7 @@ function majCompte(x, r){ if (!r || !r.compte) return; x.preuves = r.compte.preu
 function afficherPieces(x){
   var z = document.getElementById('pcListe'); if (!z) return;
   var l = x.pieces || [];
-  z.innerHTML = badgesPieces(x) + (l.length ? l.map(function(p){
+  z.innerHTML = badgesPieces(x) + blocControleDocs(x) + (l.length ? l.map(function(p){
     return '<div class="ligne1" style="margin-top:6px;align-items:center"><span>' + GENRES_PIECE[p.genre] + ' · <span class="meta">' + esc(p.nom) + '</span></span>' +
       '<span style="white-space:nowrap"><button class="pj" onclick="voirPiece(\'' + esc(p.id) + '\')">👁 Voir</button> ' +
       '<a href="#" onclick="retirerPiece(\'' + esc(p.id) + '\');return false">retirer</a></span></div>';
