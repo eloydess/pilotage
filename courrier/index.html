@@ -1832,8 +1832,10 @@ function controleDocs(x){
     var p = P.filter(function(q){ var n = String(q.nom || '').toUpperCase().replace(/[^0-9A-Z]/g, ''); return (u && n.indexOf(u) >= 0) || (c && n.indexOf(c) >= 0); })[0];
     return { ref: r, piece: p || null }; });
 }
+function docsVerifies(x){ var m = /📑 Documents vérifiés le [\d\/]+ : (\d+) pièce/.exec(String(x.commentaire || '').split('\n').filter(function(l){ return /📑 Documents vérifiés/.test(l); }).pop() || ''); return m ? +m[1] : null; }
 function alerteDocs(x){
-  var R = refsFacture(x), n = (x.factures || 0) + (x.documents || 0);
+  var R = refsFacture(x), n = (x.factures || 0) + (x.documents || 0), v = docsVerifies(x);
+  if (v != null && n >= v) return '';
   if (R.length < 2 || n >= R.length) return '';
   return '<div class="meta" style="color:var(--orange);font-weight:600">⚠ ' + R.length + ' n° de facture pour ' + n + ' document' + (n > 1 ? 's' : '') + ' : il en manque probablement ' + (R.length - n) + '. Ouvrez le dossier pour voir lequel.</div>';
 }
@@ -1841,9 +1843,9 @@ function blocControleDocs(x){
   var C = controleDocs(x), D = (x.pieces || []).filter(function(p){ return p.genre !== 'preuve'; }), nDoc = D.length;
   if (!C.length && nDoc) return '';
   var parNom = D.some(function(p){ return /\d{5,}/.test(String(p.nom || '').replace(/^FACTURE \d{4}-\d{2}-\d{2}/, '').replace(/—.*$/, '')); }) && C.some(function(c){ return c.piece; });
-  var manque = Math.max(0, C.length - nDoc), ok = !manque;
+  var vD = docsVerifies(x), manque = vD != null ? Math.max(0, vD - nDoc) : Math.max(0, C.length - nDoc), ok = !manque;
   return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid ' + (ok ? 'var(--vert)' : 'var(--orange)') + '"><b>📑 ' + C.length + ' n° de facture cité(s) · ' + nDoc + ' document(s) rangé(s)</b>' +
-    (ok ? '<div class="meta pos">Autant de documents que de numéros.</div>' : '<div class="meta" style="color:var(--orange);font-weight:600">⚠ Il manque ' + manque + ' document(s). Touchez « 🔄 Récupérer les documents du mail d\'origine » : chaque pièce jointe absente du dossier est ajoutée (les doublons sont écartés).</div>') +
+    (ok ? '<div class="meta pos">' + (vD != null && C.length > nDoc ? 'Vérifié avec le mail d\'origine : il contient ' + vD + ' pièce(s) jointe(s), toutes rangées dans le dossier (plusieurs numéros sont dans un même document).' : 'Autant de documents que de numéros.') + '</div>' : '<div class="meta" style="color:var(--orange);font-weight:600">⚠ Il manque ' + manque + ' document(s). Touchez « 🔄 Récupérer les documents du mail d\'origine » : chaque pièce jointe absente du dossier est ajoutée (les doublons sont écartés).</div>') +
     (C.length ? '<div class="meta">' + C.map(function(c){ return (parNom ? (c.piece ? '✅ ' : '✗ ') : '• ') + esc(c.ref); }).join(' · ') + '</div>' : '') +
     (x.lien ? '<button class="pj" style="margin-top:6px" onclick="recupDocsMail(\'' + esc(x.cle).replace(/'/g, "\\'") + '\')">🔄 Récupérer les documents du mail d\'origine</button><span class="meta" id="rdM"></span>' : '') + '</div>';
 }
@@ -1861,7 +1863,12 @@ function recupDocsMail(cle, fin){
     var etape2 = function(){
       var l = pj.slice();
       var suite = function(){
-        if (!l.length) { dit('<span class="pos">✓ ' + aj + ' document(s) ajouté(s)' + (dbl ? ', ' + dbl + ' déjà présent(s)' : '') + ' — ' + pj.length + ' pièce(s) jointe(s) dans le mail.</span>'); chargerPieces(x); if (fin) fin({ ajoutes: aj, pj: pj.length }); return; }
+        if (!l.length) {
+          var d0 = aujourdhui().split('-').reverse().join('/'), ligne = '📑 Documents vérifiés le ' + d0 + ' : ' + pj.length + ' pièce(s) jointe(s) dans le mail d\'origine, toutes dans le dossier' + (aj ? ' (' + aj + ' ajoutée(s) ce jour)' : '') + '.';
+          var com = String(x.commentaire || '').split('\n').filter(function(z){ return !/📑 Documents vérifiés/.test(z); }).join('\n').trim();
+          com = (com ? com + '\n' : '') + ligne; x.commentaire = com;
+          var clore = function(){ dit('<span class="pos">✓ ' + aj + ' document(s) ajouté(s)' + (dbl ? ', ' + dbl + ' déjà présent(s)' : '') + ' — ' + pj.length + ' pièce(s) jointe(s) dans le mail.</span>'); chargerPieces(x); if (fin) fin({ ajoutes: aj, pj: pj.length }); };
+          appel('mob_majDossier', [JETON, x.cle, 'commentaire', com], clore, clore); return; }
         var p = l.shift(); dit('Pièce jointe ' + (pj.length - l.length) + ' / ' + pj.length + '…');
         appel('mob_pj', [JETON, fiche['ID'], p.mi, p.ai], function(f){
           var e = empreinte(f.b64); if (emp[e]) { dbl++; return suite(); }
