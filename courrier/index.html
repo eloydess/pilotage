@@ -1271,7 +1271,15 @@ function dessinerPosition(){
 }
 /* 7.67 : le BORDEREAU (ordre de virement saisi à la banque, avant le virement) est pour l'administrateur ; la PREUVE (virement fait) est pour le laboratoire.
    Le serveur ne connaît que preuve / facture / document : un bordereau est un « document » dont le nom porte « BORDEREAU ». */
-function estBordereau(p){ return p && p.genre === 'document' && /BORDEREAU/i.test(p.nom || ''); }
+/* 7.74 : le serveur tronque les noms longs (dossiers à longues références) : le mot BORDEREAU peut disparaître.
+   L'identifiant de chaque bordereau est donc aussi noté dans les commentaires du dossier (« pièce … »). */
+var BORD_CACHE = { src: null, ids: {} };
+function idsBordereaux(){
+  if (BORD_CACHE.src === TRESO) return BORD_CACHE.ids;
+  var ids = {}; ((TRESO && TRESO.lignes) || []).forEach(function(x){ String(x.commentaire || '').replace(/📝 Bordereau de virement ajouté[^\n]*/g, function(l){ (l.match(/pièce ([\w-]{10,})/g) || []).forEach(function(m){ ids[m.slice(6)] = 1; }); return l; }); });
+  BORD_CACHE = { src: TRESO, ids: ids }; return ids;
+}
+function estBordereau(p){ return !!p && p.genre === 'document' && (/BORDEREAU/i.test(p.nom || '') || !!idsBordereaux()[p.id]); }
 function piecesDe(l, g){ return (l.pieces || []).filter(function(p){ return g === 'bordereau' ? estBordereau(p) : g === 'document' ? (p.genre === 'document' && !estBordereau(p)) : p.genre === g; }); }
 function genreServeur(g){ return g === 'bordereau' ? 'document' : g; }
 function nomPiece(g, f){ return g === 'bordereau' ? Object.assign({}, f, { nom: 'BORDEREAU de virement - ' + (f.nom || 'saisie banque') }) : f; }
@@ -1339,7 +1347,7 @@ function fichiersLigne(input, ci, li, genre){
     var suite = function(){
       if (!fs.length) { l.etat = 'ok'; dessinerPosition(); return; }
       if (err) err.textContent = 'Enregistrement du fichier dans le dossier…';
-      appel('mob_piece', [JETON, l.cle, genreServeur(genre), nomPiece(genre, fs.shift())], function(r){ majLigne(l, r); var x = genre === 'bordereau' ? ligneTreso(l.cle) : null; if (x) noteBordereau(x, suite); else suite(); }, function(m){ if (err) err.textContent = m; });
+      var avL = l.pieces; appel('mob_piece', [JETON, l.cle, genreServeur(genre), nomPiece(genre, fs.shift())], function(r){ var nv = genre === 'bordereau' ? idsAjoutes(avL, r) : []; majLigne(l, r); var x = genre === 'bordereau' ? ligneTreso(l.cle) : null; if (x) noteBordereau(x, suite, nv); else suite(); }, function(m){ if (err) err.textContent = m; });
     };
     suite();
   });
@@ -1354,7 +1362,7 @@ function bordereauLabo(input, ci, k){
     if (err) err.textContent = 'Regroupement en un seul virement…';
     return creerVG(LT, function(P){
       var l = L.filter(function(z){ return z.cle === P.cle; })[0] || L[0];
-      appel('mob_piece', [JETON, P.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ majLigne(l, r); noteBordereau(P, function(){ if (err) err.innerHTML = '<span class="pos">✓ Un seul bordereau, rangé dans le dossier principal, pour les ' + L.length + ' factures de ' + esc(L[0].tiers) + '.</span>'; dessinerPosition(); }); }, function(m){ if (err) err.textContent = m; });
+      var avP = l.pieces || P.pieces; appel('mob_piece', [JETON, P.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ var nv = idsAjoutes(avP, r); majLigne(l, r); noteBordereau(P, function(){ if (err) err.innerHTML = '<span class="pos">✓ Un seul bordereau, rangé dans le dossier principal, pour les ' + L.length + ' factures de ' + esc(L[0].tiers) + '.</span>'; dessinerPosition(); }, nv); }, function(m){ if (err) err.textContent = m; });
     }, function(m){ if (err) err.textContent = m; });
     var reste = L.slice(), n = 0;
     var suite = function(){
@@ -1988,10 +1996,13 @@ function nbBordereaux(x){
   if (x.pieces) return x.pieces.filter(estBordereau).length;
   var m = String(x.commentaire || '').match(/📝 Bordereau de virement ajouté/g); return m ? Math.min(m.length, x.documents || m.length) : 0;
 }
-function noteBordereau(x, apres){
-  var d0 = aujourdhui().split('-').reverse().join('/'), ligne = '📝 Bordereau de virement ajouté le ' + d0 + '.';
+function noteBordereau(x, apres, idsNouv){
+  var d0 = aujourdhui().split('-').reverse().join('/');
+  var anc = []; String(x.commentaire || '').replace(/pièce ([\w-]{10,})/g, function(m, id){ anc.push(id); return m; });
+  var tous = anc.concat(idsNouv || []).filter(function(v, k, a){ return a.indexOf(v) === k && (!x.pieces || x.pieces.some(function(p){ return p.id === v; })); });
+  var ligne = '📝 Bordereau de virement ajouté le ' + d0 + (tous.length ? ' (pièce ' + tous.join(', pièce ') + ')' : '') + '.';
   var com = String(x.commentaire || '').split('\n').filter(function(z){ return !/📝 Bordereau de virement ajouté/.test(z); }).join('\n').trim();
-  x.commentaire = (com ? com + '\n' : '') + ligne;
+  x.commentaire = (com ? com + '\n' : '') + ligne; BORD_CACHE.src = null;
   appel('mob_majDossier', [JETON, x.cle, 'commentaire', x.commentaire], apres || function(){}, apres || function(){});
 }
 function ajouterBordereau(input, cles, zoneId, fin){
@@ -2004,13 +2015,14 @@ function ajouterBordereau(input, cles, zoneId, fin){
     ajouterBordereauFichier(fs[0], [cible(L[0]).cle], dit, 1, fin);
   });
 }
+function idsAjoutes(avant, r){ var A = {}; (avant || []).forEach(function(p){ A[p.id] = 1; }); return ((r && r.pieces) || []).filter(function(p){ return p.genre === 'document' && !A[p.id]; }).map(function(p){ return p.id; }); }
 function ajouterBordereauFichier(f0, cles, dit, nFact, fin){
   (function(){ var fs = [f0];
     var reste = cles.slice(), n = 0;
     var suite = function(){
       if (!reste.length) { dit('<span class="pos">✓ Bordereau rangé une seule fois' + (nFact > 1 ? ', pour les ' + nFact + ' factures du virement groupé' : '') + '.</span>'); afficherTreso(); if (fin) fin(); return; }
       var x = ligneTreso(reste.shift()); dit('Enregistrement du bordereau… ' + (n + 1) + ' / ' + cles.length);
-      appel('mob_piece', [JETON, x.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ majCompte(x, r); n++; noteBordereau(x, suite); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); });
+      var av = x.pieces; appel('mob_piece', [JETON, x.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ var nv = idsAjoutes(av, r); majCompte(x, r); n++; noteBordereau(x, suite, nv); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); });
     };
     suite();
   })();
