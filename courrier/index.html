@@ -2050,7 +2050,7 @@ function afficherPieces(x){
   z.innerHTML = badgesPieces(x) + blocControleDocs(x) + (l.length ? l.map(function(p){
     return '<div class="ligne1" style="margin-top:6px;align-items:center"><span>' + (estBordereau(p) ? '📝 Bordereau de virement' : GENRES_PIECE[p.genre]) + ' · <span class="meta">' + esc(p.nom) + '</span></span>' +
       '<span style="white-space:nowrap"><button class="pj" onclick="voirPiece(\'' + esc(p.id) + '\')">👁 Voir</button> ' +
-      '<a href="#" onclick="retirerPiece(\'' + esc(p.id) + '\');return false">retirer</a></span></div>';
+      '<button class="pj" style="color:var(--rouge)" onclick="retirerPiece(\'' + esc(p.id) + '\')">🗑 Retirer</button></span></div>';
   }).join('') : '<div class="meta" style="margin-top:6px">Aucune pièce pour l\'instant.</div>');
 }
 function chargerPieces(x){
@@ -2071,6 +2071,20 @@ function joindrePiece(input, genre){
   });
 }
 function joindrePreuve(input){ joindrePiece(input, 'preuve'); }
+/* 7.70 : retirer une pièce mise par erreur directement depuis la visionneuse (preuve, bordereau, facture) ; le fichier reste dans Google Drive */
+function retirerDepuisVue(id, cle){
+  var x = ligneTreso(cle), p = ((x && x.pieces) || []).filter(function(q){ return q.id === id; })[0] || {};
+  var quoi = estBordereau(p) ? 'le bordereau de virement' : ({ preuve: 'la preuve de virement', facture: 'la facture', document: 'le document' }[p.genre] || 'ce document');
+  var memes = estBordereau(p) || p.genre === 'preuve' ? cochesRJ().filter(function(y){ return y.cle !== cle && cleLabo(y) === cleLabo(x); }) : [];
+  if (!confirm('Retirer ' + quoi + ' du dossier ' + x.tiers + (x.refs ? ' (' + refsPropres(x.refs) + ')' : '') + ' ?\n\nLe fichier reste conservé dans Google Drive.' + (memes.length ? '\n\nS\'il a été mis aussi sur les ' + memes.length + ' autre(s) facture(s) cochée(s) de ce laboratoire, retirez-le aussi sur chacune.' : ''))) return;
+  var z = document.getElementById('pjZone'); if (z) z.innerHTML = '<div class="chargement">Retrait…</div>';
+  appel('mob_retirerPiece', [JETON, cle, id], function(r){
+    majCompte(x, r);
+    var fin = function(){ afficherTreso(); if (RETOUR_PIECE) RETOUR_PIECE(); };
+    if (estBordereau(p) && !nbBordereaux(x)) { x.commentaire = String(x.commentaire || '').split('\n').filter(function(l){ return !/📝 Bordereau de virement ajouté/.test(l); }).join('\n'); appel('mob_majDossier', [JETON, cle, 'commentaire', x.commentaire], fin, fin); }
+    else fin();
+  }, function(m){ if (z) z.innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
+}
 function retirerPiece(id){
   if (!confirm('Retirer ce fichier du dossier ? (il reste conservé dans Google Drive)')) return;
   var x = TRESO.lignes[DOSSIER];
@@ -2093,7 +2107,7 @@ function voirPiece(id, cle, retour){
   var p = (x.pieces || []).filter(function(q){ return q.id === id; })[0] || { nom: '', genre: 'document' };
   document.getElementById('mTitre').textContent = GENRES_PIECE[p.genre] + ' — ' + x.tiers;
   window.dosMontantOk = function(){ montantDossier(x.cle, 'dosMontant', function(){}); };
-  document.getElementById('mCorps').innerHTML = '<button class="btn b-voir" onclick="RETOUR_PIECE()">← Retour</button> <span class="meta">' + esc(p.nom) + '</span>' +
+  document.getElementById('mCorps').innerHTML = '<button class="btn b-voir" onclick="RETOUR_PIECE()">← Retour</button> <button class="btn b-voir" style="color:var(--rouge)" onclick="retirerDepuisVue(\'' + esc(id) + '\',\'' + esc(x.cle).replace(/'/g, "\\'") + '\')">🗑 Retirer ce document</button> <span class="meta">' + esc(p.nom) + '</span>' +
     (x.source === 'Fichier RJ' ? boiteMontant('dosMontant', x.montantTTC !== undefined && x.montantTTC !== null ? x.montantTTC : x.du, x.du == null ? '<span class="neg">Montant inconnu</span> : lisez-le sur le document et enregistrez-le, il comptera aussitôt dans le paiement.' : 'Montant actuel du dossier : ' + eur(x.montantTTC != null ? x.montantTTC : x.du) + '. Corrigez-le si le document indique autre chose.') : '') +
     '<div id="pjZone" class="chargement">Chargement du document…</div>';
   ouvrir();
