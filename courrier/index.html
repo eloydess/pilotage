@@ -1206,7 +1206,9 @@ function texteMailAdmin(){
   var morceaux = POS.comptes.map(function(c){
     var tot = totalCompte(c);
     return 'Position bancaire n° ' + c.num + ' — compte ' + NOMS_BANQUE[c.banque] + ' :\n' +
-      c.lignes.map(function(l){ return '- ' + intitule(l) + ' : ' + eur(l.montant); }).join('\n') +
+      (function(){ var G = {}, o = []; c.lignes.forEach(function(l){ var k = String(l.tiers || '').trim().toUpperCase().replace(/\s+/g, ' '); if (!G[k]) { G[k] = []; o.push(k); } G[k].push(l); });
+        return o.map(function(k){ var L = G[k], s = Math.round(L.reduce(function(a, l){ return a + l.montant; }, 0) * 100) / 100;
+          return L.length === 1 ? '- ' + intitule(L[0]) + ' : ' + eur(s) : '- ' + String(L[0].tiers).toUpperCase() + ' : un virement de ' + eur(s) + ' pour ' + L.length + ' factures :\n' + L.map(function(l){ return '    • ' + String(l.refs || '—').replace(/\s+/g, ' ').slice(0, 80) + ' : ' + eur(l.montant); }).join('\n'); }).join('\n'); })() +
       '\nTotal des virements : ' + eur(tot) +
       (c.solde != null ? '\nSolde avant virements : ' + eur(c.solde) + ' ; solde après virements : ' + eur(c.solde - tot) : '');
   });
@@ -1485,11 +1487,24 @@ function cochesRJ(){ return ((TRESO && TRESO.lignes) || []).filter(function(x){ 
 function blocGroupe(){
   var l = cochesRJ();
   if (!l.length) return '';
-  return '<div class="carte"><b>👥 Les ' + l.length + ' dossier(s) cochés, en une fois</b>' +
-    '<button class="btn b-voir" style="width:100%;margin-top:8px" onclick="groupeDate(\'demande\')">📤 Demande envoyée à l\'administrateur</button>' +
-    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="groupeDate(\'validation\')">✔ Validé par l\'administrateur</button>' +
-    '<button class="btn b-ok" style="width:100%;margin-top:6px" onclick="groupePreuves()">📨 Envoyer les preuves aux laboratoires</button>' +
-    '<p class="meta" style="margin-bottom:0">Vous choisissez ensuite, dans la liste, les dossiers concernés.</p></div>';
+  /* 7.65 : un virement par laboratoire — total à virer et état de la preuve, pour cocher au fil de l'eau et tout traiter d'un coup */
+  var G = {}, ordre = [];
+  l.forEach(function(x){ var k = cleLabo(x); if (!G[k]) { G[k] = { tiers: x.tiers, L: [] }; ordre.push(k); } G[k].L.push(x); });
+  var tot = 0, nPrets = 0;
+  var lignes = ordre.map(function(k){
+    var g = G[k], s = g.L.reduce(function(a, x){ return a + montantPos(x); }, 0), avec = g.L.filter(function(x){ return x.preuves > 0; }).length;
+    tot += s; if (avec === g.L.length) nPrets++;
+    return '<tr><td><b>' + esc(g.tiers) + '</b><div class="meta">' + g.L.length + ' facture(s)</div></td><td style="text-align:right;white-space:nowrap"><b>' + eur(s) + '</b></td><td class="meta">' +
+      (avec === g.L.length ? '<span class="pos">📨 preuve ✓</span>' : avec ? avec + '/' + g.L.length + ' avec preuve' : 'preuve à ajouter') + '</td></tr>';
+  }).join('');
+  return '<div class="carte"><b>👥 Virements à faire : ' + ordre.length + ' laboratoire(s), ' + l.length + ' facture(s) cochée(s) · ' + eur(tot) + '</b>' +
+    '<div class="meta">Cochez au fur et à mesure, laboratoire par laboratoire : les cases restent cochées (téléphone et ordinateur). Un virement par laboratoire, du montant ci-dessous.</div>' +
+    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:6px">' + lignes + '<tr><td><b>Total</b></td><td style="text-align:right"><b>' + eur(tot) + '</b></td><td class="meta">' + nPrets + '/' + ordre.length + ' prêts</td></tr></table></div>' +
+    '<div class="meta" style="margin-top:6px"><b>Dans l\'ordre :</b> ① 📤 demande à l\'administrateur (un mail, factures et ordres de virement regroupés par laboratoire) → ② ✔ validé → ③ vous faites les virements → ④ 📨 ajoutez la capture de chaque virement (une fois par laboratoire ; vous pouvez fermer et revenir, rien ne part tant que vous ne cliquez pas sur « Envoyer ») → ⑤ envoi de toutes les preuves en une fois, un mail par laboratoire.</div>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:8px" onclick="positionAdmin()">① 📤 Préparer le mail à l\'administrateur (tous les laboratoires cochés)</button>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="groupeDate(\'demande\')">📤 Noter : demande envoyée à l\'administrateur</button>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="groupeDate(\'validation\')">② ✔ Noter : validé par l\'administrateur</button>' +
+    '<button class="btn b-ok" style="width:100%;margin-top:6px" onclick="groupePreuves()">④ ⑤ 📨 Ajouter les preuves / envoyer aux laboratoires</button></div>';
 }
 var GROUPE = null;
 var NOMS_ETAPE = { demande: '📤 Demande de virement envoyée à l\'administrateur', validation: '✔ Validation de l\'administrateur' };
