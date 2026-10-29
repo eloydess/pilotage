@@ -383,7 +383,7 @@ function charger(){
   if (!TRESO) appel('mob_tresorerie', [JETON], function(t){ TRESO = t; if (FICHES && FICHES.length && !COPIE_LOCALE) afficher(); }, function(){});
   appel('mob_liste', [JETON], function(r){
     bandeauMaj(''); COPIE_LOCALE = false;
-    FICHES = r.fiches; DECISIONS = r.decisions;
+    FICHES = r.fiches; DECISIONS = r.decisions; (function(){ var L = mtLu(); FICHES.forEach(function(f){ if (L[f['ID']] != null) f['Montant TTC'] = eur(L[f['ID']]).replace(/\u202f|\u00a0/g, ' ') + ' (lu par vous)'; }); })();
     FICHES.sort(function(a,b){ return rang(a) - rang(b) || String(b['Date mail']).localeCompare(String(a['Date mail'])); });
     afficher();
   });
@@ -696,6 +696,8 @@ function decider(id, statut, decision, etiquette, commentaire){
     f['Statut'] = r.statut; f['Décision finale'] = r.finale; f['Étiquette finale'] = r.etiquette;
     f['Commentaire Pierre'] = commentaire || ''; f['Date validation'] = r.statut === 'À valider' ? '' : 'à l\'instant';
     fermer(); afficher();
+    var luD = mtLu()[id];
+    if (luD != null && /Suivi RJ|Prestataire à payer/.test(r.finale || '')) setTimeout(function(){ reporterMontantLu(f, luD, function(msg){ if (msg && /⚠/.test(msg)) alert('Montant lu ' + eur(luD) + ' :' + msg); }); }, 1500);
     if (r.statut === 'Validé' || r.statut === 'Corrigé') appliquerGmail(f, function(ok, m){ if (m) alert('Décision enregistrée, mais le mail n\'a pas pu être rangé : ' + m + '\nIl est dans « Restés en boîte » : « 🗂 Tout ranger maintenant » pour réessayer.'); afficher(); });
   });
 }
@@ -913,9 +915,53 @@ function ouvrirGmail(){
     '<button class="btn b-voir" onclick="voirMail(MAIL_ID)">Annuler</button>';
 }
 
+
+/* 7.59 : saisir le montant lu sur une facture illisible, directement à côté du document */
+function boiteMontant(id, valeur, aide){
+  return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid var(--orange)"><b>💶 Montant TTC lu sur le document</b>' +
+    '<div class="meta">' + aide + '</div><div class="opts" style="margin-top:6px"><input id="' + id + '" inputmode="decimal" placeholder="ex. 1 234,56" value="' + esc(valeur == null || valeur === '' ? '' : Number(valeur).toFixed(2).replace('.', ',')) + '" style="max-width:160px">' +
+    '<button class="btn b-ok" style="flex:none" onclick="' + id + 'Ok()">Enregistrer le montant</button></div><div class="meta" id="' + id + 'R"></div></div>';
+}
+function montantDossier(cle, champId, apres){
+  var x = ligneTreso(cle), v = nb((document.getElementById(champId) || {}).value || ''), z = document.getElementById(champId + 'R');
+  if (v == null || v < 0) { if (z) z.innerHTML = '<span class="neg">Montant invalide.</span>'; return; }
+  if (z) z.textContent = 'Enregistrement…';
+  appel('mob_majDossier', [JETON, cle, 'montant', String(v)], function(){
+    if (x) { x.montantTTC = v; if (x.du == null) x.du = Math.max(0, v - (x.verse || 0)); }
+    if (z) z.innerHTML = '<span class="pos">✓ ' + eur(v) + ' enregistré : il compte maintenant dans le total dû, la capacité de paiement et les virements.</span>';
+    if (apres) apres(); else chargerTreso();
+  }, function(m){ if (z) z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
+}
+function mtLu(){ try { return JSON.parse(localStorage.getItem('cr_mtLu') || '{}'); } catch (e) { return {}; } }
+function mtLuEcrire(o){ try { localStorage.setItem('cr_mtLu', JSON.stringify(o)); } catch (e) {} }
+function pjMontantOk(){
+  var f = trouver(MAIL_ID), v = nb(document.getElementById('pjMontant').value || ''), z = document.getElementById('pjMontantR');
+  if (!f) return;
+  if (v == null || v < 0) { z.innerHTML = '<span class="neg">Montant invalide.</span>'; return; }
+  var o = mtLu(); o[MAIL_ID] = v; mtLuEcrire(o);
+  f['Montant TTC'] = eur(v).replace(/ | /g, ' ') + ' (lu par vous)';
+  z.textContent = 'Enregistrement…';
+  var fin = function(msg){ z.innerHTML = '<span class="pos">✓ ' + eur(v) + ' noté sur la fiche.' + (msg || '') + '</span>'; afficher(); };
+  if (f['Statut'] === 'À valider') appel('mob_decider', [JETON, MAIL_ID, 'À valider', '', '', 'Montant TTC lu sur la facture : ' + eur(v)], function(){ f['Commentaire Pierre'] = 'Montant TTC lu sur la facture : ' + eur(v); fin(' Quand vous la mettrez en paiement RJ, ce montant sera reporté sur le dossier.'); }, function(m){ fin(' (note non enregistrée sur le serveur : ' + m + ')'); });
+  else reporterMontantLu(f, v, fin);
+}
+/* après passage au suivi RJ : le dossier créé sans montant reçoit le montant lu */
+function reporterMontantLu(f, v, fin){
+  appel('mob_tresorerie', [JETON], function(r){
+    TRESO = r;
+    var tiers = String(f['Tiers'] || '').trim().toUpperCase(), refs = String(f['Références'] || '').toUpperCase().split(/[\s;,]+/).filter(function(w){ return w.length >= 4; });
+    var c = (r.lignes || []).filter(function(x){ return x.source === 'Fichier RJ' && x.du == null && String(x.tiers || '').trim().toUpperCase() === tiers; });
+    if (c.length > 1 && refs.length) { var c2 = c.filter(function(x){ var R = String(x.refs || '').toUpperCase(); return refs.some(function(w){ return R.indexOf(w) >= 0; }); }); if (c2.length) c = c2; }
+    if (c.length !== 1) { if (fin) fin(c.length ? ' ⚠ ' + c.length + ' dossiers sans montant pour ' + f['Tiers'] + ' : saisissez-le dans Paiements RJ.' : ''); return; }
+    appel('mob_majDossier', [JETON, c[0].cle, 'montant', String(v)], function(){ var o = mtLu(); delete o[f['ID']]; mtLuEcrire(o); if (fin) fin(' Reporté sur le dossier du suivi RJ (' + eur(v) + ').'); else chargerTreso(); }, function(m){ if (fin) fin(' ⚠ Non reporté sur le dossier : ' + m); });
+  }, function(m){ if (fin) fin(' ⚠ ' + m); });
+}
 function voirPJ(mi, ai){
   var corps = document.getElementById('mCorps');
-  corps.innerHTML = '<button class="btn b-voir" onclick="voirMail(MAIL_ID)">← Retour au mail</button><div id="pjZone" class="chargement">Chargement de la pièce jointe…</div>';
+  var fM = trouver(MAIL_ID), luM = mtLu()[MAIL_ID], vM = luM != null ? luM : nb(String((fM && fM['Montant TTC']) || '').replace(/\[ILLISIBLE\]|\(.*\)/g, ''));
+  corps.innerHTML = '<button class="btn b-voir" onclick="voirMail(MAIL_ID)">← Retour au mail</button>' +
+    boiteMontant('pjMontant', vM, 'Facture illisible pour moi ou montant à corriger ? Lisez-le sur le document ci-dessous et enregistrez-le : il sera repris dans le paiement de la facture.') +
+    '<div id="pjZone" class="chargement">Chargement de la pièce jointe…</div>';
   appel('mob_pj', [JETON, MAIL_ID, mi, ai], function(p){
     var zone = document.getElementById('pjZone');
     zone.className = '';
@@ -1062,7 +1108,8 @@ function afficherTreso(){
     return entete + '<div class="carte' + (x.choisi ? ' choisi' : '') + (enArch ? ' arch' : '') + '"><div class="lv">' +
       (MODE_ARCH ? '<input type="checkbox" class="chArch" title="À archiver"' + (enArch ? ' checked' : '') + ' onchange="cocherArch(' + i + ', this.checked)">'
         : '<input type="checkbox"' + (x.choisi ? ' checked' : '') + ' onchange="cocher(' + i + ', this.checked)">') +
-      '<div class="corpsL"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + eur(x.du) + '</span></div>' +
+      '<div class="corpsL"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + (x.du == null && x.source === 'Fichier RJ' ? '<span class="neg">montant ?</span>' : eur(x.du)) + '</span></div>' +
+      (x.du == null && x.source === 'Fichier RJ' ? '<div class="opts"><input id="mtI' + i + '" inputmode="decimal" placeholder="Montant TTC lu sur la facture" style="max-width:190px"><button class="pj" onclick="montantDossier(\'' + esc(x.cle).replace(/'/g, "\\'") + '\',\'mtI' + i + '\')">💶 Enregistrer le montant</button><span class="meta" id="mtI' + i + 'R"></span></div>' : '') +
       '<div class="meta">' + esc(x.refs) + (x.date ? ' · ' + esc(x.date) : '') + '</div>' +
       (x.verse ? '<div class="meta verse">💶 Facture ' + eur(x.montantTTC) + ' · déjà versé ' + eur(x.verse) + ' (' + x.versements.length + ' fois) · <b>reste ' + eur(x.du) + '</b></div>' : '') +
       '<div class="meta">' + esc(x.statut) + (x.source !== 'Fichier RJ' ? ' · 📬 ' + esc(x.source) : '') + '</div>' +
@@ -1835,7 +1882,10 @@ function voirPiece(id, cle, retour){
   RETOUR_PIECE = retour || function(){ dossier(TRESO.lignes.indexOf(x)); };
   var p = (x.pieces || []).filter(function(q){ return q.id === id; })[0] || { nom: '', genre: 'document' };
   document.getElementById('mTitre').textContent = GENRES_PIECE[p.genre] + ' — ' + x.tiers;
-  document.getElementById('mCorps').innerHTML = '<button class="btn b-voir" onclick="RETOUR_PIECE()">← Retour</button> <span class="meta">' + esc(p.nom) + '</span><div id="pjZone" class="chargement">Chargement du document…</div>';
+  window.dosMontantOk = function(){ montantDossier(x.cle, 'dosMontant', function(){}); };
+  document.getElementById('mCorps').innerHTML = '<button class="btn b-voir" onclick="RETOUR_PIECE()">← Retour</button> <span class="meta">' + esc(p.nom) + '</span>' +
+    (x.source === 'Fichier RJ' ? boiteMontant('dosMontant', x.montantTTC !== undefined && x.montantTTC !== null ? x.montantTTC : x.du, x.du == null ? '<span class="neg">Montant inconnu</span> : lisez-le sur le document et enregistrez-le, il comptera aussitôt dans le paiement.' : 'Montant actuel du dossier : ' + eur(x.montantTTC != null ? x.montantTTC : x.du) + '. Corrigez-le si le document indique autre chose.') : '') +
+    '<div id="pjZone" class="chargement">Chargement du document…</div>';
   ouvrir();
   appel('mob_fichier', [JETON, x.cle, id], function(f){
     var zone = document.getElementById('pjZone'); zone.className = '';
