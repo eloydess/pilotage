@@ -6913,8 +6913,8 @@
   ]
  },
  "rdv": {
-  "titre": "Rendez-vous laboratoires du 26/10 au 04/11",
-  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT]. — Mise à jour du 27/10/2026 vers 8 h 50 : fiches EG Labo et A-Derma / Ducray complétées avec Vindilis (ventes produit par produit sur 24 mois, stock, PAMP, prix, promotions en caisse ; lecture seule depuis le PC du bureau) et GERS SOG Now (prix moyen France par EAN). — Mise à jour du 27/10/2026 à 19 h 55 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 28/10 au 03/11) ; ajout des fiches Aunea et Bouchara du 03/11 à partir de flux.json (ruptures Vindilis du 25/10, « Quoi payer », cloud Apothical). Vindilis, Opeaz et la page Pilotage (D.labos) non relus ce soir (trois Chrome connectés, aucun sélectionné ; contrôle du poste non autorisé ; aucun dossier du poste partagé) : données marquées [MANQUANT]. Les fiches du 26/10 au 02/11 sont inchangées. — Mise à jour du 28/10/2026 à 19 h 58 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 29/10 au 04/11, aucun nouveau rendez-vous) ; D.labos (page Pilotage ouverte dans le Chrome du poste « bureau ») lu le 28/10/2026 à 19 h 58 pour CA, marge et classe ; Opeaz par opeaz_comp.json (relevé du 27/10), page Opeaz ouverte mais tableau non lisible automatiquement ; « Quoi payer » et cloud Apothical par flux.json. Vindilis non relu (contrôle du poste non autorisé) : commandes N-1/N et commandé non reçu restent [MANQUANT] pour Rogé Cavaillès, Aunea et Bouchara.",
+  "titre": "Rendez-vous laboratoires du 26/10 au 05/11",
+  "source": "Agendas Google pharmaciecsudachat et pharmaciecsudpg lus le 26/10/2026 à 19 h 56 (du 27/10 au 02/11). Fiches du 26/10 au 30/10 : chiffres du 25/10 (Vindilis, Opeaz, Digipharmacie, cloud Apothical, « Quoi payer »). Fiches du 02/11 : flux.json (Vindilis du 25/10, cloud Apothical, « Quoi payer ») ; Vindilis, Opeaz et la page Pilotage (D.labos) non relus le 26/10 (Chrome du poste non sélectionné, aucun dossier du poste partagé) : données marquées [MANQUANT]. — Mise à jour du 27/10/2026 vers 8 h 50 : fiches EG Labo et A-Derma / Ducray complétées avec Vindilis (ventes produit par produit sur 24 mois, stock, PAMP, prix, promotions en caisse ; lecture seule depuis le PC du bureau) et GERS SOG Now (prix moyen France par EAN). — Mise à jour du 27/10/2026 à 19 h 55 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 28/10 au 03/11) ; ajout des fiches Aunea et Bouchara du 03/11 à partir de flux.json (ruptures Vindilis du 25/10, « Quoi payer », cloud Apothical). Vindilis, Opeaz et la page Pilotage (D.labos) non relus ce soir (trois Chrome connectés, aucun sélectionné ; contrôle du poste non autorisé ; aucun dossier du poste partagé) : données marquées [MANQUANT]. Les fiches du 26/10 au 02/11 sont inchangées. — Mise à jour du 28/10/2026 à 19 h 58 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 29/10 au 04/11, aucun nouveau rendez-vous) ; D.labos (page Pilotage ouverte dans le Chrome du poste « bureau ») lu le 28/10/2026 à 19 h 58 pour CA, marge et classe ; Opeaz par opeaz_comp.json (relevé du 27/10), page Opeaz ouverte mais tableau non lisible automatiquement ; « Quoi payer » et cloud Apothical par flux.json. Vindilis non relu (contrôle du poste non autorisé) : commandes N-1/N et commandé non reçu restent [MANQUANT] pour Rogé Cavaillès, Aunea et Bouchara. — Mise à jour du 29/10/2026 à 19 h 55 : agendas Google pharmaciecsudachat et pharmaciecsudpg relus (du 30/10 au 05/11) ; ajout des fiches Topicrem et J et J (Kenvue) du 05/11 à partir de flux.json (Vindilis du 25/10 : ruptures, top marge, ventes par marque ; « Quoi payer » ; cloud Apothical ; mise en avant Opeaz) et opeaz_comp.json (relevé du 27/10). Vindilis, Opeaz et la page Pilotage (D.labos) non relus ce soir (deux Chrome connectés, aucun sélectionné ; contrôle du poste non autorisé ; aucun dossier du poste partagé) : données marquées [MANQUANT]. EAN ajoutés aux produits Opella cités dans la fiche Sanofi.",
   "l": [
    {
     "d": "2026-10-26",
@@ -9600,7 +9600,7 @@
      ]
     ],
     "obtenir": [
-     "La reprise des commandes directes Opella (Doliprane, Dafalgan, Mucosolvan) avec paiement à réception ou à 30 jours",
+     "La reprise des commandes directes Opella (Doliprane 1000 mg cpr — 3400935955838, Dafalgan 1 g cpr — 3400936158832, Mucosolvan — EAN [MANQUANT]) avec paiement à réception ou à 30 jours",
      "Un étalement des 9 949,23 € de vaccins sur janvier si la trésorerie de décembre est tendue",
      "Les conditions et le calendrier de la campagne vaccinale 2027"
     ],
@@ -9615,7 +9615,8 @@
     "apres": [
      "Mesurer la part Opella achetée en direct vs CERP en novembre"
     ],
-    "t": "2026-10-30 09:00"
+    "t": "2026-10-30 09:00",
+    "doute": "Rendez-vous école jusqu'à 9 h, enchaîné sans pause ; Colgate à 10 h 15 (15 min après)"
    },
    {
     "d": "2026-10-30",
@@ -9912,6 +9913,158 @@
     ],
     "apres": [
      "Commander les quantités validées (ou par la CERP si le direct bloque) et cocher dans « Ruptures »"
+    ]
+   },
+   {
+    "d": "2026-11-05",
+    "t": "2026-11-05 09:00",
+    "jour": "Jeu. 05/11",
+    "h": "9 h – 10 h",
+    "titre": "Topicrem (Laboratoires Nigy / Mayoly)",
+    "doute": "Fournisseur nommé « LABORATOIRES NIGY » dans Opeaz (mise en avant) et « Quoi payer », « MAYOLY (Topicrem) » dans les ruptures Vindilis et « Mayoly Topicrem » dans Opeaz : ne parler que de Topicrem (pas de Smecta, Forlax, Probiolog). Rendez-vous personnel juste après, à 10 h.",
+    "resume": "Marque en forte hausse (+2 898 € de ventes sur 12 mois) mais 6 références en rupture ; proforma Nigy de 583,31 € à payer pour débloquer ; 5 compensations Opeaz terminées non demandées ; TG et remises Topicrem de novembre à monter.",
+    "chiffres": [
+     [
+      "CA HT 12 mois / marge (taux) — classe (D.labos)",
+      "[MANQUANT]"
+     ],
+     [
+      "Ventes Topicrem 12 mois (Vindilis, par marque)",
+      "+2 898 € (2e plus forte hausse de la pharmacie)"
+     ],
+     [
+      "Commandes directes N-1 → N",
+      "[MANQUANT]"
+     ],
+     [
+      "Commandé non reçu",
+      "[MANQUANT]"
+     ],
+     [
+      "En rupture (Vindilis 25/10 ; tickets 12 mois, stock, quantité 4 semaines)",
+      "TOPICREM ULT HYD LT CORP 500ML — 3700281702286 (148 tickets, stock 0, 12) ; TOPICREM DA Bme émoll vis corps Fl ppe/500ml — 3700281702736 (78, 0, 7) ; TOPICREM DA Bme émoll vis corps T/200ml — 3700281702583 (34, 0, 3) ; TOPICREM MELA Lait éclairciss ultra-hyd 500ml — 3700281704457 (33, 0, 3) ; TOPICREM MELA Pain exfol unif 150g — 3700281703955 (30, 0, 3) ; TOPICREM LT CORP ULT-HYD 200ML — 3700281702361 (30, 0, 3)"
+     ],
+     [
+      "Pour décembre (Vindilis)",
+      "TOPICREM ULTRA-HYDRAT CORP Lait 2Fl ppe/500ml — 3700281702293 : 45 ventes en déc. 2025, stock 11, à acheter 34"
+     ],
+     [
+      "À payer (« Quoi payer », vague 1, dossier 45)",
+      "Nigy (Topicrem) : Proforma NICDE0299010 du 09/10 — 583,31 €"
+     ],
+     [
+      "Opeaz : terminées, compensation pas encore demandée (relevé du 27/10)",
+      "BRI TOPICREM 01/05/2025 → 31/07/2026 (TOPICREM MELA LAIT UNIFIANT 500ML — EAN [MANQUANT]) ; BRI TOPICREM 01/07/2025 → 30/08/2026 (TOPICREM ESSENTIEL UH LAIT CORPS 500ML X2 — EAN [MANQUANT] ; TOPICREM ULT/HYDR LAIT CORP 1L — 3700281702576) ; TG + BRI Push Winpharma 01/06 → 01/07/2026 (TOPICREM ULT/HYDR LAIT CORP 500ML — 3700281702286) ; TG + BRI 01/09 → 30/09/2026 (même produit — 3700281702286) ; BRI 01/09 → 30/09/2026 (TOPICREM DA PROT GEL NETT SUR500ML — EAN [MANQUANT] ; ULTRA-HYDRATANT LAIT DE DOUCHE 1L — EAN [MANQUANT] ; +6)"
+     ],
+     [
+      "Opeaz : en cours / à venir",
+      "Topicrem en cours jusqu'au 31/10 (cloud Apothical) ; LABORATOIRES NIGY : 2 × TG TOPICREM 01/11 → 30/11/2026 ; BRI TOPICREM 01/11 → 30/11, 01/11 → 30/12 et 2 × 01/11 → 31/12/2026 (conditions : [MANQUANT])"
+     ],
+     [
+      "Tête de gondole prévue",
+      "TG 33 (Beauté), juste à côté du linéaire Topicrem, après paiement de la proforma Nigy"
+     ],
+     [
+      "Coop / RFA Topicrem (cloud Apothical)",
+      "[MANQUANT]"
+     ],
+     [
+      "Prix vs médiane France (GERS)",
+      "Aucun produit Topicrem dans la comparaison du 25/10"
+     ]
+    ],
+    "obtenir": [
+     "La livraison des 6 références en rupture dès le paiement de la proforma NICDE0299010 (583,31 €) validé par l'administrateur, en commençant par le lait corps ultra-hydratant 500 ml (3700281702286, 148 tickets) et le baume DA 500 ml (3700281702736), avec une date écrite",
+     "La quantité de décembre sur le lait corps 2 × 500 ml (3700281702293 : 34 à acheter) aux conditions de la BRI de novembre-décembre",
+     "Les conditions chiffrées des 2 TG et des 4 BRI Topicrem de novembre (remise, compensation, montant de la TG) et le paiement des 5 compensations Opeaz terminées une fois déposées"
+    ],
+    "dire": [
+     "Topicrem progresse chez vous (+2 898 € sur 12 mois) : les ruptures viennent du blocage de trésorerie, pas de la demande",
+     "La TG 33 est réservée à Topicrem pour novembre si le stock est livré"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Déposer sur Opeaz les 5 demandes de compensation Topicrem (avant les dates limites)",
+     "Photo de la TG 33 déposée sur Opeaz le jour de la mise en place",
+     "Compléter D.labos et les commandes Vindilis (Nigy / Mayoly) dans la fiche"
+    ]
+   },
+   {
+    "d": "2026-11-05",
+    "t": "2026-11-05 11:00",
+    "jour": "Jeu. 05/11",
+    "h": "11 h – 12 h",
+    "titre": "J et J (Kenvue — « JOHNSON & J OTC » dans Vindilis)",
+    "doute": "« J et J » lu comme Kenvue (ex-Johnson & Johnson grand public : Imodium, Biafine, Nicorette, Listerine) ; à confirmer s'il s'agit de Janssen (médicaments sur ordonnance). Enchaîné sans pause après un rendez-vous personnel de 10 h à 11 h.",
+    "resume": "Labo du top 20 marge (8 740 €, 28,5 %) ; achats directs −49 % ; RFA perdue si les achats directs 2026 n'atteignent pas 17 000 € (8 425 € à ce jour) ; 15 références en rupture, dont Imodium et Biafine.",
+    "chiffres": [
+     [
+      "CA HT 12 mois / marge (taux) (Vindilis, 26/10/2025 → 24/10/2026)",
+      "30 701 € / 8 740 € (28,5 %) — 14e fournisseur par la marge"
+     ],
+     [
+      "Classe (D.labos)",
+      "[MANQUANT]"
+     ],
+     [
+      "Achats directs (cloud Apothical, même période)",
+      "2025 : 16 390 € → 2026 : 8 425 €, −49 %"
+     ],
+     [
+      "RFA Kenvue (cloud Apothical)",
+      "RFA seulement si CA > 17 000 € : 8 425 € ; reste ≈ 8 575 € ; assortiment 24/45, dermo 0/14"
+     ],
+     [
+      "Commandes directes N-1 → N (Vindilis)",
+      "[MANQUANT]"
+     ],
+     [
+      "Commandé non reçu",
+      "[MANQUANT]"
+     ],
+     [
+      "En rupture (Vindilis 25/10 ; tickets 12 mois, stock, quantité 4 semaines)",
+      "IMODIUMCAPS 2MG GELU BT12 — 3400938571905 (287, 0, 28) ; IMODIUMLINGUAL 2MG LYOCS 12 — 3400936666795 (276, 0, 26) ; BIAFINEACT TB 139.5GR — 3400937832090 (211, 0, 17) ; TITANOREINE LIDOC 2% CR 20G — 3400932372409 (179, 0, 15) ; TITANOREINE SUP BT12 — 3400932300778 (126, 0, 11) ; MICROLAX SOL RECTALE 4 — 3400934968754 (90, −1, 7) ; REACTINE 10MG CPR BT7 — 3400938021318 (85, 0, 8) ; BIAFINE TB 93G — 3400931922827 (82, 0, 7) ; IMODIUMDUO Cpr Plq/12 — 3400937882248 (69, 0, 6) ; MICROLAX 12 5ML — 3400934968815 (65, −4, 6) ; MICROLAX BB SOL RECTALE 4 — 3400935445452 (50, −3, 4) ; LISTERINE PROTECT DENTS GENCIVE FL500ML — 3574661811376 (45, −7, 4) ; DOLODENT SOL GGVL FL27G — 3400921929201 (34, 0, 3) ; Nicorette 2mg menthe glaciale 210 gommes — 3400939003368 (33, −4, 4) ; ZYRTECSET 10MG CPR BT7 — 3400936461680 (31, 0, 3)"
+     ],
+     [
+      "À payer / litiges (« Quoi payer »)",
+      "Aucun dossier Kenvue / Johnson & Johnson"
+     ],
+     [
+      "Opeaz : terminées, compensation pas encore demandée (relevé du 27/10)",
+      "Aucune opération Kenvue / J&J"
+     ],
+     [
+      "Opeaz : à venir (JOHNSON & J OTC)",
+      "TG Apothical&vous 01/11 → 30/11/2026 (PLV par C-Media) ; BRI Nicorette spray −5 € compensé en sell-in, 01/11 → 30/11 (48 UC : RSF 61,33 % ; 24 UC : 55 % ; 12 UC : 50 %) — EAN [MANQUANT] ; BRI Nicorette gommes −1,5 €, 01/11 → 30/11 (24 UC : RSF 61,86 % ; 12 UC : 50 %) — EAN [MANQUANT] ; TG + BRI Neutrogena −1,50 € / −2 €, 01/12 → 31/12 (unitaire 24 UC : 10 UG ; duo 24 UC : 8 UG) — EAN [MANQUANT]"
+     ],
+     [
+      "Prix vs médiane France (GERS)",
+      "Aucun produit Kenvue dans la comparaison du 25/10"
+     ]
+    ],
+    "obtenir": [
+     "Un objectif RFA 2026 recalé (seuil de 17 000 € inatteignable à cause du blocage) ou, à défaut, une commande d'hiver comptée dans la RFA, payée à réception après validation de l'administrateur",
+     "Le réassort prioritaire d'Imodium (3400938571905, 3400936666795) et Biafine (3400937832090, 3400931922827), Titanoréine (3400932372409) : plus de 1 000 tickets sur 12 mois, avec une date de livraison écrite",
+     "Les BRI Nicorette de novembre (Mois sans tabac) avec la remise du palier 24 UC, et la contrepartie chiffrée de la TG Apothical&vous"
+    ],
+    "dire": [
+     "Kenvue est dans vos 20 fournisseurs qui font la marge : la baisse des achats directs vient du blocage d'avant le redressement, pas des ventes",
+     "Si le direct reste bloqué, les ruptures seront commandées par la CERP, hors RFA"
+    ],
+    "refuser": [
+     "Une commande sans paiement validé par l'administrateur",
+     "Un objectif de RFA ou de coop recalé sur 2025 : vos achats ont baissé à cause du blocage, l'objectif doit être recalé sur 2026",
+     "Une implantation ou un linéaire supplémentaire sans contrepartie chiffrée (remise, coop, animation)"
+    ],
+    "apres": [
+     "Commander les quantités validées (ou par la CERP) et cocher dans « Ruptures »",
+     "Monter la TG de novembre et déposer la photo sur Opeaz",
+     "Compléter D.labos et les commandes Vindilis (JOHNSON & J OTC) dans la fiche"
     ]
    }
   ]
