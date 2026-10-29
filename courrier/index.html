@@ -1126,11 +1126,20 @@ function afficherTreso(){
       groupes: GR.liste.map(function(g){ return { cle: g.cle, nom: g.nom, nb: nbR[g.cle] || 0 }; }) }) + '</div>' +
     (gSel ? bandeauExp(gSel, l.length, 'dossier(s) · reste dû ' + eur(duSel), 'choisirExpR') : '') + '</div>' + barreArch(l);
   var precR = null;
+  /* 7.75 : les dossiers d'un virement groupé sont affichés ensemble, dans UN cadre, avec UN bordereau et UNE preuve en tête */
+  (function(){ var vus = {}, out = []; l.forEach(function(x){ var v = vgDe(x); if (!v) { out.push(x); return; } if (vus[v]) return; vus[v] = 1;
+      var M = l.filter(function(y){ return vgDe(y) === v; }), P = cible(x); M.sort(function(a, b){ return (b === P) - (a === P); }); out.push.apply(out, M); }); l = out; })();
+  UNIR_CLES = []; var unis = {}; l.forEach(function(x){ if (x.choisi && x.source === 'Fichier RJ' && !vgDe(x)) { var k = cleLabo(x); (unis[k] = unis[k] || []).push(x); } });
+  var vgOuvert = null, proposes = {};
+  var fermerVG = function(){ if (!vgOuvert) return ''; vgOuvert = null; return '</div>'; };
   h += l.map(function(x){
-    var i = TRESO.lignes.indexOf(x), cR = GR.cleDe(x), entete = '';
+    var i = TRESO.lignes.indexOf(x), cR = GR.cleDe(x), entete = '', v = vgDe(x);
+    if (vgOuvert && v !== vgOuvert) entete += fermerVG();
+    if (v && v !== vgOuvert) { vgOuvert = v; entete += enteteVG(v); }
+    if (!v && x.choisi && unis[cleLabo(x)] && unis[cleLabo(x)].length > 1 && !proposes[cleLabo(x)]) { proposes[cleLabo(x)] = 1; entete += propositionUnir(unis[cleLabo(x)]); }
     if (TRI_R === 'exp' && !EXP_R && cR !== precR) { precR = cR; entete = enteteGroupe(GR.parCle[cR], nbR[cR], 'dossier(s) · reste dû ' + eur(duR[cR]), 'choisirExpR'); }
     var enArch = MODE_ARCH && ARCH_SEL[x.cle];
-    return entete + '<div class="carte' + (x.choisi ? ' choisi' : '') + (enArch ? ' arch' : '') + '"><div class="lv">' +
+    return entete + '<div class="carte' + (x.choisi && !v ? ' choisi' : '') + (enArch ? ' arch' : '') + '"' + (v ? ' style="margin:6px 0;box-shadow:none"' : '') + '><div class="lv">' +
       (MODE_ARCH ? '<input type="checkbox" class="chArch" title="À archiver"' + (enArch ? ' checked' : '') + ' onchange="cocherArch(' + i + ', this.checked)">'
         : '<input type="checkbox"' + (x.choisi ? ' checked' : '') + ' onchange="cocher(' + i + ', this.checked)">') +
       '<div class="corpsL"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + (x.du == null && x.source === 'Fichier RJ' ? '<span class="neg">montant ?</span>' : eur(x.du)) + '</span></div>' +
@@ -1149,7 +1158,7 @@ function afficherTreso(){
         '<select onchange="changer(' + i + ', \'banqueVir\', this.value)">' + ['CEBPL', 'BPGO'].map(function(b){ return '<option value="' + b + '"' + (x.banqueVir === b ? ' selected' : '') + '>' + NOMS_BANQUE[b] + '</option>'; }).join('') + '</select>' +
         '<select onchange="changer(' + i + ', \'priorite\', this.value)"><option value="">Priorité</option>' + [['1', '1 · Urgent'], ['2', '2 · Normal'], ['3', '3 · Plus tard']].map(function(p){ return '<option value="' + p[0] + '"' + (x.priorite === p[0] ? ' selected' : '') + '>' + p[1] + '</option>'; }).join('') + '</select></div>' : '') +
       '</div></div></div>';
-  }).join('');
+  }).join('') + fermerVG();
   h += blocLivraison();
   h += '<details class="carte" id="clotRec" ontoggle="if(this.open)chargerClotures()"><summary><b>↩ Clôturés récemment</b> <span class="meta">— rouvrir un dossier clôturé ou archivé par erreur</span></summary><div id="clotListe" class="meta">Chargement…</div></details>';
   if (TRESO.clotures) h += '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="archiver()">📦 Ranger ' + TRESO.clotures + ' dossier(s) clôturé(s) dans les archives</button>';
@@ -2090,12 +2099,35 @@ function piecesCochesFond(){
   var suite = function(){ if (!L.length) { PIECES_BG = false; afficherTreso(); return; } var x = L.shift(); appel('mob_pieces', [JETON, x.cle], function(r){ majCompte(x, r); suite(); }, suite); };
   suite();
 }
+function enteteVG(v){
+  var M = vgMembres(v), P = vgPrincipal(v) || M[0], tot = M.reduce(function(a, y){ return a + montantPos(y); }, 0), iP = TRESO.lignes.indexOf(P);
+  var nB = nbBordereaux(P), nP = P.preuves || 0;
+  var pastille = function(n, ok, txt, genre){ return '<span class="bpc ' + (ok ? 'bpc-ok' : 'bpc-non') + '" onclick="event.stopPropagation();ouvrirPieces(' + iP + ',\'' + genre + '\')" title="' + (ok ? 'Voir' : 'Ajouter') + ' (un seul pour les ' + M.length + ' dossiers)">' + txt + (ok ? ' ✓' : ' —') + (ok ? '<span class="bx" title="Retirer" onclick="event.stopPropagation();retirerRapide(' + iP + ',\'' + genre + '\',this)">✕</span>' : '') + '</span>'; };
+  return '<div class="vgCadre" style="border:2px solid var(--vert);border-radius:14px;padding:8px 8px 2px;margin:10px 0;background:rgba(18,183,106,.04)">' +
+    '<div class="ligne1" style="align-items:center;flex-wrap:wrap;gap:6px"><span><b>🔗 ' + esc(String(P.tiers).toUpperCase()) + ' — ' + M.length + ' dossiers unis · un seul virement de ' + eur(tot) + '</b></span>' +
+    '<a href="#" class="meta" onclick="event.preventDefault();defaireVG(\'' + v + '\')">défaire</a></div>' +
+    '<div class="badgesP" style="margin:6px 0">' + pastille(nB, nB > 0, '📝 Bordereau du virement', 'bordereau') + pastille(nP, nP > 0, '📨 Preuve du virement', 'preuve') + '</div>' +
+    '<div class="meta" style="margin-bottom:4px">Un seul bordereau et une seule preuve pour ces ' + M.length + ' dossiers. Chaque dossier garde sa ou ses factures.</div>';
+}
+var UNIR_CLES = [];
+function propositionUnir(L){
+  var k = UNIR_CLES.length; UNIR_CLES.push(L.map(function(y){ return y.cle; }));
+  var tot = L.reduce(function(a, y){ return a + montantPos(y); }, 0);
+  return '<div class="carte" style="margin:10px 0 4px;padding:8px;border:2px dashed var(--vert)"><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" onchange="if(this.checked){this.disabled=true;unirDossiers(' + k + ')}">' +
+    '<span><b>Unir ces ' + L.length + ' dossiers ' + esc(String(L[0].tiers).toUpperCase()) + '</b> (' + eur(tot) + ') : un seul bordereau et une seule preuve de virement</span></label><div class="meta" id="unirR' + k + '"></div></div>';
+}
+function unirDossiers(k){
+  var L = (UNIR_CLES[k] || []).map(ligneTreso).filter(Boolean), z = document.getElementById('unirR' + k);
+  if (z) z.textContent = 'Regroupement…';
+  creerVG(L, function(){ afficherTreso(); }, function(m){ if (z) z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
+}
 function badgesPieces(x){
   var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
   var b = function(n, ok, txt, genre){
     return '<span class="bpc ' + (ok ? 'bpc-ok' : 'bpc-non') + '"' + (i >= 0 ? ' onclick="event.stopPropagation();ouvrirPieces(' + i + ',\'' + genre + '\')" title="' + (ok ? 'Voir le document' : 'Ajouter le document') + '"' : '') + '>' +
       txt + (ok ? ' ✓' + (n > 1 ? ' ×' + n : '') : ' —') + (ok && i >= 0 ? '<span class="bx" title="Retirer" onclick="event.stopPropagation();retirerRapide(' + i + ',\'' + genre + '\',this)">✕</span>' : '') + '</span>'; };
   var C = cible(x), iC = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(C) : -1, nB = nbBordereaux(C), nD = Math.max(0, (x.documents || 0) - nbBordereaux(x)), vg = vgDe(x);
+  if (vg) return '<div class="badgesP">' + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') + (nD ? b(nD, true, '📄 Document', 'document') : '') + '</div>';
   var bC = function(n, ok, txt, genre){ if (C === x) return b(n, ok, txt, genre); var i0 = i; i = iC; var h = b(n, ok, txt + ' 🔗', genre); i = i0; return h; };
   return '<div class="badgesP">' + bC(nB, nB > 0, '📝 Bordereau', 'bordereau') + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') + bC(C.preuves || 0, C.preuves > 0, '📨 Preuve', 'preuve') +
     (nD ? b(nD, true, '📄 Document', 'document') : '') +
