@@ -1838,11 +1838,46 @@ function alerteDocs(x){
   return '<div class="meta" style="color:var(--orange);font-weight:600">⚠ ' + R.length + ' n° de facture pour ' + n + ' document' + (n > 1 ? 's' : '') + ' : il en manque probablement ' + (R.length - n) + '. Ouvrez le dossier pour voir lequel.</div>';
 }
 function blocControleDocs(x){
-  var C = controleDocs(x); if (C.length < 2 && !(C.length === 1 && !C[0].piece && (x.pieces || []).filter(function(p){ return p.genre !== 'preuve'; }).length === 0)) return '';
-  var manq = C.filter(function(c){ return !c.piece; }).length, nDoc = (x.pieces || []).filter(function(p){ return p.genre !== 'preuve'; }).length;
-  return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid ' + (manq ? 'var(--orange)' : 'var(--vert)') + '"><b>📑 Un document par n° de facture</b>' +
-    '<div class="meta">' + C.length + ' n° cité(s) dans le dossier, ' + nDoc + ' document(s) rangé(s).' + (manq ? ' Un ✗ veut dire : aucun document dont le nom porte ce numéro (il peut être dans un PDF regroupé : vérifiez en l\'ouvrant).' : ' Chaque numéro a son document.') + '</div>' +
-    C.map(function(c){ return '<div class="ligne1" style="margin-top:4px"><span>' + (c.piece ? '✅' : '<span class="neg">✗</span>') + ' ' + esc(c.ref) + '</span><span class="meta">' + (c.piece ? esc(c.piece.nom) : 'document manquant — « ＋ 🧾 Facture » ci-dessous') + '</span></div>'; }).join('') + '</div>';
+  var C = controleDocs(x), D = (x.pieces || []).filter(function(p){ return p.genre !== 'preuve'; }), nDoc = D.length;
+  if (!C.length && nDoc) return '';
+  var parNom = D.some(function(p){ return /\d{5,}/.test(String(p.nom || '').replace(/^FACTURE \d{4}-\d{2}-\d{2}/, '').replace(/—.*$/, '')); }) && C.some(function(c){ return c.piece; });
+  var manque = Math.max(0, C.length - nDoc), ok = !manque;
+  return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid ' + (ok ? 'var(--vert)' : 'var(--orange)') + '"><b>📑 ' + C.length + ' n° de facture cité(s) · ' + nDoc + ' document(s) rangé(s)</b>' +
+    (ok ? '<div class="meta pos">Autant de documents que de numéros.</div>' : '<div class="meta" style="color:var(--orange);font-weight:600">⚠ Il manque ' + manque + ' document(s). Touchez « 🔄 Récupérer les documents du mail d\'origine » : chaque pièce jointe absente du dossier est ajoutée (les doublons sont écartés).</div>') +
+    (C.length ? '<div class="meta">' + C.map(function(c){ return (parNom ? (c.piece ? '✅ ' : '✗ ') : '• ') + esc(c.ref); }).join(' · ') + '</div>' : '') +
+    (x.lien ? '<button class="pj" style="margin-top:6px" onclick="recupDocsMail(\'' + esc(x.cle).replace(/'/g, "\\'") + '\')">🔄 Récupérer les documents du mail d\'origine</button><span class="meta" id="rdM"></span>' : '') + '</div>';
+}
+/* compare le contenu (pas le nom) : deux pièces jointes peuvent porter le même nom (ex. 4 × OIS641PF.pdf chez Thuasne) */
+function empreinte(b64){ var s = String(b64 || ''), h = 0; for (var i = 0; i < s.length; i += 7) h = (h * 31 + s.charCodeAt(i)) | 0; return s.length + ':' + h; }
+function recupDocsMail(cle, fin){
+  var x = ligneTreso(cle), z = document.getElementById('rdM'), dit = function(m){ if (z) z.innerHTML = ' ' + m; };
+  var fiche = FICHES.filter(function(f){ return x.lien && f['Lien Gmail'] === x.lien; })[0];
+  if (!fiche) { dit('<span class="neg">Mail d\'origine introuvable parmi les fiches.</span>'); if (fin) fin({ err: 'fiche' }); return; }
+  dit('Lecture du mail…');
+  appel('mob_mail', [JETON, fiche['ID']], function(r){
+    var pj = []; (r.messages || []).forEach(function(m){ (m.pjs || []).forEach(function(p){ if (/\.pdf$/i.test(p.nom) || (/\.(png|jpe?g)$/i.test(p.nom) && p.taille > 60000)) pj.push(p); }); });
+    var exist = (x.pieces || []).filter(function(p){ return p.genre !== 'preuve'; }), emp = {}, aj = 0, dbl = 0;
+    var lireExist = exist.slice();
+    var etape2 = function(){
+      var l = pj.slice();
+      var suite = function(){
+        if (!l.length) { dit('<span class="pos">✓ ' + aj + ' document(s) ajouté(s)' + (dbl ? ', ' + dbl + ' déjà présent(s)' : '') + ' — ' + pj.length + ' pièce(s) jointe(s) dans le mail.</span>'); chargerPieces(x); if (fin) fin({ ajoutes: aj, pj: pj.length }); return; }
+        var p = l.shift(); dit('Pièce jointe ' + (pj.length - l.length) + ' / ' + pj.length + '…');
+        appel('mob_pj', [JETON, fiche['ID'], p.mi, p.ai], function(f){
+          var e = empreinte(f.b64); if (emp[e]) { dbl++; return suite(); }
+          emp[e] = 1;
+          appel('mob_piece', [JETON, x.cle, 'facture', { nom: p.nom.replace(/\.[a-z0-9]+$/i, '') + '_' + (p.ai + 1) + ((p.nom.match(/\.[a-z0-9]+$/i) || ['.pdf'])[0]), type: f.type || 'application/pdf', b64: f.b64 }], function(rr){ majCompte(x, rr); aj++; suite(); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); if (fin) fin({ err: m }); });
+        }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); if (fin) fin({ err: m }); });
+      };
+      suite();
+    };
+    var lire = function(){
+      if (!lireExist.length) return etape2();
+      var q = lireExist.shift();
+      appel('mob_fichier', [JETON, x.cle, q.id], function(f){ emp[empreinte(f.b64)] = 1; lire(); }, function(){ lire(); });
+    };
+    dit('Comparaison avec les ' + exist.length + ' document(s) du dossier…'); lire();
+  }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); if (fin) fin({ err: m }); });
 }
 function badgesPieces(x){
   var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
