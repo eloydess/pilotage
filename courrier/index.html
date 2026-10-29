@@ -927,9 +927,10 @@ function montantDossier(cle, champId, apres){
   if (v == null || v < 0) { if (z) z.innerHTML = '<span class="neg">Montant invalide.</span>'; return; }
   if (z) z.textContent = 'Enregistrement…';
   appel('mob_majDossier', [JETON, cle, 'montant', String(v)], function(){
-    if (x) { x.montantTTC = v; if (x.du == null) x.du = Math.max(0, v - (x.verse || 0)); }
+    if (x) corrigerMontantLocal(x, v);
+    afficherTreso(); setTimeout(chargerTreso, 30000);
     if (z) z.innerHTML = '<span class="pos">✓ ' + eur(v) + ' enregistré : il compte maintenant dans le total dû, la capacité de paiement et les virements.</span>';
-    if (apres) apres(); else chargerTreso();
+    if (apres) apres();
   }, function(m){ if (z) z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
 }
 function mtLu(){ try { return JSON.parse(localStorage.getItem('cr_mtLu') || '{}'); } catch (e) { return {}; } }
@@ -1003,7 +1004,7 @@ function nb(v){ var s = String(v == null ? '' : v).replace(/\s/g, '').replace(/�
 
 function chargerTreso(){
   document.getElementById('treso').innerHTML = '<div class="chargement">Chargement…</div>';
-  appel('mob_tresorerie', [JETON], function(r){ TRESO = r; afficherTreso(); facturesManquantes(false); },
+  appel('mob_tresorerie', [JETON], function(r){ TRESO = r; appliquerMtCorr(); afficherTreso(); facturesManquantes(false); },
     function(m){ document.getElementById('treso').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
 }
 
@@ -1143,6 +1144,27 @@ function lsSet(k, v){ try { localStorage.setItem(k, v); } catch(e) {} }
 function aujISO(){ var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
 function frDate(iso){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : iso; }
 /* Montant du virement : celui saisi, sinon le dernier versement enregistré (facture déjà soldée), sinon le montant de la facture. */
+/* 7.60 : un montant corrigé s'affiche tout de suite. Le serveur met jusqu'à une minute à renvoyer la nouvelle valeur :
+   en attendant, la correction est gardée ici (10 min max) ; le montant à virer d'une facture cochée suit la correction. */
+var MT_CORR = {};
+function corrigerMontantLocal(x, v){
+  var ancien = x.montantTTC != null ? x.montantTTC : x.du;
+  x.montantTTC = v; x.du = Math.max(0, Math.round((v - (x.verse || 0)) * 100) / 100);
+  MT_CORR[x.cle] = { v: v, t: Date.now() };
+  if (x.choisi && (x.montantVir == null || Math.abs((x.montantVir || 0) - (ancien || 0)) < 0.01 || x.montantVir > x.du)) { x.montantVir = x.du; sauverLigne(x); }
+  else if (!x.choisi) x.montantVir = null;
+}
+function appliquerMtCorr(){
+  if (!TRESO || !TRESO.lignes) return;
+  /* montant à virer resté sur l'ancien montant (plus grand que ce qui reste dû) : ramené au reste dû */
+  TRESO.lignes.forEach(function(x){ if (x.choisi && x.du != null && x.montantVir != null && x.montantVir > x.du + 0.01 && !MT_CORR[x.cle]) { x.montantVir = x.du; sauverLigne(x); } });
+  Object.keys(MT_CORR).forEach(function(cle){
+    var c = MT_CORR[cle], x = ligneTreso(cle);
+    if (!x || Date.now() - c.t > 600000 || (x.montantTTC != null && Math.abs(x.montantTTC - c.v) < 0.01)) { delete MT_CORR[cle]; if (x && x.choisi && x.montantVir != null && Math.abs(x.montantVir - x.du) > 0.01 && c && Math.abs(x.montantTTC - c.v) < 0.01 && x.montantVir > x.du) { x.montantVir = x.du; sauverLigne(x); } return; }
+    x.montantTTC = c.v; x.du = Math.max(0, Math.round((c.v - (x.verse || 0)) * 100) / 100);
+    if (x.choisi && x.montantVir != null && x.montantVir !== x.du) { x.montantVir = x.du; sauverLigne(x); }
+  });
+}
 function montantPos(x){
   if (x.montantVir > 0) return x.montantVir;
   if (x.versements && x.versements.length) return x.versements[x.versements.length - 1].montant;
@@ -2062,9 +2084,9 @@ function enregistrerDossier(){
   if (!aFaire.length) { fermer(); return; }
   var b = document.getElementById('dOk'); b.disabled = true; b.textContent = 'Enregistrement…';
   var suite = function(){
-    if (!aFaire.length) { fermer(); chargerTreso(); return; }
+    if (!aFaire.length) { fermer(); afficherTreso(); chargerTreso(); setTimeout(chargerTreso, 30000); return; }
     var k = aFaire.shift();
-    appel('mob_majDossier', [JETON, x.cle, k, k === 'montant' && apres[k] !== '' ? String(apres[k]) : apres[k]], suite,
+    appel('mob_majDossier', [JETON, x.cle, k, k === 'montant' && apres[k] !== '' ? String(apres[k]) : apres[k]], function(){ if (k === 'montant' && apres.montant !== '') corrigerMontantLocal(x, apres.montant); suite(); },
       function(msg){ err.textContent = 'Non enregistré (' + k + ') : ' + msg; b.disabled = false; b.textContent = 'Réessayer'; chargerTreso(); });
   };
   suite();
