@@ -1071,8 +1071,8 @@ function afficherTreso(){
         (x.commentaire ? '<div class="meta com">' + esc(x.commentaire) + '</div>' : '') +
         '<div class="opts"><button class="pj" onclick="dossier(' + i + ')">✏️ Mettre à jour le dossier</button>' +
         (x.lien ? '<button class="pj" onclick="window.open(\'' + esc(x.lien) + '\',\'_blank\')">📧 Mail d\'origine</button>' : '') +
-        '<button class="pj" onclick="archiverSP([' + i + '])">📦 Archiver (ne pas payer)</button></div>' :
-        '<div class="opts"><button class="pj" onclick="archiverSP([' + i + '])">📦 Archiver (ne pas payer)</button></div>') +
+        '<button class="pj" onclick="archiverSP([' + i + '],\'paye\')">✅ Archiver — déjà payé</button><button class="pj" onclick="archiverSP([' + i + '],\'np\')">📦 Archiver — ne pas payer</button></div>' :
+        '<div class="opts">' + '<button class="pj" onclick="archiverSP([' + i + '],\'paye\')">✅ Archiver — déjà payé</button><button class="pj" onclick="archiverSP([' + i + '],\'np\')">📦 Archiver — ne pas payer</button></div>') +
       (x.choisi ? '<div class="opts"><input inputmode="decimal" value="' + esc(x.montantVir == null ? '' : x.montantVir.toFixed(2).replace('.', ',')) + '" onchange="changer(' + i + ', \'montantVir\', this.value)" aria-label="Montant à virer">' +
         '<select onchange="changer(' + i + ', \'banqueVir\', this.value)">' + ['CEBPL', 'BPGO'].map(function(b){ return '<option value="' + b + '"' + (x.banqueVir === b ? ' selected' : '') + '>' + NOMS_BANQUE[b] + '</option>'; }).join('') + '</select>' +
         '<select onchange="changer(' + i + ', \'priorite\', this.value)"><option value="">Priorité</option>' + [['1', '1 · Urgent'], ['2', '2 · Normal'], ['3', '3 · Plus tard']].map(function(p){ return '<option value="' + p[0] + '"' + (x.priorite === p[0] ? ' selected' : '') + '>' + p[1] + '</option>'; }).join('') + '</select></div>' : '') +
@@ -1584,7 +1584,7 @@ function chargerClotures(){
     z.innerHTML = CLOT.length ? CLOT.map(function(x, k){
       return '<div style="border-top:1px solid var(--bord);padding:8px 0"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + (x.montant != null ? eur(x.montant) : '') + '</span></div>' +
         '<div class="meta">' + esc(x.refs) + '</div>' +
-        (/SANS PAIEMENT/.test(x.statut || '') ? '<div class="meta">📦 archivé sans paiement le ' + esc(x.archive) + '</div>' + '<div class="opts" id="clo' + k + '">' :
+        (/SANS PAIEMENT/.test(x.statut || '') ? (/PAYÉ le/.test([x.commentaire, x.motif, x.note, x.commentaires].join(' ')) ? '<div class="meta">✅ archivé comme payé le ' + esc(x.archive) + '</div>' : '<div class="meta">📦 archivé sans paiement le ' + esc(x.archive) + '</div>') + '<div class="opts" id="clo' + k + '">' :
         '<div class="meta">' + (x.preuve ? '📨 preuve envoyée le ' + esc(x.preuve) : 'clôturé') + ' · ' + esc(x.livraison || 'livraison non renseignée') + (x.ou === 'archives' ? ' · 📦 archivé le ' + esc(x.archive) : '') + '</div>' +
         '<div class="opts" id="clo' + k + '"><button class="pj" onclick="rouvrir(' + k + ',\'livraison\')">↩ Pas encore livré</button>') +
         '<button class="pj" onclick="rouvrir(' + k + ',\'paiement\')">↩ Rouvrir le paiement</button></div></div>';
@@ -1646,7 +1646,7 @@ function dossier(i){
     (x.versements ? blocVersements(x) : '') +
     (x.preuves !== undefined ? blocPreuve(x) : '') +
     '<button id="dOk" class="btn b-ok" style="width:100%;margin-top:8px" onclick="enregistrerDossier()">Enregistrer</button>' +
-    '<button class="btn b-voir" style="width:100%;margin-top:8px" onclick="archiverSP([' + i + '])">📦 Archiver sans payer (ancien, déjà payé, plus à payer)</button>';
+    '<div class="actions" style="margin-top:8px"><button class="btn b-ok" onclick="archiverSP([' + i + '],\'paye\')">✅ Archiver — déjà payé</button><button class="btn b-voir" onclick="archiverSP([' + i + '],\'np\')">📦 Archiver — ne pas payer</button></div>';
   ouvrir();
   if (x.source === 'Fichier RJ') { if (x.pieces) afficherPieces(x); chargerPieces(x); }
 }
@@ -1838,16 +1838,15 @@ function copierRecap(){
 /* ---------- 26/10/2026 : archiver un dossier sans le payer (ancien, déjà payé, plus à payer) ---------- */
 var MODE_ARCH = false, ARCH_SEL = {};
 var MOTIFS_ARCH = [
-  ['Déjà payé', 'Déjà payé (virement, prélèvement ou paiement passé ailleurs)'],
   ['Plus à payer (avoir, annulation, doublon)', 'Plus à payer : avoir, commande annulée, doublon d\'une autre pièce'],
   ['Ancien — antérieur au jugement, au passif RJ', 'Ancien : antérieur au jugement d\'ouverture, il relève du passif (pas de paiement direct)'],
   ['Ancien — plus d\'actualité', 'Ancien, plus d\'actualité']
 ];
 function barreArch(l){
-  if (!MODE_ARCH) return '<div class="opts" style="margin:4px 0 8px"><button class="pj" onclick="modeArch(true)">📦 Archiver plusieurs dossiers sans payer…</button></div>';
+  if (!MODE_ARCH) return '<div class="opts" style="margin:4px 0 8px"><button class="pj" onclick="modeArch(true)">📦 Archiver plusieurs dossiers (payés ou à ne pas payer)…</button></div>';
   var cles = Object.keys(ARCH_SEL), n = cles.length;
   var tot = TRESO.lignes.filter(function(x){ return ARCH_SEL[x.cle]; }).reduce(function(s, x){ return s + (x.du || 0); }, 0);
-  return '<div class="barreArch"><span style="flex:1;min-width:180px"><b>📦 Mode archivage</b> — cochez les dossiers à sortir des paiements (' + n + ' coché(s)' + (n ? ', ' + eur(tot) : '') + ').</span>' +
+  return '<div class="barreArch"><span style="flex:1;min-width:180px"><b>📦 Mode archivage</b> — cochez les dossiers à sortir des paiements (déjà payés ou à ne pas payer) (' + n + ' coché(s)' + (n ? ', ' + eur(tot) : '') + ').</span>' +
     '<button class="pj" onclick="toutArch(true)">Tout cocher (' + l.length + ' affichés)</button>' +
     (n ? '<button class="pj" onclick="toutArch(false)">Tout décocher</button><button class="btn b-ok" style="flex:none" onclick="archiverSP(null)">📦 Archiver ' + n + ' dossier(s)…</button>' : '') +
     '<button class="pj" onclick="modeArch(false)">Terminer</button></div>';
@@ -1859,36 +1858,61 @@ function toutArch(v){
   if (v) Array.prototype.slice.call(document.querySelectorAll('.chArch')).forEach(function(c){ var m = /cocherArch\((\d+)/.exec(c.getAttribute('onchange')); if (m) ARCH_SEL[TRESO.lignes[+m[1]].cle] = true; });
   afficherTreso();
 }
-var ARCH_LOT = [];
-function archiverSP(idx){
+var ARCH_LOT = [], ARCH_MODE = 'paye';
+function archiverSP(idx, mode){
   ARCH_LOT = (idx || TRESO.lignes.map(function(x, i){ return ARCH_SEL[x.cle] ? i : -1; }).filter(function(i){ return i >= 0; }))
     .map(function(i){ return TRESO.lignes[i]; }).filter(Boolean);
   if (!ARCH_LOT.length) return;
-  var tot = ARCH_LOT.reduce(function(s, x){ return s + (x.du || 0); }, 0);
-  document.getElementById('mTitre').textContent = ARCH_LOT.length === 1 ? 'Archiver sans payer — ' + ARCH_LOT[0].tiers : 'Archiver ' + ARCH_LOT.length + ' dossiers sans payer';
+  ARCH_MODE = mode === 'np' ? 'np' : 'paye';
+  var tot = ARCH_LOT.reduce(function(s, x){ return s + (x.du || 0); }, 0), un = ARCH_LOT.length === 1;
+  document.getElementById('mTitre').textContent = (un ? 'Archiver — ' + ARCH_LOT[0].tiers : 'Archiver ' + ARCH_LOT.length + ' dossiers');
+  var auj0 = new Date(), aujI = auj0.getFullYear() + '-' + String(auj0.getMonth() + 1).padStart(2, '0') + '-' + String(auj0.getDate()).padStart(2, '0');
   document.getElementById('mCorps').innerHTML =
     '<div class="carte" style="margin-top:0">' + ARCH_LOT.map(function(x){
       return '<div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + eur(x.du) + '</span></div><div class="meta">' + esc(x.refs) + (x.date ? ' · ' + esc(x.date) : '') + (x.verse ? ' · déjà versé ' + eur(x.verse) : '') + '</div>';
     }).join('<hr style="border:0;border-top:1px solid var(--bord);margin:6px 0">') +
-    (ARCH_LOT.length > 1 ? '<div class="tot" style="margin-top:8px"><span>Total retiré du « dû »</span><b>' + eur(tot) + '</b></div>' : '') + '</div>' +
-    '<div class="champ"><label>Pourquoi ne pas le payer ?</label><div class="motifs">' + MOTIFS_ARCH.map(function(m, k){
+    (!un ? '<div class="tot" style="margin-top:8px"><span>Total retiré du « dû »</span><b>' + eur(tot) + '</b></div>' : '') + '</div>' +
+    '<div class="champ"><label>Pourquoi archiver ?</label><div class="motifs">' +
+      '<label><input type="radio" name="modeA" value="paye"' + (ARCH_MODE === 'paye' ? ' checked' : '') + ' onchange="choixModeArch(\'paye\')"><span><b>✅ Déjà payé</b> (virement, prélèvement, carte ou paiement passé ailleurs)</span></label>' +
+      '<label><input type="radio" name="modeA" value="np"' + (ARCH_MODE === 'np' ? ' checked' : '') + ' onchange="choixModeArch(\'np\')"><span><b>📦 Ne pas payer</b> (avoir, doublon, antérieur au jugement, plus d\'actualité)</span></label></div></div>' +
+    '<div id="zPaye"' + (ARCH_MODE === 'paye' ? '' : ' style="display:none"') + '>' +
+      '<div class="champ"><label>Payé le</label><input id="pD" type="date" value="' + aujI + '"></div>' +
+      (un ? '<div class="champ"><label>Montant payé (€)</label><input id="pM" inputmode="decimal" value="' + esc((ARCH_LOT[0].du || 0).toFixed(2).replace('.', ',')) + '"></div>' : '<div class="meta">Montant noté pour chaque dossier : son reste dû.</div>') +
+      '<div class="champ"><label>Payé depuis</label><select id="pB"><option value="CEBPL">' + NOMS_BANQUE.CEBPL + '</option><option value="BPGO">' + NOMS_BANQUE.BPGO + '</option><option value="Autre">Autre (prélèvement, carte, compensation…)</option></select></div></div>' +
+    '<div id="zNp"' + (ARCH_MODE === 'np' ? '' : ' style="display:none"') + '><div class="champ"><label>Raison</label><div class="motifs">' + MOTIFS_ARCH.map(function(m, k){
       return '<label><input type="radio" name="motifA" value="' + k + '"' + (k === 0 ? ' checked' : '') + '><span>' + esc(m[1]) + '</span></label>'; }).join('') +
-      '<label><input type="radio" name="motifA" value="autre"><span>Autre raison :</span></label></div>' +
-      '<input id="motifTxt" placeholder="Précision (facultatif, ex. payé le 12/09 par virement CERP)"></div>' +
-    '<p class="meta">Ce qui va se passer : le dossier sort de « Paiements RJ » et du total dû ; il est rangé dans l\'onglet Archives du classeur avec la raison dans ses commentaires (statut « 📦 ARCHIVÉ SANS PAIEMENT ») ; son mail d\'origine est rangé dans l\'étiquette du laboratoire et marqué comme lu. Rien n\'est payé ni envoyé. En cas d\'erreur : « ↩ Clôturés récemment » → « Rouvrir le paiement ».</p>' +
+      '<label><input type="radio" name="motifA" value="autre"><span>Autre raison :</span></label></div></div></div>' +
+    '<input id="motifTxt" placeholder="Précision (facultatif, ex. virement n°…, avoir n°…)">' +
+    '<p class="meta" id="aExpl"></p>' +
     '<div id="aErr" class="erreur"></div><div id="aSuivi" class="meta" style="white-space:pre-wrap"></div>' +
-    '<button id="aOk" class="btn b-ok" style="width:100%;margin-top:8px" onclick="lancerArch()">📦 Archiver ' + (ARCH_LOT.length > 1 ? 'les ' + ARCH_LOT.length + ' dossiers' : 'ce dossier') + ' sans payer</button>';
+    '<button id="aOk" class="btn b-ok" style="width:100%;margin-top:8px" onclick="lancerArch()"></button>';
+  choixModeArch(ARCH_MODE);
   ouvrir();
 }
-function motifArch(){
-  var c = document.querySelector('input[name=motifA]:checked'), t = (document.getElementById('motifTxt').value || '').trim();
+function choixModeArch(m){
+  ARCH_MODE = m; var n = ARCH_LOT.length;
+  document.getElementById('zPaye').style.display = m === 'paye' ? '' : 'none';
+  document.getElementById('zNp').style.display = m === 'np' ? '' : 'none';
+  document.getElementById('aExpl').textContent = 'Ce qui va se passer : le dossier sort de « Paiements RJ » et du total dû ; il est rangé dans l\'onglet Archives du classeur avec ' + (m === 'paye' ? 'la mention « ✅ PAYÉ le …, montant, compte » dans ses commentaires. Le montant n\'est PAS retiré une 2ᵉ fois de vos soldes (il en est déjà sorti).' : 'la raison dans ses commentaires.') + ' Son mail d\'origine est rangé dans l\'étiquette du laboratoire et marqué comme lu. Rien n\'est payé ni envoyé. En cas d\'erreur : « ↩ Clôturés récemment » → « Rouvrir le paiement ».';
+  document.getElementById('aOk').textContent = (m === 'paye' ? '✅ Archiver comme payé' : '📦 Archiver sans payer') + (n > 1 ? ' (' + n + ' dossiers)' : '');
+}
+function frDate(iso){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : iso; }
+function motifArch(x){
+  var t = (document.getElementById('motifTxt').value || '').trim();
+  if (ARCH_MODE === 'paye') {
+    var d = document.getElementById('pD').value, b = document.getElementById('pB').value;
+    var mt = ARCH_LOT.length === 1 ? nb(document.getElementById('pM').value) : (x.du || 0);
+    if (!d || mt == null) return '';
+    return '✅ PAYÉ le ' + frDate(d) + ' — ' + eur(mt) + ' (' + (NOMS_BANQUE[b] || b) + ')' + (t ? ' — ' + t : '');
+  }
+  var c = document.querySelector('input[name=motifA]:checked');
   if (!c) return '';
   if (c.value === 'autre') return t;
   return MOTIFS_ARCH[+c.value][0] + (t ? ' (' + t + ')' : '');
 }
 function lancerArch(){
-  var motif = motifArch(), err = document.getElementById('aErr'), suivi = document.getElementById('aSuivi'), b = document.getElementById('aOk');
-  if (!motif) { err.textContent = 'Écrivez la raison (choix « Autre »).'; return; }
+  var motif = motifArch(ARCH_LOT[0]), err = document.getElementById('aErr'), suivi = document.getElementById('aSuivi'), b = document.getElementById('aOk');
+  if (!motif) { err.textContent = ARCH_MODE === 'paye' ? 'Indiquez la date et le montant payé.' : 'Écrivez la raison (choix « Autre »).'; return; }
   err.textContent = ''; b.disabled = true;
   var lot = ARCH_LOT.slice(), faits = 0, lignes = [];
   var suite = function(){
@@ -1898,8 +1922,8 @@ function lancerArch(){
     }
     var x = lot.shift();
     b.textContent = 'Archivage… ' + (faits + 1) + '/' + ARCH_LOT.length;
-    appel('mob_archiverSansPaiement', [JETON, x.cle, motif], function(r){
-      faits++; lignes.push('✅ ' + x.tiers + (x.refs ? ' — ' + x.refs : '') + ' : archivé ; ' + ((r && r.mail) || '')); suivi.textContent = lignes.join('\n'); suite();
+    appel('mob_archiverSansPaiement', [JETON, x.cle, motifArch(x) || motif], function(r){
+      faits++; lignes.push('✅ ' + x.tiers + (x.refs ? ' — ' + x.refs : '') + (ARCH_MODE === 'paye' ? ' : archivé comme payé ; ' : ' : archivé sans paiement ; ') + ((r && r.mail) || '')); suivi.textContent = lignes.join('\n'); suite();
     }, function(m){
       lignes.push('❌ ' + x.tiers + (x.refs ? ' — ' + x.refs : '') + ' : non archivé (' + m + ')'); suivi.textContent = lignes.join('\n'); suite();
     });
