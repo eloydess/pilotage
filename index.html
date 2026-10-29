@@ -167,7 +167,7 @@ html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 <div id="toast"></div>
 <script>
 'use strict';
-const APP_V='7.55';
+const APP_V='7.56';
 const ONGLETS=[['flux','🚀','Flux : le guide','Flux'],['acc','🎯','Accueil','Accueil'],['act','🔥','Priorités','Priorités'],['cou','📬','Courrier & paiements','Courrier'],['lab','🧪','Labos & prix','Labos'],['pro','🏷️','Promos','Promos'],['stk','📦','Stock & trésorerie','Stock'],['pas','⚖️','Passif & plan','Plan'],['eve','📅','Événements','Évén.'],['ecr','📣','Médias','Médias'],['con','🏁','Concurrence','Concur.'],['col','👥','Collaborateurs','Équipe'],['mois','🎯','Objectifs & mois','Objectifs']];
 const GROUPES=[['acc','🎯','Accueil','Accueil',['acc']],['pil','🔥','Piloter','Piloter',['act','flux','mois']],['arg','💶','Argent','Argent',['cou','pas']],['stk','📦','Stock & trésorerie','Stock',['stk']],['prx','🏷️','Prix & promos','Prix',['lab','pro']],['cli','👥','Clients','Clients',['eve','ecr','con']],['eq','🧑‍⚕️','Équipe','Équipe',['col']]];
 let D=null,vue='flux',filtre='Classement',recherche='',filtreLab='Tous',voirPasses=false,filtreOps=0;
@@ -1653,6 +1653,10 @@ function encDetail(R,fin,encJ){try{const QB=R.QB,Rf=QB.B.ref||[1,2];const L=QB.B
    <div class="sub w" style="margin-top:4px"><b>D'où viennent ces ${eur(encJ)}</b> (même répartition qu'en août-septembre) :</div>
    <div class="tw"><table class="t">${Object.entries(g).sort((a,b)=>b[1]-a[1]).map(([k,m])=>`<tr><td>${lib[k]}</td><td class="n">${Math.round(m/tot*100)} %</td><td class="n">${eur(encJ*m/tot)}</td></tr>`).join('')}</table></div>
    <div class="sub w">Si votre solde du jour monte moins que prévu par rapport à la veille, c'est que les encaissements réels sont sous cette moyenne : la capacité baisse d'autant.</div>`}catch(e){return ''}}
+function sortDetail(evJ,fin,outJ){try{const g={};evJ.forEach(([d,lib,mt,cat,id])=>{const k=cat==='evt'?'e:'+id:lib.replace(/\s*\((estimé|relevé|en retard)[^)]*\)/,'').replace(/^CERP.*/,'CERP (prélèvements du lundi)');(g[k]=g[k]||{lib:k.startsWith('e:')?lib.replace(/ \(en retard\)/,''):k,mt:0,n:0,d:[],id:cat==='evt'?id:null});g[k].mt+=mt;g[k].n++;g[k].d.push(dfr(d))});
+     const L=Object.values(g).sort((a,b)=>b.mt-a.mt);if(!L.length)return '';
+     return `<div class="sub w" style="margin-top:4px">Prélèvements, charges fixes (issues de vos relevés) et CERP du lundi, comptés à partir du lendemain de votre solde. Si une ligne est déjà sortie du compte AVANT la date de votre solde, elle est comptée deux fois : cochez « déjà payé » (pour les lignes qui le permettent) ou dites-le-moi.</div>
+       <div class="tw"><table class="t">${L.map(x=>`<tr><td>${esc(x.lib)}<div class="sub">${x.n>1?x.n+' fois : ':''}${x.d.slice(0,6).join(', ')}</div></td><td class="n">${eur(x.mt)}</td><td>${x.id?`<button class="mini evFait" data-id="${esc(x.id)}">déjà payé ✓</button>`:''}</td></tr>`).join('')}<tr class="tot"><td>Total</td><td class="n">${eur(outJ)}</td><td></td></tr></table></div>`}catch(e){return ''}}
 function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,P}=R,d0=J[0].d;
   const fin=mn.d,encJ=J.filter(x=>x.d<=fin).reduce((s,x)=>s+x.enc,0),evJ=J.filter(x=>x.d<=fin).flatMap(x=>x.ev.map(e=>[x.d,...e])),outJ=evJ.reduce((s,x)=>s+x[2],0);
   const ok=cap>0;const grand=ok?eur(Math.floor(cap/100)*100):'0 €';
@@ -1668,13 +1672,9 @@ function cartePayer(court){const R=capacite();if(!R)return '';const {J,mn,cap,F,
    <div class="tw" style="margin-top:8px"><table class="t">
     <tr><td>Sur la Caisse d'Épargne${R.dSol?' (solde du '+esc(R.dSol.slice(0,10))+', virements faits depuis déduits)':''}</td><td class="n"><b>${eur(R.solCE)}</b></td></tr>${R.inclB?`<tr><td>+ BPGO (à virer sur la Caisse d'Épargne au besoin)</td><td class="n"><b>${eur(R.solB)}</b></td></tr>`:''}
     <tr><td><details><summary class="lien">+ Ce qui va rentrer d'ici le ${jsem(fin)} ${dfr(fin)} sur la Caisse d'Épargne ▾ <span class="sub">(voir le détail)</span></summary>${encDetail(R,fin,encJ)}</details></td><td class="n pos" style="vertical-align:top">+ ${eur(encJ)}</td></tr>
-    <tr><td>− Ce qui va tomber d'ici là (détail ci-dessous)</td><td class="n neg">− ${eur(outJ)}</td></tr>
+    <tr><td><details><summary class="lien">− Ce qui va tomber d'ici le ${jsem(fin)} ${dfr(fin)} sur la Caisse d'Épargne ▾ <span class="sub">(voir le détail)</span></summary>${sortDetail(evJ,fin,outJ)}</details></td><td class="n neg" style="vertical-align:top">− ${eur(outJ)}</td></tr>
     <tr><td>− Réserve de sécurité, à ne jamais entamer</td><td class="n neg">− ${eur(P.reserve)}</td></tr>
     <tr class="tot"><td>= Vous pouvez payer maintenant</td><td class="n ${ok?'pos':'neg'}">${ok?eur(cap):'− '+eur(-cap)}</td></tr></table></div>
-   ${(()=>{const g={};evJ.forEach(([d,lib,mt,cat,id])=>{const k=cat==='evt'?'e:'+id:lib.replace(/\s*\((estimé|relevé|en retard)[^)]*\)/,'').replace(/^CERP.*/,'CERP (prélèvements du lundi)');(g[k]=g[k]||{lib:k.startsWith('e:')?lib.replace(/ \(en retard\)/,''):k,mt:0,n:0,d:[],id:cat==='evt'?id:null});g[k].mt+=mt;g[k].n++;g[k].d.push(dfr(d))});
-     const L=Object.values(g).sort((a,b)=>b.mt-a.mt);if(!L.length)return '';
-     return `<details style="margin-top:6px"><summary class="lien"><b>Vérifier ce qui est compté en sortie d'ici le ${dfr(fin)} (${eur(outJ)})</b></summary><div class="sub w">Si une ligne est déjà sortie du compte AVANT la date de votre solde, elle est comptée deux fois : cochez « déjà payé » (pour les lignes qui le permettent) ou dites-le-moi.</div>
-       <div class="tw"><table class="t">${L.map(x=>`<tr><td>${esc(x.lib)}<div class="sub">${x.n>1?x.n+' fois : ':''}${x.d.slice(0,6).join(', ')}</div></td><td class="n">${eur(x.mt)}</td><td>${x.id?`<button class="mini evFait" data-id="${esc(x.id)}">déjà payé ✓</button>`:''}</td></tr>`).join('')}</table></div></details>`})()}
    <div class="sub w">Moment le plus tendu : <b style="color:var(--txt)">${jsem(fin)} ${dfr(fin)}</b>, solde Caisse d'Épargne prévu ${eur(mn.bal)} avant tout nouveau paiement. Après cette date, la marge de manœuvre remonte. Si une facture urgente dépasse ce montant : virement depuis la BPGO (${eur(R.solB)} disponibles), à décider au cas par cas.</div>
    ${R.cerpAtt>1000?`<div class="al o" style="margin-top:6px;padding:6px 10px;border-radius:8px"><b>⚠ Commandes CERP encore non livrées : ≈ ${eur(R.cerpAtt)}</b><div class="sub w">Les commandes des 13–15/10 ne sont presque pas livrées. Si elles arrivent avant le prochain relevé, elles seront prélevées en plus : votre capacité tomberait à ${R.capRisque>0?eur(R.capRisque):'zéro (il manquerait '+eur(-R.capRisque)+')'}. À vérifier avec la CERP (action A1) avant de payer de gros montants.</div></div>`:''}
    ${court?carteChangements(true):''}
