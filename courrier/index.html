@@ -331,12 +331,14 @@ function appel(fn, args, ok, ko){
   };
   var essai = function(n){
     var ctrl = window.AbortController ? new AbortController() : null;
-    var minuterie = ctrl ? setTimeout(function(){ ctrl.abort(); }, 45000) : null;
+    /* 7.72 : la lecture des dossiers (mob_tresorerie) prend jusqu'à 75 s depuis que les dossiers ont beaucoup de pièces : on attend 4 min 30 pour les appels lourds (sinon l'appli abandonnait à 45 s et rien ne se passait) */
+    var lourd = /^mob_(tresorerie|facturesAuto|liste|archiver|clotures|courriers|envoiDossier|archiverSansPaiement|retirerPiece|piece|pieces|fichier|pj|mail)$/.test(fn);
+    var minuterie = ctrl ? setTimeout(function(){ ctrl.abort(); }, lourd ? 270000 : 60000) : null;
     fetch(API + '?t=' + Date.now(), { method: 'POST', cache: 'no-store', signal: ctrl ? ctrl.signal : undefined,
         body: JSON.stringify({ fn: fn, args: args }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } })
       .then(function(r){ return r.json(); })
       .then(function(r){ clearTimeout(minuterie); if (r.ok) { if (ok) ok(r.data); } else echec(r.erreur || 'Erreur inconnue'); })
-      .catch(function(){ clearTimeout(minuterie); if (n < 1) essai(n + 1); else echec('Connexion impossible. Vérifiez le réseau puis réessayez.'); });
+      .catch(function(e){ clearTimeout(minuterie); var abandon = e && e.name === 'AbortError'; if (n < 1 && !abandon) essai(n + 1); else echec(abandon ? 'Le serveur met trop de temps à répondre. Réessayez dans une minute.' : 'Connexion impossible. Vérifiez le réseau puis réessayez.'); });
   };
   essai(0);
 }
