@@ -1023,7 +1023,7 @@ function nb(v){ var s = String(v == null ? '' : v).replace(/\s/g, '').replace(/�
 
 function chargerTreso(){
   document.getElementById('treso').innerHTML = '<div class="chargement">Chargement…</div>';
-  appel('mob_tresorerie', [JETON], function(r){ TRESO = r; appliquerMtCorr(); afficherTreso(); facturesManquantes(false); },
+  appel('mob_tresorerie', [JETON], function(r){ TRESO = r; appliquerMtCorr(); afficherTreso(); facturesManquantes(false); setTimeout(piecesCochesFond, 500); },
     function(m){ document.getElementById('treso').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
 }
 
@@ -1204,7 +1204,7 @@ function positionAdmin(cles){
   POS = { date: aujISO(), a: lsGet('triRJ_adminA', ADMIN.a), cc: lsGet('triRJ_adminCc', ADMIN.cc), comptes: banques.map(function(b, i){
     var s = TRESO.soldes[b];
     return { banque: b, num: num + i, solde: s && s.montant != null ? s.montant : null,
-      lignes: choisis.filter(function(x){ return (x.banqueVir || 'CEBPL') === b; }).map(function(x){
+      lignes: choisis.filter(function(x){ return (x.banqueVir || 'CEBPL') === b; }).sort(function(a, c){ var A = ligneTreso(a.cle) || a, C = ligneTreso(c.cle) || c; return cleLabo(a).localeCompare(cleLabo(c)) || String(vgDe(A) || '').localeCompare(String(vgDe(C) || '')) || ((cible(C) === C) - (cible(A) === A)); }).map(function(x){
         return { cle: x.cle, tiers: x.tiers, refs: x.refs, montant: x.montantVir, lien: x.lien, pieces: x.pieces || null, etat: 'chargement' }; }) };
   }) };
   dessinerPosition();
@@ -1220,7 +1220,7 @@ function texteMailAdmin(){
     return 'Position bancaire n° ' + c.num + ' — compte ' + NOMS_BANQUE[c.banque] + ' :\n' +
       (function(){ var G = {}, o = []; c.lignes.forEach(function(l){ var k = String(l.tiers || '').trim().toUpperCase().replace(/\s+/g, ' '); if (!G[k]) { G[k] = []; o.push(k); } G[k].push(l); });
         return o.map(function(k){ var L = G[k], s = Math.round(L.reduce(function(a, l){ return a + l.montant; }, 0) * 100) / 100;
-          return L.length === 1 ? '- ' + intitule(L[0]) + ' : ' + eur(s) : '- ' + String(L[0].tiers).toUpperCase() + ' : un virement de ' + eur(s) + ' pour ' + L.length + ' factures :\n' + L.map(function(l){ return '    • ' + (refsPropres(l.refs) || '—').slice(0, 90) + ' : ' + eur(l.montant); }).join('\n'); }).join('\n'); })() +
+          return L.length === 1 ? '- ' + intitule(L[0]) + ' : ' + eur(s) : '- ' + String(L[0].tiers).toUpperCase() + ' : un seul virement de ' + eur(s) + ' (un seul bordereau) pour ' + L.length + ' factures :\n' + L.map(function(l){ return '    • ' + (refsPropres(l.refs) || '—').slice(0, 90) + ' : ' + eur(l.montant); }).join('\n'); }).join('\n'); })() +
       '\nTotal des virements : ' + eur(tot) +
       (c.solde != null ? '\nSolde avant virements : ' + eur(c.solde) + ' ; solde après virements : ' + eur(c.solde - tot) : '');
   });
@@ -1275,8 +1275,20 @@ function estBordereau(p){ return p && p.genre === 'document' && /BORDEREAU/i.tes
 function piecesDe(l, g){ return (l.pieces || []).filter(function(p){ return g === 'bordereau' ? estBordereau(p) : g === 'document' ? (p.genre === 'document' && !estBordereau(p)) : p.genre === g; }); }
 function genreServeur(g){ return g === 'bordereau' ? 'document' : g; }
 function nomPiece(g, f){ return g === 'bordereau' ? Object.assign({}, f, { nom: 'BORDEREAU de virement - ' + (f.nom || 'saisie banque') }) : f; }
+function bordereauPos(l){
+  var x = ligneTreso(l.cle), P = x ? cible(x) : null;
+  if (!P || P.cle === l.cle) return piecesDe(l, 'bordereau');
+  var lp = null; POS.comptes.forEach(function(c){ c.lignes.forEach(function(z){ if (z.cle === P.cle) lp = z; }); });
+  return piecesDe(lp || P, 'bordereau');
+}
 function cellulePieces(l, ci, li){
   if (l.etat === 'chargement') return '⏳ lecture des pièces du dossier…';
+  var xT = ligneTreso(l.cle), PT = xT ? cible(xT) : null;
+  if (PT && PT.cle !== l.cle) {
+    var okB = bordereauPos(l).length;
+    return '<div>' + (okB ? '✅' : '<b style="color:var(--rouge)">✗</b>') + ' 🔗 bordereau du virement groupé (dossier principal « ' + esc(refsPropres(PT.refs) || PT.tiers) + ' »)</div>' +
+      (function(){ var ps = piecesDe(l, 'facture'); return '<div>' + (ps.length ? '✅ facture : ' + ps.map(function(p){ return '<a href="#" onclick="voirPiecePos(' + ci + ',' + li + ',\'' + esc(p.id) + '\');return false">👁 ' + esc(p.nom.replace(/^(PREUVE|FACTURE|DOCUMENT) \d{4}-\d{2}-\d{2} — /, '')) + '</a>'; }).join(', ') : '<b style="color:var(--rouge)">✗ facture manquante</b>') + ' <label class="lienfic">ajouter<input type="file" accept="application/pdf,image/*" multiple style="display:none" onchange="fichiersLigne(this,' + ci + ',' + li + ',\'facture\')"></label></div>'; })();
+  }
   if (l.etat === 'recherche') return '⏳ recherche de la facture dans le mail…';
   var ligne = function(g, libelle){
     var ps = piecesDe(l, g);
@@ -1338,6 +1350,12 @@ function bordereauLabo(input, ci, k){
   var fichiers = Array.prototype.slice.call(input.files || []); input.value = '';
   lireFichiers(fichiers, function(fs){
     if (!fs.length) { if (err) err.textContent = 'Format non pris en charge (photo ou PDF).'; return; }
+    var LT = L.map(function(l){ return ligneTreso(l.cle); }).filter(Boolean);
+    if (err) err.textContent = 'Regroupement en un seul virement…';
+    return creerVG(LT, function(P){
+      var l = L.filter(function(z){ return z.cle === P.cle; })[0] || L[0];
+      appel('mob_piece', [JETON, P.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ majLigne(l, r); noteBordereau(P, function(){ if (err) err.innerHTML = '<span class="pos">✓ Un seul bordereau, rangé dans le dossier principal, pour les ' + L.length + ' factures de ' + esc(L[0].tiers) + '.</span>'; dessinerPosition(); }); }, function(m){ if (err) err.textContent = m; });
+    }, function(m){ if (err) err.textContent = m; });
     var reste = L.slice(), n = 0;
     var suite = function(){
       if (!reste.length) { if (err) err.innerHTML = '<span class="pos">✓ Bordereau rangé dans les ' + n + ' dossiers de ' + esc(L[0].tiers) + '.</span>'; dessinerPosition(); return; }
@@ -1366,7 +1384,7 @@ function dossierPDF(){
   var err = document.getElementById('pErr'); err.textContent = '';
   var manque = [];
   POS.comptes.forEach(function(c){ c.lignes.forEach(function(l){
-    if (!piecesDe(l, 'bordereau').length) manque.push(intitule(l) + ' : bordereau de virement');
+    if (!bordereauPos(l).length) manque.push(intitule(l) + ' : bordereau de virement');
     if (!piecesDe(l, 'facture').length) manque.push(intitule(l) + ' : facture');
   }); });
   if (manque.length && !confirm('Il manque :\n- ' + manque.join('\n- ') + '\n\nCréer le PDF quand même ?')) return;
@@ -1384,7 +1402,7 @@ function dossierPDF(){
 function manquesPos(){
   var manque = [];
   POS.comptes.forEach(function(c){ c.lignes.forEach(function(l){
-    if (!piecesDe(l, 'bordereau').length) manque.push(intitule(l) + ' : bordereau de virement');
+    if (!bordereauPos(l).length) manque.push(intitule(l) + ' : bordereau de virement');
     if (!piecesDe(l, 'facture').length) manque.push(intitule(l) + ' : facture');
   }); });
   return manque;
@@ -1615,11 +1633,11 @@ function groupePreuves(){
             '<div class="meta" id="gP' + k + '"></div>'));
       }).join('');
       if (!multi) return lignesH;
-      var avec = g.lignes.filter(function(x){ return x.preuves > 0; }).length;
+      var avec = g.lignes.filter(function(x){ return cible(x).preuves > 0; }).length;
       return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid var(--vert)"><b>' + esc(g.tiers) + '</b> — ' + g.lignes.length + ' factures cochées · ' + eur(tot) +
         '<label style="display:flex;gap:8px;align-items:flex-start;margin:6px 0"><input type="checkbox"' + (fus ? ' checked' : '') + ' onchange="GROUPE.fusion[\'' + esc(g.cle).replace(/'/g, "\\'") + '\']=this.checked;groupePreuves()">' +
         '<span><b>Un seul virement pour ces ' + g.lignes.length + ' factures</b> : une seule capture et un seul mail au laboratoire</span></label>' +
-        (fus ? '<div class="meta ' + (avec === g.lignes.length ? 'pos' : '') + '">' + (avec === g.lignes.length ? '📨 Preuve présente dans les ' + avec + ' dossiers' : (avec ? avec + ' dossier(s) sur ' + g.lignes.length + ' ont déjà une preuve. ' : '') + 'Ajoutez la capture du virement une seule fois : elle est rangée dans chacun des ' + g.lignes.length + ' dossiers.') + '</div>' +
+        (fus ? '<div class="meta ' + (avec === g.lignes.length ? 'pos' : '') + '">' + (avec === g.lignes.length ? '📨 Preuve du virement groupé présente (rangée une seule fois, dans le dossier principal)' : (avec ? avec + ' dossier(s) sur ' + g.lignes.length + ' ont déjà une preuve. ' : '') + 'Ajoutez la capture du virement une seule fois : elle est rangée dans le dossier principal et vaut pour les ' + g.lignes.length + ' factures.') + '</div>' +
           '<label class="pj" style="display:inline-block;margin-top:4px">＋ ' + (avec === g.lignes.length ? 'Remplacer par une autre capture' : 'Ajouter la capture du virement (pour les ' + g.lignes.length + ' factures)') + '<input type="file" accept="image/*,application/pdf" style="display:none" onchange="preuvePaquet(this,' + gi + ')"></label><div class="meta" id="gQ' + gi + '"></div>' : '') +
         lignesH + '</div>';
     }).join('') +
@@ -1632,6 +1650,11 @@ function preuvePaquet(input, gi){
   if (!input.files.length) return;
   lireFichiers(input.files, function(fs){
     if (!fs.length) { zone.textContent = 'Format non pris en charge (photo ou PDF).'; return; }
+    zone.textContent = 'Regroupement des ' + g.lignes.length + ' factures en un seul virement…';
+    return creerVG(g.lignes.map(function(y){ return ligneTreso(y.cle); }), function(P){
+      zone.textContent = 'Enregistrement de la preuve dans le dossier principal…';
+      appel('mob_piece', [JETON, P.cle, 'preuve', fs[0]], function(r){ majCompte(P, r); zone.innerHTML = '<span class="pos">✓ Preuve rangée une seule fois, pour les ' + g.lignes.length + ' factures du virement groupé.</span>'; setTimeout(groupePreuves, 600); }, function(m){ zone.textContent = m; });
+    }, function(m){ zone.textContent = m; });
     var reste = g.lignes.slice(), n = 0;
     var suite = function(){
       if (!reste.length) { zone.innerHTML = '<span class="pos">✓ Capture rangée dans les ' + n + ' dossiers.</span>'; setTimeout(groupePreuves, 600); return; }
@@ -1672,7 +1695,7 @@ function texteGroupe(g, total){
 function preparerGroupe(){
   var cles = clesChoisies(), err = document.getElementById('gErr');
   if (!cles.length) { err.textContent = 'Cochez au moins un dossier.'; return; }
-  var sans = cles.map(ligneTreso).filter(function(x){ return !(x.preuves > 0); });
+  var sans = cles.map(ligneTreso).filter(function(x){ return !(cible(x).preuves > 0); });
   if (sans.length) { err.textContent = 'Pas de preuve pour : ' + sans.map(function(x){ return x.tiers + (x.refs ? ' (' + x.refs + ')' : ''); }).join(', ') + '. Ajoutez la capture ou décochez.'; return; }
   var b = document.getElementById('gOk'); b.disabled = true;
   /* un « mail » = un dossier, ou un paquet de factures du même laboratoire réglées par un seul virement */
@@ -1684,7 +1707,9 @@ function preparerGroupe(){
   var suite = function(){
     b.textContent = 'Préparation… ' + GROUPE.mails.length + ' / ' + unites.length;
     if (!reste.length) return relireGroupe();
-    var u = reste.shift(), cle = u.cles[0];
+    var u = reste.shift();
+    if (u.cles.length > 1) { var P0 = cible(ligneTreso(u.cles[0])); if (P0 && u.cles.indexOf(P0.cle) > 0) { u.cles.splice(u.cles.indexOf(P0.cle), 1); u.cles.unshift(P0.cle); } }
+    var cle = u.cles[0];
     appel('mob_infosEnvoi', [JETON, cle, 'preuve'], function(r){
       var m = { cle: cle, cles: u.cles, a: r.a || '', o: r.objet || '', t: r.texte || '' };
       if (u.cles.length > 1) {
@@ -1974,14 +1999,21 @@ function ajouterBordereau(input, cles, zoneId, fin){
   var fichiers = Array.prototype.slice.call(input.files || []); input.value = '';
   lireFichiers(fichiers, function(fs){
     if (!fs.length) { dit('<span class="neg">Format non pris en charge (photo ou PDF).</span>'); return; }
+    var L = cles.map(ligneTreso).filter(Boolean);
+    if (L.length > 1) { dit('Regroupement des ' + L.length + ' factures en un seul virement…'); return creerVG(L, function(P){ ajouterBordereauFichier(fs[0], [P.cle], dit, L.length, fin); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); }); }
+    ajouterBordereauFichier(fs[0], [cible(L[0]).cle], dit, 1, fin);
+  });
+}
+function ajouterBordereauFichier(f0, cles, dit, nFact, fin){
+  (function(){ var fs = [f0];
     var reste = cles.slice(), n = 0;
     var suite = function(){
-      if (!reste.length) { dit('<span class="pos">✓ Bordereau rangé dans ' + (n > 1 ? 'les ' + n + ' dossiers' : 'le dossier') + '.</span>'); afficherTreso(); if (fin) fin(); return; }
+      if (!reste.length) { dit('<span class="pos">✓ Bordereau rangé une seule fois' + (nFact > 1 ? ', pour les ' + nFact + ' factures du virement groupé' : '') + '.</span>'); afficherTreso(); if (fin) fin(); return; }
       var x = ligneTreso(reste.shift()); dit('Enregistrement du bordereau… ' + (n + 1) + ' / ' + cles.length);
       appel('mob_piece', [JETON, x.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ majCompte(x, r); n++; noteBordereau(x, suite); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); });
     };
     suite();
-  });
+  })();
 }
 /* étape groupée : un bordereau par laboratoire (une saisie à la banque peut régler plusieurs factures) */
 var GB_CLES = [];
@@ -1992,23 +2024,70 @@ function groupeBordereaux(){
   document.getElementById('mTitre').textContent = '📝 Bordereaux de virement pour l\'administrateur';
   document.getElementById('mCorps').innerHTML = '<p class="meta">Pour chaque laboratoire : la capture de la saisie du virement dans l\'application de la banque (avant de le valider). Une seule capture pour toutes les factures du même laboratoire ; elle est rangée dans chaque dossier, à côté de la facture. Vous pouvez fermer et revenir.</p>' +
     o.map(function(k, gi){
-      var L = G[k], s = L.reduce(function(a, x){ return a + montantPos(x); }, 0), avec = L.filter(function(x){ return nbBordereaux(x) > 0; }).length;
+      var L = G[k], s = L.reduce(function(a, x){ return a + montantPos(x); }, 0), avec = L.filter(function(x){ return nbBordereaux(cible(x)) > 0; }).length;
       return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid ' + (avec === L.length ? 'var(--vert)' : 'var(--orange)') + '"><b>' + esc(L[0].tiers) + '</b> — ' + L.length + ' facture(s) · ' + eur(s) +
-        '<div class="meta">' + L.map(function(x){ return '• ' + esc(refsPropres(x.refs) || '—') + ' : ' + eur(montantPos(x)) + (nbBordereaux(x) ? ' <span class="pos">📝 ✓</span>' : ''); }).join('<br>') + '</div>' +
+        '<div class="meta">' + L.map(function(x){ return '• ' + esc(refsPropres(x.refs) || '—') + ' : ' + eur(montantPos(x)) + (nbBordereaux(cible(x)) ? ' <span class="pos">📝 ✓</span>' : ''); }).join('<br>') + '</div>' +
         '<label class="pj" style="display:inline-block;margin-top:6px">＋ ' + (avec === L.length ? 'Remplacer le bordereau' : 'Ajouter le bordereau' + (L.length > 1 ? ' (pour les ' + L.length + ' factures)' : '')) +
         '<input type="file" accept="image/*,application/pdf" style="display:none" onchange="ajouterBordereau(this,GB_CLES[' + gi + '],\'gB' + gi + '\',groupeBordereaux)"></label><div class="meta" id="gB' + gi + '"></div></div>';
     }).join('') +
     '<button class="btn b-ok" style="width:100%" onclick="positionAdmin()">Suite : 📤 préparer le mail à l\'administrateur (bordereaux + factures) →</button>';
   ouvrir();
 }
+/* 7.73 : VIREMENT GROUPÉ — plusieurs factures d'un même laboratoire réglées par UN virement.
+   Le bordereau et la preuve sont rangés UNE seule fois, dans le dossier principal ; les autres factures y sont rattachées.
+   Le rattachement est noté dans les commentaires de chaque dossier (visible partout, téléphone et ordinateur). */
+function vgDe(x){ var m = /🔗 Virement groupé (VG-[\w-]+)/.exec((x && x.commentaire) || ''); return m ? m[1] : null; }
+function vgEstPrincipal(x){ return /🔗 Virement groupé VG-[\w-]+[^\n]*dossier principal/.test((x && x.commentaire) || ''); }
+function vgMembres(id){ return ((TRESO && TRESO.lignes) || []).filter(function(y){ return vgDe(y) === id; }); }
+function vgPrincipal(id){ var M = vgMembres(id); return M.filter(vgEstPrincipal)[0] || M[0] || null; }
+function cible(x){ var id = vgDe(x); return id ? (vgPrincipal(id) || x) : x; }
+function vgLigne(id, L, P){ var tot = L.reduce(function(a, y){ return a + montantPos(y); }, 0);
+  return function(y){ return '🔗 Virement groupé ' + id + ' (' + L[0].tiers + ', ' + L.length + ' factures, ' + eur(tot) + ') — ' + (y === P ? 'dossier principal : le bordereau et la preuve de ce virement sont rangés ici' : 'bordereau et preuve dans le dossier principal « ' + (refsPropres(P.refs) || P.tiers) + ' »'); }; }
+function sansLigneVG(c){ return String(c || '').split('\n').filter(function(l){ return !/🔗 Virement groupé/.test(l); }).join('\n').trim(); }
+/* crée (ou complète) le virement groupé pour ces dossiers ; fin(principal) */
+function creerVG(L, fin, err){
+  if (L.length < 2) return fin(L[0]);
+  var ids = L.map(vgDe).filter(Boolean), id = ids[0] || null;
+  var deja = id && L.every(function(y){ return vgDe(y) === id; }) && vgMembres(id).length === L.length;
+  if (deja) return fin(vgPrincipal(id));
+  var anciens = id ? vgMembres(id).filter(function(y){ return L.indexOf(y) < 0; }) : [];
+  L = L.concat(anciens);
+  if (!id) { var d = new Date(); id = 'VG-' + d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') + '-' + Math.random().toString(36).slice(2, 6).toUpperCase(); }
+  var P = (id && vgPrincipal(id) && L.indexOf(vgPrincipal(id)) >= 0 && vgEstPrincipal(vgPrincipal(id))) ? vgPrincipal(id)
+    : L.filter(function(y){ return y.preuves > 0 || nbBordereaux(y) > 0; }).sort(function(a, b){ return (b.du || 0) - (a.du || 0); })[0] || L.slice().sort(function(a, b){ return (b.du || 0) - (a.du || 0); })[0];
+  var ligne = vgLigne(id, L, P), reste = L.slice();
+  var suite = function(){
+    if (!reste.length) { afficherTreso(); return fin(P); }
+    var y = reste.shift(), c = sansLigneVG(y.commentaire); y.commentaire = (c ? c + '\n' : '') + ligne(y);
+    appel('mob_majDossier', [JETON, y.cle, 'commentaire', y.commentaire], suite, function(m){ if (err) err(m); else suite(); });
+  };
+  suite();
+}
+function defaireVG(id){
+  var M = vgMembres(id); if (!M.length) return;
+  if (!confirm('Défaire le virement groupé de ' + M[0].tiers + ' (' + M.length + ' factures) ?\nLe bordereau et la preuve restent dans le dossier principal ; les autres factures n\'y seront plus rattachées.')) return;
+  var reste = M.slice();
+  var suite = function(){ if (!reste.length) { afficherTreso(); return; } var y = reste.shift(); y.commentaire = sansLigneVG(y.commentaire); appel('mob_majDossier', [JETON, y.cle, 'commentaire', y.commentaire], suite, suite); };
+  suite();
+}
+/* pièces des dossiers cochés lues en arrière-plan : pastilles Bordereau / Document toujours justes */
+var PIECES_BG = false;
+function piecesCochesFond(){
+  if (PIECES_BG || !TRESO || !TRESO.lignes) return; PIECES_BG = true;
+  var L = TRESO.lignes.filter(function(x){ return x.choisi && x.source === 'Fichier RJ' && !x.pieces && (x.documents || x.preuves); });
+  var suite = function(){ if (!L.length) { PIECES_BG = false; afficherTreso(); return; } var x = L.shift(); appel('mob_pieces', [JETON, x.cle], function(r){ majCompte(x, r); suite(); }, suite); };
+  suite();
+}
 function badgesPieces(x){
   var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
   var b = function(n, ok, txt, genre){
     return '<span class="bpc ' + (ok ? 'bpc-ok' : 'bpc-non') + '"' + (i >= 0 ? ' onclick="event.stopPropagation();ouvrirPieces(' + i + ',\'' + genre + '\')" title="' + (ok ? 'Voir le document' : 'Ajouter le document') + '"' : '') + '>' +
       txt + (ok ? ' ✓' + (n > 1 ? ' ×' + n : '') : ' —') + (ok && i >= 0 ? '<span class="bx" title="Retirer" onclick="event.stopPropagation();retirerRapide(' + i + ',\'' + genre + '\',this)">✕</span>' : '') + '</span>'; };
-  var nB = nbBordereaux(x), nD = Math.max(0, (x.documents || 0) - nB);
-  return '<div class="badgesP">' + b(nB, nB > 0, '📝 Bordereau', 'bordereau') + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') + b(x.preuves || 0, x.preuves > 0, '📨 Preuve', 'preuve') +
-    (nD ? b(nD, true, '📄 Document', 'document') : '') + '</div>';
+  var C = cible(x), iC = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(C) : -1, nB = nbBordereaux(C), nD = Math.max(0, (x.documents || 0) - nbBordereaux(x)), vg = vgDe(x);
+  var bC = function(n, ok, txt, genre){ if (C === x) return b(n, ok, txt, genre); var i0 = i; i = iC; var h = b(n, ok, txt + ' 🔗', genre); i = i0; return h; };
+  return '<div class="badgesP">' + bC(nB, nB > 0, '📝 Bordereau', 'bordereau') + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') + bC(C.preuves || 0, C.preuves > 0, '📨 Preuve', 'preuve') +
+    (nD ? b(nD, true, '📄 Document', 'document') : '') +
+    (vg ? '<span class="bpc bpc-ok" title="Virement groupé : ' + vgMembres(vg).length + ' factures, un seul bordereau et une seule preuve (dossier principal)" onclick="event.stopPropagation();defaireVG(\'' + vg + '\')">🔗 ' + vgMembres(vg).length + ' factures · 1 virement' + (C === x ? ' · principal' : '') + ' <span class="bx" title="Défaire le regroupement">✕</span></span>' : '') + '</div>';
 }
 /* Clic sur une pastille : affiche directement le document (ou ouvre le dossier pour l'ajouter s'il manque). */
 function ouvrirPieces(i, genre, n){
