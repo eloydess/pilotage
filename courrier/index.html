@@ -886,6 +886,18 @@ function envoyerReponse(){
 
 /* ---------- Lecture du mail et des pièces jointes ---------- */
 var MAIL_ID = null;
+/* 7.64 : les liens Gmail s'ouvrent toujours sur le compte de la boîte achat, même si le navigateur est connecté d'abord à un autre compte Google */
+function lienGmail(u){
+  u = String(u || ''); if (!/mail\.google\.com/.test(u) || /authuser=/.test(u)) return u;
+  var h = u.indexOf('#'), hash = h >= 0 ? u.slice(h) : '';
+  return 'https://mail.google.com/mail/?authuser=pharmaciecsudachat@gmail.com' + hash;
+}
+/* « Mail d'origine » d'un dossier : lu DANS l'application (aucune connexion Gmail nécessaire), Gmail seulement en secours */
+function mailOrigine(cle){
+  var x = ligneTreso(cle), f = FICHES.filter(function(g){ return x && x.lien && g['Lien Gmail'] === x.lien; })[0];
+  if (f) { voirMail(f['ID']); return; }
+  window.open(lienGmail(x && x.lien), '_blank');
+}
 function voirMail(id){
   if (/^C-/.test(id)) { voirCourrier(id, 0); return; }
   MAIL_ID = id;
@@ -911,7 +923,7 @@ function voirMail(id){
 function ouvrirGmail(){
   var corps = document.getElementById('mCorps');
   corps.innerHTML = '<p>⚠️ Ouvrir ce mail dans Gmail le marquera comme <b>lu</b>.</p>' +
-    '<a class="btn b-corr" style="display:inline-block;text-decoration:none" target="_blank" href="' + esc(trouver(MAIL_ID)['Lien Gmail']) + '">Ouvrir quand même dans Gmail</a> ' +
+    '<a class="btn b-corr" style="display:inline-block;text-decoration:none" target="_blank" href="' + esc(lienGmail(trouver(MAIL_ID)['Lien Gmail'])) + '">Ouvrir quand même dans Gmail</a> ' +
     '<button class="btn b-voir" onclick="voirMail(MAIL_ID)">Annuler</button>';
 }
 
@@ -967,6 +979,7 @@ function voirPJ(mi, ai){
     var zone = document.getElementById('pjZone');
     zone.className = '';
     var bin = atob(p.b64);
+    zone.insertAdjacentHTML('beforebegin', '<a class="btn b-voir" style="display:inline-block;text-decoration:none;margin:6px 0" download="' + esc(p.nom) + '" href="data:' + esc(p.type || 'application/pdf') + ';base64,' + p.b64 + '">⬇ Télécharger ' + esc(p.nom) + '</a>');
     if (/pdf/i.test(p.type) || /\.pdf$/i.test(p.nom)) {
       var octets = new Uint8Array(bin.length);
       for (var i = 0; i < bin.length; i++) octets[i] = bin.charCodeAt(i);
@@ -1118,7 +1131,7 @@ function afficherTreso(){
         badgesPieces(x) + alerteDocs(x) +
         (x.commentaire ? '<div class="meta com">' + esc(x.commentaire) + '</div>' : '') +
         '<div class="opts"><button class="pj" onclick="dossier(' + i + ')">✏️ Mettre à jour le dossier</button>' +
-        (x.lien ? '<button class="pj" onclick="window.open(\'' + esc(x.lien) + '\',\'_blank\')">📧 Mail d\'origine</button>' : '') +
+        (x.lien ? '<button class="pj" onclick="mailOrigine(\'' + esc(x.cle).replace(/'/g, "\\'") + '\')">📧 Mail d\'origine</button>' : '') +
         '<button class="pj" onclick="archiverSP([' + i + '],\'paye\')">✅ Archiver — déjà payé</button><button class="pj" onclick="archiverSP([' + i + '],\'np\')">📦 Archiver — ne pas payer</button></div>' :
         '<div class="opts">' + '<button class="pj" onclick="archiverSP([' + i + '],\'paye\')">✅ Archiver — déjà payé</button><button class="pj" onclick="archiverSP([' + i + '],\'np\')">📦 Archiver — ne pas payer</button></div>') +
       (x.choisi ? '<div class="opts"><input inputmode="decimal" value="' + esc(x.montantVir == null ? '' : x.montantVir.toFixed(2).replace('.', ',')) + '" onchange="changer(' + i + ', \'montantVir\', this.value)" aria-label="Montant à virer">' +
@@ -1708,7 +1721,7 @@ function blocLivraison(){
         '<div class="opts" id="lv' + k + '"><button class="pj" onclick="livrer(' + k + ',\'🟢 Livrée en totalité\')">🟢 Livrée en totalité</button>' +
         '<button class="pj" onclick="livrer(' + k + ',\'🟠 Livrée partiellement\')">🟠 Partiellement</button>' +
         '<button class="pj" onclick="livrer(' + k + ',\'⚪ Sans livraison attendue\')">⚪ Sans livraison</button>' +
-        (x.lien ? '<button class="pj" onclick="window.open(\'' + esc(x.lien) + '\',\'_blank\')">📧 Mail d\'origine</button>' : '') + '</div></div>';
+        (x.lien ? '<button class="pj" onclick="mailOrigine(\'' + esc(x.cle).replace(/'/g, "\\'") + '\')">📧 Mail d\'origine</button>' : '') + '</div></div>';
     }).join('');
 }
 var CLOT = [];
