@@ -147,6 +147,10 @@
 .bpc:hover{filter:brightness(.95);text-decoration:underline}
 .bpc-ok{background:#ecfdf3;color:#05603a;border-color:#a6f4c5}
 .bpc-non{background:#f9fafb;color:#98a2b3}
+.bpc .bx{display:none;margin-left:6px;padding:0 5px;border-radius:8px;color:#b42318;font-weight:700;text-decoration:none}
+.bpc:hover .bx{display:inline}
+.bpc .bx:hover{background:#fee4e2}
+@media (hover:none){.bpc .bx{display:inline}}
   body.embed header{display:none}
   body.embed .bandeau{font-size:12px;padding:5px 12px}
   body.embed main{padding-top:8px}
@@ -1999,7 +2003,7 @@ function badgesPieces(x){
   var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
   var b = function(n, ok, txt, genre){
     return '<span class="bpc ' + (ok ? 'bpc-ok' : 'bpc-non') + '"' + (i >= 0 ? ' onclick="event.stopPropagation();ouvrirPieces(' + i + ',\'' + genre + '\')" title="' + (ok ? 'Voir le document' : 'Ajouter le document') + '"' : '') + '>' +
-      txt + (ok ? ' ✓' + (n > 1 ? ' ×' + n : '') : ' —') + '</span>'; };
+      txt + (ok ? ' ✓' + (n > 1 ? ' ×' + n : '') : ' —') + (ok && i >= 0 ? '<span class="bx" title="Retirer" onclick="event.stopPropagation();retirerRapide(' + i + ',\'' + genre + '\',this)">✕</span>' : '') + '</span>'; };
   var nB = nbBordereaux(x), nD = Math.max(0, (x.documents || 0) - nB);
   return '<div class="badgesP">' + b(nB, nB > 0, '📝 Bordereau', 'bordereau') + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') + b(x.preuves || 0, x.preuves > 0, '📨 Preuve', 'preuve') +
     (nD ? b(nD, true, '📄 Document', 'document') : '') + '</div>';
@@ -2072,6 +2076,54 @@ function joindrePiece(input, genre){
 }
 function joindrePreuve(input){ joindrePiece(input, 'preuve'); }
 /* 7.70 : retirer une pièce mise par erreur directement depuis la visionneuse (preuve, bordereau, facture) ; le fichier reste dans Google Drive */
+/* 7.71 : ✕ sur la pastille (au survol ; toujours visible sur téléphone) : retirer sans ouvrir de page.
+   Une preuve ou un bordereau mis en une fois sur plusieurs factures du même laboratoire peut être retiré de toutes d'un coup. */
+function suffixePiece(p){ var s = String((p && p.nom) || '').split(' — '); return s[s.length - 1]; }
+function retirerRapide(i, genre, el){
+  var x = TRESO.lignes[i], badge = el && el.parentNode, avant = badge ? badge.innerHTML : '';
+  var attente = function(m){ if (badge) badge.innerHTML = '⏳ ' + m; };
+  var echec = function(m){ if (badge) badge.innerHTML = avant; alert('Non retiré : ' + m + '\n\nLe serveur est peut-être lent : réessayez dans une minute.'); };
+  var filtre = function(y){ return (y.pieces || []).filter(function(p){ return genre === 'bordereau' ? estBordereau(p) : genre === 'document' ? (p.genre === 'document' && !estBordereau(p)) : p.genre === genre; }); };
+  var lib = { preuve: 'la preuve de virement', facture: 'la facture', bordereau: 'le bordereau de virement', document: 'le document' }[genre];
+  var suite = function(){
+    var ps = filtre(x); if (!ps.length) { if (badge) badge.innerHTML = avant; return; }
+    var p = ps[ps.length - 1];
+    if (ps.length > 1) {
+      var choix = prompt('Ce dossier a ' + ps.length + ' ' + ({ preuve: 'preuves', facture: 'factures', bordereau: 'bordereaux', document: 'documents' }[genre]) + ' :\n' + ps.map(function(q, k){ return (k + 1) + '. ' + suffixePiece(q); }).join('\n') + '\n\nNuméro à retirer :', String(ps.length));
+      if (choix == null) { if (badge) badge.innerHTML = avant; return; }
+      p = ps[(parseInt(choix, 10) || 0) - 1]; if (!p) { if (badge) badge.innerHTML = avant; return; }
+    }
+    var s = suffixePiece(p);
+    var autres = (genre === 'preuve' || genre === 'bordereau') ? TRESO.lignes.filter(function(y){ return y !== x && y.source === 'Fichier RJ' && cleLabo(y) === cleLabo(x) && (y.choisi || x.choisi); }) : [];
+    if (!confirm('Retirer ' + lib + ' « ' + s + ' » du dossier ' + x.tiers + ' ?\n(le fichier reste dans Google Drive)')) { if (badge) badge.innerHTML = avant; return; }
+    var tous = autres.length && confirm('Retirer aussi ce même fichier des ' + autres.length + ' autre(s) facture(s) cochée(s) de ' + x.tiers + ' (s\'il y a été mis en une fois) ?\n\nOK = oui, dans toutes · Annuler = seulement ce dossier');
+    var liste = [{ y: x, p: p }], restants = tous ? autres.slice() : [];
+    var finir = function(){
+      var n = 0, k = liste.slice();
+      var un = function(){
+        if (!k.length) { afficherTreso(); return; }
+        var e = k.shift(); attente('retrait ' + (++n) + '/' + liste.length);
+        appel('mob_retirerPiece', [JETON, e.y.cle, e.p.id], function(r){
+          majCompte(e.y, r);
+          if (genre === 'bordereau' && !nbBordereaux(e.y)) { e.y.commentaire = String(e.y.commentaire || '').split('\n').filter(function(l){ return !/📝 Bordereau de virement ajouté/.test(l); }).join('\n'); appel('mob_majDossier', [JETON, e.y.cle, 'commentaire', e.y.commentaire], un, un); }
+          else un();
+        }, echec);
+      };
+      un();
+    };
+    if (!restants.length) return finir();
+    var lire = function(){
+      if (!restants.length) return finir();
+      var y = restants.shift(); attente('recherche dans les autres dossiers…');
+      var go = function(){ var q = filtre(y).filter(function(z){ return suffixePiece(z) === s; })[0]; if (q) liste.push({ y: y, p: q }); lire(); };
+      if (y.pieces) go(); else appel('mob_pieces', [JETON, y.cle], function(r){ majCompte(y, r); go(); }, function(){ lire(); });
+    };
+    lire();
+  };
+  if (x.pieces) return suite();
+  attente('lecture…');
+  appel('mob_pieces', [JETON, x.cle], function(r){ majCompte(x, r); suite(); }, echec);
+}
 function retirerDepuisVue(id, cle){
   var x = ligneTreso(cle), p = ((x && x.pieces) || []).filter(function(q){ return q.id === id; })[0] || {};
   var quoi = estBordereau(p) ? 'le bordereau de virement' : ({ preuve: 'la preuve de virement', facture: 'la facture', document: 'le document' }[p.genre] || 'ce document');
@@ -2088,7 +2140,8 @@ function retirerDepuisVue(id, cle){
 function retirerPiece(id){
   if (!confirm('Retirer ce fichier du dossier ? (il reste conservé dans Google Drive)')) return;
   var x = TRESO.lignes[DOSSIER];
-  appel('mob_retirerPiece', [JETON, x.cle, id], function(r){ majCompte(x, r); afficherPieces(x); }, function(m){ alert(m); });
+  var z = document.getElementById('pcListe'); if (z) z.insertAdjacentHTML('afterbegin', '<div class="meta" id="retEnCours">⏳ Retrait en cours…</div>');
+  appel('mob_retirerPiece', [JETON, x.cle, id], function(r){ majCompte(x, r); afficherPieces(x); afficherTreso(); }, function(m){ var e = document.getElementById('retEnCours'); if (e) e.remove(); alert('Non retiré : ' + m + '\n\nLe serveur est peut-être lent : réessayez dans une minute.'); });
 }
 function factureAuto(){
   var x = TRESO.lignes[DOSSIER], err = document.getElementById('pErr'); err.textContent = 'Recherche de la facture…';
