@@ -1321,7 +1321,7 @@ function fichiersLigne(input, ci, li, genre){
     var suite = function(){
       if (!fs.length) { l.etat = 'ok'; dessinerPosition(); return; }
       if (err) err.textContent = 'Enregistrement du fichier dans le dossier…';
-      appel('mob_piece', [JETON, l.cle, genreServeur(genre), nomPiece(genre, fs.shift())], function(r){ majLigne(l, r); suite(); }, function(m){ if (err) err.textContent = m; });
+      appel('mob_piece', [JETON, l.cle, genreServeur(genre), nomPiece(genre, fs.shift())], function(r){ majLigne(l, r); var x = genre === 'bordereau' ? ligneTreso(l.cle) : null; if (x) noteBordereau(x, suite); else suite(); }, function(m){ if (err) err.textContent = m; });
     };
     suite();
   });
@@ -1336,7 +1336,7 @@ function bordereauLabo(input, ci, k){
     var suite = function(){
       if (!reste.length) { if (err) err.innerHTML = '<span class="pos">✓ Bordereau rangé dans les ' + n + ' dossiers de ' + esc(L[0].tiers) + '.</span>'; dessinerPosition(); return; }
       var l = reste.shift(); if (err) err.textContent = 'Bordereau… ' + (n + 1) + ' / ' + L.length;
-      appel('mob_piece', [JETON, l.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ majLigne(l, r); n++; suite(); }, function(m){ if (err) err.textContent = m; });
+      appel('mob_piece', [JETON, l.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ majLigne(l, r); n++; var x = ligneTreso(l.cle); if (x) noteBordereau(x, suite); else suite(); }, function(m){ if (err) err.textContent = m; });
     };
     suite();
   });
@@ -1537,8 +1537,9 @@ function blocGroupe(){
   return '<div class="carte"><b>👥 Virements à faire : ' + ordre.length + ' laboratoire(s), ' + l.length + ' facture(s) cochée(s) · ' + eur(tot) + '</b>' +
     '<div class="meta">Cochez au fur et à mesure, laboratoire par laboratoire : les cases restent cochées (téléphone et ordinateur). Un virement par laboratoire, du montant ci-dessous.</div>' +
     '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;margin-top:6px">' + lignes + '<tr><td><b>Total</b></td><td style="text-align:right"><b>' + eur(tot) + '</b></td><td class="meta">' + nPrets + '/' + ordre.length + ' prêts</td></tr></table></div>' +
-    '<div class="meta" style="margin-top:6px"><b>Dans l\'ordre :</b> ① 📤 demande à l\'administrateur (un mail, factures et ordres de virement regroupés par laboratoire) → ② ✔ validé → ③ vous faites les virements → ④ 📨 ajoutez la capture de chaque virement (une fois par laboratoire ; vous pouvez fermer et revenir, rien ne part tant que vous ne cliquez pas sur « Envoyer ») → ⑤ envoi de toutes les preuves en une fois, un mail par laboratoire.</div>' +
-    '<button class="btn b-voir" style="width:100%;margin-top:8px" onclick="positionAdmin()">① 📤 Préparer le mail à l\'administrateur (tous les laboratoires cochés)</button>' +
+    '<div class="meta" style="margin-top:6px"><b>Dans l\'ordre :</b> ① vous saisissez les virements à la banque, ajoutez le 📝 bordereau de chaque laboratoire, puis envoyez la demande à l\'administrateur (un mail : bordereaux + factures, regroupés par laboratoire) → ② ✔ validé → ③ les virements partent → ④ 📨 ajoutez la preuve de chaque virement (une fois par laboratoire ; vous pouvez fermer et revenir, rien ne part tant que vous ne cliquez pas sur « Envoyer ») → ⑤ envoi de toutes les preuves en une fois, un mail par laboratoire.</div>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:8px" onclick="groupeBordereaux()">① 📝 Ajouter les bordereaux de virement (un par laboratoire)</button>' +
+    '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="positionAdmin()">① bis 📤 Préparer le mail à l\'administrateur (bordereaux + factures, par laboratoire)</button>' +
     '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="groupeDate(\'demande\')">📤 Noter : demande envoyée à l\'administrateur</button>' +
     '<button class="btn b-voir" style="width:100%;margin-top:6px" onclick="groupeDate(\'validation\')">② ✔ Noter : validé par l\'administrateur</button>' +
     '<button class="btn b-ok" style="width:100%;margin-top:6px" onclick="groupePreuves()">④ ⑤ 📨 Ajouter les preuves / envoyer aux laboratoires</button></div>';
@@ -1951,21 +1952,71 @@ function recupDocsMail(cle, fin){
     dit('Comparaison avec les ' + exist.length + ' document(s) du dossier…'); lire();
   }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); if (fin) fin({ err: m }); });
 }
+/* 7.69 : bordereau de virement = saisie faite à la banque, pour l'administrateur (avec la facture) ; la preuve est pour le laboratoire */
+function nbBordereaux(x){
+  if (x.pieces) return x.pieces.filter(estBordereau).length;
+  var m = String(x.commentaire || '').match(/📝 Bordereau de virement ajouté/g); return m ? Math.min(m.length, x.documents || m.length) : 0;
+}
+function noteBordereau(x, apres){
+  var d0 = aujourdhui().split('-').reverse().join('/'), ligne = '📝 Bordereau de virement ajouté le ' + d0 + '.';
+  var com = String(x.commentaire || '').split('\n').filter(function(z){ return !/📝 Bordereau de virement ajouté/.test(z); }).join('\n').trim();
+  x.commentaire = (com ? com + '\n' : '') + ligne;
+  appel('mob_majDossier', [JETON, x.cle, 'commentaire', x.commentaire], apres || function(){}, apres || function(){});
+}
+function ajouterBordereau(input, cles, zoneId, fin){
+  var zone = document.getElementById(zoneId), dit = function(m){ if (zone) zone.innerHTML = m; };
+  var fichiers = Array.prototype.slice.call(input.files || []); input.value = '';
+  lireFichiers(fichiers, function(fs){
+    if (!fs.length) { dit('<span class="neg">Format non pris en charge (photo ou PDF).</span>'); return; }
+    var reste = cles.slice(), n = 0;
+    var suite = function(){
+      if (!reste.length) { dit('<span class="pos">✓ Bordereau rangé dans ' + (n > 1 ? 'les ' + n + ' dossiers' : 'le dossier') + '.</span>'); afficherTreso(); if (fin) fin(); return; }
+      var x = ligneTreso(reste.shift()); dit('Enregistrement du bordereau… ' + (n + 1) + ' / ' + cles.length);
+      appel('mob_piece', [JETON, x.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ majCompte(x, r); n++; noteBordereau(x, suite); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); });
+    };
+    suite();
+  });
+}
+/* étape groupée : un bordereau par laboratoire (une saisie à la banque peut régler plusieurs factures) */
+var GB_CLES = [];
+function groupeBordereaux(){
+  var l = cochesRJ(), G = {}, o = [];
+  l.forEach(function(x){ var k = cleLabo(x); if (!G[k]) { G[k] = []; o.push(k); } G[k].push(x); });
+  GB_CLES = o.map(function(k){ return G[k].map(function(x){ return x.cle; }); });
+  document.getElementById('mTitre').textContent = '📝 Bordereaux de virement pour l\'administrateur';
+  document.getElementById('mCorps').innerHTML = '<p class="meta">Pour chaque laboratoire : la capture de la saisie du virement dans l\'application de la banque (avant de le valider). Une seule capture pour toutes les factures du même laboratoire ; elle est rangée dans chaque dossier, à côté de la facture. Vous pouvez fermer et revenir.</p>' +
+    o.map(function(k, gi){
+      var L = G[k], s = L.reduce(function(a, x){ return a + montantPos(x); }, 0), avec = L.filter(function(x){ return nbBordereaux(x) > 0; }).length;
+      return '<div class="carte" style="margin:8px 0;padding:8px;border-left:4px solid ' + (avec === L.length ? 'var(--vert)' : 'var(--orange)') + '"><b>' + esc(L[0].tiers) + '</b> — ' + L.length + ' facture(s) · ' + eur(s) +
+        '<div class="meta">' + L.map(function(x){ return '• ' + esc(refsPropres(x.refs) || '—') + ' : ' + eur(montantPos(x)) + (nbBordereaux(x) ? ' <span class="pos">📝 ✓</span>' : ''); }).join('<br>') + '</div>' +
+        '<label class="pj" style="display:inline-block;margin-top:6px">＋ ' + (avec === L.length ? 'Remplacer le bordereau' : 'Ajouter le bordereau' + (L.length > 1 ? ' (pour les ' + L.length + ' factures)' : '')) +
+        '<input type="file" accept="image/*,application/pdf" style="display:none" onchange="ajouterBordereau(this,GB_CLES[' + gi + '],\'gB' + gi + '\',groupeBordereaux)"></label><div class="meta" id="gB' + gi + '"></div></div>';
+    }).join('') +
+    '<button class="btn b-ok" style="width:100%" onclick="positionAdmin()">Suite : 📤 préparer le mail à l\'administrateur (bordereaux + factures) →</button>';
+  ouvrir();
+}
 function badgesPieces(x){
   var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
   var b = function(n, ok, txt, genre){
     return '<span class="bpc ' + (ok ? 'bpc-ok' : 'bpc-non') + '"' + (i >= 0 ? ' onclick="event.stopPropagation();ouvrirPieces(' + i + ',\'' + genre + '\')" title="' + (ok ? 'Voir le document' : 'Ajouter le document') + '"' : '') + '>' +
       txt + (ok ? ' ✓' + (n > 1 ? ' ×' + n : '') : ' —') + '</span>'; };
-  return '<div class="badgesP">' + b(x.preuves || 0, x.preuves > 0, '📨 Preuve', 'preuve') + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') +
-    (x.documents ? b(x.documents, true, '📄 Document', 'document') : '') + '</div>';
+  var nB = nbBordereaux(x), nD = Math.max(0, (x.documents || 0) - nB);
+  return '<div class="badgesP">' + b(nB, nB > 0, '📝 Bordereau', 'bordereau') + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') + b(x.preuves || 0, x.preuves > 0, '📨 Preuve', 'preuve') +
+    (nD ? b(nD, true, '📄 Document', 'document') : '') + '</div>';
 }
 /* Clic sur une pastille : affiche directement le document (ou ouvre le dossier pour l'ajouter s'il manque). */
 function ouvrirPieces(i, genre, n){
   var x = TRESO.lignes[i]; DOSSIER = i;
-  var nb = { preuve: x.preuves, facture: x.factures, document: x.documents }[genre] || 0;
+  var nb = { preuve: x.preuves, facture: x.factures, document: x.documents, bordereau: nbBordereaux(x) }[genre] || 0;
+  if (!nb && genre === 'bordereau') {
+    var inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*,application/pdf';
+    inp.onchange = function(){ document.getElementById('mTitre').textContent = '📝 Bordereau — ' + x.tiers; document.getElementById('mCorps').innerHTML = '<div id="bordUn" class="meta">Enregistrement…</div>'; ouvrir();
+      ajouterBordereau(inp, [x.cle], 'bordUn', function(){ setTimeout(fermer, 1200); }); };
+    inp.click(); return;
+  }
   if (!nb) { dossier(i); return; }
   var montrer = function(){
-    var ps = (x.pieces || []).filter(function(p){ return p.genre === genre; });
+    var ps = (x.pieces || []).filter(function(p){ return genre === 'bordereau' ? estBordereau(p) : genre === 'document' ? (p.genre === 'document' && !estBordereau(p)) : p.genre === genre; });
     if (!ps.length) { dossier(i); return; }
     var k = Math.max(0, Math.min(n || 0, ps.length - 1));
     voirPiece(ps[k].id, x.cle, function(){ fermer(); });
