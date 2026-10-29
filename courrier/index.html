@@ -1229,7 +1229,7 @@ function texteMailAdmin(){
     return 'Position bancaire n° ' + c.num + ' — compte ' + NOMS_BANQUE[c.banque] + ' :\n' +
       (function(){ var G = {}, o = []; c.lignes.forEach(function(l){ var k = String(l.tiers || '').trim().toUpperCase().replace(/\s+/g, ' '); if (!G[k]) { G[k] = []; o.push(k); } G[k].push(l); });
         return o.map(function(k){ var L = G[k], s = Math.round(L.reduce(function(a, l){ return a + l.montant; }, 0) * 100) / 100;
-          return L.length === 1 ? '- ' + intitule(L[0]) + ' : ' + eur(s) : '- ' + String(L[0].tiers).toUpperCase() + ' : un seul virement de ' + eur(s) + ' (un seul bordereau) pour ' + L.length + ' factures :\n' + L.map(function(l){ return '    • ' + (refsPropres(l.refs) || '—').slice(0, 90) + ' : ' + eur(l.montant); }).join('\n'); }).join('\n'); })() +
+          return L.length === 1 ? '- ' + intitule(L[0]) + ' : ' + eur(s) + acompteTxt(L[0]) : '- ' + String(L[0].tiers).toUpperCase() + ' : un seul virement de ' + eur(s) + ' (un seul bordereau) pour ' + L.length + ' factures :\n' + L.map(function(l){ return '    • ' + (refsPropres(l.refs) || '—').slice(0, 90) + ' : ' + eur(l.montant) + acompteTxt(l); }).join('\n'); }).join('\n'); })() +
       '\nTotal des virements : ' + eur(tot) +
       (c.solde != null ? '\nSolde avant virements : ' + eur(c.solde) + ' ; solde après virements : ' + eur(c.solde - tot) : '');
   });
@@ -1291,7 +1291,7 @@ function idsBordereaux(){
 function estBordereau(p){ return !!p && p.genre === 'document' && (/BORDEREAU/i.test(p.nom || '') || !!idsBordereaux()[p.id]); }
 function piecesDe(l, g){ return (l.pieces || []).filter(function(p){ return g === 'bordereau' ? estBordereau(p) : g === 'document' ? (p.genre === 'document' && !estBordereau(p)) : p.genre === g; }); }
 function genreServeur(g){ return g === 'bordereau' ? 'document' : g; }
-function nomPiece(g, f){ return g === 'bordereau' ? Object.assign({}, f, { nom: 'BORDEREAU de virement - ' + (f.nom || 'saisie banque') }) : f; }
+function nomPiece(g, f, x){ var ac = estAcompte(x); return g === 'bordereau' ? Object.assign({}, f, { nom: 'BORDEREAU ' + (ac ? 'd\'acompte' : 'de virement') + ' - ' + (f.nom || 'saisie banque') }) : (g === 'preuve' && ac ? Object.assign({}, f, { nom: 'PREUVE d\'acompte - ' + (f.nom || 'virement') }) : f); }
 function bordereauPos(l){
   var x = ligneTreso(l.cle), P = x ? cible(x) : null;
   if (!P || P.cle === l.cle) return piecesDe(l, 'bordereau');
@@ -1734,6 +1734,10 @@ function preparerGroupe(){
         m.total = tot; m.o = 'Preuve de virement ' + eur(tot) + ' — ' + g.length + ' factures — ' + g.map(function(x){ return x.refs; }).filter(Boolean).join(', ');
         m.t = texteGroupe(g, tot);
       }
+      var x1 = ligneTreso(cle);
+      if (u.cles.length === 1 && estAcompte(x1)) { var mA = montantAcompte(x1), tA = x1.du != null ? x1.du : x1.montantTTC;
+        m.acompte = mA; m.o = 'Preuve de virement — acompte de ' + eur(mA) + ' — ' + (refsPropres(x1.refs) || x1.tiers);
+        m.t = 'Madame, Monsieur,\n\nVeuillez trouver ci-joint la preuve du virement d\'un acompte de ' + eur(mA) + ' sur ' + (refsPropres(x1.refs) || 'notre compte') + ' (montant dû : ' + eur(tA) + ' ; reste à régler après cet acompte : ' + eur(Math.max(0, (tA || 0) - mA)) + ').\n\nNous vous remercions de bien vouloir l\'imputer sur notre compte et, si des marchandises sont en attente, de procéder à leur livraison.\n\nBien cordialement,'; }
       GROUPE.mails.push(m); suite();
     }, function(msg){ err.textContent = ligneTreso(cle).tiers + ' : ' + msg; b.disabled = false; b.textContent = 'Réessayer'; });
   };
@@ -1785,8 +1789,15 @@ function envoyerGroupe(){
     var m = GROUPE.mails[k], z = document.getElementById('gR' + k), i = k;
     b.textContent = 'Envoi… ' + (envoyes + 1) + ' / ' + aEnvoyer.length;
     z.textContent = 'Envoi en cours…';
-    appel('mob_envoiDossier', [JETON, m.cle, 'preuve', m.a, m.o, m.t, true], function(r){
+    var envoyer = function(){ appel('mob_envoiDossier', [JETON, m.cle, 'preuve', m.a, m.o, m.t, true], function(r){
       m.fait = true; envoyes++;
+      if (m.acompte) {
+        var xa = ligneTreso(m.cle), d1 = aujourdhui();
+        var noteA = d1.split('-').reverse().join('/') + ' : acompte de ' + eur(m.acompte) + ' versé, preuve envoyée à ' + m.a + '.';
+        xa.note = ''; xa.choisi = false; xa.montantVir = null; sauverLigne(xa);
+        appel('mob_majDossier', [JETON, m.cle, 'preuve', ''], function(){ appel('mob_majDossier', [JETON, m.cle, 'commentaire', ((xa.commentaire || '').trim() ? xa.commentaire.trim() + '\n' : '') + noteA], function(){}, function(){}); }, function(){});
+        z.innerHTML = '<span class="pos">✅ Preuve d\'acompte envoyée — acompte de ' + eur(m.acompte) + ' enregistré, le dossier reste ouvert pour le reste dû</span>'; k = i + 1; return suite();
+      }
       if (m.cles.length < 2) { z.innerHTML = '<span class="pos">✅ Envoyé' + (r && r.cloture ? ' — dossier clôturé' : '') + '</span>'; k = i + 1; return suite(); }
       /* les autres factures du même virement : date de preuve renseignée (= dossier clôturé) et note dans leurs commentaires */
       var g = m.cles.map(ligneTreso), d = aujourdhui(), dfr = d.split('-').reverse().join('/'), autres = m.cles.slice(1), faits = 1, ko = [];
@@ -1804,7 +1815,10 @@ function envoyerGroupe(){
           function(msg){ ko.push(y.refs || y.tiers); suiteA(); });
       };
       suiteA();
-    }, function(msg){ echecs++; z.innerHTML = '<span class="neg">Non envoyé : ' + esc(msg) + '</span>'; k = i + 1; suite(); });
+    }, function(msg){ echecs++; z.innerHTML = '<span class="neg">Non envoyé : ' + esc(msg) + '</span>'; k = i + 1; suite(); }); };
+    if (m.acompte) { var xv = ligneTreso(m.cle); z.textContent = 'Enregistrement de l\'acompte…';
+      return appel('mob_versement', [JETON, m.cle, aujourdhui(), String(m.acompte), xv.banqueVir || 'CEBPL', 'Acompte'], envoyer, function(msg){ echecs++; z.innerHTML = '<span class="neg">Acompte non enregistré : ' + esc(msg) + '</span>'; k = i + 1; suite(); }); }
+    envoyer();
   };
   suite();
 }
@@ -1927,7 +1941,7 @@ function blocVersements(x){
     '</div>';
 }
 /* ---------- Pièces du dossier : preuve de virement, facture, autres documents (rangées dans Drive) ---------- */
-var GENRES_PIECE = { preuve: '📨 Preuve de virement', facture: '🧾 Facture', document: '📄 Document' };
+var GENRES_PIECE = { preuve: '📨 Preuve de virement', facture: '🧾 Facture / document', document: '📄 Autre document' };
 /* 7.61 : contrôle « un document par numéro de facture » — chaque n° de facture / proforma cité dans le dossier doit avoir son PDF */
 function refsFacture(x){
   var s = String((x && x.refs) || '')
@@ -2031,7 +2045,7 @@ function ajouterBordereauFichier(f0, cles, dit, nFact, fin){
     var suite = function(){
       if (!reste.length) { dit('<span class="pos">✓ Bordereau rangé une seule fois' + (nFact > 1 ? ', pour les ' + nFact + ' factures du virement groupé' : '') + '.</span>'); afficherTreso(); if (fin) fin(); return; }
       var x = ligneTreso(reste.shift()); dit('Enregistrement du bordereau… ' + (n + 1) + ' / ' + cles.length);
-      var av = x.pieces; appel('mob_piece', [JETON, x.cle, 'document', nomPiece('bordereau', fs[0])], function(r){ var nv = idsAjoutes(av, r); majCompte(x, r); n++; noteBordereau(x, suite, nv); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); });
+      var av = x.pieces; appel('mob_piece', [JETON, x.cle, 'document', nomPiece('bordereau', fs[0], x)], function(r){ var nv = idsAjoutes(av, r); majCompte(x, r); n++; noteBordereau(x, suite, nv); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); });
     };
     suite();
   })();
@@ -2121,16 +2135,32 @@ function unirDossiers(k){
   if (z) z.textContent = 'Regroupement…';
   creerVG(L, function(){ afficherTreso(); }, function(m){ if (z) z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
 }
+/* 7.77 : ACOMPTE — virement partiel sur un dossier (ex. avance sur une proforma ou sur un solde).
+   Même circuit qu'un virement : bordereau d'acompte → administrateur, puis preuve d'acompte → laboratoire.
+   Quand la preuve est envoyée, l'acompte est enregistré comme versement : le dossier reste ouvert pour le reste dû. */
+function estAcompte(x){ return !!x && /ACOMPTE/i.test(x.note || ''); }
+function montantAcompte(x){ return x.montantVir > 0 ? x.montantVir : 0; }
+function acompteTxt(l){ var x = ligneTreso(l.cle); if (!estAcompte(x)) return ''; var tot = x.du != null ? x.du : x.montantTTC; return ' — ACOMPTE sur un montant dû de ' + eur(tot) + ' (reste ensuite : ' + eur(Math.max(0, (tot || 0) - montantAcompte(x))) + ')'; }
+function basculerAcompte(i){
+  var x = TRESO.lignes[i];
+  if (estAcompte(x)) { if (!confirm('Annuler l\'acompte sur ' + x.tiers + ' ?\nLe montant à virer revient au reste dû (' + eur(x.du) + ').')) return; x.note = ''; x.montantVir = x.du; sauverLigne(x); afficherTreso(); return; }
+  var v = prompt('Acompte pour ' + x.tiers + (x.refs ? ' (' + refsPropres(x.refs) + ')' : '') + '\nReste dû : ' + eur(x.du) + '\n\nMontant de l\'acompte (€) :', '');
+  if (v == null) return; var n = nb(v);
+  if (n == null || n <= 0) { alert('Montant invalide.'); return; }
+  if (x.du != null && n > x.du) { alert('L\'acompte (' + eur(n) + ') dépasse le reste dû (' + eur(x.du) + ').'); return; }
+  x.note = 'ACOMPTE'; x.choisi = true; x.montantVir = n; sauverLigne(x); afficherTreso();
+}
 function badgesPieces(x){
   var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
   var b = function(n, ok, txt, genre){
     return '<span class="bpc ' + (ok ? 'bpc-ok' : 'bpc-non') + '"' + (i >= 0 ? ' onclick="event.stopPropagation();ouvrirPieces(' + i + ',\'' + genre + '\')" title="' + (ok ? 'Voir le document' : 'Ajouter le document') + '"' : '') + '>' +
       txt + (ok ? ' ✓' + (n > 1 ? ' ×' + n : '') : ' —') + (ok && i >= 0 ? '<span class="bx" title="Retirer" onclick="event.stopPropagation();retirerRapide(' + i + ',\'' + genre + '\',this)">✕</span>' : '') + '</span>'; };
   var C = cible(x), iC = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(C) : -1, nB = nbBordereaux(C), nD = Math.max(0, (x.documents || 0) - nbBordereaux(x)), vg = vgDe(x);
-  if (vg) return '<div class="badgesP">' + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') + (nD ? b(nD, true, '📄 Document', 'document') : '') + '</div>';
+  if (vg) return '<div class="badgesP">' + b(x.factures || 0, x.factures > 0, '🧾 Facture / document', 'facture') + (nD ? b(nD, true, '📄 Autre document', 'document') : '') + '</div>';
+  var ac = estAcompte(x), pastAc = (i >= 0 && x.source === 'Fichier RJ') ? '<span class="bpc ' + (ac ? 'bpc-ok' : 'bpc-non') + '" onclick="event.stopPropagation();basculerAcompte(' + i + ')" title="' + (ac ? 'Acompte en cours — cliquer pour l\'annuler' : 'Faire un acompte (virement partiel) sur ce dossier') + '">💶 Acompte' + (ac ? ' ' + eur(montantAcompte(x)) + ' ✓' : '') + '</span>' : '';
   var bC = function(n, ok, txt, genre){ if (C === x) return b(n, ok, txt, genre); var i0 = i; i = iC; var h = b(n, ok, txt + ' 🔗', genre); i = i0; return h; };
-  return '<div class="badgesP">' + bC(nB, nB > 0, '📝 Bordereau', 'bordereau') + b(x.factures || 0, x.factures > 0, '🧾 Facture', 'facture') + bC(C.preuves || 0, C.preuves > 0, '📨 Preuve', 'preuve') +
-    (nD ? b(nD, true, '📄 Document', 'document') : '') +
+  return '<div class="badgesP">' + bC(nB, nB > 0, ac ? '📝 Bordereau d\'acompte' : '📝 Bordereau', 'bordereau') + b(x.factures || 0, x.factures > 0, '🧾 Facture / document', 'facture') + bC(C.preuves || 0, C.preuves > 0, ac ? '📨 Preuve d\'acompte' : '📨 Preuve', 'preuve') + pastAc +
+    (nD ? b(nD, true, '📄 Autre document', 'document') : '') +
     (vg ? '<span class="bpc bpc-ok" title="Virement groupé : ' + vgMembres(vg).length + ' factures, un seul bordereau et une seule preuve (dossier principal)" onclick="event.stopPropagation();defaireVG(\'' + vg + '\')">🔗 ' + vgMembres(vg).length + ' factures · 1 virement' + (C === x ? ' · principal' : '') + ' <span class="bx" title="Défaire le regroupement">✕</span></span>' : '') + '</div>';
 }
 /* Clic sur une pastille : affiche directement le document (ou ouvre le dossier pour l'ajouter s'il manque). */
@@ -2152,7 +2182,7 @@ function ouvrirPieces(i, genre, n){
         var suite = function(){
           if (!fs.length) { z.innerHTML = '<span class="pos">✓ ' + tot + ' fichier(s) rangé(s) dans le dossier.</span>'; afficherTreso(); setTimeout(fermer, 1200); return; }
           z.textContent = 'Enregistrement… ' + (++n) + ' / ' + tot;
-          appel('mob_piece', [JETON, x.cle, genre, fs.shift()], function(r){ majCompte(x, r); suite(); }, function(m){ z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
+          appel('mob_piece', [JETON, x.cle, genre, nomPiece(genre, fs.shift(), x)], function(r){ majCompte(x, r); suite(); }, function(m){ z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
         };
         suite();
       });
