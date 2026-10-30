@@ -1068,13 +1068,13 @@ function totauxTreso(){
       if (dejaDeduit) m = 0;
       var bq = l.banqueVir || 'CEBPL';   /* 7.68 : banque non choisie = Caisse d'Épargne (avant : le virement n'était compté nulle part) */
       t.vir += m; t.nVir++; t.parBanque[bq] = (t.parBanque[bq] || 0) + m;
-      if (m > 0) { t.liste = t.liste || { CEBPL: {}, BPGO: {} }; var k = String(l.tiers || '').trim().toUpperCase(); var g = (t.liste[bq] = t.liste[bq] || {})[k] = t.liste[bq][k] || { tiers: l.tiers, n: 0, m: 0 }; g.n++; g.m += m; }
+      if (m > 0) { t.liste = t.liste || { CEBPL: {}, BPGO: {} }; var k = cleLabo(l); var g = (t.liste[bq] = t.liste[bq] || {})[k] = t.liste[bq][k] || { tiers: l.tiers, n: 0, m: 0 }; g.n++; g.m += m; }
     }
   });
   /* 7.79 : acomptes (virement en plus des factures), portés par le dossier seul ou le dossier principal */
   TRESO.lignes.forEach(function(l){
     var a = acompteDe(l); if (!(a > 0) || cible(l) !== l || !membresDe(l).some(function(y){ return y.choisi; })) return;
-    var bq = l.banqueVir || 'CEBPL', k = String(l.tiers || '').trim().toUpperCase() + ' — ACOMPTE';
+    var bq = l.banqueVir || 'CEBPL', k = cleLabo(l) + ' — ACOMPTE';
     t.vir += a; t.nVir++; t.parBanque[bq] = (t.parBanque[bq] || 0) + a;
     t.liste[bq] = t.liste[bq] || {}; t.liste[bq][k] = { tiers: l.tiers + ' — acompte', n: 1, m: a };
   });
@@ -1238,7 +1238,7 @@ function texteMailAdmin(){
   var morceaux = POS.comptes.map(function(c){
     var tot = totalCompte(c);
     return 'Position bancaire n° ' + c.num + ' — compte ' + NOMS_BANQUE[c.banque] + ' :\n' +
-      (function(){ var G = {}, o = []; c.lignes.forEach(function(l){ var k = String(l.tiers || '').trim().toUpperCase().replace(/\s+/g, ' ') + (l.acompte ? '|A' : ''); if (!G[k]) { G[k] = []; o.push(k); } G[k].push(l); });
+      (function(){ var G = {}, o = []; c.lignes.forEach(function(l){ var k = cleLabo(l) + (l.acompte ? '|A' : ''); if (!G[k]) { G[k] = []; o.push(k); } G[k].push(l); });
         return o.map(function(k){ var L = G[k], s = Math.round(L.reduce(function(a, l){ return a + l.montant; }, 0) * 100) / 100;
           if (L[0].acompte) return '- ' + String(L[0].tiers).toUpperCase() + ' : ACOMPTE de ' + eur(s) + ' (virement distinct, avec son bordereau d\'acompte)';
           return L.length === 1 ? '- ' + intitule(L[0]) + ' : ' + eur(s) : '- ' + String(L[0].tiers).toUpperCase() + ' : un seul virement de ' + eur(s) + ' (un seul bordereau) pour ' + L.length + ' factures :\n' + L.map(function(l){ return '    • ' + (refsPropres(l.refs) || '—').slice(0, 90) + ' : ' + eur(l.montant); }).join('\n'); }).join('\n'); })() +
@@ -1671,7 +1671,16 @@ function enregistrerGroupe(champ){
 /* Envoi groupé des preuves : 1) vérifier que chaque dossier a sa preuve (capture de l'application de la banque),
    2) relire les mails préparés, 3) envoyer un mail par dossier, un par un. Rien ne part sans votre clic final. */
 /* 7.58 : plusieurs factures d'un même laboratoire réglées par UN virement → une seule capture, un seul mail listant toutes les factures */
-function cleLabo(x){ return String(x.tiers || '').trim().toUpperCase().replace(/\s+/g, ' '); }
+/* 7.80 : même regroupement que le filtre « par fournisseur » (URGO, URGO (Laboratoires URGO)… = un seul laboratoire) */
+var CLE_LABO = { src: null, g: null };
+function cleLabo(x){
+  var brut = String((x && x.tiers) || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!TRESO || !TRESO.lignes) return brut;
+  if (CLE_LABO.src !== TRESO) CLE_LABO = { src: TRESO, g: expGroupes(TRESO.lignes, function(y){ return y.tiers; }) };
+  var y = (x && x.cle && ligneTreso(x.cle)) || x;
+  var k = TRESO.lignes.indexOf(y) >= 0 ? CLE_LABO.g.cleDe(y) : null;
+  return k || brut;
+}
 function paquetsGroupe(){
   var P = [], idx = {};
   GROUPE.lignes.forEach(function(x){ var c = cleLabo(x); if (idx[c] == null) { idx[c] = P.length; P.push({ cle: c, tiers: x.tiers, lignes: [] }); } P[idx[c]].lignes.push(x); });
