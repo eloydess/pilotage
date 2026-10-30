@@ -9,59 +9,74 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Surface de vente 3D</title>
 <style>
-:root{--vert:#1b5e20;--vert2:#2e7d32;--carte:#fff;--txt:#1d2622;--doux:#5f6b66;--ligne:#e1e6e3;--fond:#dfe6e2}
+:root{--vert:#1b5e20;--vert2:#2e7d32;--bleu:#0d47a1;--carte:#fff;--txt:#1d2622;--doux:#5f6b66;--ligne:#e1e6e3;--fond:#dfe6e2}
 @media (prefers-color-scheme:dark){:root{--carte:#1b2220;--txt:#e8eeeb;--doux:#9fb0a8;--ligne:#2a3330;--fond:#2a312e}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%;overflow:hidden;font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--txt);background:var(--fond)}
 header{position:fixed;top:0;left:0;right:0;z-index:5;background:var(--vert);color:#fff;padding:calc(6px + env(safe-area-inset-top)) 10px 6px;display:flex;align-items:center;gap:8px}
 header h1{font-size:16px;margin:0;flex:1}
 header a,header button{background:rgba(255,255,255,.18);border:0;color:#fff;border-radius:8px;padding:6px 10px;font-size:14px;text-decoration:none}
-#cmd{position:fixed;top:calc(44px + env(safe-area-inset-top));left:0;right:0;z-index:4;padding:6px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;background:rgba(255,255,255,.9);box-shadow:0 1px 6px rgba(0,0,0,.15)}
-@media (min-width:700px){#cmd{grid-template-columns:repeat(8,1fr)}}
-@media (prefers-color-scheme:dark){#cmd{background:rgba(27,34,32,.92)}}
-#cmd button{border:1px solid var(--ligne);border-radius:9px;padding:6px 2px;font-size:12.5px;background:var(--carte);color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#cmd button.on{background:var(--vert2);color:#fff;border-color:var(--vert2)}
-#cmd button.mode.on{background:#0d47a1;border-color:#0d47a1}
+#cmd{position:fixed;top:calc(44px + env(safe-area-inset-top));left:0;right:0;z-index:4;padding:6px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;background:rgba(255,255,255,.93);box-shadow:0 1px 6px rgba(0,0,0,.15)}
+@media (min-width:760px){#cmd{grid-template-columns:repeat(8,1fr)}}
+@media (prefers-color-scheme:dark){#cmd{background:rgba(27,34,32,.94)}}
+#cmd button{border:1px solid var(--ligne);border-radius:9px;padding:7px 2px;font-size:13px;background:var(--carte);color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#cmd button.on{background:var(--bleu);color:#fff;border-color:var(--bleu)}
+#cmd button.ed.on{background:#e65100;border-color:#e65100}
+#cmd button.pan.on{background:var(--vert2);border-color:var(--vert2)}
 #cv{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-#leg{position:fixed;left:8px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:3;background:rgba(255,255,255,.92);color:#1d2622;border-radius:10px;padding:6px 10px;font-size:12px;max-width:calc(100% - 16px)}
-#leg.min>div,#leg.min>span{display:none}#leg.min::after{content:'Légende ▸'}
+#bandeau{position:fixed;left:0;right:0;z-index:3;background:#e65100;color:#fff;font-size:13px;padding:5px 10px;text-align:center;display:none}
+#leg{position:fixed;left:8px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:3;background:rgba(255,255,255,.93);color:#1d2622;border-radius:10px;padding:6px 10px;font-size:12px;max-width:calc(100% - 16px)}
+#leg.min>div{display:none}#leg.min::after{content:'Légende ▸'}
 #leg .g{height:9px;border-radius:5px;margin:3px 0}
-#fiche{position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:6;background:var(--carte);border-radius:14px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,.35);max-height:58vh;overflow:auto;display:none}
-@media (min-width:700px){#fiche{left:auto;width:420px}}
-#fiche h3{margin:0 0 4px;font-size:16px;display:flex;gap:8px;align-items:flex-start}
-#fiche h3 span{flex:1}
-#fiche .x{border:0;background:var(--ligne);border-radius:8px;padding:2px 9px;font-size:16px;color:var(--txt)}
-.l{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px solid var(--ligne);font-size:13.5px}
+#fiche,#panneau{position:fixed;left:8px;right:8px;z-index:6;background:var(--carte);border-radius:14px;padding:12px 14px;box-shadow:0 4px 20px rgba(0,0,0,.35);overflow:auto;display:none}
+#fiche{bottom:calc(8px + env(safe-area-inset-bottom));max-height:58vh}
+#panneau{max-height:62vh}
+@media (min-width:760px){#fiche{left:auto;width:430px}#panneau{right:auto;width:430px}}
+h3{margin:0 0 6px;font-size:16px;display:flex;gap:8px;align-items:flex-start}
+h3 span{flex:1}
+h4{margin:10px 0 4px;font-size:14px}
+.x{border:0;background:var(--ligne);border-radius:8px;padding:2px 9px;font-size:16px;color:var(--txt)}
+.l{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;border-bottom:1px solid var(--ligne);font-size:13.5px}
 .sub{color:var(--doux);font-size:12.5px}
 .verdict{margin:8px 0;padding:8px 10px;border-radius:10px;font-size:13.5px}
 .v-op{background:#fff3e0;color:#7a3e00}.v-ok{background:#e8f5e9;color:#1b5e20}.v-fr{background:#e3f2fd;color:#0d47a1}
 @media (prefers-color-scheme:dark){.v-op{background:#3d2a12;color:#ffcc80}.v-ok{background:#16301a;color:#a5d6a7}.v-fr{background:#132a3d;color:#90caf9}}
 label{display:block;font-size:12px;color:var(--doux);margin-top:8px}
-input,select,textarea{width:100%;font:inherit;font-size:15px;padding:7px 8px;border:1px solid var(--ligne);border-radius:8px;background:var(--carte);color:var(--txt)}
+input,select{width:100%;font:inherit;font-size:15px;padding:7px 8px;border:1px solid var(--ligne);border-radius:8px;background:var(--carte);color:var(--txt)}
+input[type=range]{padding:0;border:0}
 .btns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
 .btn{border:0;border-radius:9px;padding:9px 6px;font-size:14px;background:var(--vert2);color:#fff}
-.btn.s{background:var(--ligne);color:var(--txt)}.btn.r{background:#c62828}
+.btn.s{background:var(--ligne);color:var(--txt)}.btn.r{background:#c62828}.btn.o{background:#e65100}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:4px}
+.seg button,.tg{border:1px solid var(--ligne);border-radius:8px;padding:7px 4px;font-size:13px;background:var(--carte);color:var(--txt)}
+.seg button.on,.tg.on{background:var(--vert2);color:#fff;border-color:var(--vert2)}
+.grille{display:grid;grid-template-columns:repeat(2,1fr);gap:5px;margin-top:4px}
 #joy{position:fixed;left:18px;bottom:calc(24px + env(safe-area-inset-bottom));width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.35);border:2px solid rgba(255,255,255,.8);z-index:4;display:none;touch-action:none}
 #joy i{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(27,94,32,.85)}
-#msg{position:fixed;top:calc(130px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:7;background:rgba(0,0,0,.8);color:#fff;padding:8px 14px;border-radius:10px;font-size:14px;display:none;max-width:90%;text-align:center}
+#msg{position:fixed;top:140px;left:50%;transform:translateX(-50%);z-index:7;background:rgba(0,0,0,.82);color:#fff;padding:8px 14px;border-radius:10px;font-size:14px;display:none;max-width:90%;text-align:center}
 #charge{position:fixed;inset:0;z-index:8;display:flex;align-items:center;justify-content:center;background:var(--fond);font-size:15px;color:var(--doux);flex-direction:column;gap:8px}
 #charge b{display:block;width:180px;height:6px;border-radius:3px;background:var(--ligne);overflow:hidden}#charge b i{display:block;height:100%;width:0;background:var(--vert2)}
+.res{max-height:34vh;overflow:auto}
+.res .l{cursor:pointer}
 </style>
 </head>
 <body>
 <header><a href="index.html">← Pilotage</a><h1>Surface de vente 3D</h1><button id="aide">?</button></header>
 <div id="cmd"></div>
+<div id="bandeau"></div>
 <canvas id="cv"></canvas>
 <div id="joy"><i></i></div>
 <div id="leg" onclick="this.classList.toggle('min')"></div>
+<div id="panneau"></div>
 <div id="fiche"></div>
 <div id="msg"></div>
 <div id="charge"><span>Chargement de la maquette…</span><b><i id="pc"></i></b></div>
 <script type="module">
 'use strict';
-import * as T from './moteur3d-2.js';
-const {GLTFLoader,OrbitControls,MeshoptDecoder,DRACOLoader}=T;
-const QUAL=(()=>{try{return localStorage.getItem('p3d_q2')||'hd'}catch(e){return 'hd'}})();
+import * as T from './moteur3d-3.js';
+const {GLTFLoader,OrbitControls,DRACOLoader,computeBoundsTree,acceleratedRaycast}=T;
+T.BufferGeometry.prototype.computeBoundsTree=computeBoundsTree;T.Mesh.prototype.raycast=acceleratedRaycast;
+const V3D='3.0';
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -71,16 +86,21 @@ const URL_DEF='https://script.google.com/macros/s/AKfycbyQvb6qxIQ9Z1Ah97F7UouUwm
 const cfg=()=>({url:ls.get('pil_url')||URL_DEF,code:ls.get('pil_code')||''});
 function msg(t,ms){const m=$('#msg');m.textContent=t;m.style.display='block';clearTimeout(msg.t);msg.t=setTimeout(()=>m.style.display='none',ms||2400)}
 
-/* ---------- Données ---------- */
+/* ---------- Données partagées (mêmes clés que le plan 2D) ---------- */
 let D=null;try{D=JSON.parse(ls.get('pil_cache')||'null')}catch(e){}
 let ETAT={};try{ETAT=JSON.parse(ls.get('pil_etat')||'{}')}catch(e){}
-async function etatGet(){const c=cfg();if(!c.code)return;try{const r=await fetch(c.url,{method:'POST',body:JSON.stringify({code:c.code,action:'etat_get'})});const j=await r.json();if(j.ok){ETAT=j.etat||{};ls.set('pil_etat',JSON.stringify(ETAT));majObjets();majNotes()}}catch(e){}}
+async function etatGet(){const c=cfg();if(!c.code)return;try{const r=await fetch(c.url,{method:'POST',body:JSON.stringify({code:c.code,action:'etat_get'})});const j=await r.json();if(j.ok){ETAT=j.etat||{};ls.set('pil_etat',JSON.stringify(ETAT));toutAppliquer()}}catch(e){}}
 async function etatSet(k,v){ETAT[k]=v;ls.set('pil_etat',JSON.stringify(ETAT));const c=cfg();if(!c.code){msg('Enregistré sur cet appareil seulement (code non configuré)');return false}
   try{const r=await fetch(c.url,{method:'POST',body:JSON.stringify({code:c.code,action:'etat_set',cle:k,valeur:v})});const j=await r.json();return !!j.ok}catch(e){return false}}
-const plan2=()=>{try{return JSON.parse(ETAT.plan2||'{}')}catch(e){return {}}};
-const objEtat=()=>{try{return JSON.parse(ETAT.plan3d_obj||'{}')}catch(e){return {}}};
+const jget=k=>{try{return JSON.parse(ETAT[k]||'{}')}catch(e){return {}}};
+const plan2=()=>jget('plan2'),objEtat=()=>jget('plan3d_obj'),maqEtat=()=>jget('plan3d_maq'),repEtat=()=>jget('plan3d_rep');
+const _sv={};function sauverCle(k,obj,txt){ETAT[k]=JSON.stringify(obj);ls.set('pil_etat',JSON.stringify(ETAT));clearTimeout(_sv[k]);_sv[k]=setTimeout(async()=>{const ok=await etatSet(k,ETAT[k]);msg(ok?(txt||'Enregistré (visible sur tous vos appareils)'):'Gardé sur cet appareil (réseau)')},600)}
 
-let PLAN=null,ZON=null,GR=null; // GR : grille 4 px/m (passage, marchable)
+/* ---------- Réglages d'affichage (par appareil) ---------- */
+const REG=Object.assign({plafond:'auto',murs:'visibles',enseignes:true,mobilier:true,coupe:5.6,fluide:false,rep:{tg:true,bacs:true,bdc:true,ecr:true,ent:true}},(()=>{try{return JSON.parse(ls.get('p3d_reg')||'{}')}catch(e){return {}}})());
+const sauverReg=()=>ls.set('p3d_reg',JSON.stringify(REG));
+
+let PLAN=null,ZON=null,GR=null,INFO=[];
 const BB=[9,-39,70,2],RES=4,GW=(BB[2]-BB[0])*RES,GH=(BB[3]-BB[1])*RES;
 const cellOf=(x,z)=>[Math.floor((x-BB[0])*RES),Math.floor((z-BB[1])*RES)];
 function marchable(x,z){if(!GR)return true;const [i,j]=cellOf(x,z);if(i<0||j<0||i>=GW||j>=GH)return false;return GR.walk[j*GW+i]>0}
@@ -97,90 +117,159 @@ function margeLab(nom){if(!D||!D.labos)return null;if(!LABS)LABS=D.labos.map(z=>
   if(!vus.size)L.split(' ').filter(w=>w.length>=4&&!MOTS_VIDES.has(w)).forEach(w=>{const a=ALIAS[w];if(a){pr(LABS.find(z=>z.n.startsWith(a)));return}pr(LABS.find(z=>z.n.startsWith(w+' ')||z.n===w)||LABS.find(z=>(' '+z.n+' ').includes(' '+w+' ')))});
   return vus.size?[...vus.values()].reduce((s,v)=>s+v,0):null}
 
-/* ---------- Scène ---------- */
+/* ---------- Scène et rendu ---------- */
 const cv=$('#cv');let R;
 try{R=new T.WebGLRenderer({canvas:cv,antialias:true,powerPreference:'high-performance'})}catch(e){$('#charge').innerHTML='Votre appareil ne peut pas afficher la 3D (WebGL indisponible). Le plan 2D reste disponible dans Pilotage.';throw e}
-R.setPixelRatio(Math.min(devicePixelRatio||1,1.75));R.outputColorSpace=T.SRGBColorSpace;
+R.outputColorSpace=T.SRGBColorSpace;R.localClippingEnabled=true;
+const PR_MAX=()=>REG.fluide?1:Math.min(devicePixelRatio||1,1.75);let prBas=false;
+function resolution(bas){if(bas===prBas)return;prBas=bas;R.setPixelRatio(bas?Math.min(1,PR_MAX()):PR_MAX());taille()}
+R.setPixelRatio(PR_MAX());
 const S=new T.Scene();S.background=new T.Color(0xdfe6e2);
 const cam=new T.PerspectiveCamera(55,1,0.1,400);
-S.add(new T.HemisphereLight(0xffffff,0x8a8f8c,2.4));const sol=new T.DirectionalLight(0xffffff,1.1);sol.position.set(20,40,10);S.add(sol);
+S.add(new T.HemisphereLight(0xffffff,0x9a9f9c,2.2));const sol=new T.DirectionalLight(0xffffff,1.0);sol.position.set(20,40,10);S.add(sol);
 const ctl=new OrbitControls(cam,cv);ctl.enableDamping=true;ctl.dampingFactor=.12;
 let sale=true;const salir=()=>{sale=true};ctl.addEventListener('change',salir);
-function taille(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();salir()}addEventListener('resize',taille);taille();
-const C={x:(BB[0]+56)/2,z:-22}; // centre de la zone de vente
+/* résolution dynamique : plus basse pendant le mouvement, pleine à l'arrêt (technique standard des visionneuses 3D) */
+let _finMvt=null;ctl.addEventListener('start',()=>{clearTimeout(_finMvt);resolution(true)});ctl.addEventListener('end',()=>{clearTimeout(_finMvt);_finMvt=setTimeout(()=>{resolution(false);salir()},350)});
+function taille(){const w=innerWidth,h=innerHeight;R.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();salir()}addEventListener('resize',()=>{taille();placerVue()});taille();
+const C={x:(BB[0]+56)/2,z:-22};
+const COUPE=new T.Plane(new T.Vector3(0,-1,0),5.6);
 
 const groupes={};const G=n=>{if(!groupes[n]){groupes[n]=new T.Group();groupes[n].name=n;S.add(groupes[n])}return groupes[n]};
-let MAQ=null;const cibles=[]; // objets « cliquables »
+let MAQ=null;const OBJM=new Map(); // id → {node,info,base:{x,z,r}}
 
-/* Étiquettes (sprites) */
 function etiquette(txt,{taille=.45,fond='rgba(255,255,255,.92)',coul='#1d2622',gras=true}={}){
   const c=document.createElement('canvas'),x=c.getContext('2d'),f=(gras?'700 ':'500 ')+'44px -apple-system,Segoe UI,Roboto,sans-serif';x.font=f;const w=Math.ceil(x.measureText(txt).width)+28;c.width=w;c.height=64;
-  x.font=f;x.fillStyle=fond;const r=14;x.beginPath();x.roundRect?x.roundRect(0,0,w,64,r):x.rect(0,0,w,64);x.fill();x.fillStyle=coul;x.textBaseline='middle';x.fillText(txt,14,34);
+  x.font=f;x.fillStyle=fond;x.beginPath();x.roundRect?x.roundRect(0,0,w,64,14):x.rect(0,0,w,64);x.fill();x.fillStyle=coul;x.textBaseline='middle';x.fillText(txt,14,34);
   const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;t.minFilter=T.LinearFilter;
   const s=new T.Sprite(new T.SpriteMaterial({map:t,depthTest:false,transparent:true}));s.scale.set(taille*w/64,taille,1);s.renderOrder=10;return s}
 
-/* ---------- Couches ---------- */
-const COUCHES=[['univers','🎨 Univers'],['passage','🚶 Passage'],['marge','🔥 Marge'],['reperes','📍 Repères'],['labos','🏷️ Labos'],['bf','🖤 Black Friday'],['objets','🧩 Objets'],['notes','📝 Notes']];
+/* ---------- Maquette : affichage par catégorie, coupe, murs ---------- */
+const PLAFONDS=['plafonds','technique'];
+let MAT_MURS=[];
+function plafondVisible(){return REG.plafond==='oui'||(REG.plafond==='auto'&&mode==='visite')}
+function appliquerMaquette(){if(!MAQ)return;const E=maqEtat();
+  for(const [id,o] of OBJM){const e=E[id]||{};let v=!e.del&&!e.cache;
+    if(PLAFONDS.includes(id))v=v&&plafondVisible();
+    else if(id==='murs')v=v&&REG.murs!=='masques';
+    else if(id==='enseignes')v=v&&REG.enseignes;
+    else if(o.info.cat==='meuble'||o.info.cat==='objet')v=v&&REG.mobilier;
+    o.node.visible=v;
+    if(o.info.cat==='meuble'||o.info.cat==='objet'||o.copie){o.node.position.set(e.x??o.base.x,0,e.z??o.base.z);o.node.rotation.y=((e.r??0))*Math.PI/180}}
+  MAT_MURS.forEach(m=>{const t=REG.murs==='transparents';m.transparent=t;m.opacity=t?.22:1;m.depthWrite=!t;m.needsUpdate=true});
+  COUPE.constant=REG.coupe;majCopies();majSel();salir()}
+/* Copies (éléments dupliqués) */
+function majCopies(){const E=maqEtat();
+  for(const [id,o] of [...OBJM])if(o.copie&&(!E[id]||E[id].del)){o.node.parent&&o.node.parent.remove(o.node);OBJM.delete(id)}
+  for(const [id,e] of Object.entries(E)){if(!e.copie_de||e.del||OBJM.has(id))continue;const src=OBJM.get(e.copie_de);if(!src)continue;
+    const n=src.node.clone();n.traverse(m=>{m.userData={type:'maq',id}});n.userData={type:'maq',id};MAQ.add(n);
+    OBJM.set(id,{node:n,info:Object.assign({},src.info,{id,nom:e.nom||src.info.nom+' (copie)'}),base:{x:e.x,z:e.z,r:0},copie:true});n.position.set(e.x,0,e.z);n.rotation.y=(e.r||0)*Math.PI/180;n.visible=REG.mobilier}}
+const nomObj=id=>{const o=OBJM.get(id);const e=maqEtat()[id]||{};return e.nom||(o?o.info.nom:id)};
+
+/* ---------- Couches d'analyse ---------- */
+const COUCHES=[['univers','🎨 Univers'],['passage','🚶 Passage'],['marge','🔥 Marge'],['reperes','📍 Repères'],['labos','🏷️ Labos'],['notes','📝 Notes'],['bf','🖤 Black Friday'],['objets','🧩 Objets posés']];
 let actives=(()=>{try{return JSON.parse(ls.get('p3d_couches')||'null')||['univers','reperes']}catch(e){return ['univers','reperes']}})();
-let mode='dessus';
+let mode='dessus',edition=false,panneau=null;
 function barre(){
-  const m=[['dessus','⬆ Dessus'],['survol','🌀 Survol'],['visite','🚶‍♂️ Visite']];
-  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="mode ${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button data-a="ajout">＋ Objet</button>`+`<button data-a="dep">🔁 À déplacer</button>`+`<button data-a="ecr">📺 Écrans</button>`+`<button data-a="qual">${QUAL==='hd'?'Maquette : détaillée':'Maquette : légère'}</button>`+
-    COUCHES.map(([k,t])=>`<button class="${actives.includes(k)?'on':''}" data-c="${k}">${t}</button>`).join('');
+  const m=[['dessus','⬆ Dessus'],['survol','🌀 Survol'],['visite','🚶 Visite']];
+  $('#cmd').innerHTML=m.map(([k,t])=>`<button class="${mode===k?'on':''}" data-m="${k}">${t}</button>`).join('')+`<button class="ed ${edition?'on':''}" data-a="edit">✏️ Modifier</button>`+
+   [['maq','🧱 Maquette'],['ana','🗺️ Analyses'],['rep','📍 Repères'],['ajout','＋ Ajouter']].map(([k,t])=>`<button class="pan ${panneau===k?'on':''}" data-p="${k}">${t}</button>`).join('');
   $('#cmd').querySelectorAll('button').forEach(b=>b.onclick=()=>{
     if(b.dataset.m){changerMode(b.dataset.m);return}
-    if(b.dataset.a==='ajout'){ficheAjout();return}
-    if(b.dataset.a==='dep'){ficheDeplacer();return}
-    if(b.dataset.a==='ecr'){ficheEcrans();return}
-    if(b.dataset.a==='qual'){try{localStorage.setItem('p3d_q2',QUAL==='hd'?'leger':'hd')}catch(e){}location.reload();return}
-    const k=b.dataset.c;if(actives.includes(k))actives=actives.filter(x=>x!==k);else{actives.push(k);if(k==='passage')actives=actives.filter(x=>x!=='marge');if(k==='marge')actives=actives.filter(x=>x!=='passage')}
-    ls.set('p3d_couches',JSON.stringify(actives));appliquerCouches();barre()});
+    if(b.dataset.a==='edit'){basculerEdition();return}
+    const p=b.dataset.p;if(p==='ajout'){fermerPanneau();ficheAjout();return}
+    if(panneau===p)fermerPanneau();else ouvrirPanneau(p)});
   placerVue()}
-function placerVue(){const h=$('#cmd').getBoundingClientRect().bottom;$('#msg').style.top=(h+8)+'px'}
+function placerVue(){const h=$('#cmd').getBoundingClientRect().bottom;$('#msg').style.top=(h+(edition?34:8))+'px';$('#panneau').style.top=(h+6+(edition?28:0))+'px';const b=$('#bandeau');b.style.top=h+'px'}
+function basculerEdition(){edition=!edition;sel=null;selRep=null;fermer();const b=$('#bandeau');b.style.display=edition?'block':'none';
+  b.textContent='✏️ Mode modification : touchez un meuble, un plafond, un mur ou un repère. Pour déplacer : touchez-le puis faites-le glisser.';
+  if(edition&&!actives.includes('reperes')){actives.push('reperes');appliquerCouches()}barre();majSel()}
+function fermerPanneau(){panneau=null;$('#panneau').style.display='none';barre();appliquerCouches()}
+function ouvrirPanneau(p){panneau=p;$('#fiche').style.display='none';const P=$('#panneau');P.style.display='block';$('#leg').style.display='none';barre();remplirPanneau()}
+const tg=(k,on,t)=>`<button class="tg ${on?'on':''}" data-t="${k}">${t}</button>`;
+const seg=(k,val,opts)=>`<div class="seg">${opts.map(([v,t])=>`<button class="${val===v?'on':''}" data-s="${k}" data-v="${v}">${t}</button>`).join('')}</div>`;
+function remplirPanneau(){const P=$('#panneau');let h='';
+  if(panneau==='maq'){h=`<h3><span>🧱 Maquette</span><button class="x">✕</button></h3>
+   <label>Plafond (dalles de la réserve, gaines, clims)</label>${seg('plafond',REG.plafond,[['auto','Auto'],['oui','Affiché'],['non','Masqué']])}
+   <div class="sub">Auto : masqué vu d'en haut, affiché quand vous marchez dans le magasin (vue « maison de poupée »).</div>
+   <label>Murs, cloisons et vitrines</label>${seg('murs',REG.murs,[['visibles','Visibles'],['transparents','Transparents'],['masques','Masqués']])}
+   <label>Hauteur de coupe : <b id="vc">${REG.coupe>=5.5?'tout':REG.coupe.toFixed(1).replace('.',',')+' m'}</b></label>
+   <input type="range" id="coupe" min="0.6" max="5.6" step="0.1" value="${REG.coupe}">
+   <div class="seg">${[[5.6,'Tout'],[2.3,'Sous le plafond'],[1.3,'Plan à 1,30 m']].map(([v,t])=>`<button class="${Math.abs(REG.coupe-v)<.05?'on':''}" data-c="${v}">${t}</button>`).join('')}</div>
+   <label>Afficher</label><div class="grille">${tg('enseignes',REG.enseignes,'🪧 Enseignes')}${tg('mobilier',REG.mobilier,'🗄️ Meubles')}</div>
+   <label>Fluidité</label>${seg('fluide',REG.fluide?'1':'0',[['0','Image nette'],['1','Priorité fluidité']])}`}
+  if(panneau==='ana'){h=`<h3><span>🗺️ Analyses</span><button class="x">✕</button></h3><div class="grille">${['univers','passage','marge','notes'].map(k=>tg('c_'+k,actives.includes(k),COUCHES.find(c=>c[0]===k)[1])).join('')}</div>
+   <div class="btns" style="grid-template-columns:1fr"><button class="btn s" id="pdep">🔁 Quels laboratoires déplacer (marge × passage)</button></div>`}
+  if(panneau==='rep'){const nb=Object.values(repEtat()).filter(x=>x.del).length;h=`<h3><span>📍 Repères</span><button class="x">✕</button></h3>
+   <div class="grille">${tg('c_reperes',actives.includes('reperes'),'📍 Tous les repères')}${tg('c_labos',actives.includes('labos'),'🏷️ Laboratoires')}
+   ${tg('r_tg',REG.rep.tg,'🟪 Têtes de gondole')}${tg('r_bacs',REG.rep.bacs,'🟧 Bacs soldeurs')}${tg('r_bdc',REG.rep.bdc,'🟫 Barres de charge')}${tg('r_ecr',REG.rep.ecr,'🟦 Écrans')}${tg('r_ent',REG.rep.ent,'🟩 Entrées, comptoirs')}
+   ${tg('c_bf',actives.includes('bf'),'🖤 Black Friday')}${tg('c_objets',actives.includes('objets'),'🧩 Objets posés')}</div>
+   <div class="btns" style="grid-template-columns:1fr 1fr"><button class="btn s" id="pecr">📺 Placer mes écrans</button><button class="btn o" id="pedit">✏️ Corriger un repère</button></div>
+   ${nb?`<div class="sub" style="margin-top:6px">${nb} repère(s) supprimé(s) : voir ✏️ Modifier › Corrections pour les rétablir.</div>`:''}`}
+  P.innerHTML=h;P.querySelector('.x').onclick=fermerPanneau;
+  P.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s,v=b.dataset.v;if(k==='fluide'){REG.fluide=v==='1';R.setPixelRatio(PR_MAX());prBas=false;taille()}else REG[k]=v;sauverReg();appliquerMaquette();remplirPanneau()});
+  P.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{REG.coupe=+b.dataset.c;sauverReg();appliquerMaquette();remplirPanneau()});
+  const cp=$('#coupe');if(cp){cp.oninput=()=>{REG.coupe=+cp.value;$('#vc').textContent=REG.coupe>=5.5?'tout':REG.coupe.toFixed(1).replace('.',',')+' m';appliquerMaquette()};cp.onchange=()=>{sauverReg();remplirPanneau()}}
+  P.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const k=b.dataset.t;
+    if(k.startsWith('c_')){const c=k.slice(2);if(actives.includes(c))actives=actives.filter(x=>x!==c);else{actives.push(c);if(c==='passage')actives=actives.filter(x=>x!=='marge');if(c==='marge')actives=actives.filter(x=>x!=='passage')}ls.set('p3d_couches',JSON.stringify(actives));appliquerCouches()}
+    else if(k.startsWith('r_')){REG.rep[k.slice(2)]=!REG.rep[k.slice(2)];sauverReg();majReperes()}
+    else{REG[k]=!REG[k];sauverReg();appliquerMaquette()}
+    remplirPanneau()});
+  const d=$('#pdep');if(d)d.onclick=()=>{fermerPanneau();ficheDeplacer()};
+  const e=$('#pecr');if(e)e.onclick=()=>{fermerPanneau();ficheEcrans()};
+  const f=$('#pedit');if(f)f.onclick=()=>{fermerPanneau();if(!edition)basculerEdition()}}
 function appliquerCouches(){
   for(const [k] of COUCHES)if(groupes[k])groupes[k].visible=actives.includes(k);
   if(groupes.sol){groupes.sol.visible=actives.includes('passage')||actives.includes('marge');groupes.sol.children.forEach(o=>{if(o.geometry&&o.geometry.type==='ConeGeometry')o.visible=actives.includes('passage')})}
   if(SOLTEX&&actives.includes('passage'))peindreSol('passage');else if(SOLTEX&&actives.includes('marge'))peindreSol('marge');
   const L=[];
-  if(actives.includes('passage'))L.push(`<b>Passage des clients</b><div style="display:flex;gap:10px;flex-wrap:wrap;margin:3px 0"><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#e53935;margin-right:3px"></i>Très passant</span><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fbc02d;margin-right:3px"></i>Passant</span><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#90caf9;margin-right:3px"></i>Peu passant</span></div><span class="sub">Flèches vertes : de l'entrée A aux comptoirs · flèches bleues : de l'entrée B aux comptoirs. Estimation par le chemin le plus court, à recaler par un comptage.</span>`);
+  if(actives.includes('passage'))L.push(`<b>Passage des clients</b><div style="display:flex;gap:10px;flex-wrap:wrap;margin:3px 0"><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#e53935;margin-right:3px"></i>Très passant</span><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fbc02d;margin-right:3px"></i>Passant</span><span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#90caf9;margin-right:3px"></i>Peu passant</span></div><span class="sub">Flèches vertes : entrée A → comptoirs · bleues : entrée B → comptoirs. Estimation par le chemin le plus court, à recaler par un comptage.</span>`);
   if(actives.includes('marge'))L.push(`<b>Marge 12 mois des labos présents</b><div class="g" style="background:linear-gradient(90deg,#2166ac,#67a9cf,#fee08b,#f46d43,#b2182b)"></div><span class="sub">❄️ peu de marge · 🔥 beaucoup ${D&&D.labos?'':'— données Vindilis non chargées : ouvrez Pilotage une fois'}</span>`);
   if(actives.includes('univers')&&ZON)L.push(Object.entries(ZON.couleurs).map(([c,n])=>`<span style="display:inline-block;margin-right:8px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#${c};margin-right:3px"></i>${esc(n)}</span>`).join(''));
-  $('#leg').innerHTML=L.map(x=>'<div>'+x+'</div>').join('<div style="height:6px"></div>');$('#leg').style.display=L.length&&mode!=='visite'&&$('#fiche').style.display!=='block'?'block':'none';salir()}
+  $('#leg').innerHTML=L.map(x=>'<div>'+x+'</div>').join('<div style="height:6px"></div>');$('#leg').style.display=L.length&&mode!=='visite'&&$('#fiche').style.display!=='block'&&!panneau?'block':'none';salir()}
 
-/* Univers : bandes colorées le long des linéaires du zoning */
+/* Univers : bandes colorées au sol */
 function construireUnivers(){const g=G('univers');
   ZON.U.forEach(([c,p])=>{const sh=new T.Shape(p.map(([x,y])=>new T.Vector2(x,-y)));const geo=new T.ExtrudeGeometry(sh,{depth:.06,bevelEnabled:false});geo.rotateX(-Math.PI/2);
-    const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:'#'+c,transparent:true,opacity:.75,depthWrite:false}));m.position.y=.03;m.renderOrder=2;m.userData={type:'univers',nom:ZON.couleurs[c]||''};g.add(m)});
-  ZON.UL.forEach(([n,[x,y]])=>{const s=etiquette(n.replace('Beaute','Beauté').replace('Bebe','Bébé').replace('Hygiene','Hygiène').replace('Libre Acces','Libre accès').replace('Veterinaire','Vétérinaire'),{taille:.55});s.position.set(x,2.5,y);g.add(s)})}
-/* Repères : TG, bacs, barres de charge, écrans */
-const REP=[];
-function construireReperes(){const g=G('reperes');
-  const ajout=(k,t,x,z,coul,h=2.05)=>{const s=etiquette(t,{taille:.38,fond:coul,coul:'#fff'});s.position.set(x,h,z);s.userData={type:'repere',k};g.add(s);REP.push({k,x,z,s})};
-  ZON.TG.forEach(([n,[x,y]])=>ajout(n.replace(/\s+/g,' ').trim(),n.replace(/\s+/g,' ').trim(),x,y,'#6a1b9a'));
-  ZON.BACS.forEach(([n,s,[x,y]])=>ajout(n,'Bacs '+n.replace('Bacs soldeurs ',''),x,y,'#ef6c00',1.3));
-  ZON.BDC.forEach(([n,s,[x,y]])=>ajout(n,'BDC '+n.replace('Barres de charge ',''),x,y,'#5d4037',1.9));
-  ZON.ECR.forEach(([x,y],i)=>ajout('Écran zoning '+(i+1),'▣ Écran '+(i+1),x,y,'#0d47a1',2.3));
-  [['Entrée A',13.1,-35.6],['Entrée B',18.5,-12.2],['Comptoirs',54.6,-20.1]].forEach(([n,x,z])=>ajout(n,n,x,z,'#1b5e20',2.7))}
-function construireLabos(){const g=G('labos');ZON.L.forEach(([n,[x,y]],i)=>{const s=etiquette(n,{taille:.26,gras:false});s.position.set(x,1.85,y);s.userData={type:'labo',n};g.add(s)})}
+    const m=new T.Mesh(geo,new T.MeshBasicMaterial({color:'#'+c,transparent:true,opacity:.7,depthWrite:false}));m.position.y=.03;m.renderOrder=2;m.raycast=()=>{};g.add(m)});
+  ZON.UL.forEach(([n,[x,y]])=>{const s=etiquette(n.replace('Beaute','Beauté').replace('Bebe','Bébé').replace('Hygiene','Hygiène').replace('Libre Acces','Libre accès').replace('Veterinaire','Vétérinaire'),{taille:.55});s.position.set(x,2.5,y);s.raycast=()=>{};g.add(s)})}
 
-/* Sol coloré (passage / marge) */
-let SOLTEX=null,SOLCV=null,MARGECV=null;
-/* Chemins des clients : flèches au sol de chaque entrée vers les comptoirs */
-async function construireChemins(){let C=null;try{C=await (await fetch('chemins-1.json')).json()}catch(e){return}
+/* ---------- Repères (TG, bacs, barres de charge, écrans, entrées) et étiquettes labos : tous modifiables ---------- */
+let REP=[];const REP_COUL={tg:'#6a1b9a',bacs:'#ef6c00',bdc:'#5d4037',ecr:'#0d47a1',ent:'#1b5e20'};
+/* Bacs soldeurs du zoning Grellier (févr. 2025) : signalés absents par le titulaire le 30/10/2026 → masqués par défaut, rétablissables */
+const BACS_ABSENTS=true;
+function repDefs(){const L=[];
+  ZON.TG.forEach(([n,[x,y]])=>{const k=n.replace(/\s+/g,' ').trim();L.push({k,t:'tg',nom:k,x,z:y,h:2.05})});
+  ZON.BACS.forEach(([n,s,[x,y]])=>L.push({k:n,t:'bacs',nom:'Bacs '+n.replace('Bacs soldeurs ',''),x,z:y,h:1.3,defDel:BACS_ABSENTS}));
+  ZON.BDC.forEach(([n,s,[x,y]])=>L.push({k:n,t:'bdc',nom:'BDC '+n.replace('Barres de charge ',''),x,z:y,h:1.9}));
+  ZON.ECR.forEach(([x,y],i)=>L.push({k:'Écran zoning '+(i+1),t:'ecr',nom:'▣ Écran '+(i+1),x,z:y,h:2.3}));
+  [['Entrée A',13.1,-35.6],['Entrée B',18.5,-12.2],['Comptoirs',54.6,-20.1]].forEach(([n,x,z])=>L.push({k:n,t:'ent',nom:n,x,z,h:2.7}));
+  ZON.L.forEach(([n,[x,y]],i)=>L.push({k:'L:'+i,t:'labo',nom:n,x,z:y,h:1.85}));
+  Object.entries(repEtat()).forEach(([k,e])=>{if(k.startsWith('N:')&&!e.del)L.push({k,t:e.t||'tg',nom:e.nom||'Repère',x:e.x,z:e.z,h:e.t==='bacs'?1.3:2.05,cree:1})});
+  return L}
+function majReperes(){const gR=G('reperes'),gL=G('labos');[gR,gL].forEach(g=>{while(g.children.length){const c=g.children[0];g.remove(c);c.material&&c.material.map&&c.material.map.dispose()}});
+  const E=repEtat();REP=[];
+  repDefs().forEach(d=>{const e=E[d.k]||{};const del=e.del??d.defDel??false;const r=Object.assign({},d,{nom:e.nom||d.nom,x:e.x??d.x,z:e.z??d.z,del,modif:!!E[d.k]});REP.push(r);
+    if(del)return;if(d.t!=='labo'&&!REG.rep[d.t])return;
+    const s=d.t==='labo'?etiquette(r.nom,{taille:.26,gras:false}):etiquette(r.nom,{taille:.38,fond:REP_COUL[d.t],coul:'#fff'});s.position.set(r.x,d.h,r.z);s.userData={type:'repere',k:d.k};r.s=s;(d.t==='labo'?gL:gR).add(s)});
+  echelleVisite();majNotes();majSel();appliquerCouches()}
+
+/* Sol coloré (passage / marge) et chemins */
+let SOLTEX=null,SOLCV=null;
+async function construireChemins(){let Cm=null;try{Cm=await (await fetch('chemins-1.json')).json()}catch(e){return}
   const g=G('sol');const geo=new T.ConeGeometry(.32,.9,3);geo.rotateX(Math.PI/2);
-  [['A',0x2e7d32],['B',0x1565c0]].forEach(([k,col])=>{const P=C[k]||[];const mt=new T.MeshBasicMaterial({color:col});
+  [['A',0x2e7d32],['B',0x1565c0]].forEach(([k,col])=>{const P=Cm[k]||[];const mt=new T.MeshBasicMaterial({color:col});
     for(let i=0;i<P.length-1;i++){const a=P[i],b=P[i+1],d=Math.hypot(b[0]-a[0],b[1]-a[1]);const n=Math.max(1,Math.round(d/1.6));
-      for(let j=0;j<n;j++){const t=(j+.5)/n,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;const c=new T.Mesh(geo,mt);c.position.set(x,.12,z);c.lookAt(b[0],.12,b[1]);c.renderOrder=3;g.add(c)}}})
+      for(let j=0;j<n;j++){const t=(j+.5)/n,x=a[0]+(b[0]-a[0])*t,z=a[1]+(b[1]-a[1])*t;const c=new T.Mesh(geo,mt);c.position.set(x,.12,z);c.lookAt(b[0],.12,b[1]);c.renderOrder=3;c.raycast=()=>{};g.add(c)}}})
   appliquerCouches()}
 function construireSol(){SOLCV=document.createElement('canvas');SOLCV.width=GW;SOLCV.height=GH;SOLTEX=new T.CanvasTexture(SOLCV);SOLTEX.colorSpace=T.SRGBColorSpace;SOLTEX.magFilter=T.LinearFilter;
   const geo=new T.PlaneGeometry(BB[2]-BB[0],BB[3]-BB[1]);geo.rotateX(-Math.PI/2);
-  const m=new T.Mesh(geo,new T.MeshBasicMaterial({map:SOLTEX,transparent:true,depthWrite:false,opacity:.85}));m.position.set((BB[0]+BB[2])/2,.05,(BB[1]+BB[3])/2);m.renderOrder=2;G('sol').add(m)}
-const ramp=(S,t)=>{for(let i=1;i<S.length;i++)if(t<=S[i][0]){const u=(t-S[i-1][0])/(S[i][0]-S[i-1][0]),a=S[i-1][1],b=S[i][1];return a.map((v,k)=>Math.round(v+(b[k]-v)*u))}return S[S.length-1][1]};
-const R_PASS=[[0,[43,11,58]],[.35,[163,37,107]],[.7,[243,122,44]],[1,[253,236,160]]];
+  const m=new T.Mesh(geo,new T.MeshBasicMaterial({map:SOLTEX,transparent:true,depthWrite:false,opacity:.85}));m.position.set((BB[0]+BB[2])/2,.05,(BB[1]+BB[3])/2);m.renderOrder=2;m.raycast=()=>{};G('sol').add(m)}
+const ramp=(Sx,t)=>{for(let i=1;i<Sx.length;i++)if(t<=Sx[i][0]){const u=(t-Sx[i-1][0])/(Sx[i][0]-Sx[i-1][0]),a=Sx[i-1][1],b=Sx[i][1];return a.map((v,k)=>Math.round(v+(b[k]-v)*u))}return Sx[Sx.length-1][1]};
 const R_MARGE=[[0,[33,102,172]],[.35,[103,169,207]],[.55,[254,224,139]],[.75,[244,109,67]],[1,[178,24,43]]];
 let MARGEF=null;
 function calculMarge(){if(MARGEF!==null)return MARGEF;MARGEF=false;if(!D||!D.labos)return MARGEF;const cnt={};ZON.L.forEach(x=>{const k=x[0].toUpperCase();cnt[k]=(cnt[k]||0)+1});
-  const pts=ZON.L.map(x=>{const m=margeLab(x[0]);return {n:x[0],x:x[1][0],y:x[1][1],w:m===null?null:m/cnt[x[0].toUpperCase()]}}).filter(p=>p.w!==null);
+  const pts=ZON.L.map(x=>{const m=margeLab(x[0]);return {x:x[1][0],y:x[1][1],w:m===null?null:m/cnt[x[0].toUpperCase()]}}).filter(p=>p.w!==null);
   const f=new Float32Array(GW*GH),g=new Float32Array(GW*GH),s2=2*2.2*2.2;
   for(let j=0;j<GH;j++)for(let i=0;i<GW;i++){const X=BB[0]+(i+.5)/RES,Y=BB[1]+(j+.5)/RES;let a=0,b=0;for(const p of pts){const dx=X-p.x,dy=Y-p.y,d=dx*dx+dy*dy;if(d>36)continue;const k=Math.exp(-d/s2);a+=k*p.w;b+=k}f[j*GW+i]=a;g[j*GW+i]=b}
   const v=pts.map(p=>{const [i,j]=cellOf(p.x,p.y);return f[Math.max(0,Math.min(GH-1,j))*GW+Math.max(0,Math.min(GW-1,i))]}).sort((a,b)=>a-b);
@@ -191,13 +280,13 @@ function peindreSol(k){const x=SOLCV.getContext('2d'),im=x.createImageData(GW,GH
   if(k==='marge'){const M=calculMarge();if(M)for(let q=0;q<GW*GH;q++){const pres=Math.min(1,M.g[q]*1.4);if(pres<.04){im.data[q*4+3]=0;continue}const t=Math.max(0,Math.min(1,(M.f[q]-M.lo)/((M.hi-M.lo)||1)));const c=ramp(R_MARGE,t);im.data[q*4]=c[0];im.data[q*4+1]=c[1];im.data[q*4+2]=c[2];im.data[q*4+3]=Math.round(210*Math.pow(pres,.7))}}
   x.putImageData(im,0,0);SOLTEX.needsUpdate=true;salir()}
 
-/* ---------- Objets déplaçables (Black Friday + objets ajoutés) ---------- */
+/* ---------- Objets posés (Black Friday + objets ajoutés) ---------- */
 const BF_ARCHE=(()=>{const a=[11.95,-34.35],b=[14.35,-36.75],p=[];for(let i=0;i<11;i++){const t=i/10;p.push([+(a[0]+t*(b[0]-a[0])+.55).toFixed(2),+(0.25+2.35*Math.sin(Math.PI*t)).toFixed(2),+(a[1]+t*(b[1]-a[1])+.55).toFixed(2)])}return p})();
 const BF_DEF=[...BF_ARCHE.map(p=>['grappe','Arche de ballons',p[0],p[1],p[2]]),['geant','Ballon géant',14.9,.95,-35.2],['affiche','Affiche vitrine',10.1,1.5,-34.6],['affiche','Affiche vitrine',13.9,1.5,-38.0],['banderole','Banderole vitrine',9.6,2.2,-34.0],['banderole','Banderole vitrine',11.9,2.2,-36.3],['banderole','Banderole vitrine',14.1,2.2,-38.5],
  ['arche','Arche or TG 1',13.2,2.1,-27.1],['rideau','Rideau doré TG 1',13.2,1.1,-27.3],['affiche','Affiche TG 1',13.2,1.7,-26.9],
- ['ballons2','Ballons bacs 1',17.85,1.25,-23.95],['ballons2','Ballons bacs 2',17.85,1.25,-22.2],['ballons2','Ballons bacs 3',18.48,1.25,-21.2],['ballons2','Ballons bacs 4',18.48,1.25,-19.45],
+ null,null,null,null, /* anciens « ballons bacs 1 à 4 » : retirés (bacs soldeurs absents) */
  ['ballons8','Ballons arbre',36.3,2.0,-16.6],['geant','Ballon géant arbre',36.3,2.85,-16.6],['arche','Arche or entrée B',18.5,2.1,-12.2],['banderole','Banderole entrée B',18.5,2.3,-11.5],['affiche','Affiche entrée B',17.2,1.5,-11.7],
- ['rideau','Rideau comptoir',55.6,.6,-22.6],['rideau','Rideau comptoir',55.6,.6,-17.6],['affiche','Affiche comptoirs',55.3,1.4,-20.1]].map((o,i)=>({id:'bf'+i,bf:1,t:o[0],lib:o[1],x:o[2],h:o[3],z:o[4],r:0}));
+ ['rideau','Rideau comptoir',55.6,.6,-22.6],['rideau','Rideau comptoir',55.6,.6,-17.6],['affiche','Affiche comptoirs',55.3,1.4,-20.1]].map((o,i)=>o&&({id:'bf'+i,bf:1,t:o[0],lib:o[1],x:o[2],h:o[3],z:o[4],r:0})).filter(Boolean);
 const TYPES={grappe:'Grappe de ballons',ballons2:'2 ballons',ballons8:'8 ballons',geant:'Ballon géant',affiche:'Affiche',banderole:'Banderole',arche:'Arche',rideau:'Rideau',ecran:'Écran',plv:'PLV / kakémono',presentoir:'Présentoir de sol',tg:'Tête de gondole mobile',bac:'Bac / panier',entree:'Repère d\'entrée',note:'Repère libre'};
 const AJOUTABLES=['plv','presentoir','tg','bac','ecran','affiche','banderole','geant','ballons8','grappe','note'];
 const mat=c=>new T.MeshLambertMaterial({color:c});
@@ -226,13 +315,12 @@ let OBJ=[];
 function listeObjets(){const E=objEtat(),L=[];BF_DEF.forEach(o=>{const e=E[o.id];if(e&&e.del)return;L.push(Object.assign({},o,e||{}))});Object.entries(E).forEach(([id,e])=>{if(id.startsWith('bf')||e.del)return;L.push(Object.assign({id},e))});return L}
 function majObjets(){['bf','objets'].forEach(n=>{const g=G(n);while(g.children.length)g.remove(g.children[0])});OBJ=listeObjets();
   OBJ.forEach(o=>{const m=maillage(o);const pied=['plv','presentoir','tg','bac','entree'].includes(o.t);m.position.set(o.x,pied?(o.t==='entree'?.06:({plv:1,presentoir:.7,tg:.8,bac:.35})[o.t]):o.h,o.z);m.rotation.y=(o.r||0)*Math.PI/180;
-    if(sel&&sel.id===o.id){const b=new T.BoxHelper(m,0xff1744);m.add(b)}G(o.bf?'bf':'objets').add(m)});appliquerCouches()}
-let _svT=null;function sauverObj(id,patch){const E=objEtat();E[id]=Object.assign(E[id]||{},patch);ETAT.plan3d_obj=JSON.stringify(E);ls.set('pil_etat',JSON.stringify(ETAT));majObjets();
-  clearTimeout(_svT);_svT=setTimeout(async()=>{const ok=await etatSet('plan3d_obj',ETAT.plan3d_obj);msg(ok?'Enregistré (visible sur tous vos appareils)':'Gardé sur cet appareil (réseau)')},700)}
+    if(selPose&&selPose.id===o.id){const b=new T.BoxHelper(m,0xff1744);m.add(b)}G(o.bf?'bf':'objets').add(m)});appliquerCouches()}
+function sauverObj(id,patch){const E=objEtat();E[id]=Object.assign(E[id]||{},patch);sauverCle('plan3d_obj',E);majObjets()}
 
 /* Notes du plan 2D (mêmes clés) affichées en 3D */
 function majNotes(){const g=G('notes');while(g.children.length)g.remove(g.children[0]);const E=plan2();
-  REP.forEach(r=>{const a=E[r.k];if(!a||!Object.values(a).some(Boolean))return;const s=etiquette('📝 '+(a.quoi||a.promo||a.note||'').slice(0,28),{taille:.34,fond:'#fff8e1'});s.position.set(r.x,2.55,r.z);s.userData={type:'repere',k:r.k};g.add(s)});appliquerCouches()}
+  REP.forEach(r=>{const a=E[r.k];if(!a||r.del||!Object.values(a).some(Boolean))return;const s=etiquette('📝 '+(a.quoi||a.promo||a.note||'').slice(0,28),{taille:.34,fond:'#fff8e1'});s.position.set(r.x,2.55,r.z);s.userData={type:'repere',k:r.k};g.add(s)});appliquerCouches()}
 
 /* ---------- Modes de vue ---------- */
 const VIS0=[16.6,-28.6,Math.atan2(1,-.35)];const vis={yaw:VIS0[2],pitch:-.08,pos:new T.Vector3(VIS0[0],1.6,VIS0[1])};
@@ -243,57 +331,143 @@ function changerMode(m){mode=m;$('#joy').style.display=m==='visite'?'block':'non
   if(m==='survol'){ctl.enableRotate=true;ctl.mouseButtons.LEFT=T.MOUSE.ROTATE;ctl.touches.ONE=T.TOUCH.ROTATE;ctl.touches.TWO=T.TOUCH.DOLLY_PAN;ctl.maxPolarAngle=1.45;ctl.minDistance=3;ctl.maxDistance=90;
     cam.position.set(C.x-8,38,C.z+38);ctl.target.set(C.x,0,C.z);ctl.update()}
   if(m==='visite'){if(!libre(vis.pos.x,vis.pos.z)){const p=pointLibre(VIS0[0],VIS0[1]);vis.pos.set(p[0],1.6,p[1]);vis.yaw=VIS0[2]}appliquerVisite();msg('Pouce gauche : avancer · glisser ailleurs : regarder · double-touche au sol : y aller',4200)}
-  echelleVisite();barre();appliquerCouches();salir()}
+  echelleVisite();barre();appliquerMaquette();appliquerCouches();salir()}
 function echelleVisite(){const v=mode==='visite';
-  if(!v)['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>o.visible=true)});
   if(groupes.univers)groupes.univers.children.forEach(o=>{if(!o.isMesh)o.visible=!v});
-  ['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{if(!o.userData.s0)o.userData.s0=o.scale.clone();o.scale.copy(o.userData.s0).multiplyScalar(v?.4:1);if(o.material)o.material.depthTest=v})})}
+  ['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{if(!o.userData.s0)o.userData.s0=o.scale.clone();o.scale.copy(o.userData.s0).multiplyScalar(v?.4:1);if(o.material)o.material.depthTest=v;if(!v)o.visible=true})})}
 const libre=(x,z)=>{const r=.35;return marchable(x,z)&&marchable(x+r,z)&&marchable(x-r,z)&&marchable(x,z+r)&&marchable(x,z-r)};
 function pointLibre(x,z){if(libre(x,z))return [x,z];for(let d=.25;d<8;d+=.25)for(let a=0;a<16;a++){const X=x+d*Math.cos(a*Math.PI/8),Z=z+d*Math.sin(a*Math.PI/8);if(libre(X,Z))return [X,Z]}return [x,z]}
 function appliquerVisite(){cam.position.copy(vis.pos);const d=new T.Vector3(Math.sin(vis.yaw)*Math.cos(vis.pitch),Math.sin(vis.pitch),-Math.cos(vis.yaw)*Math.cos(vis.pitch));cam.lookAt(vis.pos.clone().add(d));salir()}
 /* Joystick */
-const joy={on:false,dx:0,dy:0,id:null};const J=$('#joy'),JI=J.querySelector('i');
-J.addEventListener('pointerdown',e=>{e.preventDefault();joy.on=true;joy.id=e.pointerId;try{J.setPointerCapture(e.pointerId)}catch(x){}bougeJoy(e)});
-J.addEventListener('touchstart',e=>{e.preventDefault();joy.on=true;const t=e.changedTouches[0];joy.tid=t.identifier;bougeJoy(t)},{passive:false});
+const joy={on:false,dx:0,dy:0};const J=$('#joy'),JI=J.querySelector('i');
+J.addEventListener('touchstart',e=>{e.preventDefault();joy.on=true;const t=e.changedTouches[0];joy.tid=t.identifier;bougeJoy(t);resolution(true)},{passive:false});
 J.addEventListener('touchmove',e=>{e.preventDefault();for(const t of e.changedTouches)if(t.identifier===joy.tid)bougeJoy(t)},{passive:false});
 J.addEventListener('touchend',e=>{for(const t of e.changedTouches)if(t.identifier===joy.tid)finJoy()});
+J.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')return;e.preventDefault();joy.on=true;joy.id=e.pointerId;try{J.setPointerCapture(e.pointerId)}catch(x){}bougeJoy(e);resolution(true)});
 J.addEventListener('pointermove',e=>{if(joy.on&&e.pointerId===joy.id)bougeJoy(e)});
-const finJoy=()=>{joy.on=false;joy.dx=joy.dy=0;JI.style.transform=''};J.addEventListener('pointerup',finJoy);J.addEventListener('pointercancel',finJoy);
+const finJoy=()=>{joy.on=false;joy.dx=joy.dy=0;JI.style.transform='';setTimeout(()=>{if(!joy.on){resolution(false);salir()}},300)};J.addEventListener('pointerup',e=>{if(e.pointerType!=='touch')finJoy()});
 function bougeJoy(e){const r=J.getBoundingClientRect();let dx=(e.clientX-r.left-60)/50,dy=(e.clientY-r.top-60)/50;const n=Math.hypot(dx,dy);if(n>1){dx/=n;dy/=n}joy.dx=dx;joy.dy=dy;JI.style.transform=`translate(${dx*35}px,${dy*35}px)`}
-const touches={};addEventListener('keydown',e=>{touches[e.key.toLowerCase()]=1});addEventListener('keyup',e=>{touches[e.key.toLowerCase()]=0});
-/* Regard en mode visite */
-let regard=null;
-cv.addEventListener('pointerdown',e=>{if(mode!=='visite')return;regard={x:e.clientX,y:e.clientY,yaw:vis.yaw,pitch:vis.pitch,id:e.pointerId}});
-cv.addEventListener('pointermove',e=>{if(!regard||e.pointerId!==regard.id)return;vis.yaw=regard.yaw+(e.clientX-regard.x)*.006;vis.pitch=Math.max(-1.1,Math.min(.9,regard.pitch-(e.clientY-regard.y)*.005));appliquerVisite()});
-cv.addEventListener('pointerup',()=>{regard=null});
+const touches={};addEventListener('keydown',e=>{if(e.target.tagName==='INPUT')return;touches[e.key.toLowerCase()]=1});addEventListener('keyup',e=>{touches[e.key.toLowerCase()]=0});
 function avancer(dt){let f=-joy.dy,s=joy.dx;if(touches['z']||touches['w']||touches['arrowup'])f=1;if(touches['s']||touches['arrowdown'])f=-1;if(touches['q']||touches['a']||touches['arrowleft'])s=-1;if(touches['d']||touches['arrowright'])s=1;
   if(!f&&!s)return;const v=3*dt,fx=Math.sin(vis.yaw),fz=-Math.cos(vis.yaw),dx=(fx*f-fz*s)*v,dz=(fz*f+fx*s)*v;
   const R0=.25;const ok=(x,z)=>marchable(x,z)&&marchable(x+R0,z)&&marchable(x-R0,z)&&marchable(x,z+R0)&&marchable(x,z-R0);
   if(!ok(vis.pos.x,vis.pos.z)||ok(vis.pos.x+dx,vis.pos.z+dz)){vis.pos.x+=dx;vis.pos.z+=dz}else if(ok(vis.pos.x+dx,vis.pos.z))vis.pos.x+=dx;else if(ok(vis.pos.x,vis.pos.z+dz))vis.pos.z+=dz;appliquerVisite()}
 
-/* ---------- Sélection ---------- */
-const ray=new T.Raycaster();let sel=null,attente=null,dernierTap=0,down=null;
-cv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,t:performance.now()}});
-cv.addEventListener('pointerup',e=>{if(!down)return;const mv=Math.hypot(e.clientX-down.x,e.clientY-down.y),dt=performance.now()-down.t;down=null;if(mv>8||dt>500)return;toucher(e)});
-function pointer(e){return new T.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1)}
-function toucher(e){ray.setFromCamera(pointer(e),cam);
-  const vis2=[];['reperes','labos','notes','bf','objets'].forEach(n=>{if(groupes[n]&&groupes[n].visible)vis2.push(groupes[n])});
-  const h1=ray.intersectObjects(vis2,true)[0];
-  const hs=MAQ?ray.intersectObject(MAQ,true)[0]:null;
+/* ---------- Toucher, sélectionner, faire glisser ---------- */
+const ray=new T.Raycaster();ray.firstHitOnly=true;let sel=null,selRep=null,selPose=null,attente=null,dernierTap=0,down=null,glisse=null,regard=null;
+const SOL0=new T.Plane(new T.Vector3(0,1,0),0);
+const ptr=e=>new T.Vector2(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1);
+function auSol(e){ray.setFromCamera(ptr(e),cam);const p=new T.Vector3();return ray.ray.intersectPlane(SOL0,p)?p:null}
+function viser(e){ray.setFromCamera(ptr(e),cam);ray.camera=cam;
+  const cibles=[];['reperes','labos','notes','bf','objets'].forEach(n=>{if(groupes[n]&&groupes[n].visible)cibles.push(groupes[n])});
+  const h1=ray.intersectObjects(cibles,true)[0];
+  let hs=null;if(MAQ){ray.firstHitOnly=false;const hits=ray.intersectObject(MAQ,true);hs=hits.find(h=>{for(let o=h.object;o&&o!==MAQ;o=o.parent)if(!o.visible)return false;return h.point.y<=REG.coupe+.01})||null}
+  return {h1,hs}}
+const idDe=o=>{while(o&&!(o.userData&&o.userData.type==='maq'&&o.parent===MAQ))o=o.parent;return o?o.userData.id:null};
+cv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,t:performance.now()};
+  if(edition&&(sel||selRep)){const {h1,hs}=viser(e);let ok=false;
+    if(sel&&hs&&idDe(hs.object)===sel)ok=true;
+    if(selRep&&h1&&h1.object.userData.k===selRep.k)ok=true;
+    if(ok){const p=auSol(e);if(p){const b=sel?posObj(sel):{x:selRep.x,z:selRep.z};glisse={p0:p,b,id:e.pointerId,bouge:false};ctl.enabled=false;try{cv.setPointerCapture(e.pointerId)}catch(x){}e.stopImmediatePropagation();return}}}
+  if(mode==='visite')regard={x:e.clientX,y:e.clientY,yaw:vis.yaw,pitch:vis.pitch,id:e.pointerId}},{capture:true});
+cv.addEventListener('pointermove',e=>{
+  if(glisse&&e.pointerId===glisse.id){const p=auSol(e);if(!p)return;const x=+(glisse.b.x+p.x-glisse.p0.x).toFixed(2),z=+(glisse.b.z+p.z-glisse.p0.z).toFixed(2);glisse.bouge=true;glisse.x=x;glisse.z=z;resolution(true);
+    if(sel){const o=OBJM.get(sel);o.node.position.x=x;o.node.position.z=z}else if(selRep&&selRep.s){selRep.s.position.x=x;selRep.s.position.z=z}majSel();salir();return}
+  if(regard&&e.pointerId===regard.id){vis.yaw=regard.yaw+(e.clientX-regard.x)*.006;vis.pitch=Math.max(-1.1,Math.min(.9,regard.pitch-(e.clientY-regard.y)*.005));resolution(true);appliquerVisite()}});
+cv.addEventListener('pointerup',e=>{
+  if(glisse&&e.pointerId===glisse.id){const g=glisse;glisse=null;ctl.enabled=mode!=='visite';resolution(false);down=null;
+    if(g.bouge){if(sel)modifierMaq(sel,{x:g.x,z:g.z},'Déplacé');else if(selRep)modifierRep(selRep.k,{x:g.x,z:g.z},'Déplacé')}return}
+  if(regard){regard=null;setTimeout(()=>{if(!regard&&!joy.on){resolution(false);salir()}},300)}
+  if(!down)return;const mv=Math.hypot(e.clientX-down.x,e.clientY-down.y),dt=performance.now()-down.t;down=null;if(mv>8||dt>500)return;toucher(e)});
+function toucher(e){const {h1,hs}=viser(e);
   const now=performance.now(),dbl=now-dernierTap<350;dernierTap=now;
-  if(attente&&hs){const p=hs.point;attente(p.x,p.z);attente=null;return}
+  if(attente){const p=hs?hs.point:auSol(e);if(p){attente(p.x,p.z);attente=null}return}
   if(mode==='visite'&&dbl&&hs&&marchable(hs.point.x,hs.point.z)){vis.pos.x=hs.point.x;vis.pos.z=hs.point.z;appliquerVisite();return}
-  if(h1&&(!hs||h1.distance<hs.distance+.5)){const u=h1.object.userData;if(u.type==='objet'){sel=OBJ.find(o=>o.id===u.id);majObjets();ficheObjet(sel);return}
-    if(u.type==='repere'){const r=REP.find(x=>x.k===u.k);if(r){ficheLieu(r.x,r.z,r.k);return}}
-    if(u.type==='labo'){const p=h1.object.position;ficheLieu(p.x,p.z,null);return}}
-  if(hs){ficheLieu(hs.point.x,hs.point.z,null)}}
-function fermer(){$('#fiche').style.display='none';if(sel){sel=null;majObjets()}appliquerCouches()}
-/* Marge × passage : quels laboratoires déplacer (estimation à valider, puis mesure avant / après) */
+  const repPrioritaire=h1&&(!hs||h1.distance<hs.distance+.8);
+  if(edition){
+    if(repPrioritaire){const u=h1.object.userData;if(u.type==='objet'){selPose=OBJ.find(o=>o.id===u.id);sel=null;selRep=null;majObjets();ficheObjet(selPose);majSel();return}
+      if(u.type==='repere'){const r=REP.find(x=>x.k===u.k);if(r){sel=null;selRep=r;majSel();ficheRepere(r);return}}}
+    if(hs){const id=idDe(hs.object);if(id){sel=id;selRep=null;majSel();ficheMaq(id);return}}
+    sel=null;selRep=null;majSel();fermer();return}
+  if(repPrioritaire){const u=h1.object.userData;if(u.type==='objet'){selPose=OBJ.find(o=>o.id===u.id);majObjets();ficheObjet(selPose);return}
+    if(u.type==='repere'){const r=REP.find(x=>x.k===u.k);if(r){ficheLieu(r.x,r.z,r.k,null);return}}}
+  if(hs){const id=idDe(hs.object);ficheLieu(hs.point.x,hs.point.z,null,id)}}
+/* Cadre rouge autour de la sélection */
+let CADRE=null;
+function majSel(){if(CADRE){S.remove(CADRE);CADRE.geometry.dispose();CADRE=null}
+  let b=null;if(sel&&OBJM.has(sel)){const n=OBJM.get(sel).node;n.updateMatrixWorld(true);b=new T.Box3().setFromObject(n);if(PLAFONDS.includes(sel)||sel==='murs'||sel==='sol'||sel==='enseignes')b=null}
+  else if(selRep&&selRep.s){const p=selRep.s.position;b=new T.Box3(new T.Vector3(p.x-.5,0,p.z-.5),new T.Vector3(p.x+.5,p.y+.3,p.z+.5))}
+  if(b&&!b.isEmpty()){CADRE=new T.Box3Helper(b,0xff1744);CADRE.material.depthTest=false;CADRE.renderOrder=20;S.add(CADRE)}salir()}
+const posObj=id=>{const o=OBJM.get(id),e=maqEtat()[id]||{};return {x:e.x??o.base.x,z:e.z??o.base.z,r:e.r??0}};
+/* Historique des corrections (pour « Annuler ») */
+let HIST=[];
+function modifierMaq(id,patch,txt){const E=maqEtat();HIST.push({cle:'plan3d_maq',id,avant:E[id]?JSON.parse(JSON.stringify(E[id])):null});
+  E[id]=Object.assign(E[id]||{},patch,{le:new Date().toISOString().slice(0,10)});sauverCle('plan3d_maq',E,(txt||'Modifié')+' — enregistré sur tous vos appareils');appliquerMaquette();if(sel===id&&$('#fiche').style.display==='block')ficheMaq(id)}
+function modifierRep(k,patch,txt){const E=repEtat();HIST.push({cle:'plan3d_rep',id:k,avant:E[k]?JSON.parse(JSON.stringify(E[k])):null});
+  E[k]=Object.assign(E[k]||{},patch,{le:new Date().toISOString().slice(0,10)});sauverCle('plan3d_rep',E,(txt||'Modifié')+' — enregistré sur tous vos appareils');majReperes();if(selRep){selRep=REP.find(r=>r.k===k)||null;majSel()}}
+function retablir(cle,id){const E=jget(cle);HIST.push({cle,id,avant:E[id]||null});delete E[id];sauverCle(cle,E,'Rétabli');if(cle==='plan3d_maq')appliquerMaquette();else majReperes()}
+function annuler(){const h=HIST.pop();if(!h){msg('Rien à annuler');return}const E=jget(h.cle);if(h.avant)E[h.id]=h.avant;else delete E[h.id];sauverCle(h.cle,E,'Annulé');if(h.cle==='plan3d_maq')appliquerMaquette();else majReperes();fermer()}
+
+/* ---------- Fiches ---------- */
+function fermer(){$('#fiche').style.display='none';if(selPose){selPose=null;majObjets()}if(!edition){sel=null;selRep=null;majSel()}appliquerCouches()}
+function ouvrir(html){const f=$('#fiche');f.innerHTML=html;f.style.display='block';$('#leg').style.display='none';if(panneau){panneau=null;$('#panneau').style.display='none';barre()}f.querySelector('.x').onclick=()=>{if(edition){sel=null;selRep=null;majSel()}fermer()}}
+const CATS={structure:'Structure du bâtiment',plafond:'Plafond',enseigne:'Enseignes',meuble:'Gondole (plan de zoning)',objet:'Meuble'};
+function ficheMaq(id){const o=OBJM.get(id);if(!o)return;const e=maqEtat()[id]||{},i=o.info,fixe=['sol','murs','plafonds','technique','enseignes','divers'].includes(id),p=posObj(id);
+  ouvrir(`<h3><span>${esc(nomObj(id))}</span><button class="x">✕</button></h3>
+   <div class="sub">${esc(CATS[i.cat]||i.cat)}${o.copie?' · copie ajoutée':''}${i.labos&&i.labos.length?' · '+esc(i.labos.slice(0,4).join(', ')):''}${e.le?' · modifié le '+e.le.split('-').reverse().join('/'):''}</div>
+   <label>Nom (tel que vous l'appelez)</label><input id="mn" value="${esc(e.nom||'')}" placeholder="${esc(i.nom)}">
+   ${fixe?`<div class="btns" style="grid-template-columns:1fr 1fr"><button class="btn s" id="mcache">${e.cache?'👁 Afficher':'🙈 Masquer'}</button><button class="btn s" id="mok">OK</button></div>`:
+   `<div class="sub" style="margin-top:6px">Pour le déplacer : faites-le glisser du doigt dans la 3D (vue Dessus conseillée).</div>
+   <div class="btns"><button class="btn s" id="mrg">↺ 15°</button><button class="btn s" id="mrd">↻ 15°</button><button class="btn s" id="mr90">↻ 90°</button>
+   <button class="btn s" id="mcop">⧉ Dupliquer</button><button class="btn s" id="mcache">${e.cache?'👁 Afficher':'🙈 Masquer'}</button><button class="btn r" id="mdel">🗑 N'existe pas</button>
+   ${Object.keys(e).length?`<button class="btn s" id="mret" style="grid-column:1/3">⟲ Remettre comme la maquette</button>`:''}<button class="btn" id="mok" style="grid-column:${Object.keys(e).length?'3':'1/-1'}">OK</button></div>`}`);
+  $('#mn').onchange=ev=>modifierMaq(id,{nom:ev.target.value.trim()||undefined},'Renommé');
+  const b=(k,f)=>{const x=$(k);if(x)x.onclick=f};
+  b('#mrg',()=>modifierMaq(id,{r:((p.r-15)%360+360)%360},'Tourné'));b('#mrd',()=>modifierMaq(id,{r:(p.r+15)%360},'Tourné'));b('#mr90',()=>modifierMaq(id,{r:(p.r+90)%360},'Tourné'));
+  b('#mcache',()=>modifierMaq(id,{cache:e.cache?0:1},e.cache?'Affiché':'Masqué'));
+  b('#mdel',()=>{modifierMaq(id,{del:1},'Supprimé (rétablissable dans Corrections)');sel=null;majSel();fermer()});
+  b('#mret',()=>{if(o.copie){modifierMaq(id,{del:1},'Copie retirée');sel=null;fermer();return}retablir('plan3d_maq',id);ficheMaq(id)});
+  b('#mcop',()=>{const nid='C'+Date.now().toString(36);const E=maqEtat();HIST.push({cle:'plan3d_maq',id:nid,avant:null});E[nid]={copie_de:o.copie?(e.copie_de||maqEtat()[id].copie_de):id,x:+(p.x+1).toFixed(2),z:+(p.z+1).toFixed(2),r:p.r,nom:nomObj(id)+' (copie)',le:new Date().toISOString().slice(0,10)};
+    sauverCle('plan3d_maq',E,'Copie ajoutée — faites-la glisser à sa place');appliquerMaquette();sel=nid;majSel();ficheMaq(nid)});
+  b('#mok',()=>{sel=null;majSel();fermer()})}
+const TYPES_REP={tg:'Tête de gondole',bacs:'Bacs soldeurs',bdc:'Barres de charge',ecr:'Écran (plan de zoning)',ent:'Entrée / comptoirs',labo:'Étiquette de laboratoire'};
+function ficheRepere(r){const e=repEtat()[r.k]||{};
+  ouvrir(`<h3><span>${esc(r.nom)}</span><button class="x">✕</button></h3><div class="sub">${esc(TYPES_REP[r.t]||'Repère')}${r.cree?' · ajouté par vous':''}</div>
+   <label>Nom (tel que vous l'appelez)</label><input id="rn" value="${esc(e.nom||'')}" placeholder="${esc(r.nom)}">
+   <div class="sub" style="margin-top:6px">Pour le déplacer : faites-le glisser du doigt dans la 3D.</div>
+   <div class="btns"><button class="btn r" id="rdel">🗑 N'existe pas</button>${Object.keys(e).length&&!r.cree?'<button class="btn s" id="rret">⟲ Rétablir</button>':'<span></span>'}<button class="btn" id="rok">OK</button></div>`);
+  $('#rn').onchange=ev=>modifierRep(r.k,{nom:ev.target.value.trim()||undefined},'Renommé');
+  $('#rdel').onclick=()=>{modifierRep(r.k,{del:1},'Supprimé (rétablissable dans Corrections)');selRep=null;majSel();fermer()};
+  const rr=$('#rret');if(rr)rr.onclick=()=>{retablir('plan3d_rep',r.k);selRep=REP.find(x=>x.k===r.k);majSel();fermer()};
+  $('#rok').onclick=()=>{selRep=null;majSel();fermer()}}
+/* Liste des corrections + recherche (mode Modifier) */
+function ficheCorrections(){const M=maqEtat(),Rp=repEtat();
+  const lm=Object.entries(M).map(([id,e])=>({cle:'plan3d_maq',id,nom:e.nom||(OBJM.get(id)||{info:{nom:id}}).info.nom,quoi:e.copie_de?'copie ajoutée':e.del?'supprimé':e.cache?'masqué':[e.x!=null?'déplacé':'',e.r?'tourné':'',e.nom?'renommé':''].filter(Boolean).join(', '),le:e.le}));
+  const def=new Map(repDefs().map(d=>[d.k,d]));
+  const lr=REP.filter(r=>r.del&&r.defDel&&!Rp[r.k]).map(r=>({cle:'plan3d_rep',id:r.k,nom:r.nom,quoi:'masqué d\'office (signalé absent)',auto:1}));
+  lr.push(...Object.entries(Rp).map(([k,e])=>({cle:'plan3d_rep',id:k,nom:e.nom||(def.get(k)||{nom:k}).nom,quoi:e.del?'supprimé':[e.x!=null?'déplacé':'',e.nom?'renommé':''].filter(Boolean).join(', '),le:e.le})));
+  const L=[...lm,...lr];
+  ouvrir(`<h3><span>🧾 Corrections (${L.length})</span><button class="x">✕</button></h3>
+   <label>Trouver un élément par son nom</label><input id="cq" placeholder="Ex. : bacs, gondole 12, comptoir…"><div class="res" id="cres"></div>
+   <h4>Ce qui a été corrigé</h4>${L.length?L.map((x,i)=>`<div class="l"><span>${esc(x.nom)}<br><span class="sub">${esc(x.quoi)}${x.le?' · '+x.le.split('-').reverse().join('/'):''}</span></span><button class="btn s" data-i="${i}" style="padding:4px 10px">${x.auto?'Afficher':'Rétablir'}</button></div>`).join(''):'<div class="sub">Aucune correction pour l\'instant.</div>'}
+   <div class="btns" style="grid-template-columns:1fr 1fr"><button class="btn s" id="cann">↶ Annuler la dernière</button><button class="btn" id="cadd">＋ Ajouter un repère</button></div>`);
+  document.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const x=L[+b.dataset.i];if(x.auto)modifierRep(x.id,{del:0},'Affiché');else retablir(x.cle,x.id);ficheCorrections()});
+  $('#cann').onclick=annuler;$('#cadd').onclick=ficheAjoutRepere;
+  const tous=[...[...OBJM.keys()].map(id=>({id,nom:nomObj(id),t:'maq'})),...REP.map(r=>({id:r.k,nom:r.nom,t:'rep'}))];
+  const nq=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  $('#cq').oninput=ev=>{const q=nq(ev.target.value.trim());const res=q.length<2?[]:tous.filter(x=>nq(x.nom).includes(q)).slice(0,12);
+    $('#cres').innerHTML=res.map((x,i)=>`<div class="l" data-r="${i}"><span>${esc(x.nom)}</span><b>›</b></div>`).join('')||(q.length>=2?'<div class="sub">Aucun résultat.</div>':'');
+    document.querySelectorAll('[data-r]').forEach(d=>d.onclick=()=>{const x=res[+d.dataset.r];if(x.t==='maq'){sel=x.id;selRep=null;centrerSur(posObj(x.id));majSel();ficheMaq(x.id)}else{const r=REP.find(q=>q.k===x.id);if(r.del){modifierRep(r.k,{del:0},'Affiché')}selRep=REP.find(q=>q.k===x.id);sel=null;centrerSur(selRep);majSel();ficheRepere(selRep)}})}}
+function centrerSur(p){if(mode==='visite'||p.x==null)return;const d=cam.position.clone().sub(ctl.target);ctl.target.set(p.x,0,p.z);cam.position.copy(ctl.target).add(d);ctl.update();salir()}
+function ficheAjoutRepere(){ouvrir(`<h3><span>Ajouter un repère</span><button class="x">✕</button></h3><label>Type</label><select id="rt">${['tg','bacs','bdc','ecr','ent'].map(t=>`<option value="${t}">${TYPES_REP[t]}</option>`).join('')}</select>
+  <label>Nom</label><input id="rnom" placeholder="Ex. : Bacs caisse rapide"><div class="btns"><button class="btn" id="rgo" style="grid-column:1/-1">Choisir l'emplacement</button></div>`);
+  $('#rgo').onclick=()=>{const t=$('#rt').value,nom=$('#rnom').value.trim()||TYPES_REP[t];$('#fiche').style.display='none';msg('Touchez le sol à l\'endroit exact',3000);
+    attente=(x,z)=>{const k='N:'+Date.now().toString(36);if(!REG.rep[t]){REG.rep[t]=true;sauverReg()}modifierRep(k,{t,nom,x:+x.toFixed(2),z:+z.toFixed(2)},'Repère ajouté');selRep=REP.find(r=>r.k===k);majSel();if(selRep)ficheRepere(selRep)}}}
+/* Marge × passage : quels laboratoires déplacer */
 function ficheDeplacer(){if(!ZON||!GR){ouvrir('<h3><span>À déplacer</span><button class="x">✕</button></h3><div class="sub">Plan pas encore chargé.</div>');return}
-  /* passage de l'allée devant le rayon : on cherche jusqu'à 2 m autour de l'étiquette (l'étiquette est posée sur le meuble, pas dans l'allée) */
   const passAllee=(x,z)=>{const [i,j]=cellOf(x,z);let b=0;for(let dj=-8;dj<=8;dj++)for(let di=-8;di<=8;di++){const ii=i+di,jj=j+dj;if(ii>=0&&jj>=0&&ii<GW&&jj<GH&&GR.walk[jj*GW+ii])b=Math.max(b,GR.pass[jj*GW+ii])}return b/255};
-  const P={};ZON.L.forEach(([n,[x,z]])=>{const m=margeLab(n),p=passAllee(x,z);if(m===null||p===null)return;const k=norm(n);const o=P[k]||(P[k]={n,m,pmax:0,pmin:1,nb:0});o.pmax=Math.max(o.pmax,p);o.pmin=Math.min(o.pmin,p);o.nb++});
-  const L=Object.values(P);if(!L.length){ouvrir('<h3><span>À déplacer</span><button class="x">✕</button></h3><div class="sub">Aucune étiquette rapprochée des ventes.</div>');return}
+  const P={};REP.filter(r=>r.t==='labo'&&!r.del).forEach(r=>{const n=r.nom,m=margeLab(n),p=passAllee(r.x,r.z);if(m===null||p===null)return;const k=norm(n);const o=P[k]||(P[k]={n,m,pmax:0,nb:0});o.pmax=Math.max(o.pmax,p);o.nb++});
+  const L=Object.values(P);if(!L.length){ouvrir('<h3><span>À déplacer</span><button class="x">✕</button></h3><div class="sub">Aucune étiquette rapprochée des ventes (ouvrez Pilotage une fois pour charger les marges).</div>');return}
   const ms=L.map(x=>x.m).sort((a,b)=>a-b),q=f=>ms[Math.min(ms.length-1,Math.floor(f*ms.length))],haut=q(.75),bas=q(.25),e=v=>Math.round(v).toLocaleString('fr-FR')+' €',pc=v=>Math.round(v*100)+' %';
   const caches=L.filter(x=>x.m>=haut&&x.pmax<.30).sort((a,b)=>b.m-a.m).slice(0,12),chauds=L.filter(x=>x.m<=bas&&x.pmax>=.55).sort((a,b)=>a.m-b.m).slice(0,12);
   const li=x=>`<div class="l"><span>${esc(x.n)}</span><b>${e(x.m)} · passage ${pc(x.pmax)}</b></div>`;
@@ -302,74 +476,88 @@ function ficheDeplacer(){if(!ZON||!GR){ouvrir('<h3><span>À déplacer</span><but
    <h4>📣 Rentables mais cachés (${caches.length})</h4><div class="sub">Dans le quart des laboratoires qui margent le plus, mais placés où passent peu de clients (moins de 30 %). À rapprocher de l'allée principale, ou à annoncer (écran, tête de gondole).</div>${caches.map(li).join('')||'<div class="sub">Aucun.</div>'}
    <h4>⚠️ Places chaudes peu rentables (${chauds.length})</h4><div class="sub">Dans le quart qui marge le moins, mais sur un passage fort (55 % et plus). Places à proposer aux laboratoires ci-dessus.</div>${chauds.map(li).join('')||'<div class="sub">Aucune.</div>'}
    <div class="sub" style="margin-top:8px">Proposition à valider par vous. Chaque déplacement fait : noter la date, puis comparer les ventes du laboratoire 4 semaines avant / 4 semaines après.</div>`)}
-/* Les écrans réels (noms Cenareo / MagicInfo, liste écrite par l'application dans « ecr_liste ») : les placer à leur emplacement exact ; l'emplacement est repris dans Médias › Écrans */
+/* Écrans réels (Cenareo / MagicInfo) */
 function ficheEcrans(){let L=[];try{L=JSON.parse(ETAT.ecr_liste||'[]')}catch(e){}const E=objEtat(),idOf=k=>'ecr_'+String(k).replace(/[^A-Za-z0-9]/g,'_');
   if(!L.length){ouvrir('<h3><span>📺 Écrans</span><button class="x">✕</button></h3><div class="sub">Ouvrez une fois l\'application › Clients › Médias › Écrans pour charger la liste de vos écrans, puis revenez ici.</div>');return}
   ouvrir(`<h3><span>📺 Vos écrans (${L.length})</span><button class="x">✕</button></h3><div class="sub">Touchez « Placer », puis touchez le sol à l'endroit exact de l'écran. Ensuite, touchez l'écran dans la 3D pour le déplacer, le tourner, changer sa hauteur ou le retirer.</div>
    ${L.map(([k,n])=>{const o=E[idOf(k)],ok=o&&!o.del;return `<div class="l"><span>${ok?'✅':'⬜'} ${esc(n)}</span><button class="btn s" data-pe="${esc(k)}" style="padding:4px 10px">${ok?'Déplacer':'Placer'}</button></div>`}).join('')}`);
   document.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>{const k=b.dataset.pe,n=(L.find(x=>x[0]===k)||[k,k])[1],id=idOf(k);$('#fiche').style.display='none';msg('Touchez le sol à l\'emplacement de « '+n+' »',3500);
-    attente=async(x,z)=>{const o=objEtat()[id]||{};sauverObj(id,{t:'ecran',lib:n,x:+x.toFixed(2),z:+z.toFixed(2),h:o.h||1.9,r:o.r||0,del:0});sel=OBJ.find(q=>q.id===id);majObjets();
+    attente=async(x,z)=>{const o=objEtat()[id]||{};sauverObj(id,{t:'ecran',lib:n,x:+x.toFixed(2),z:+z.toFixed(2),h:o.h||1.9,r:o.r||0,del:0});
       let P={};try{P=JSON.parse(ETAT.ecr_pos||'{}')}catch(e){}const u=universEn(x,z);P[k]=`Placé sur la 3D${u?' : '+u:''} (x ${x.toFixed(1)} ; z ${z.toFixed(1)})`;await etatSet('ecr_pos',JSON.stringify(P));ficheEcrans()}})}
-function ouvrir(html){const f=$('#fiche');f.innerHTML=html;f.style.display='block';$('#leg').style.display='none';f.querySelector('.x').onclick=fermer}
 const dans=(p,x,y)=>{let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const [xi,yi]=p[i],[xj,yj]=p[j];if((yi>y)!==(yj>y)&&x<(xj-xi)*(y-yi)/(yj-yi)+xi)c=!c}return c};
 function universEn(x,z){let best=null,bd=1.2;ZON.U.forEach(([c,p])=>{if(dans(p,x,z)){best=c;bd=0;return}const cx=p.reduce((s,q)=>s+q[0],0)/p.length,cz=p.reduce((s,q)=>s+q[1],0)/p.length;
   const d=Math.min(...p.map(q=>Math.hypot(q[0]-x,q[1]-z)),Math.hypot(cx-x,cz-z));if(d<bd){bd=d;best=c}});return best?ZON.couleurs[best]:null}
-function ficheLieu(x,z,k){
-  if(!k){let bd=2.2;REP.forEach(r=>{const d=Math.hypot(r.x-x,r.z-z);if(d<bd){bd=d;k=r.k}})}
+function ficheLieu(x,z,k,id){
+  if(!k){let bd=2.2;REP.forEach(r=>{if(r.del||r.t==='labo')return;const d=Math.hypot(r.x-x,r.z-z);if(d<bd){bd=d;k=r.k}})}
   const r=k?REP.find(q=>q.k===k):null;if(r){x=r.x;z=r.z}
-  const labs=[];ZON.L.forEach(([n,[lx,lz]])=>{const d=Math.hypot(lx-x,lz-z);if(d<2.6&&!labs.find(l=>l.n===n))labs.push({n,d,m:margeLab(n)})});labs.sort((a,b)=>(b.m||0)-(a.m||0));
+  const labs=[];REP.forEach(q=>{if(q.t!=='labo'||q.del)return;const d=Math.hypot(q.x-x,q.z-z);if(d<2.6&&!labs.find(l=>l.n===q.nom))labs.push({n:q.nom,d,m:margeLab(q.nom)})});labs.sort((a,b)=>(b.m||0)-(a.m||0));
   const p=passage(x,z),mg=margeEn(x,z),u=universEn(x,z);
   let v='';if(p!==null){const fort=p>=.55,faible=p<.25;
     if(fort&&(mg===null||mg<.4))v=`<div class="verdict v-op">⚠️ <b>Emplacement chaud, peu exploité</b> : beaucoup de passage, peu de marge ici. C'est l'endroit pour un laboratoire qui marge bien, une promotion ou un bac. À mesurer avant / après (ventes des produits posés, 4 semaines).</div>`;
     else if(fort)v=`<div class="verdict v-ok">✅ <b>Emplacement chaud et rentable</b> : passage fort et marge élevée. Garder, réassortir en priorité, ne jamais laisser de trou.</div>`;
     else if(faible&&mg!==null&&mg>=.6)v=`<div class="verdict v-fr">📣 <b>Rentable mais caché</b> : la marge est là mais peu de clients passent. L'annoncer : écran, flèche au sol, rappel en tête de gondole sur l'allée principale.</div>`;
     else if(faible)v=`<div class="verdict v-fr">❄️ <b>Zone froide</b> : peu de passage. Y mettre des produits de destination (que le client vient chercher exprès) plutôt que de l'achat d'impulsion.</div>`}
-  const a=k?(plan2()[k]||{}):{};
-  ouvrir(`<h3><span>${esc(k||'Point du magasin')}</span><button class="x">✕</button></h3>
+  const a=k?(plan2()[k]||{}):{};const titre=r?r.nom:(id&&!['sol','murs','plafonds','technique','divers'].includes(id)?nomObj(id):'Point du magasin');
+  ouvrir(`<h3><span>${esc(titre)}</span><button class="x">✕</button></h3>
    <div class="l"><span>Univers</span><b>${esc(u||'—')}</b></div>
    <div class="l"><span>Passage estimé</span><b>${p===null?'—':Math.round(p*100)+' / 100'}</b></div>
    <div class="l"><span>Marge des labos autour</span><b>${mg===null?'—':Math.round(mg*100)+' / 100'}</b></div>${v}
    ${labs.length?`<div class="sub" style="margin-top:6px">Laboratoires à moins de 2,5 m (marge 12 mois, Vindilis)</div>`+labs.slice(0,8).map(l=>`<div class="l"><span>${esc(l.n)}</span><b>${eur(l.m)}</b></div>`).join(''):''}
-   ${k?`<label>Ce qu'il y a dessus</label><input id="fq" value="${esc(a.quoi||'')}"><label>Promotion en cours</label><input id="fp" value="${esc(a.promo||'')}"><label>Note</label><input id="fn" value="${esc(a.note||'')}">
-   <div class="btns"><button class="btn" id="fsv" style="grid-column:1/-1">Enregistrer (partagé avec le plan 2D)</button></div>`:''}`);
+   ${k?`<label>Ce qu'il y a dessus</label><input id="fq" value="${esc(a.quoi||'')}"><label>Promotion en cours</label><input id="fp" value="${esc(a.promo||'')}"><label>Note</label><input id="fn" value="${esc(a.note||'')}">`:''}
+   <div class="btns" style="grid-template-columns:1fr 1fr">${k?'<button class="btn" id="fsv">Enregistrer</button>':''}<button class="btn o" id="fed" ${k?'':'style="grid-column:1/-1"'}>✏️ Corriger cet élément</button></div>`);
   const b=$('#fsv');if(b)b.onclick=async()=>{const E=plan2(),v2={...(E[k]||{}),quoi:$('#fq').value.trim(),promo:$('#fp').value.trim(),note:$('#fn').value.trim()};if(Object.values(v2).some(Boolean))E[k]=v2;else delete E[k];
-    b.disabled=true;const ok=await etatSet('plan2',JSON.stringify(E));msg(ok?'Enregistré':'Gardé sur cet appareil (réseau)');majNotes();fermer()}}
+    b.disabled=true;const ok=await etatSet('plan2',JSON.stringify(E));msg(ok?'Enregistré':'Gardé sur cet appareil (réseau)');majNotes();fermer()};
+  $('#fed').onclick=()=>{if(!edition)basculerEdition();if(r){selRep=r;sel=null;majSel();ficheRepere(r)}else if(id){sel=id;selRep=null;majSel();ficheMaq(id)}else{ficheCorrections()}}}
 function ficheObjet(o){if(!o)return;ouvrir(`<h3><span>${esc(o.lib||TYPES[o.t]||o.t)}</span><button class="x">✕</button></h3><div class="sub">${esc(TYPES[o.t]||o.t)}${o.bf?' · Black Friday':''}</div>
   <label>Libellé</label><input id="ol" value="${esc(o.lib||'')}">
   <div class="btns"><button class="btn" id="odep">📍 Déplacer</button><button class="btn s" id="orot">↻ 45°</button><button class="btn r" id="odel">Retirer</button>
   <button class="btn s" id="obas">⬇ Plus bas</button><button class="btn s" id="ohaut">⬆ Plus haut</button><button class="btn s" id="ook">OK</button></div>`);
   $('#ol').onchange=e=>sauverObj(o.id,{lib:e.target.value});
-  $('#odep').onclick=()=>{$('#fiche').style.display='none';msg('Touchez le sol à l\'endroit voulu',3000);attente=(x,z)=>{sauverObj(o.id,base(o,{x:+x.toFixed(2),z:+z.toFixed(2)}));o=OBJ.find(q=>q.id===o.id);sel=o;majObjets();ficheObjet(o)}};
+  $('#odep').onclick=()=>{$('#fiche').style.display='none';msg('Touchez le sol à l\'endroit voulu',3000);attente=(x,z)=>{sauverObj(o.id,base(o,{x:+x.toFixed(2),z:+z.toFixed(2)}));o=OBJ.find(q=>q.id===o.id);selPose=o;majObjets();ficheObjet(o)}};
   $('#orot').onclick=()=>{sauverObj(o.id,base(o,{r:((o.r||0)+45)%360}));o=OBJ.find(q=>q.id===o.id)};
   $('#obas').onclick=()=>{sauverObj(o.id,base(o,{h:Math.max(.1,+(o.h-.2).toFixed(2))}));o=OBJ.find(q=>q.id===o.id)};
   $('#ohaut').onclick=()=>{sauverObj(o.id,base(o,{h:+(o.h+.2).toFixed(2)}));o=OBJ.find(q=>q.id===o.id)};
   $('#odel').onclick=()=>{sauverObj(o.id,o.bf?{del:1}:Object.assign(base(o,{}),{del:1}));fermer()};$('#ook').onclick=fermer}
 const base=(o,p)=>Object.assign({t:o.t,lib:o.lib,x:o.x,z:o.z,h:o.h,r:o.r||0},p);
-function ficheAjout(){ouvrir(`<h3><span>Ajouter un objet</span><button class="x">✕</button></h3><label>Type</label><select id="at">${AJOUTABLES.map(t=>`<option value="${t}">${TYPES[t]}</option>`).join('')}</select>
-  <label>Libellé (laboratoire, thème…)</label><input id="al" placeholder="Ex. : Kakémono Avène"><div class="btns"><button class="btn" id="aok" style="grid-column:1/-1">Choisir l'emplacement</button></div>`);
+function ficheAjout(){ouvrir(`<h3><span>＋ Ajouter</span><button class="x">✕</button></h3>
+  <div class="btns" style="grid-template-columns:1fr 1fr;margin-top:0"><button class="btn s" id="arep">📍 Un repère (TG, bacs…)</button><button class="btn s" id="acor">🧾 Corrections / rechercher</button></div>
+  <label>Ou poser un objet : type</label><select id="at">${AJOUTABLES.map(t=>`<option value="${t}">${TYPES[t]}</option>`).join('')}</select>
+  <label>Libellé (laboratoire, thème…)</label><input id="al" placeholder="Ex. : Kakémono Avène"><div class="btns"><button class="btn" id="aok" style="grid-column:1/-1">Choisir l'emplacement</button></div>
+  <div class="sub">Pour copier un vrai meuble de la maquette (une gondole, un bac) : ✏️ Modifier, touchez le meuble, puis « Dupliquer ».</div>`);
+  $('#arep').onclick=ficheAjoutRepere;$('#acor').onclick=ficheCorrections;
   $('#aok').onclick=()=>{const t=$('#at').value,lib=$('#al').value.trim()||TYPES[t];$('#fiche').style.display='none';msg('Touchez le sol à l\'endroit voulu',3000);
-    attente=(x,z)=>{const id='o'+Date.now().toString(36);const h={geant:2.6,ballons8:2,grappe:2,affiche:1.6,banderole:2.2,ecran:1.9,note:1.2}[t]||1;sauverObj(id,{t,lib,x:+x.toFixed(2),z:+z.toFixed(2),h,r:0});sel=OBJ.find(o=>o.id===id);majObjets();ficheObjet(sel)}}}
+    attente=(x,z)=>{const id='o'+Date.now().toString(36);const h={geant:2.6,ballons8:2,grappe:2,affiche:1.6,banderole:2.2,ecran:1.9,note:1.2}[t]||1;if(!actives.includes('objets')){actives.push('objets');ls.set('p3d_couches',JSON.stringify(actives))}sauverObj(id,{t,lib,x:+x.toFixed(2),z:+z.toFixed(2),h,r:0});selPose=OBJ.find(o=>o.id===id);majObjets();ficheObjet(selPose)}}}
 
-$('#aide').onclick=()=>ouvrir(`<h3><span>Mode d'emploi</span><button class="x">✕</button></h3>
+$('#aide').onclick=()=>ouvrir(`<h3><span>Mode d'emploi (3D v${V3D})</span><button class="x">✕</button></h3>
  <div class="sub" style="font-size:13.5px">
- <p><b>⬆ Dessus</b> : le plan vu du plafond, un doigt pour glisser, deux pour zoomer. <b>🌀 Survol</b> : tourner autour. <b>🚶‍♂️ Visite</b> : vous marchez dans le magasin à hauteur d'yeux (pouce gauche pour avancer, glisser ailleurs pour regarder, double-touche au sol pour y aller ; sur ordinateur : flèches ou Z Q S D).</p>
- <p><b>Touchez</b> un endroit, une tête de gondole, un bac ou un écran : la fiche dit l'univers, le passage estimé, la marge des laboratoires autour et ce qu'il faut en faire. La note saisie est la même que dans le plan 2D.</p>
- <p><b>🚶 Passage</b> : où passent les clients entre les entrées A et B et les comptoirs (estimation géométrique, à recaler avec un comptage réel). <b>🔥 Marge</b> : où se fait la marge (Vindilis, 12 mois).</p>
- <p><b>＋ Objet</b> : poser une PLV, un présentoir, un écran, des ballons… Touchez un objet pour le déplacer, le tourner ou le retirer. Tout est enregistré et visible sur vos autres appareils.</p></div>`);
+ <p><b>⬆ Dessus</b> : le plan vu du plafond (un doigt pour glisser, deux pour zoomer). <b>🌀 Survol</b> : tourner autour. <b>🚶 Visite</b> : marcher dans le magasin (pouce gauche pour avancer, glisser ailleurs pour regarder, double-touche au sol pour y aller ; ordinateur : flèches ou Z Q S D).</p>
+ <p><b>🧱 Maquette</b> : plafond (Auto = masqué vu d'en haut, affiché en visite), murs visibles / transparents / masqués, hauteur de coupe pour voir à l'intérieur des pièces, enseignes, meubles.</p>
+ <p><b>✏️ Modifier</b> : touchez n'importe quel meuble, plafond, mur ou repère. Vous pouvez le <b>faire glisser</b> du doigt, le tourner, le renommer comme vous l'appelez, le dupliquer, le masquer ou dire qu'il <b>n'existe pas</b>. Tout se rétablit dans « Corrections » (avec « Annuler la dernière »).</p>
+ <p><b>Touchez</b> un endroit hors modification : la fiche donne l'univers, le passage estimé, la marge des laboratoires autour et quoi en faire. Les notes sont les mêmes que dans le plan 2D. Tout est enregistré et visible sur vos autres appareils.</p></div>`);
 
 /* ---------- Chargement ---------- */
 async function lireGrille(){const img=new Image();img.src='grille.png?v=1';await img.decode();const c=document.createElement('canvas');c.width=GW;c.height=GH;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0);const d=x.getImageData(0,0,GW,GH).data;
   const pass=new Uint8Array(GW*GH),walk=new Uint8Array(GW*GH);for(let q=0;q<GW*GH;q++){pass[q]=d[q*4];walk[q]=d[q*4+1]>127?1:0}GR={pass,walk}}
+function preparerMaquette(sc){MAQ=sc;const cache=new Map();
+  const conv=(m,geo,id)=>{const k=m.uuid+(geo.attributes.color?'c':'')+(id==='murs'?'m':'');if(cache.has(k))return cache.get(k);
+    const n=new T.MeshLambertMaterial({color:m.color,map:m.map||null,vertexColors:!!geo.attributes.color,flatShading:!geo.attributes.normal,side:T.DoubleSide,clippingPlanes:[COUPE]});
+    if(id==='murs')MAT_MURS.push(n);cache.set(k,n);return n};
+  sc.children.slice().forEach(node=>{const id=node.name,info=INFO.find(i=>i.id===id)||{id,nom:(node.userData&&node.userData.nom)||id,cat:(node.userData&&node.userData.cat)||'objet'};
+    node.userData={type:'maq',id};node.traverse(m=>{if(m.isMesh){m.material=conv(m.material,m.geometry,id);m.userData={type:'maq',id}}});
+    OBJM.set(id,{node,info,base:{x:node.position.x,z:node.position.z,r:0}})});
+  /* arbres de recherche (BVH) construits en tâche de fond : la sélection devient instantanée */
+  const L=[];sc.traverse(m=>{if(m.isMesh)L.push(m.geometry)});let i=0;const pas=()=>{const t=performance.now();while(i<L.length&&performance.now()-t<12){try{L[i].computeBoundsTree()}catch(e){}i++}if(i<L.length)setTimeout(pas,0)};setTimeout(pas,300)}
+function toutAppliquer(){majCopies();appliquerMaquette();majReperes();majObjets();majNotes()}
 async function demarrer(){
-  const [p,z]=await Promise.all([fetch('plan.json').then(r=>r.json()),fetch('zoning.json').then(r=>r.json()),lireGrille().catch(()=>{})]);PLAN=p;ZON=z;
-  const ld=new GLTFLoader();ld.setMeshoptDecoder(MeshoptDecoder);const dr=new DRACOLoader();dr.setDecoderPath('./');ld.setDRACOLoader(dr);
-  const g=await new Promise((ok,ko)=>ld.load(QUAL==='hd'?'pharmacie.glb?v=2':'pharmacie3d.glb?v=2',ok,e=>{if(e.total)$('#pc').style.width=Math.round(e.loaded/e.total*100)+'%'},ko));
-  MAQ=g.scene;MAQ.traverse(m=>{if(m.isMesh){if(QUAL!=='hd')m.material.side=T.FrontSide;if(m.material.metalness!==undefined){m.material.metalness=0;m.material.roughness=1}}});S.add(MAQ);
-  construireUnivers();construireReperes();construireLabos();construireSol();construireChemins();majObjets();majNotes();
+  const [p,z,inf]=await Promise.all([fetch('plan.json').then(r=>r.json()),fetch('zoning.json').then(r=>r.json()),fetch('maquette.json?v=3').then(r=>r.json()),lireGrille().catch(()=>{})]);PLAN=p;ZON=z;INFO=inf;
+  const ld=new GLTFLoader();const dr=new DRACOLoader();dr.setDecoderPath('./');ld.setDRACOLoader(dr);
+  const g=await new Promise((ok,ko)=>ld.load('maquette.glb?v=3',ok,e=>{if(e.total)$('#pc').style.width=Math.round(e.loaded/e.total*100)+'%'},ko));
+  preparerMaquette(g.scene);S.add(MAQ);
+  construireUnivers();construireSol();construireChemins();toutAppliquer();
   $('#charge').style.display='none';barre();changerMode('dessus');appliquerCouches();etatGet()}
 let t0=performance.now();
 function boucle(t){const dt=Math.min(.12,(t-t0)/1000);t0=t;if(mode==='visite'){avancer(dt);if(t-(boucle.l||0)>300){boucle.l=t;['reperes','notes','labos'].forEach(n=>{if(groupes[n])groupes[n].children.forEach(o=>{o.visible=o.position.distanceTo(cam.position)<(n==='labos'?6:11)})})}}else ctl.update();if(sale){R.render(S,cam);sale=false}requestAnimationFrame(boucle)}
-requestAnimationFrame(boucle);window.__d={cam,ctl,vis};
+requestAnimationFrame(boucle);window.__d={cam,ctl,vis,OBJM,REG,S,R,get sel(){return sel},maqEtat,repEtat,changerMode,basculerEdition,appliquerMaquette,ficheCorrections,ficheMaq,ouvrirPanneau};
 demarrer().catch(e=>{$('#charge').innerHTML='Impossible de charger la maquette : '+esc(e.message||e)});
 </script>
 </body>
