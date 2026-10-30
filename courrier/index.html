@@ -940,6 +940,21 @@ function boiteMontant(id, valeur, aide){
     '<div class="meta">' + aide + '</div><div class="opts" style="margin-top:6px"><input id="' + id + '" inputmode="decimal" placeholder="ex. 1 234,56" value="' + esc(valeur == null || valeur === '' ? '' : Number(valeur).toFixed(2).replace('.', ',')) + '" style="max-width:160px">' +
     '<button class="btn b-ok" style="flex:none" onclick="' + id + 'Ok()">Enregistrer le montant</button></div><div class="meta" id="' + id + 'R"></div></div>';
 }
+/* 7.82 : corriger depuis la carte le montant d'un dossier (montant lu faux, factures manquantes…) */
+function corrigerMontantCarte(i){
+  var x = TRESO.lignes[i], act = x.montantTTC != null ? x.montantTTC : x.du;
+  var s = prompt('Montant TTC du dossier ' + x.tiers + (x.refs ? '\n' + refsPropres(x.refs) : '') + '\n\nMontant actuel : ' + eur(act) + (x.verse ? ' (déjà versé : ' + eur(x.verse) + ')' : '') + '\n\nNouveau montant total TTC (€) :', act == null ? '' : String(act).replace('.', ','));
+  if (s == null) return; var v = nb(s);
+  if (v == null || v < 0) { alert('Montant invalide.'); return; }
+  if (Math.abs(v - (act || 0)) < 0.005) return;
+  appel('mob_majDossier', [JETON, x.cle, 'montant', String(v)], function(){
+    corrigerMontantLocal(x, v);
+    var note = aujourdhui().split('-').reverse().join('/') + ' : montant corrigé de ' + eur(act) + ' à ' + eur(v) + '.';
+    x.commentaire = ((x.commentaire || '').trim() ? x.commentaire.trim() + '\n' : '') + note;
+    appel('mob_majDossier', [JETON, x.cle, 'commentaire', x.commentaire], function(){}, function(){});
+    afficherTreso(); setTimeout(chargerTreso, 30000);
+  }, function(m){ alert('Montant non enregistré : ' + m); });
+}
 function montantDossier(cle, champId, apres){
   var x = ligneTreso(cle), v = nb((document.getElementById(champId) || {}).value || ''), z = document.getElementById(champId + 'R');
   if (v == null || v < 0) { if (z) z.innerHTML = '<span class="neg">Montant invalide.</span>'; return; }
@@ -1149,7 +1164,7 @@ function afficherTreso(){
     return entete + '<div class="carte' + (x.choisi && !v ? ' choisi' : '') + (enArch ? ' arch' : '') + '"' + (v ? ' style="margin:6px 0;box-shadow:none"' : '') + '><div class="lv">' +
       (MODE_ARCH ? '<input type="checkbox" class="chArch" title="À archiver"' + (enArch ? ' checked' : '') + ' onchange="cocherArch(' + i + ', this.checked)">'
         : '<input type="checkbox"' + (x.choisi ? ' checked' : '') + ' onchange="cocher(' + i + ', this.checked)">') +
-      '<div class="corpsL"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + (x.du == null && x.source === 'Fichier RJ' ? '<span class="neg">montant ?</span>' : eur(x.du)) + '</span></div>' +
+      '<div class="corpsL"><div class="ligne1"><span class="tiers">' + esc(x.tiers) + '</span><span class="montant">' + (x.du == null && x.source === 'Fichier RJ' ? '<span class="neg">montant ?</span>' : eur(x.du)) + (x.source === 'Fichier RJ' && x.du != null ? ' <a href="#" class="meta" title="Corriger le montant du dossier" onclick="event.preventDefault();event.stopPropagation();corrigerMontantCarte(' + i + ')">✏️</a>' : '') + '</span></div>' +
       (x.du == null && x.source === 'Fichier RJ' ? '<div class="opts"><input id="mtI' + i + '" inputmode="decimal" placeholder="Montant TTC lu sur la facture" style="max-width:190px"><button class="pj" onclick="montantDossier(\'' + esc(x.cle).replace(/'/g, "\\'") + '\',\'mtI' + i + '\')">💶 Enregistrer le montant</button><span class="meta" id="mtI' + i + 'R"></span></div>' : '') +
       '<div class="meta">' + esc(x.refs) + (x.date ? ' · ' + esc(x.date) : '') + '</div>' +
       (x.verse ? '<div class="meta verse">💶 Facture ' + eur(x.montantTTC) + ' · déjà versé ' + eur(x.verse) + ' (' + x.versements.length + ' fois) · <b>reste ' + eur(x.du) + '</b></div>' : '') +
