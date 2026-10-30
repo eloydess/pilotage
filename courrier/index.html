@@ -1178,6 +1178,7 @@ function afficherTreso(){
         '<div class="opts">' + '<button class="pj" onclick="archiverSP([' + i + '],\'paye\')">✅ Archiver — déjà payé</button><button class="pj" onclick="archiverSP([' + i + '],\'np\')">📦 Archiver — ne pas payer</button></div>') +
       (x.choisi ? '<div class="meta" style="margin-top:6px"><b>Montant à virer maintenant</b> — tapez un montant plus petit pour un paiement partiel' + (x.du != null && x.montantVir != null && x.montantVir < x.du - 0.005 ? ' · <b>paiement partiel : ' + eur(x.montantVir) + ' sur ' + eur(x.du) + ', il restera ' + eur(x.du - x.montantVir) + '</b>' : '') + '</div>' +
         '<div class="opts"><input inputmode="decimal" style="max-width:130px" value="' + esc(x.montantVir == null ? '' : x.montantVir.toFixed(2).replace('.', ',')) + '" onchange="changer(' + i + ', \'montantVir\', this.value)" aria-label="Montant à virer">' +
+        (x.source === 'Fichier RJ' ? '<button class="pj" onclick="plusieursFois(' + i + ')">📅 Payer en plusieurs fois' + (x.verse ? ' · déjà versé ' + eur(x.verse) : '') + '</button>' : '') +
         '<select onchange="changer(' + i + ', \'banqueVir\', this.value)">' + ['CEBPL', 'BPGO'].map(function(b){ return '<option value="' + b + '"' + (x.banqueVir === b ? ' selected' : '') + '>' + NOMS_BANQUE[b] + '</option>'; }).join('') + '</select>' +
         '<select onchange="changer(' + i + ', \'priorite\', this.value)"><option value="">Priorité</option>' + [['1', '1 · Urgent'], ['2', '2 · Normal'], ['3', '3 · Plus tard']].map(function(p){ return '<option value="' + p[0] + '"' + (x.priorite === p[0] ? ' selected' : '') + '>' + p[1] + '</option>'; }).join('') + '</select></div>' : '') +
       '</div></div></div>';
@@ -2024,6 +2025,30 @@ function recapVersements(x){
   x.versements.forEach(function(v){ t += '\nVersé ' + eur(v.montant) + ' le ' + v.date + '.'; });
   t += '\nReste dû : ' + eur(x.du) + '.';
   return t;
+}
+/* 7.84 : payer en plusieurs fois depuis la carte cochée — échéancier (2, 3, 4… fois) et enregistrement des versements faits */
+function plusieursFois(i){
+  var x = TRESO.lignes[i]; DOSSIER = i;
+  var reste = x.du != null ? x.du : (x.montantTTC || 0), tot = x.montantTTC != null ? x.montantTTC : reste;
+  document.getElementById('mTitre').textContent = '📅 Payer en plusieurs fois — ' + x.tiers;
+  document.getElementById('mCorps').innerHTML =
+    '<div class="meta">' + esc(refsPropres(x.refs) || '') + '</div>' +
+    '<div class="carte" style="margin:8px 0;padding:8px"><b>1. Choisir l\'échéancier</b><div class="meta">Montant du dossier ' + eur(tot) + ' · déjà versé ' + eur(x.verse || 0) + ' · reste ' + eur(reste) + '. Le montant à virer maintenant devient une échéance.</div>' +
+      '<div class="opts" style="margin-top:6px">' + [2, 3, 4, 5, 6].map(function(n){ return '<button class="pj" onclick="choisirEcheancier(' + i + ',' + n + ')">' + n + ' fois · ' + eur(Math.round(reste / n * 100) / 100) + '</button>'; }).join('') + '</div>' +
+      '<div class="opts" style="margin-top:6px"><input id="echM" inputmode="decimal" placeholder="ou montant de cette échéance (€)" style="max-width:220px"><button class="pj" onclick="choisirEcheancier(' + i + ',0)">Valider ce montant</button></div><div class="meta" id="echR"></div></div>' +
+    '<div class="carte" style="margin:8px 0;padding:8px"><b>2. Une fois le virement parti : enregistrer le versement</b><div class="meta">Le reste dû baisse et le dossier reste ouvert pour la suite.</div>' + (x.versements ? blocVersements(x) : '<div class="meta">Ouvrez « Mettre à jour le dossier » pour enregistrer les versements.</div>') + '</div>';
+  ouvrir();
+}
+function choisirEcheancier(i, n){
+  var x = TRESO.lignes[i], reste = x.du != null ? x.du : (x.montantTTC || 0), z = document.getElementById('echR');
+  var m = n ? Math.round(reste / n * 100) / 100 : nb((document.getElementById('echM') || {}).value || '');
+  if (m == null || m <= 0 || m > reste + 0.005) { z.innerHTML = '<span class="neg">Montant invalide (entre 0 et ' + eur(reste) + ').</span>'; return; }
+  x.choisi = true; x.montantVir = m; sauverLigne(x);
+  var ligne = '📅 Paiement en plusieurs fois' + (n ? ' : ' + n + ' échéances de ' + eur(m) : ' : échéance de ' + eur(m)) + ' (reste ' + eur(reste) + ' au ' + aujourdhui().split('-').reverse().join('/') + ').';
+  x.commentaire = String(x.commentaire || '').split('\n').filter(function(l){ return !/📅 Paiement en plusieurs fois/.test(l); }).concat([ligne]).join('\n').trim();
+  appel('mob_majDossier', [JETON, x.cle, 'commentaire', x.commentaire], function(){}, function(){});
+  z.innerHTML = '<span class="pos">✓ Montant à virer maintenant : ' + eur(m) + (n ? ' (1re échéance sur ' + n + ')' : '') + '. Il restera ' + eur(reste - m) + '.</span>';
+  afficherTreso();
 }
 function blocVersements(x){
   return '<div class="carte" style="margin-top:12px;background:#f8f9fb"><b>💶 Paiement en plusieurs fois</b>' +
