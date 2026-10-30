@@ -76,7 +76,7 @@ input[type=range]{padding:0;border:0}
 import * as T from './moteur3d-3.js';
 const {GLTFLoader,OrbitControls,DRACOLoader,computeBoundsTree,acceleratedRaycast}=T;
 T.BufferGeometry.prototype.computeBoundsTree=computeBoundsTree;T.Mesh.prototype.raycast=acceleratedRaycast;
-const V3D='3.0';
+const V3D='3.1';
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -204,7 +204,7 @@ function remplirPanneau(){const P=$('#panneau');let h='';
    <div class="grille">${tg('c_reperes',actives.includes('reperes'),'📍 Tous les repères')}${tg('c_labos',actives.includes('labos'),'🏷️ Laboratoires')}
    ${tg('r_tg',REG.rep.tg,'🟪 Têtes de gondole')}${tg('r_bacs',REG.rep.bacs,'🟧 Bacs soldeurs')}${tg('r_bdc',REG.rep.bdc,'🟫 Barres de charge')}${tg('r_ecr',REG.rep.ecr,'🟦 Écrans')}${tg('r_ent',REG.rep.ent,'🟩 Entrées, comptoirs')}
    ${tg('c_bf',actives.includes('bf'),'🖤 Black Friday')}${tg('c_objets',actives.includes('objets'),'🧩 Objets posés')}</div>
-   <div class="btns" style="grid-template-columns:1fr 1fr"><button class="btn s" id="pecr">📺 Placer mes écrans</button><button class="btn o" id="pedit">✏️ Corriger un repère</button></div>
+   <div class="btns" style="grid-template-columns:1fr 1fr"><button class="btn s" id="pecr">📺 Placer mes écrans</button><button class="btn o" id="pedit">✏️ Corriger un repère</button></div><div class="btns" style="grid-template-columns:1fr"><button class="btn" id="pbf" style="background:#111">🖤 Black Friday : liste d'achat Amazon</button></div>
    ${nb?`<div class="sub" style="margin-top:6px">${nb} repère(s) supprimé(s) : voir ✏️ Modifier › Corrections pour les rétablir.</div>`:''}`}
   P.innerHTML=h;P.querySelector('.x').onclick=fermerPanneau;
   P.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s,v=b.dataset.v;if(k==='fluide'){REG.fluide=v==='1';R.setPixelRatio(PR_MAX());prBas=false;taille()}else REG[k]=v;sauverReg();appliquerMaquette();remplirPanneau()});
@@ -217,7 +217,28 @@ function remplirPanneau(){const P=$('#panneau');let h='';
     remplirPanneau()});
   const d=$('#pdep');if(d)d.onclick=()=>{fermerPanneau();ficheDeplacer()};
   const e=$('#pecr');if(e)e.onclick=()=>{fermerPanneau();ficheEcrans()};
-  const f=$('#pedit');if(f)f.onclick=()=>{fermerPanneau();if(!edition)basculerEdition()}}
+  const f=$('#pedit');if(f)f.onclick=()=>{fermerPanneau();if(!edition)basculerEdition()};
+  const g=$('#pbf');if(g)g.onclick=()=>{fermerPanneau();ficheBF()}}
+/* Black Friday 2026 : achats Amazon.fr vérifiés en direct le 30/10/2026 vers 21 h 55 (prix, stock, « Expédié par Amazon »).
+   Dates de livraison lues sans compte connecté : à reconfirmer dans votre panier. */
+const BF_ACHATS=[
+ {a:'B0CR1DPF8N',q:2,n:'Kit arche ballons noir et or, 108 ballons latex + chaîne + points de colle',p:12.99,l:'lun. 2 nov.',z:'Entrées A et B (1 kit chacune)'},
+ {a:'B0BRCZ5N9P',q:1,n:'6 ballons géants 90 cm (3 noirs, 3 or)',p:9.95,l:'lun. 2 nov.',z:'Entrée A (2), arbre (1), entrée B (1), 2 en réserve'},
+ {a:'B0GVSJXPCN',q:1,n:'100 ballons 30 cm (50 noirs mats, 50 or) + rubans',p:10.99,l:'lun. 2 nov.',z:'Arbre central, îlot promo TG 1, renfort des arches'},
+ {a:'B09HTB2J44',q:1,n:'5 rideaux franges or champagne 1 × 2 m',p:13.49,l:'lun. 2 nov.',z:'Fond de TG 1 (2), comptoirs (2), entrée B (1)'},
+ {a:'B0CSXR1FTG',q:1,n:'2 rideaux franges noirs 1 × 2 m',p:7.95,l:'mar. 3 nov.',z:'Fond de TG 1, en alternance avec l\'or'},
+ {a:'B0D9NXNM4Y',q:1,n:'Pompe à ballons électrique 400 W',p:17.99,l:'lun. 2 nov.',z:'Gonflage : environ 20 min au lieu d\'1 h 15 à la main ; réutilisable (Noël, animations)'},
+ {a:'B0BJV39YWS',q:1,n:'500 points de colle double face',p:6.99,l:'lun. 2 nov.',z:'Fixation des arches sur les montants vitrés'},
+ {a:'B007P8DZE8',q:1,n:'Fil nylon transparent 0,5 mm × 100 m (7,5 kg)',p:5.29,l:'lun. 2 nov.',z:'Suspension des ballons de l\'arbre et du ballon géant'},
+ {a:'B0GTSGX9WW',q:1,n:'Guirlande 52 fanions or et noir, 20 m',p:6.69,l:'mer. 4 nov. (accélérée mar. 3)',z:'Haut des vitrines A et B ; seulement 5 avis'}];
+function ficheBF(){const tot=BF_ACHATS.reduce((s,x)=>s+x.p*x.q,0),eu=v=>v.toFixed(2).replace('.',',')+' €';
+  ouvrir(`<h3><span>🖤 Black Friday : liste d'achat</span><button class="x">✕</button></h3>
+   <div class="sub">Amazon.fr, vérifié en direct le 30/10/2026 vers 21 h 55 : en stock, expédié par Amazon. Les dates sont celles affichées sans compte connecté : <b>vérifiez-les dans votre panier</b>. Pour une livraison lundi 2 novembre, Amazon demandait de commander avant minuit environ.</div>
+   ${BF_ACHATS.map(x=>`<div class="l"><span><a href="https://www.amazon.fr/dp/${x.a}" target="_blank" rel="noopener">${esc(x.n)}</a>${x.q>1?' × '+x.q:''}<br><span class="sub">${esc(x.z)} · livraison ${esc(x.l)}</span></span><b>${eu(x.p*x.q)}</b></div>`).join('')}
+   <div class="l"><span><b>Total</b></span><b>${eu(tot)}</b></div>
+   <div class="verdict v-op">⚠️ Ballons en latex : <b>aucun aux comptoirs</b> (clients allergiques au latex), seulement des rideaux. Écrire « Black Friday » ou « Offre », jamais « Soldes ».</div>
+   <div class="sub">Affiches « Black Friday » imprimées : les kits Amazon n'arrivent que le 7 novembre (note 3,4/5). Mieux vaut les imprimer à la pharmacie en noir et or, et diffuser le même visuel sur les 7 écrans.</div>
+   <div class="sub" style="margin-top:6px">Couche 🖤 Black Friday : chaque élément posé dans la 3D se déplace en le touchant.</div>`)}
 function appliquerCouches(){
   for(const [k] of COUCHES)if(groupes[k])groupes[k].visible=actives.includes(k);
   if(groupes.sol){groupes.sol.visible=actives.includes('passage')||actives.includes('marge');groupes.sol.children.forEach(o=>{if(o.geometry&&o.geometry.type==='ConeGeometry')o.visible=actives.includes('passage')})}
