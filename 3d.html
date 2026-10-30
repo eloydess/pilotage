@@ -76,7 +76,7 @@ input[type=range]{padding:0;border:0}
 import * as T from './moteur3d-3.js';
 const {GLTFLoader,OrbitControls,DRACOLoader,computeBoundsTree,acceleratedRaycast}=T;
 T.BufferGeometry.prototype.computeBoundsTree=computeBoundsTree;T.Mesh.prototype.raycast=acceleratedRaycast;
-const V3D='3.1';
+const V3D='3.2';
 const $=s=>document.querySelector(s);
 const ls={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -204,7 +204,7 @@ function remplirPanneau(){const P=$('#panneau');let h='';
    <div class="grille">${tg('c_reperes',actives.includes('reperes'),'📍 Tous les repères')}${tg('c_labos',actives.includes('labos'),'🏷️ Laboratoires')}
    ${tg('r_tg',REG.rep.tg,'🟪 Têtes de gondole')}${tg('r_bacs',REG.rep.bacs,'🟧 Bacs soldeurs')}${tg('r_bdc',REG.rep.bdc,'🟫 Barres de charge')}${tg('r_ecr',REG.rep.ecr,'🟦 Écrans')}${tg('r_ent',REG.rep.ent,'🟩 Entrées, comptoirs')}
    ${tg('c_bf',actives.includes('bf'),'🖤 Black Friday')}${tg('c_objets',actives.includes('objets'),'🧩 Objets posés')}</div>
-   <div class="btns" style="grid-template-columns:1fr 1fr"><button class="btn s" id="pecr">📺 Placer mes écrans</button><button class="btn o" id="pedit">✏️ Corriger un repère</button></div><div class="btns" style="grid-template-columns:1fr"><button class="btn" id="pbf" style="background:#111">🖤 Black Friday : liste d'achat Amazon</button></div>
+   <div class="btns" style="grid-template-columns:1fr 1fr"><button class="btn s" id="pecr">📺 Placer mes écrans</button><button class="btn o" id="pedit">✏️ Corriger un repère</button></div><div class="btns" style="grid-template-columns:1fr"><button class="btn" id="pbf" style="background:#111">🖤 Black Friday v2 : le plan + la liste Amazon</button></div>
    ${nb?`<div class="sub" style="margin-top:6px">${nb} repère(s) supprimé(s) : voir ✏️ Modifier › Corrections pour les rétablir.</div>`:''}`}
   P.innerHTML=h;P.querySelector('.x').onclick=fermerPanneau;
   P.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{const k=b.dataset.s,v=b.dataset.v;if(k==='fluide'){REG.fluide=v==='1';R.setPixelRatio(PR_MAX());prBas=false;taille()}else REG[k]=v;sauverReg();appliquerMaquette();remplirPanneau()});
@@ -219,26 +219,38 @@ function remplirPanneau(){const P=$('#panneau');let h='';
   const e=$('#pecr');if(e)e.onclick=()=>{fermerPanneau();ficheEcrans()};
   const f=$('#pedit');if(f)f.onclick=()=>{fermerPanneau();if(!edition)basculerEdition()};
   const g=$('#pbf');if(g)g.onclick=()=>{fermerPanneau();ficheBF()}}
-/* Black Friday 2026 : achats Amazon.fr vérifiés en direct le 30/10/2026 vers 21 h 55 (prix, stock, « Expédié par Amazon »).
-   Dates de livraison lues sans compte connecté : à reconfirmer dans votre panier. */
+/* Black Friday 2026 v2 : achats Amazon.fr vérifiés en direct le 30/10/2026 vers 23 h 40 (prix, note, date affichée sans compte connecté). */
 const BF_ACHATS=[
- {a:'B0CR1DPF8N',q:2,n:'Kit arche ballons noir et or, 108 ballons latex + chaîne + points de colle',p:12.99,l:'lun. 2 nov.',z:'Entrées A et B (1 kit chacune)'},
- {a:'B0BRCZ5N9P',q:1,n:'6 ballons géants 90 cm (3 noirs, 3 or)',p:9.95,l:'lun. 2 nov.',z:'Entrée A (2), arbre (1), entrée B (1), 2 en réserve'},
- {a:'B0GVSJXPCN',q:1,n:'100 ballons 30 cm (50 noirs mats, 50 or) + rubans',p:10.99,l:'lun. 2 nov.',z:'Arbre central, îlot promo TG 1, renfort des arches'},
- {a:'B09HTB2J44',q:1,n:'5 rideaux franges or champagne 1 × 2 m',p:13.49,l:'lun. 2 nov.',z:'Fond de TG 1 (2), comptoirs (2), entrée B (1)'},
- {a:'B0CSXR1FTG',q:1,n:'2 rideaux franges noirs 1 × 2 m',p:7.95,l:'mar. 3 nov.',z:'Fond de TG 1, en alternance avec l\'or'},
- {a:'B0D9NXNM4Y',q:1,n:'Pompe à ballons électrique 400 W',p:17.99,l:'lun. 2 nov.',z:'Gonflage : environ 20 min au lieu d\'1 h 15 à la main ; réutilisable (Noël, animations)'},
- {a:'B0BJV39YWS',q:1,n:'500 points de colle double face',p:6.99,l:'lun. 2 nov.',z:'Fixation des arches sur les montants vitrés'},
- {a:'B007P8DZE8',q:1,n:'Fil nylon transparent 0,5 mm × 100 m (7,5 kg)',p:5.29,l:'lun. 2 nov.',z:'Suspension des ballons de l\'arbre et du ballon géant'},
- {a:'B0GTSGX9WW',q:1,n:'Guirlande 52 fanions or et noir, 20 m',p:6.69,l:'mer. 4 nov. (accélérée mar. 3)',z:'Haut des vitrines A et B ; seulement 5 avis'}];
+ {a:'B0DCJVH8FL',q:1,n:'Support d\'arche autoportant réglable 2,5 m',p:32.99,l:'lun. 2 ou mar. 3 nov.',z:'Entrée A : l\'arche tient debout, rien de collé sur la vitre',nv:1},
+ {a:'B0F9XRRFFL',q:1,n:'2 supports de colonnes de ballons 0,5 à 2 m',p:23.99,l:'lun. 2 nov.',z:'Mur des offres (îlot promo TG 1)',nv:1},
+ {a:'B0GKFZSXG5',q:1,n:'52 ballons or métallique 30 cm',p:8.49,l:'lun. 2 nov.',z:'Or brillant dans l\'arche et les colonnes (effet haut de gamme)',nv:1},
+ {a:'B0DYK83WFV',q:1,n:'Lettres alu or A-Z (pour FRIDAY)',p:9.99,l:'mar. 3 nov. (accélérée lun. 2)',z:'Au-dessus de l\'arche A',nv:1},
+ {a:'B0DYP82VXV',q:1,n:'Lettres alu noires A-Z (pour BLACK)',p:9.99,l:'lun. 2 nov.',z:'Au-dessus de l\'arche A',nv:1},
+ {a:'B0CR1DPF8N',q:2,n:'Kit arche ballons noir et or (≈ 110 ballons + chaîne)',p:12.99,l:'lun. 2 nov.',z:'Kit 1 : arche A · kit 2 : guirlande entrée B + colonnes'},
+ {a:'B0BRCZ5N9P',q:1,n:'6 ballons géants 90 cm (3 noirs, 3 or)',p:9.95,l:'lun. 2 nov.',z:'Phares : mur des offres, arbre, entrée B (3 en réserve pour remplacer)'},
+ {a:'B0GVSJXPCN',q:1,n:'100 ballons 30 cm (50 noirs mats, 50 or)',p:10.99,l:'lun. 2 nov.',z:'Nuage de l\'arbre central, renforts'},
+ {a:'B09HTB2J44',q:1,n:'5 rideaux franges or champagne 1 × 2 m',p:13.49,l:'lun. 2 nov.',z:'Fond du mur des offres (2), comptoirs (2), réserve (1)'},
+ {a:'B0CSXR1FTG',q:1,n:'2 rideaux franges noirs 1 × 2 m',p:7.95,l:'mar. 3 nov.',z:'Intercalés avec l\'or au mur des offres'},
+ {a:'B0D9NXNM4Y',q:1,n:'Pompe à ballons électrique 400 W',p:17.99,l:'lun. 2 nov.',z:'Gonflage ≈ 20 min au lieu d\'1 h 15 ; réutilisable à Noël'},
+ {a:'B0BJV39YWS',q:1,n:'500 points de colle double face',p:6.99,l:'lun. 2 nov.',z:'Montage des grappes sur la chaîne'},
+ {a:'B007P8DZE8',q:1,n:'Fil nylon transparent 0,5 mm × 100 m',p:5.29,l:'lun. 2 nov.',z:'Nuage de l\'arbre, ballons géants'}];
 function ficheBF(){const tot=BF_ACHATS.reduce((s,x)=>s+x.p*x.q,0),eu=v=>v.toFixed(2).replace('.',',')+' €';
-  ouvrir(`<h3><span>🖤 Black Friday : liste d'achat</span><button class="x">✕</button></h3>
-   <div class="sub">Amazon.fr, vérifié en direct le 30/10/2026 vers 21 h 55 : en stock, expédié par Amazon. Les dates sont celles affichées sans compte connecté : <b>vérifiez-les dans votre panier</b>. Pour une livraison lundi 2 novembre, Amazon demandait de commander avant minuit environ.</div>
-   ${BF_ACHATS.map(x=>`<div class="l"><span><a href="https://www.amazon.fr/dp/${x.a}" target="_blank" rel="noopener">${esc(x.n)}</a>${x.q>1?' × '+x.q:''}<br><span class="sub">${esc(x.z)} · livraison ${esc(x.l)}</span></span><b>${eu(x.p*x.q)}</b></div>`).join('')}
+  ouvrir(`<h3><span>🖤 Black Friday v2</span><button class="x">✕</button></h3>
+   <div class="verdict v-ok"><b>L'idée :</b> un seul signal fort à l'entrée, puis tout conduit au <b>mur des offres</b>. La décoration sert à faire entrer les clients et à les amener jusqu'aux offres.</div>
+   <b>Les 6 règles retenues</b>
+   <div class="l"><span><b>1. Arche à l'entrée A, lisible depuis la galerie.</b> Guirlande organique noir mat + or brillant + touches de blanc, 3 tailles de ballons, plus fournie à gauche et qui descend jusqu'au sol (plus moderne qu'un demi-cercle régulier). BLACK en noir, FRIDAY en or au-dessus.</span></div>
+   <div class="l"><span><b>2. Rien dans les 3 premiers mètres.</b> En entrant, le client ralentit et ne voit pas ce qui est posé juste après la porte (zone de décompression, Paco Underhill, <i>Why We Buy</i>). Les offres commencent après.</span></div>
+   <div class="l"><span><b>3. Mur des offres à l'îlot promo (TG 1).</b> 2 colonnes de ballons de 2 m, franges or et noir au fond, un ballon géant or au-dessus, panneau OFFRES BLACK FRIDAY. C'est aussi le décor photo pour Instagram.</span></div>
+   <div class="l"><span><b>4. Une offre par tablette, prix barré + nouveau prix en gros.</b> L'essentiel des achats se décide en magasin (76 % selon l'étude POPAI 2012) : l'affichage sur place fait la vente.</span></div>
+   <div class="l"><span><b>5. Des phares sur le chemin.</b> Nuage de ballons et ballon géant à l'arbre central, guirlande à l'entrée B : visibles de loin, ils tirent le client vers le fond du magasin.</span></div>
+   <div class="l"><span><b>6. Rappel au comptoir.</b> Franges or + panneau « Avez-vous vu nos offres ? » et une phrase de l'équipe à chaque passage en caisse : c'est là que le panier augmente.</span></div>
+   <div class="verdict v-op">⚠️ Aucun ballon en latex aux comptoirs (allergies) : seulement des franges. Écrire « Black Friday » ou « Offre », jamais « Soldes ». Passage libre de 1,40 m sous l'arche.</div>
+   <b>Liste d'achat Amazon (≈ ${eu(tot)})</b>
+   <div class="sub">Vérifiée en direct le 30/10/2026 vers 23 h 40, sans compte connecté : <b>vérifiez les dates dans votre panier</b>. ✨ = nouveau dans la v2.</div>
+   ${BF_ACHATS.map(x=>`<div class="l"><span>${x.nv?'✨ ':''}<a href="https://www.amazon.fr/dp/${x.a}" target="_blank" rel="noopener">${esc(x.n)}</a>${x.q>1?' × '+x.q:''}<br><span class="sub">${esc(x.z)} · livraison ${esc(x.l)}</span></span><b>${eu(x.p*x.q)}</b></div>`).join('')}
    <div class="l"><span><b>Total</b></span><b>${eu(tot)}</b></div>
-   <div class="verdict v-op">⚠️ Ballons en latex : <b>aucun aux comptoirs</b> (clients allergiques au latex), seulement des rideaux. Écrire « Black Friday » ou « Offre », jamais « Soldes ».</div>
-   <div class="sub">Affiches « Black Friday » imprimées : les kits Amazon n'arrivent que le 7 novembre (note 3,4/5). Mieux vaut les imprimer à la pharmacie en noir et or, et diffuser le même visuel sur les 7 écrans.</div>
-   <div class="sub" style="margin-top:6px">Couche 🖤 Black Friday : chaque élément posé dans la 3D se déplace en le touchant.</div>`)}
+   <div class="sub" style="margin-top:6px">Montage : arche A + lettres 1 h 30 (2 personnes) · mur des offres 1 h · arbre et entrée B 45 min · comptoirs 15 min. Chaque élément se déplace dans la 3D (mode Modifier).</div>
+   <div class="sub">Sources : <a href="https://drugstorenews.com/news/point-purchase-research-76-buy-decisions-still-being-made-store" target="_blank" rel="noopener">étude POPAI 2012</a> · Paco Underhill, <i>Why We Buy</i> (zone de décompression).</div>`)}
 function appliquerCouches(){
   for(const [k] of COUCHES)if(groupes[k])groupes[k].visible=actives.includes(k);
   if(groupes.sol){groupes.sol.visible=actives.includes('passage')||actives.includes('marge');groupes.sol.children.forEach(o=>{if(o.geometry&&o.geometry.type==='ConeGeometry')o.visible=actives.includes('passage')})}
@@ -302,24 +314,54 @@ function peindreSol(k){const x=SOLCV.getContext('2d'),im=x.createImageData(GW,GH
   x.putImageData(im,0,0);SOLTEX.needsUpdate=true;salir()}
 
 /* ---------- Objets posés (Black Friday + objets ajoutés) ---------- */
-const BF_ARCHE=(()=>{const a=[11.95,-34.35],b=[14.35,-36.75],p=[];for(let i=0;i<11;i++){const t=i/10;p.push([+(a[0]+t*(b[0]-a[0])+.55).toFixed(2),+(0.25+2.35*Math.sin(Math.PI*t)).toFixed(2),+(a[1]+t*(b[1]-a[1])+.55).toFixed(2)])}return p})();
-const BF_DEF=[...BF_ARCHE.map(p=>['grappe','Arche de ballons',p[0],p[1],p[2]]),['geant','Ballon géant',14.9,.95,-35.2],['affiche','Affiche vitrine',10.1,1.5,-34.6],['affiche','Affiche vitrine',13.9,1.5,-38.0],['banderole','Banderole vitrine',9.6,2.2,-34.0],['banderole','Banderole vitrine',11.9,2.2,-36.3],['banderole','Banderole vitrine',14.1,2.2,-38.5],
- ['arche','Arche or TG 1',13.2,2.1,-27.1],['rideau','Rideau doré TG 1',13.2,1.1,-27.3],['affiche','Affiche TG 1',13.2,1.7,-26.9],
- null,null,null,null, /* anciens « ballons bacs 1 à 4 » : retirés (bacs soldeurs absents) */
- ['ballons8','Ballons arbre',36.3,2.0,-16.6],['geant','Ballon géant arbre',36.3,2.85,-16.6],['arche','Arche or entrée B',18.5,2.1,-12.2],['banderole','Banderole entrée B',18.5,2.3,-11.5],['affiche','Affiche entrée B',17.2,1.5,-11.7],
- ['rideau','Rideau comptoir',55.6,.6,-22.6],['rideau','Rideau comptoir',55.6,.6,-17.6],['affiche','Affiche comptoirs',55.3,1.4,-20.1]].map((o,i)=>o&&({id:'bf'+i,bf:1,t:o[0],lib:o[1],x:o[2],h:o[3],z:o[4],r:0})).filter(Boolean);
-const TYPES={grappe:'Grappe de ballons',ballons2:'2 ballons',ballons8:'8 ballons',geant:'Ballon géant',affiche:'Affiche',banderole:'Banderole',arche:'Arche',rideau:'Rideau',ecran:'Écran',plv:'PLV / kakémono',presentoir:'Présentoir de sol',tg:'Tête de gondole mobile',bac:'Bac / panier',entree:'Repère d\'entrée',note:'Repère libre'};
+/* Black Friday v2 (31/10/2026) : nouvelle implantation, identifiants « bfv2_ » (les anciens repères bf0… ne s'affichent plus).
+   Principes : arche autoportante en guirlande organique (3 tailles, noir mat / or brillant / blanc), mot BLACK FRIDAY lisible depuis la galerie,
+   zone de décompression laissée libre, « mur des offres » à l'îlot promo (2 colonnes + franges or = décor photo), phares (ballons géants) sur le chemin. */
+const BF_DEF=[
+ ['archeorg','Arche organique entrée A (support 2,5 m)',13.79,0,-34.91,45],
+ ['lettres','BLACK FRIDAY au-dessus de l\'arche',13.79,2.85,-34.91,45],
+ ['zone','Zone libre (décompression, 3 m)',15.0,0,-33.2,0],
+ ['colonne','Colonne ballons gauche, mur des offres',12.05,0,-27.0,0],
+ ['colonne','Colonne ballons droite, mur des offres',14.35,0,-27.0,0],
+ ['franges','Franges or, fond du mur des offres',13.2,1.05,-27.35,0],
+ ['geant','Ballon géant or, mur des offres',13.2,2.35,-27.2,0],
+ ['panneau','Panneau OFFRES BLACK FRIDAY',13.2,1.95,-26.95,0],
+ ['nuage','Nuage de ballons, arbre central',36.3,2.1,-16.6,0],
+ ['geant','Ballon géant noir, arbre central',36.3,2.9,-16.6,0],
+ ['guirlande','Guirlande organique haut entrée B',18.5,2.25,-11.9,90],
+ ['geant','Ballon géant or, entrée B',17.4,.55,-12.6,0],
+ ['franges','Franges or, comptoir',55.6,.6,-22.6,90],
+ ['franges','Franges or, comptoir',55.6,.6,-17.6,90],
+ ['panneau','Panneau comptoir « Avez-vous vu nos offres ? »',55.3,1.45,-20.1,90]
+].map((o,i)=>({id:'bfv2_'+i,bf:1,t:o[0],lib:o[1],x:o[2],h:o[3],z:o[4],r:o[5]}));
+const TYPES={archeorg:'Arche organique',lettres:'Lettres ballons',zone:'Zone libre',colonne:'Colonne de ballons',franges:'Rideau franges',panneau:'Panneau',nuage:'Nuage de ballons',guirlande:'Guirlande organique',grappe:'Grappe de ballons',ballons2:'2 ballons',ballons8:'8 ballons',geant:'Ballon géant',affiche:'Affiche',banderole:'Banderole',arche:'Arche',rideau:'Rideau',ecran:'Écran',plv:'PLV / kakémono',presentoir:'Présentoir de sol',tg:'Tête de gondole mobile',bac:'Bac / panier',entree:'Repère d\'entrée',note:'Repère libre'};
 const AJOUTABLES=['plv','presentoir','tg','bac','ecran','affiche','banderole','geant','ballons8','grappe','note'];
 const mat=c=>new T.MeshLambertMaterial({color:c});
-const MAT={noir:mat(0x161616),or:mat(0xd4a537),blanc:mat(0xf4f4f4),bleu:mat(0x0d47a1),vert:mat(0x2e7d32),gris:mat(0x777777),orange:mat(0xef6c00)};
+const MAT={noirmat:new T.MeshLambertMaterial({color:0x111111}),orbr:new T.MeshPhongMaterial({color:0xd9a93a,specular:0xfff2c0,shininess:90}),blancp:new T.MeshPhongMaterial({color:0xf7f3ea,specular:0xffffff,shininess:60}),zone:new T.MeshBasicMaterial({color:0x2e7d32,transparent:true,opacity:.18,depthWrite:false}),noir:mat(0x161616),or:mat(0xd4a537),blanc:mat(0xf4f4f4),bleu:mat(0x0d47a1),vert:mat(0x2e7d32),gris:mat(0x777777),orange:mat(0xef6c00)};
 const SPH=new T.SphereGeometry(.15,12,8);
 function maillage(o){const g=new T.Group();const B=(w,h,d,m,y=0)=>{const b=new T.Mesh(new T.BoxGeometry(w,h,d),m);b.position.y=y;g.add(b);return b};
   const boule=(x,y,z,s,m)=>{const b=new T.Mesh(SPH,m);b.position.set(x,y,z);b.scale.setScalar(s);g.add(b)};
   switch(o.t){
+   case 'archeorg':{/* arche ellipse 2,6 m × 2,5 m, guirlande organique asymétrique (base gauche plus fournie, qui « coule » au sol) */
+     let k=7;const rnd=()=>{k=(k*16807)%2147483647;return k/2147483647};const coul=()=>{const v=rnd();return v<.5?MAT.noirmat:v<.85?MAT.orbr:MAT.blancp};
+     for(let i=0;i<150;i++){const t=Math.PI*Math.pow(rnd(),.85),x=-Math.cos(t)*1.3,y=.08+2.4*Math.sin(t),j=rnd();const sz=j<.2?1.55:j<.75?1:.45;
+       boule(x+(rnd()-.5)*.32,Math.max(.1,y+(rnd()-.5)*.3),(rnd()-.5)*.38,sz,coul())}
+     for(let i=0;i<26;i++){const x=-1.3-rnd()*.75,y=.1+rnd()*.55;boule(x,y,(rnd()-.5)*.5,rnd()<.3?1.5:.9,coul())}
+     const sup=new T.Mesh(new T.TorusGeometry(1,.012,6,32,Math.PI),MAT.gris);sup.scale.set(1.3,2.4,1);g.add(sup);break}
+   case 'lettres':{const s1=etiquette('BLACK',{taille:.42,fond:'rgba(0,0,0,0)',coul:'#111'}),s2=etiquette('FRIDAY',{taille:.42,fond:'rgba(0,0,0,0)',coul:'#d4a537'});
+     s1.position.set(-.62,.0,0);s2.position.set(.62,0,0);s1.material.depthTest=s2.material.depthTest=true;g.add(s1,s2);break}
+   case 'zone':{const d=new T.Mesh(new T.CircleGeometry(1.5,40),MAT.zone);d.rotation.x=-Math.PI/2;d.position.y=.03;g.add(d);const e=etiquette('Zone libre 3 m',{taille:.26,fond:'rgba(46,125,50,.85)',coul:'#fff'});e.position.y=.35;g.add(e);break}
+   case 'colonne':{let k=11;const rnd=()=>{k=(k*16807)%2147483647;return k/2147483647};
+     for(let n=0;n<10;n++){const y=.15+n*.19;for(let q=0;q<4;q++){const a=q*Math.PI/2+n*.6;boule(Math.cos(a)*.2,y,Math.sin(a)*.2,1,(n+q)%3===0?MAT.blancp:(n%2?MAT.orbr:MAT.noirmat))}}
+     boule(0,2.05,0,1.6,MAT.orbr);B(.45,.04,.45,MAT.gris,.02);break}
+   case 'franges':{for(let i=0;i<34;i++){const f=new T.Mesh(new T.BoxGeometry(.022,1.1,.006),i%2?MAT.orbr:new T.MeshPhongMaterial({color:0xf0cf73,specular:0xffffff,shininess:120}));f.position.set(-.55+i*.033,0,((i*7)%5)*.004);g.add(f)}break}
+   case 'panneau':{const tx=o.lib.includes('Avez')?'Avez-vous vu nos offres ?':'OFFRES BLACK FRIDAY';const e=etiquette(tx,{taille:.24,fond:'#111',coul:'#e8cf8a'});e.material.depthTest=true;g.add(e);break}
+   case 'nuage':{let k=5;const rnd=()=>{k=(k*16807)%2147483647;return k/2147483647};for(let i=0;i<22;i++){const a=rnd()*6.28,r=rnd()*.8;boule(Math.cos(a)*r,(rnd()-.5)*.6,Math.sin(a)*r,rnd()<.25?1.5:1,i%3===0?MAT.orbr:i%3===1?MAT.noirmat:MAT.blancp)}break}
+   case 'guirlande':{let k=3;const rnd=()=>{k=(k*16807)%2147483647;return k/2147483647};for(let i=0;i<60;i++){const x=-1.5+rnd()*3,j=rnd();boule(x,(rnd()-.5)*.3-Math.abs(x)*.05,(rnd()-.5)*.25,j<.2?1.5:j<.7?1:.45,j<.5?MAT.noirmat:j<.85?MAT.orbr:MAT.blancp)}break}
    case 'grappe':boule(0,0,0,1.1,MAT.noir);boule(.2,.1,0,.9,MAT.or);boule(-.18,.12,.05,.85,MAT.noir);boule(0,.25,.1,.8,MAT.or);break;
    case 'ballons2':boule(-.12,0,0,1,MAT.noir);boule(.12,.05,0,1,MAT.or);break;
    case 'ballons8':for(let i=0;i<8;i++)boule(Math.cos(i*.8)*.4,Math.sin(i*1.3)*.25,Math.sin(i*.8)*.4,1,i%2?MAT.or:MAT.noir);break;
-   case 'geant':boule(0,0,0,3,MAT.noir);break;
+   case 'geant':boule(0,0,0,3,/or/.test(o.lib||'')?MAT.orbr:MAT.noirmat);break;
    case 'affiche':B(.6,.9,.03,MAT.noir);break;
    case 'banderole':B(2.4,.16,.03,MAT.or);break;
    case 'arche':{const t=new T.Mesh(new T.TorusGeometry(.9,.07,8,24,Math.PI),MAT.or);g.add(t);break}
