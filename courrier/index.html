@@ -1038,7 +1038,7 @@ function nb(v){ var s = String(v == null ? '' : v).replace(/\s/g, '').replace(/�
 
 function chargerTreso(){
   document.getElementById('treso').innerHTML = '<div class="chargement">Chargement…</div>';
-  appel('mob_tresorerie', [JETON], function(r){ TRESO = r; appliquerMtCorr(); afficherTreso(); facturesManquantes(false); setTimeout(piecesCochesFond, 500); },
+  appel('mob_tresorerie', [JETON], function(r){ TRESO = r; appliquerMtCorr(); afficherTreso(); facturesManquantes(false); setTimeout(piecesCochesFond, 500); setTimeout(viderAttente, 3000); },
     function(m){ document.getElementById('treso').innerHTML = '<div class="erreur">' + esc(m) + '</div>'; });
 }
 
@@ -2168,13 +2168,43 @@ function ajouterBordereau(input, cles, zoneId, fin){
   });
 }
 function idsAjoutes(avant, r, g){ var A = {}; (avant || []).forEach(function(p){ A[p.id] = 1; }); return ((r && r.pieces) || []).filter(function(p){ return p.genre === (g || 'document') && !A[p.id]; }).map(function(p){ return p.id; }); }
+/* 7.85 : quand le service Google refuse (« Trop d'appels pour ce service aujourd'hui »), la pièce est gardée sur cet appareil
+   et envoyée automatiquement dès que le service répond de nouveau (au chargement, puis toutes les 15 min). Rien n'est perdu. */
+function estQuota(m){ return /trop d.appels|urlfetch|quota|Service invoked too many times/i.test(String(m || '')); }
+function fileAttente(){ try { return JSON.parse(localStorage.getItem('cr_attente') || '[]'); } catch (e) { return []; } }
+function fileAttenteEcrire(l){ try { localStorage.setItem('cr_attente', JSON.stringify(l)); return true; } catch (e) { return false; } }
+function mettreEnAttente(cle, genre, fichier){
+  var l = fileAttente(); l.push({ cle: cle, genre: genre, f: fichier, quand: Date.now() });
+  return fileAttenteEcrire(l);
+}
+var ATT_EN_COURS = false;
+function viderAttente(){
+  var l = fileAttente(); if (!l.length || ATT_EN_COURS || !TRESO || !TRESO.lignes) return; ATT_EN_COURS = true;
+  var reste = l.slice(), faits = 0;
+  var suite = function(){
+    if (!reste.length) { ATT_EN_COURS = false; fileAttenteEcrire([]); if (faits) { alert('✅ ' + faits + ' pièce(s) en attente envoyée(s) au dossier (le service Google répond de nouveau).'); afficherTreso(); } return; }
+    var e = reste[0], x = ligneTreso(e.cle);
+    if (!x) { reste.shift(); return suite(); }
+    var av = x.pieces;
+    appel('mob_piece', [JETON, e.cle, genreServeur(e.genre), nomPiece(e.genre, e.f)], function(r){
+      reste.shift(); fileAttenteEcrire(reste); faits++; var nv = idsAjoutes(av, r, genreServeur(e.genre)); majCompte(x, r);
+      if (e.genre === 'bordereau') noteBordereau(x, suite, nv); else if (e.genre === 'bordereauA' || e.genre === 'preuveA') noteRegistre(x, e.genre === 'bordereauA' ? 'BA' : 'PA', nv, suite); else suite();
+    }, function(m){ ATT_EN_COURS = false; fileAttenteEcrire(reste); });
+  };
+  suite();
+}
+setInterval(viderAttente, 15 * 60000);
+function messageQuota(cle, genre, f, dit){
+  if (mettreEnAttente(cle, genre, f)) { dit('<span style="color:var(--orange);font-weight:600">⏳ Le service Google a atteint sa limite d\'appels pour aujourd\'hui. Le fichier est gardé sur cet appareil et sera rangé automatiquement dans le dossier dès que le service répondra de nouveau (en général dans la journée). Gardez la page ouverte ou rouvrez-la plus tard sur cet appareil.</span>'); afficherTreso(); }
+  else dit('<span class="neg">Service Google saturé et fichier trop gros pour être gardé ici : réessayez plus tard.</span>');
+}
 function ajouterBordereauFichier(f0, cles, dit, nFact, fin){
   (function(){ var fs = [f0];
     var reste = cles.slice(), n = 0;
     var suite = function(){
       if (!reste.length) { dit('<span class="pos">✓ Bordereau rangé une seule fois' + (nFact > 1 ? ', pour les ' + nFact + ' factures du virement groupé' : '') + '.</span>'); afficherTreso(); if (fin) fin(); return; }
       var x = ligneTreso(reste.shift()); dit('Enregistrement du bordereau… ' + (n + 1) + ' / ' + cles.length);
-      var av = x.pieces; appel('mob_piece', [JETON, x.cle, 'document', nomPiece('bordereau', fs[0], x)], function(r){ var nv = idsAjoutes(av, r); majCompte(x, r); n++; noteBordereau(x, suite, nv); }, function(m){ dit('<span class="neg">' + esc(m) + '</span>'); });
+      var av = x.pieces; appel('mob_piece', [JETON, x.cle, 'document', nomPiece('bordereau', fs[0], x)], function(r){ var nv = idsAjoutes(av, r); majCompte(x, r); n++; noteBordereau(x, suite, nv); }, function(m){ if (estQuota(m)) return messageQuota(x.cle, 'bordereau', fs[0], dit); dit('<span class="neg">' + esc(m) + '</span>'); });
     };
     suite();
   })();
@@ -2289,6 +2319,7 @@ function basculerAcompteSur(P){
   M.forEach(function(y){ y.choisi = true; if (!(y.montantVir > 0)) y.montantVir = montantPosBrut(y); if (y !== P) sauverLigne(y); });
   sauverLigne(P); afficherTreso();
 }
+function enAttente(x){ return fileAttente().filter(function(e){ return e.cle === x.cle; }).length; }
 function badgesPieces(x){
   var i = TRESO && TRESO.lignes ? TRESO.lignes.indexOf(x) : -1;
   var b = function(n, ok, txt, genre){
@@ -2299,9 +2330,9 @@ function badgesPieces(x){
   var ac = acompteDe(x) > 0, seul = acompteSeul(x), pastAc = (i >= 0 && x.source === 'Fichier RJ') ? '<span class="bpc ' + (ac ? 'bpc-ok' : 'bpc-non') + '" onclick="event.stopPropagation();basculerAcompte(' + i + ')" title="' + (ac ? 'Acompte en cours — cliquer pour l\'annuler' : 'Verser un acompte (virement en plus des factures)') + '">💶 Acompte' + (ac ? ' ' + eur(acompteDe(x)) + ' ✓' : '') + '</span>' : '';
   var pastA = ac ? b(nbPieces(x, 'bordereauA'), nbPieces(x, 'bordereauA') > 0, '📝 Bordereau d\'acompte', 'bordereauA') + b(nbPieces(x, 'preuveA'), nbPieces(x, 'preuveA') > 0, '📨 Preuve d\'acompte', 'preuveA') : '';
   var bC = function(n, ok, txt, genre){ if (C === x) return b(n, ok, txt, genre); var i0 = i; i = iC; var h = b(n, ok, txt + ' 🔗', genre); i = i0; return h; };
-  var nPf = nbPieces(C, 'preuve');
+  var nPf = nbPieces(C, 'preuve'), nAtt = enAttente(C);
   return '<div class="badgesP">' + (seul ? '' : bC(nB, nB > 0, '📝 Bordereau', 'bordereau')) + b(x.factures || 0, x.factures > 0, '🧾 Facture / document', 'facture') + (seul ? '' : bC(nPf, nPf > 0, '📨 Preuve', 'preuve')) + pastAc + pastA +
-    (nD ? b(nD, true, '📄 Autre document', 'document') : '') +
+    (nD ? b(nD, true, '📄 Autre document', 'document') : '') + (nAtt ? '<span class="bpc" style="color:var(--orange)" title="Gardé sur cet appareil, envoi automatique dès que Google répond">⏳ ' + nAtt + ' pièce(s) en attente d\'envoi</span>' : '') +
     (vg ? '<span class="bpc bpc-ok" title="Virement groupé : ' + vgMembres(vg).length + ' factures, un seul bordereau et une seule preuve (dossier principal)" onclick="event.stopPropagation();defaireVG(\'' + vg + '\')">🔗 ' + vgMembres(vg).length + ' factures · 1 virement' + (C === x ? ' · principal' : '') + ' <span class="bx" title="Défaire le regroupement">✕</span></span>' : '') + '</div>';
 }
 /* Clic sur une pastille : affiche directement le document (ou ouvre le dossier pour l'ajouter s'il manque). */
@@ -2323,8 +2354,8 @@ function ouvrirPieces(i, genre, n){
         var suite = function(){
           if (!fs.length) { z.innerHTML = '<span class="pos">✓ ' + tot + ' fichier(s) rangé(s) dans le dossier.</span>'; afficherTreso(); setTimeout(fermer, 1200); return; }
           z.textContent = 'Enregistrement… ' + (++n) + ' / ' + tot;
-          var av = x.pieces; appel('mob_piece', [JETON, x.cle, genreServeur(genre), nomPiece(genre, fs.shift())], function(r){ var nv = idsAjoutes(av, r, genreServeur(genre)); majCompte(x, r);
-            if (genre === 'bordereauA' || genre === 'preuveA') noteRegistre(x, genre === 'bordereauA' ? 'BA' : 'PA', nv, suite); else suite(); }, function(m){ z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
+          var av = x.pieces, fsCour = fs.shift(); appel('mob_piece', [JETON, x.cle, genreServeur(genre), nomPiece(genre, fsCour)], function(r){ var nv = idsAjoutes(av, r, genreServeur(genre)); majCompte(x, r);
+            if (genre === 'bordereauA' || genre === 'preuveA') noteRegistre(x, genre === 'bordereauA' ? 'BA' : 'PA', nv, suite); else suite(); }, function(m){ if (estQuota(m)) { var f0 = fsCour; return messageQuota(x.cle, genre, f0, function(h){ z.innerHTML = h; }); } z.innerHTML = '<span class="neg">' + esc(m) + '</span>'; });
         };
         suite();
       });
