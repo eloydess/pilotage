@@ -1681,6 +1681,7 @@ function cleLabo(x){
   var k = TRESO.lignes.indexOf(y) >= 0 ? CLE_LABO.g.cleDe(y) : null;
   return k || brut;
 }
+function nomLabo(x){ var k = cleLabo(x), g = CLE_LABO.g && CLE_LABO.g.parCle[k]; return g ? g.nom : String((x && x.tiers) || '').toUpperCase(); }
 function paquetsGroupe(){
   var P = [], idx = {};
   GROUPE.lignes.forEach(function(x){ var c = cleLabo(x); if (idx[c] == null) { idx[c] = P.length; P.push({ cle: c, tiers: x.tiers, lignes: [] }); } P[idx[c]].lignes.push(x); });
@@ -2205,7 +2206,7 @@ function enteteVG(v){
   var nB = nbBordereaux(P), nP = nbPieces(P, 'preuve'), acG = acompteDe(P) > 0, seulG = acompteSeul(P), T = duVG(M), mA = acompteDe(P);
   var pastille = function(n, ok, txt, genre){ return '<span class="bpc ' + (ok ? 'bpc-ok' : 'bpc-non') + '" onclick="event.stopPropagation();ouvrirPieces(' + iP + ',\'' + genre + '\')" title="' + (ok ? 'Voir' : 'Ajouter') + ' (un seul pour les ' + M.length + ' dossiers)">' + txt + (ok ? ' ✓' : ' —') + (ok ? '<span class="bx" title="Retirer" onclick="event.stopPropagation();retirerRapide(' + iP + ',\'' + genre + '\',this)">✕</span>' : '') + '</span>'; };
   return '<div class="vgCadre" style="border:2px solid var(--vert);border-radius:14px;padding:8px 8px 2px;margin:10px 0;background:rgba(18,183,106,.04)">' +
-    '<div class="ligne1" style="align-items:center;flex-wrap:wrap;gap:6px"><span><b>🔗 ' + esc(String(P.tiers).toUpperCase()) + ' — ' + M.length + ' dossiers unis · ' + (seulG ? 'acompte seul de ' + eur(mA) + ' (factures ' + eur(T) + ' non réglées maintenant)' : 'un seul virement de ' + eur(tot) + (acG ? ' + un acompte de ' + eur(mA) : '')) + '</b></span>' +
+    '<div class="ligne1" style="align-items:center;flex-wrap:wrap;gap:6px"><span><b>🔗 ' + esc(nomLabo(P)) + ' — ' + M.length + ' dossiers unis · ' + (seulG ? 'acompte seul de ' + eur(mA) + ' (factures ' + eur(T) + ' non réglées maintenant)' : 'un seul virement de ' + eur(tot) + (acG ? ' + un acompte de ' + eur(mA) : '')) + '</b></span>' +
     '<a href="#" class="meta" onclick="event.preventDefault();defaireVG(\'' + v + '\')">défaire</a></div>' +
     '<div class="badgesP" style="margin:6px 0">' + (seulG ? '' : pastille(nB, nB > 0, '📝 Bordereau du virement', 'bordereau') + pastille(nP, nP > 0, '📨 Preuve du virement', 'preuve')) +
       (acG ? pastille(nbPieces(P, 'bordereauA'), nbPieces(P, 'bordereauA') > 0, '📝 Bordereau d\'acompte', 'bordereauA') + pastille(nbPieces(P, 'preuveA'), nbPieces(P, 'preuveA') > 0, '📨 Preuve d\'acompte', 'preuveA') : '') +
@@ -2217,7 +2218,7 @@ function propositionUnir(L){
   var k = UNIR_CLES.length; UNIR_CLES.push(L.map(function(y){ return y.cle; }));
   var tot = L.reduce(function(a, y){ return a + montantPos(y); }, 0);
   return '<div class="carte" style="margin:10px 0 4px;padding:8px;border:2px dashed var(--vert)"><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" onchange="if(this.checked){this.disabled=true;unirDossiers(' + k + ')}">' +
-    '<span><b>Unir ces ' + L.length + ' dossiers ' + esc(String(L[0].tiers).toUpperCase()) + '</b> (' + eur(tot) + ') : un seul bordereau et une seule preuve de virement</span></label><div class="meta" id="unirR' + k + '"></div></div>';
+    '<span><b>Unir ces ' + L.length + ' dossiers ' + esc(nomLabo(L[0])) + '</b> (' + eur(tot) + ') : un seul bordereau et une seule preuve de virement</span></label><div class="meta" id="unirR' + k + '"></div></div>';
 }
 function unirDossiers(k){
   var L = (UNIR_CLES[k] || []).map(ligneTreso).filter(Boolean), z = document.getElementById('unirR' + k);
